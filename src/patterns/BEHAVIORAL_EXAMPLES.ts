@@ -6,32 +6,32 @@
  */
 
 import {
-    demoChainOfResponsibility,
+    // demoChainOfResponsibility,
     SupportSystem,
     SupportRequest,
 } from './14_chain_of_responsibility';
 import {
-    demoCommandPattern,
+    // demoCommandPattern,
     SimpleDocument,
     CommandExecutor,
     SetTextCommand,
     ChangeFontSizeCommand,
 } from './15_command_encapsulate_requests';
 import {
-    demoIteratorPattern,
+    // demoIteratorPattern,
     ProjectList,
     LinkedProjectList,
     Project,
 } from './16_iterator_sequential_access';
 import {
-    demoObserverPattern,
+    // demoObserverPattern,
     ThemeSubject,
     LanguageSubject,
     NavbarObserver,
     CardObserver,
 } from './17_observer_one_to_many';
 import {
-    demoStrategyPattern,
+    // demoStrategyPattern,
     Sorter,
     PaymentProcessor,
     DataExporter,
@@ -40,33 +40,33 @@ import {
     JSONExportStrategy,
 } from './18_strategy_encapsulate_algorithms';
 import {
-    demoStatePattern,
+    // demoStatePattern,
     DocumentWorkflow,
     Document,
 } from './19_state_state_based_behavior';
 import {
-    demoTemplateMethodPattern,
+    // demoTemplateMethodPattern,
     ExportManager,
     CSVExport,
 } from './20_template_method_algorithm';
 import {
-    demoMediatorPattern,
+    // demoMediatorPattern,
     FormMediator,
     InputField,
     SubmitButton,
 } from './21_mediator_centralized_communication';
 import {
-    demoMementoPattern,
+    // demoMementoPattern,
     Application,
     StateManager,
     UndoRedoController,
 } from './22_memento_capture_restore';
 import {
-    demoInterpreterPattern,
+    // demoInterpreterPattern,
     Calculator,
 } from './23_interpreter_grammar';
 import {
-    demoVisitorPattern,
+    // demoVisitorPattern,
     ContainerComponent,
     CardComponent,
     InputComponent,
