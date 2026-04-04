@@ -66,10 +66,10 @@ const MOCK_PODCASTS: PodcastEpisode[] = [
   { id: 'p3', title: 'Ep.3: Interview with AI', duration: '50:00', description: 'Can AI replace junior developers? We ask ChatGPT.', date: '2023-11-24', tags: ['AI', 'Career'] }
 ];
 const MOCK_RESUME: ResumeData = {
-  name: 'Alex Developer', title: 'Full Stack Engineer', summary: 'Passionate developer building scalable apps.', skills: ['React', 'Node.js', 'AWS', 'Docker', 'GraphQL', 'Tailwind CSS'],
-  experience: [{ id: '1', role: 'Senior Dev', company: 'Tech Co', period: '2021-Present', description: ['Led migration.', 'Optimized performance.', 'Mentored juniors.'] }, { id: '2', role: 'Web Dev', company: 'Agency XY', period: '2019-2021', description: ['Built client sites.', 'Implemented UI designs.'] }],
+  name: 'Anothai Vichapaiboon', title: 'Software Engineer', summary: 'Passionate developer building scalable apps.', skills: ['Typescript', 'Nextjs', 'Python', 'Docker', 'Rust', 'Express.js', 'Elysia'],
+  experience: [{ id: '1', role: 'Volunteer', company: 'Tech Co', period: '2021-Present', description: ['Led migration.', 'Optimized performance.', 'Mentored juniors.'] }, { id: '2', role: 'Web Dev', company: 'Agency XY', period: '2019-2021', description: ['Built client sites.', 'Implemented UI designs.'] }],
   education: [{ id: '1', degree: 'B.Sc. CS', institution: 'Bangkok Uni', year: '2014-2018' }],
-  contact: { email: 'alex@example.com', location: 'Bangkok' }
+  contact: { email: 'anothai.0978452316@gmail.com', location: 'Bangkok' }
 };
 const MOCK_DOCS: Doc[] = [
   { id: '1', title: 'Getting Started', slug: 'start', section: 'Intro', content: 'Welcome to the documentation.', lastUpdated: '2024-01-10' },
@@ -317,7 +317,7 @@ interface Prototype<T> {
 }
 
 class ProjectTemplate implements Prototype<UnifiedContentItem> {
-  constructor(private readonly data: UnifiedContentItem) {}
+  constructor(private readonly data: UnifiedContentItem) { }
 
   clone(): UnifiedContentItem {
     const cloned = JSON.parse(JSON.stringify(this.data));
@@ -655,10 +655,10 @@ class ToastEventEmitter {
   private constructor() { }
   static getInstance(): ToastEventEmitter { if (!ToastEventEmitter.instance) { ToastEventEmitter.instance = new ToastEventEmitter(); } return ToastEventEmitter.instance; }
   subscribe(observer: Observer): () => void { this.observers.push(observer); return () => { this.observers = this.observers.filter(obs => obs !== observer); }; }
-  emit(message: string, type: EventType) { 
+  emit(message: string, type: EventType) {
     // Use incrementing counter for unique IDs instead of Date.now() to prevent collision
-    const event: NotificationEvent = { message, type, id: ++ToastEventEmitter.idCounter }; 
-    this.observers.forEach(obs => obs(event)); 
+    const event: NotificationEvent = { message, type, id: ++ToastEventEmitter.idCounter };
+    this.observers.forEach(obs => obs(event));
   }
 }
 
@@ -718,9 +718,9 @@ class NotificationService {
   notify(message: string, type: EventType = 'INFO') {
     this.channel.send(message, type);
   }
-  
+
   getChannelName(): string {
-      return this.channel.constructor.name;
+    return this.channel.constructor.name;
   }
 }
 
@@ -739,7 +739,7 @@ class AppSystemFacade {
   }) {
     // Ensure default channel is Toast
     notify.setChannel(new ToastChannel());
-    
+
     notify.notify("Initializing System...", "INFO");
     AnalyticsSystem.init(); // ✅ Now this works because AnalyticsSystem is defined above
     AnalyticsSystem.trackEvent("App Launched");
@@ -808,7 +808,7 @@ const ToastContainer = ({ style }: { style: StyleFactory }) => {
     });
     return unsubscribe;
   }, []);
-  
+
   if (toasts.length === 0) return null;
   return (<> {toasts.map(toast => (<div key={toast.id} className={style.getToastClass(toast.type)}>{toast.type === 'SUCCESS' ? <CheckCircle size={18} /> : toast.type === 'WARNING' ? <AlertTriangle size={18} /> : <Info size={18} />}<span>{toast.message}</span></div>))} </>);
 };
@@ -1065,12 +1065,12 @@ const ThemeControls = ({ currentStyleKey, setStyleKey, isDark, toggleDark, langK
   // New state for channel toggle button
   const [currentChannelIndex, setCurrentChannelIndex] = useState(0);
   const channels = ['Toast', 'Console', 'Alert'];
-  
+
   const toggleChannel = () => {
     const nextIndex = (currentChannelIndex + 1) % channels.length;
     setCurrentChannelIndex(nextIndex);
     const channelName = channels[nextIndex];
-    
+
     // Switch channel dynamically (Bridge Pattern)
     if (channelName === 'Toast') notify.setChannel(new ToastChannel());
     else if (channelName === 'Console') notify.setChannel(new ConsoleChannel());
@@ -1078,29 +1078,30 @@ const ThemeControls = ({ currentStyleKey, setStyleKey, isDark, toggleDark, langK
   };
 
   return (
-  <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 items-end">
-    <div className="mb-2 bg-black/80 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm pointer-events-none opacity-50">Try <span className="font-mono font-bold">Cmd+K</span></div>
-    <div className="flex gap-2">
-      <button onClick={startTour} className="p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 hover:scale-110 transition-transform animate-bounce" title="Start Guided Tour">
-        <Play size={20} fill="currentColor" />
-      </button>
-      <button onClick={toggleRole} className={`p-3 rounded-full shadow-lg border border-gray-200 dark:border-gray-600 hover:scale-110 transition-transform ${isAdmin ? 'bg-green-600 text-white border-green-700' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`} title="Toggle Admin Role">{isAdmin ? <Unlock size={20} /> : <Lock size={20} />}</button>
-    </div>
-    <div className="flex gap-2">
-      <button onClick={undoLastAction} className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-600 hover:scale-110 transition-transform" title="Undo Last Action"><RotateCcw size={20} className="text-gray-600 dark:text-gray-300" /></button>
-      <button onClick={openCommandPalette} className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-600 hover:scale-110 transition-transform" title="Command Palette"><Terminal size={20} className="text-gray-600 dark:text-gray-300" /></button>
-    </div>
-    
-    {/* BRIDGE PATTERN: CHANNEL TOGGLE */}
-    <div className="flex gap-2">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 items-end">
+      <div className="mb-2 bg-black/80 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm pointer-events-none opacity-50">Try <span className="font-mono font-bold">Cmd+K</span></div>
+      <div className="flex gap-2">
+        <button onClick={startTour} className="p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 hover:scale-110 transition-transform animate-bounce" title="Start Guided Tour">
+          <Play size={20} fill="currentColor" />
+        </button>
+        <button onClick={toggleRole} className={`p-3 rounded-full shadow-lg border border-gray-200 dark:border-gray-600 hover:scale-110 transition-transform ${isAdmin ? 'bg-green-600 text-white border-green-700' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`} title="Toggle Admin Role">{isAdmin ? <Unlock size={20} /> : <Lock size={20} />}</button>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={undoLastAction} className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-600 hover:scale-110 transition-transform" title="Undo Last Action"><RotateCcw size={20} className="text-gray-600 dark:text-gray-300" /></button>
+        <button onClick={openCommandPalette} className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-600 hover:scale-110 transition-transform" title="Command Palette"><Terminal size={20} className="text-gray-600 dark:text-gray-300" /></button>
+      </div>
+
+      {/* BRIDGE PATTERN: CHANNEL TOGGLE */}
+      <div className="flex gap-2">
         <button onClick={toggleChannel} className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-600 hover:scale-110 transition-transform flex items-center gap-1" title={`Current Notification Channel: ${channels[currentChannelIndex]}`}>
-            <MessageCircle size={20} className={currentChannelIndex === 0 ? "text-green-500" : currentChannelIndex === 1 ? "text-blue-500" : "text-red-500"} />
-            <span className="text-[10px] font-bold uppercase w-12 text-center">{channels[currentChannelIndex]}</span>
+          <MessageCircle size={20} className={currentChannelIndex === 0 ? "text-green-500" : currentChannelIndex === 1 ? "text-blue-500" : "text-red-500"} />
+          <span className="text-[10px] font-bold uppercase w-12 text-center">{channels[currentChannelIndex]}</span>
         </button>
         <button onClick={toggleDark} className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-600 hover:scale-110 transition-transform" title="Toggle Dark Mode">{isDark ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-slate-700" />}</button>
+      </div>
     </div>
-  </div>
-)};
+  )
+};
 
 // --- 6. PAGE SECTIONS ---
 
@@ -1329,58 +1330,58 @@ const DashboardSection = ({ currentStyle, labels, projectTree, onCloneProject }:
   }, [projectTree]);
 
   return (<div className={`py-12 px-4 max-w-7xl mx-auto`}><div className="mb-10 border-b border-gray-200 dark:border-gray-700 pb-4"><h2 className={currentStyle.getSectionTitleClass()}>{labels.sections.dashboard}</h2><p className="text-gray-500 mt-2">{labels.sections.dashboardDesc}</p></div><div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12"><div className={`${currentStyle.getCardClass()} p-6`}><div className="flex items-center gap-3 mb-6"><div className={`p-3 rounded-lg ${currentStyle.name === 'Future' ? 'bg-cyan-900/30 text-cyan-400' : 'bg-blue-100 text-blue-600'}`}><BarChart3 size={24} /></div><h3 className="text-xl font-bold dark:text-white">Content Overview</h3></div><div className="grid grid-cols-2 gap-4"><div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg text-center"><div className="text-3xl font-bold text-gray-900 dark:text-white">{stats.total}</div><div className="text-xs uppercase tracking-wider text-gray-500 mt-1">Total Items</div></div><div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg text-center"><div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.project}</div><div className="text-xs uppercase tracking-wider text-gray-500 mt-1">Projects</div></div><div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg text-center"><div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{stats.blog}</div><div className="text-xs uppercase tracking-wider text-gray-500 mt-1">Blog Posts</div></div><div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg text-center"><div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.podcast}</div><div className="text-xs uppercase tracking-wider text-gray-500 mt-1">Podcasts</div></div></div></div><div className={`${currentStyle.getCardClass()} p-6`}><div className="flex items-center gap-3 mb-6"><div className={`p-3 rounded-lg ${currentStyle.name === 'Future' ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-100 text-purple-600'}`}><PieChart size={24} /></div><h3 className="text-xl font-bold dark:text-white">Topic Cloud</h3></div><div className="flex flex-wrap gap-2">{tags.map(tag => (<span key={tag} className={`${currentStyle.getBadgeClass()} text-sm py-1.5 px-3`} onClick={() => notify.notify(`Tag selected: ${tag}`, 'INFO')}>#{tag}</span>))}</div></div></div>
-    
+
     {/* --- PROTOTYPE PATTERN DEMO: ADMIN TEMPLATES --- */}
     {isAdmin && (
-        <div className={`animate-in fade-in slide-in-from-bottom-8 duration-500`}>
-          <div className="mb-6 flex items-center gap-3 border-l-4 border-amber-500 pl-4">
-            <h3 className="text-xl font-bold text-amber-600 dark:text-amber-400">{labels.actions.adminActions}</h3>
-            <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded font-bold uppercase tracking-wider">Admin Only</span>
-          </div>
-          <div className={`${currentStyle.getCardClass()} p-6 border-dashed border-2 border-amber-300 dark:border-amber-700/50`}>
-            <div className="flex items-center gap-2 mb-4 text-gray-500 dark:text-gray-400 uppercase text-xs font-bold tracking-widest">
-              <Copy size={14} /> Project Templates
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {templateRegistry.getAllKeys().map((key) => (
-                <button
-                  key={key}
-                  onClick={() => {
-                    const template = templateRegistry.get(key);
-                    if (template) {
-                      // 1. CLONE the object (Deep Copy)
-                      const clonedItem = template.clone();
-                      
-                      // 2. CUSTOMIZE the clone (Simulate editing requirements)
-                      // In a real app, this would be a form modal. Here we use prompt for simplicity.
-                      const newTechStack = window.prompt(
-                        `Customize Tech Stack for "${clonedItem.title}"\n(Current: ${clonedItem.meta.join(', ')})`, 
-                        clonedItem.meta.join(', ')
-                      );
-
-                      if (newTechStack !== null) {
-                         // Update the CLONE only (Prototype Pattern benefit: Original template is untouched)
-                         clonedItem.meta = newTechStack.split(',').map(t => t.trim());
-                         onCloneProject(clonedItem);
-                      }
-                    }
-                  }}
-                  className={`flex items-center justify-between p-4 rounded-lg border transition-all group ${currentStyle.name === 'Future' ? 'border-amber-500/30 hover:bg-amber-900/20 text-amber-400' : 'border-gray-200 dark:border-gray-700 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20'}`}
-                >
-                  <span className="font-medium">{key}</span>
-                  <div className={`p-2 rounded-full transition-transform group-hover:rotate-90 ${currentStyle.name === 'Future' ? 'bg-amber-900/50' : 'bg-white dark:bg-gray-800 shadow-sm'}`}>
-                    <Plus size={16} className="text-amber-500" />
-                  </div>
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-gray-400 mt-4 italic text-center">
-              * Click to clone. You will be prompted to customize the Tech Stack for the new instance.
-            </p>
-          </div>
+      <div className={`animate-in fade-in slide-in-from-bottom-8 duration-500`}>
+        <div className="mb-6 flex items-center gap-3 border-l-4 border-amber-500 pl-4">
+          <h3 className="text-xl font-bold text-amber-600 dark:text-amber-400">{labels.actions.adminActions}</h3>
+          <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded font-bold uppercase tracking-wider">Admin Only</span>
         </div>
-      )}
-    </div>);
+        <div className={`${currentStyle.getCardClass()} p-6 border-dashed border-2 border-amber-300 dark:border-amber-700/50`}>
+          <div className="flex items-center gap-2 mb-4 text-gray-500 dark:text-gray-400 uppercase text-xs font-bold tracking-widest">
+            <Copy size={14} /> Project Templates
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {templateRegistry.getAllKeys().map((key) => (
+              <button
+                key={key}
+                onClick={() => {
+                  const template = templateRegistry.get(key);
+                  if (template) {
+                    // 1. CLONE the object (Deep Copy)
+                    const clonedItem = template.clone();
+
+                    // 2. CUSTOMIZE the clone (Simulate editing requirements)
+                    // In a real app, this would be a form modal. Here we use prompt for simplicity.
+                    const newTechStack = window.prompt(
+                      `Customize Tech Stack for "${clonedItem.title}"\n(Current: ${clonedItem.meta.join(', ')})`,
+                      clonedItem.meta.join(', ')
+                    );
+
+                    if (newTechStack !== null) {
+                      // Update the CLONE only (Prototype Pattern benefit: Original template is untouched)
+                      clonedItem.meta = newTechStack.split(',').map(t => t.trim());
+                      onCloneProject(clonedItem);
+                    }
+                  }
+                }}
+                className={`flex items-center justify-between p-4 rounded-lg border transition-all group ${currentStyle.name === 'Future' ? 'border-amber-500/30 hover:bg-amber-900/20 text-amber-400' : 'border-gray-200 dark:border-gray-700 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20'}`}
+              >
+                <span className="font-medium">{key}</span>
+                <div className={`p-2 rounded-full transition-transform group-hover:rotate-90 ${currentStyle.name === 'Future' ? 'bg-amber-900/50' : 'bg-white dark:bg-gray-800 shadow-sm'}`}>
+                  <Plus size={16} className="text-amber-500" />
+                </div>
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-gray-400 mt-4 italic text-center">
+            * Click to clone. You will be prompted to customize the Tech Stack for the new instance.
+          </p>
+        </div>
+      </div>
+    )}
+  </div>);
 };
 const ResumeSection = ({ currentStyle, labels }: { currentStyle: StyleFactory, labels: UILabels }) => {
   // Use the new Exporter instances
@@ -1439,10 +1440,10 @@ export default function PersonalWebsite() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isTourActive, setIsTourActive] = useState(false);
   const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
-  
+
   // ✅ New state to manage dropdown active state for better touch support on iPad
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  
+
   // ✅ New State for Projects Tree (Allows dynamic updates)
   const [projectTree, setProjectTree] = useState<CompositeNode>(INITIAL_PROJECTS_TREE);
 
@@ -1470,21 +1471,21 @@ export default function PersonalWebsite() {
   // ✅ New: Handle adding cloned project
   const handleAddProject = (newItem: UnifiedContentItem) => {
     const newLeaf: LeafNode = { id: `leaf-${newItem.id}`, type: 'item', data: newItem };
-    
+
     // Deep clone the tree structure to ensure React state update
     // Note: In a real app, use immer or similar. Here we use basic spread for simplicity
-    const newTree = { ...projectTree }; 
+    const newTree = { ...projectTree };
     // Logic: Insert into the first child container (usually 'All Projects' -> 'Super App' container or just add as new container)
     // For this prototype, we'll just prepend to the first container's children to make it visible at top
     if (newTree.children && newTree.children.length > 0) {
-        // We try to find the first container to add to
-        const targetContainer = newTree.children.find(c => c.type === 'container') as CompositeNode;
-        if (targetContainer && targetContainer.children) {
-             targetContainer.children = [newLeaf, ...targetContainer.children];
-        } else {
-            // Fallback: add to root
-            newTree.children = [newLeaf, ...newTree.children];
-        }
+      // We try to find the first container to add to
+      const targetContainer = newTree.children.find(c => c.type === 'container') as CompositeNode;
+      if (targetContainer && targetContainer.children) {
+        targetContainer.children = [newLeaf, ...targetContainer.children];
+      } else {
+        // Fallback: add to root
+        newTree.children = [newLeaf, ...newTree.children];
+      }
     }
     setProjectTree(newTree);
     notify.notify(`Project "${newItem.title}" created from template!`, 'SUCCESS');
@@ -1495,9 +1496,9 @@ export default function PersonalWebsite() {
     { name: labels.nav.home, id: 'home', icon: <User size={18} /> },
     { name: labels.nav.feed, id: 'feed', icon: <Rss size={18} /> },
     { name: labels.nav.projects, id: 'projects', icon: <Code size={18} /> },
-    { 
-      name: labels.nav.library, 
-      id: 'library-group', 
+    {
+      name: labels.nav.library,
+      id: 'library-group',
       icon: <Library size={18} />,
       children: [
         { name: labels.nav.articles, id: 'articles', icon: <BookOpen size={18} /> },
@@ -1579,28 +1580,28 @@ export default function PersonalWebsite() {
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                   <div className="flex items-center cursor-pointer" onClick={() => setActiveTab('home')}>
-                    <span className={`text-xl font-bold ${currentStyle.name === 'Future' ? 'text-cyan-400' : 'text-gray-900 dark:text-white'}`}>Alex.Dev</span>
+                    <span className={`text-xl font-bold ${currentStyle.name === 'Future' ? 'text-cyan-400' : 'text-gray-900 dark:text-white'}`}>TaiChi</span>
                   </div>
-                  
+
                   {/* Desktop Nav - with Dropdown Support */}
                   <div className="hidden lg:flex space-x-6 items-center">
                     {navItems.map((item) => (
                       item.children ? (
                         // Dropdown Group - Modified for iPad touch support
-                        <div 
-                          key={item.id} 
+                        <div
+                          key={item.id}
                           className="relative"
                           onMouseEnter={() => setActiveDropdown(item.id)}
                           onMouseLeave={() => setActiveDropdown(null)}
                         >
-                          <button 
+                          <button
                             onClick={() => setActiveDropdown(activeDropdown === item.id ? null : item.id)}
                             className={`flex items-center space-x-1 px-3 py-2 text-sm font-medium transition-colors ${activeDropdown === item.id ? 'text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'}`}
                           >
-                            {item.icon}<span>{item.name}</span> 
+                            {item.icon}<span>{item.name}</span>
                             <ChevronDown size={14} className={`transition-transform duration-200 ${activeDropdown === item.id ? 'rotate-180' : ''}`} />
                           </button>
-                          
+
                           {/* Dropdown Content - Controlled by React State */}
                           {activeDropdown === item.id && (
                             <div className="absolute left-0 top-full pt-2 w-48 animate-in fade-in slide-in-from-top-2 duration-200 z-50">
@@ -1608,8 +1609,8 @@ export default function PersonalWebsite() {
                                 {item.children.map(child => (
                                   <button
                                     key={child.id}
-                                    onClick={() => { 
-                                      setActiveTab(child.id); 
+                                    onClick={() => {
+                                      setActiveTab(child.id);
                                       setActiveDropdown(null); // Close dropdown on selection
                                     }}
                                     className={`w-full text-left flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors ${activeTab === child.id ? (currentStyle.name === 'Future' ? 'bg-cyan-900/30 text-cyan-400' : 'bg-gray-100 dark:bg-gray-700 text-blue-600 dark:text-blue-400') : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
@@ -1671,7 +1672,7 @@ export default function PersonalWebsite() {
             <ThemeControls currentStyleKey={styleKey} setStyleKey={setStyleKey} isDark={isDark} toggleDark={() => setIsDark(!isDark)} langKey={langKey} setLangKey={setLangKey} fontKey={fontKey} setFontKey={setFontKey} openCommandPalette={() => setIsCommandOpen(true)} undoLastAction={handleUndo} isAdmin={isAdmin} toggleRole={() => setIsAdmin(!isAdmin)} startTour={() => { setIsTourActive(true); setActiveTab('home'); tourIterator.reset(); }} />
             <TourControls iterator={tourIterator} isActive={isTourActive} onStop={() => { setIsTourActive(false); setActiveNodeId(null); }} onExecuteStep={handleTourStep} style={currentStyle} labels={labels} />
             <ToastContainer style={currentStyle} />
-            
+
             {/* ✅ Fix: Use key to force re-mount and reset state on open */}
             <CommandPalette key={isCommandOpen ? 'open' : 'closed'} commands={commands} isOpen={isCommandOpen} onClose={() => setIsCommandOpen(false)} style={currentStyle} />
           </div>
