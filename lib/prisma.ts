@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 
 declare global {
   // eslint-disable-next-line no-var
@@ -14,9 +15,11 @@ function createPrismaClient() {
     throw new Error('DATABASE_URL environment variable is required');
   }
 
-  const adapter = new PrismaPg({
-    url: datasourceUrl,
+  const pool = new Pool({
+    connectionString: datasourceUrl,
   });
+
+  const adapter = new PrismaPg(pool);
 
   return new PrismaClient({
     adapter,
