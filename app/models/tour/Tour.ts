@@ -57,11 +57,13 @@ export class TourIterator implements IIterator<TourStep> {
       this.position = index;
       return;
     }
-    const fallback = this.steps.findIndex(
-      (s) => s.type === step.type && s.targetId === step.targetId
-    );
-    if (fallback !== -1) {
-      this.position = fallback;
+    if (step.targetId !== undefined) {
+      const fallback = this.steps.findIndex(
+        (s) => s.type === step.type && s.targetId === step.targetId
+      );
+      if (fallback !== -1) {
+        this.position = fallback;
+      }
     }
   }
 }
