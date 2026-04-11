@@ -1,0 +1,33 @@
+# GCP Cloud Build ignore file
+# Files that should not be sent to Cloud Build VM
+
+# Git
+.git
+.gitignore
+
+# Node modules (rebuilt during build)
+node_modules
+npm-debug.log
+
+# Local development
+.env
+.env.local
+.env.*.local
+.next
+dist
+
+# IDE
+.vscode
+.idea
+.DS_Store
+
+# Testing
+coverage
+test
+
+# Demo files
+demo
+docs
+
+# CI/CD
+.github
