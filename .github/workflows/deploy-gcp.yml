@@ -1,0 +1,65 @@
+name: Deploy to GCP Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+  workflow_dispatch:
+
+env:
+  REGISTRY: gcr.io
+  IMAGE_NAME: personal-profile-app
+  REGION: us-central1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker to use gcloud
+        run: gcloud auth configure-docker
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ env.REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+                       -t ${{ env.REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.IMAGE_NAME }}:latest \
+                       --build-arg NODE_ENV=${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }} \
+                       .
+
+      - name: Push Docker image to GCR
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy personal-profile-app-${{ github.ref == 'refs/heads/main' && 'prod' || 'staging' }} \
+            --image=${{ env.REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --platform=managed \
+            --region=${{ env.REGION }} \
+            --allow-unauthenticated \
+            --set-env-vars NODE_ENV=${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }} \
+            --set-secrets DATABASE_URL=database-url-${{ github.ref == 'refs/heads/main' && 'prod' || 'staging' }}:latest \
+            --set-secrets NEXTAUTH_SECRET=nextauth-secret-${{ github.ref == 'refs/heads/main' && 'prod' || 'staging' }}:latest
+
+      - name: Get service URL
+        run: |
+          SERVICE_NAME="personal-profile-app-${{ github.ref == 'refs/heads/main' && 'prod' || 'staging' }}"
+          gcloud run services describe $SERVICE_NAME --region=${{ env.REGION }} --format='value(status.url)'
