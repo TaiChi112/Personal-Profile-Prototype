@@ -2,6 +2,73 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import type { AtsExportProfile } from '../../data/resume';
 
+export type ExportLanguage = 'en' | 'th';
+
+type ExportOptions = {
+  language?: ExportLanguage;
+};
+
+type ExportLocale = {
+  sections: {
+    summary: string;
+    experience: string;
+    education: string;
+    projects: string;
+    skills: string;
+    additionalInformation: string;
+    contact: string;
+  };
+  contact: {
+    phone: string;
+    email: string;
+    location: string;
+    linkedin: string;
+    github: string;
+    portfolio: string;
+  };
+};
+
+const EXPORT_LOCALES: Record<ExportLanguage, ExportLocale> = {
+  en: {
+    sections: {
+      summary: 'Summary',
+      experience: 'Experience',
+      education: 'Education',
+      projects: 'Projects',
+      skills: 'Skills',
+      additionalInformation: 'Additional Information',
+      contact: 'Contact',
+    },
+    contact: {
+      phone: 'Phone',
+      email: 'Email',
+      location: 'Location',
+      linkedin: 'LinkedIn',
+      github: 'GitHub',
+      portfolio: 'Portfolio',
+    },
+  },
+  th: {
+    sections: {
+      summary: 'สรุป',
+      experience: 'ประสบการณ์',
+      education: 'การศึกษา',
+      projects: 'โปรเจกต์',
+      skills: 'ทักษะ',
+      additionalInformation: 'ข้อมูลเพิ่มเติม',
+      contact: 'ช่องทางติดต่อ',
+    },
+    contact: {
+      phone: 'โทรศัพท์',
+      email: 'อีเมล',
+      location: 'ที่อยู่',
+      linkedin: 'LinkedIn',
+      github: 'GitHub',
+      portfolio: 'Portfolio',
+    },
+  },
+};
+
 type ExportableResume = {
   name: string;
   title?: string;
@@ -58,6 +125,10 @@ function asExportableResume(data: unknown): ExportableResume | null {
   return data as ExportableResume;
 }
 
+function getExportLocale(language: ExportLanguage): ExportLocale {
+  return EXPORT_LOCALES[language] ?? EXPORT_LOCALES.en;
+}
+
 function buildExperienceSection(resume: ExportableResume): string {
   return (resume.experience ?? [])
     .map((entry) => [
@@ -74,10 +145,84 @@ function buildEducationSection(resume: ExportableResume): string {
     .join('\n');
 }
 
-function buildMergedSkills(resume: ExportableResume): string[] {
+function formatProjectLabelForMarkdown(detail: string): string {
+  const labels = ['Problem/Motivation', 'Solution/Benefit', 'ปัญหา/แรงจูงใจ', 'แนวทางแก้/ประโยชน์'];
+  const matched = labels.find((label) => detail.startsWith(`${label}:`));
+
+  if (!matched) {
+    return detail;
+  }
+
+  const value = detail.slice(matched.length + 1).trim();
+  return `**${matched}:** ${value}`;
+}
+
+function buildProjectsSection(resume: ExportableResume): string {
+  return (resume.keyProjects ?? [])
+    .map((project) => [
+      `### ${project.title}`,
+      ...project.description.map((detail) => `- ${formatProjectLabelForMarkdown(detail)}`),
+    ].join('\n'))
+    .join('\n\n');
+}
+
+function localizeSkillGroupTitle(title: string, language: ExportLanguage): string {
+  if (language === 'en') {
+    return title;
+  }
+
+  const mapped: Record<string, string> = {
+    Languages: 'ภาษาโปรแกรม',
+    'Frameworks & Tools': 'เฟรมเวิร์กและเครื่องมือ',
+    Databases: 'ฐานข้อมูล',
+    'AI & Agent Stack': 'AI และ Agent Stack',
+    'Engineering Concepts': 'แนวคิดวิศวกรรมซอฟต์แวร์',
+    Other: 'อื่นๆ',
+    'Working Style & Soft Skills': 'รูปแบบการทำงานและทักษะเชิงพฤติกรรม',
+  };
+
+  return mapped[title] ?? title;
+}
+
+function buildSkillLines(resume: ExportableResume, language: ExportLanguage): string[] {
+  const groups = resume.skillGroups ?? [];
+  const inlineThreshold = 95;
+
+  if (groups.length > 0) {
+    return groups.flatMap((group) => {
+      const localizedTitle = localizeSkillGroupTitle(group.title, language);
+      const merged = group.items.join(', ');
+      if (merged.length <= inlineThreshold) {
+        return [`- **${localizedTitle}:** ${merged}`];
+      }
+
+      return [
+        `- **${localizedTitle}:**`,
+        ...group.items.map((item) => `  - ${item}`),
+      ];
+    });
+  }
+
   const flatSkills = resume.skills ?? [];
-  const groupedSkills = (resume.skillGroups ?? []).flatMap((group) => group.items);
-  return [...new Set([...flatSkills, ...groupedSkills])];
+  return flatSkills.map((skill) => `- ${skill}`);
+}
+
+function buildMarkdownContactLines(resume: ExportableResume, locale: ExportLocale): string[] {
+  const contact = resume.contact;
+  if (!contact) {
+    return [];
+  }
+
+  const contactLines = [
+    contact.phone ? `- **${locale.contact.phone}:** ${contact.phone}` : null,
+    contact.email ? `- **${locale.contact.email}:** ${contact.email}` : null,
+    contact.location ? `- **${locale.contact.location}:** ${contact.location}` : null,
+    contact.linkedin ? `- **${locale.contact.linkedin}:** ${contact.linkedin}` : null,
+    contact.github ? `- **${locale.contact.github}:** ${contact.github}` : null,
+    contact.portfolio ? `- **${locale.contact.portfolio}:** ${contact.portfolio}` : null,
+  ].filter((line): line is string => Boolean(line));
+
+  return contactLines;
 }
 
 function pushSection(lines: string[], title: string, content: string): void {
@@ -163,13 +308,69 @@ function writePdfWrappedLine(state: PdfState, text: string, indent = 0, lineHeig
   );
 }
 
+function writePdfInlineLabeledPairs(
+  state: PdfState,
+  pairs: Array<{ label: string; value: string }>,
+  lineHeight = 13,
+): void {
+  if (pairs.length === 0) {
+    return;
+  }
+
+  const pageHeight = state.doc.internal.pageSize.getHeight();
+  const maxX = state.margin + state.maxWidth;
+  const separator = ' | ';
+  let x = state.margin;
+
+  for (let index = 0; index < pairs.length; index += 1) {
+    const pair = pairs[index];
+    const labelText = `${pair.label}: `;
+    const valueText = pair.value;
+    const separatorText = index < pairs.length - 1 ? separator : '';
+
+    state.doc.setFont('helvetica', 'bold');
+    state.doc.setFontSize(10.5);
+    const labelWidth = state.doc.getTextWidth(labelText);
+    state.doc.setFont('helvetica', 'normal');
+    const valueWidth = state.doc.getTextWidth(valueText);
+    const separatorWidth = state.doc.getTextWidth(separatorText);
+    const pairWidth = labelWidth + valueWidth + separatorWidth;
+
+    if (x + pairWidth > maxX && x > state.margin) {
+      state.y += lineHeight;
+      x = state.margin;
+    }
+
+    if (state.y > pageHeight - state.margin) {
+      state.doc.addPage();
+      state.y = state.margin;
+      x = state.margin;
+    }
+
+    state.doc.setFont('helvetica', 'bold');
+    state.doc.text(labelText, x, state.y);
+    x += labelWidth;
+
+    state.doc.setFont('helvetica', 'normal');
+    state.doc.text(valueText, x, state.y);
+    x += valueWidth;
+
+    if (separatorText) {
+      state.doc.text(separatorText, x, state.y);
+      x += separatorWidth;
+    }
+  }
+
+  state.y += lineHeight;
+}
+
 function writePdfSectionTitle(state: PdfState, title: string): void {
   state.y += 6;
   state.doc.setFont('helvetica', 'bold');
-  state.doc.setFontSize(12);
-  writePdfWrappedLine(state, title, 0, 18);
+  state.doc.setFontSize(13);
+  writePdfWrappedLine(state, title, 0, 16);
   state.doc.setFont('helvetica', 'normal');
-  state.doc.setFontSize(10);
+  state.doc.setFontSize(10.5);
 }
 
 function resolveVisibility(resume: ExportableResume): ResolvedVisibility {
@@ -185,111 +386,139 @@ function resolveVisibility(resume: ExportableResume): ResolvedVisibility {
 
 function writePdfHeader(state: PdfState, resume: ExportableResume): void {
   state.doc.setFont('helvetica', 'bold');
-  state.doc.setFontSize(18);
-  writePdfWrappedLine(state, resume.name, 0, 22);
+  state.doc.setFontSize(16);
+  writePdfWrappedLine(state, resume.name, 0, 20);
 
   if (resume.title) {
     state.doc.setFont('helvetica', 'normal');
-    state.doc.setFontSize(12);
+    state.doc.setFontSize(13);
     writePdfWrappedLine(state, resume.title);
   }
 
   state.y += 8;
-  state.doc.setFontSize(10);
+  state.doc.setFontSize(10.5);
 }
 
-function writePdfContacts(state: PdfState, resume: ExportableResume): void {
-  if (resume.contact?.location) writePdfWrappedLine(state, `Location: ${resume.contact.location}`, 0, 14);
-  if (resume.contact?.email) writePdfWrappedLine(state, `Email: ${resume.contact.email}`, 0, 14);
-  if (resume.contact?.phone) writePdfWrappedLine(state, `Phone: ${resume.contact.phone}`, 0, 14);
+function writePdfContacts(state: PdfState, resume: ExportableResume, locale: ExportLocale): void {
+  const primaryContacts = [
+    resume.contact?.location ? { label: locale.contact.location, value: resume.contact.location } : null,
+    resume.contact?.email ? { label: locale.contact.email, value: resume.contact.email } : null,
+    resume.contact?.phone ? { label: locale.contact.phone, value: resume.contact.phone } : null,
+  ].filter((item): item is { label: string; value: string } => Boolean(item));
 
-  const linkEntries = [
-    { label: 'LinkedIn', value: resume.contact?.linkedin },
-    { label: 'GitHub', value: resume.contact?.github },
-    { label: 'Portfolio', value: resume.contact?.portfolio },
-  ].filter((entry): entry is { label: string; value: string } => Boolean(entry.value));
+  writePdfInlineLabeledPairs(state, primaryContacts, 13);
 
-  for (const entry of linkEntries) {
-    const pageHeight = state.doc.internal.pageSize.getHeight();
-    if (state.y > pageHeight - state.margin) {
-      state.doc.addPage();
-      state.y = state.margin;
-    }
-    state.doc.textWithLink(`${entry.label}: ${entry.value}`, state.margin, state.y, { url: normalizeUrl(entry.value) });
-    state.y += 14;
-  }
+  const linkContacts = [
+    resume.contact?.linkedin ? { label: locale.contact.linkedin, value: resume.contact.linkedin } : null,
+    resume.contact?.github ? { label: locale.contact.github, value: resume.contact.github } : null,
+    resume.contact?.portfolio ? { label: locale.contact.portfolio, value: resume.contact.portfolio } : null,
+  ].filter((item): item is { label: string; value: string } => Boolean(item));
+
+  writePdfInlineLabeledPairs(state, linkContacts, 13);
+
   state.y += 8;
 }
 
-function writePdfSummary(state: PdfState, resume: ExportableResume): void {
+function writePdfSummary(state: PdfState, resume: ExportableResume, locale: ExportLocale): void {
   if (!resume.summary) return;
-  writePdfSectionTitle(state, 'Summary');
-  writePdfWrappedLine(state, resume.summary);
+  writePdfSectionTitle(state, locale.sections.summary);
+  writePdfWrappedLine(state, resume.summary, 0, 11);
 }
 
-function writePdfExperience(state: PdfState, resume: ExportableResume): void {
+function writePdfExperience(state: PdfState, resume: ExportableResume, locale: ExportLocale): void {
   const experience = resume.experience ?? [];
   if (experience.length === 0) return;
 
-  writePdfSectionTitle(state, 'Experience');
+  writePdfSectionTitle(state, locale.sections.experience);
   for (const item of experience) {
-    writePdfWrappedLine(state, `${item.role} - ${item.company} (${item.period})`);
+    writePdfWrappedLine(state, `${item.role} - ${item.company} (${item.period})`, 0, 11);
     for (const detail of item.description) {
-      writePdfWrappedLine(state, `- ${detail}`, 10);
+      writePdfWrappedLine(state, `- ${detail}`, 10, 10.5);
     }
     state.y += 4;
   }
 }
 
-function writePdfEducation(state: PdfState, resume: ExportableResume): void {
+function writePdfEducation(state: PdfState, resume: ExportableResume, locale: ExportLocale): void {
   const education = resume.education ?? [];
   if (education.length === 0) return;
 
-  writePdfSectionTitle(state, 'Education');
+  writePdfSectionTitle(state, locale.sections.education);
   for (const item of education) {
-    writePdfWrappedLine(state, `${item.degree}, ${item.institution} (${item.year})`);
+    writePdfWrappedLine(state, `${item.degree}, ${item.institution} (${item.year})`, 0, 11);
   }
 }
 
-function writePdfProjects(state: PdfState, resume: ExportableResume): void {
+function writePdfProjects(state: PdfState, resume: ExportableResume, locale: ExportLocale): void {
   const projects = resume.keyProjects ?? [];
   if (projects.length === 0) return;
 
-  writePdfSectionTitle(state, 'Projects');
+  writePdfSectionTitle(state, locale.sections.projects);
   for (const item of projects) {
     state.doc.setFont('helvetica', 'bold');
-    writePdfWrappedLine(state, item.title);
-    state.doc.setFont('helvetica', 'normal');
+    state.doc.setFontSize(12.5);
+    writePdfWrappedLine(state, item.title, 0, 14);
+    state.doc.setFontSize(10.5);
     for (const detail of item.description) {
-      writePdfWrappedLine(state, `- ${detail}`, 10);
+      if (detail.startsWith('Problem/Motivation:') || detail.startsWith('Solution/Benefit:') || detail.startsWith('ปัญหา/แรงจูงใจ:') || detail.startsWith('แนวทางแก้/ประโยชน์:')) {
+        const separatorIndex = detail.indexOf(':');
+        const label = detail.slice(0, separatorIndex + 1);
+        const value = detail.slice(separatorIndex + 1).trim();
+
+        state.doc.setFont('helvetica', 'bold');
+        writePdfWrappedLine(state, `- ${label}`, 10, 10.5);
+        state.doc.setFont('helvetica', 'normal');
+        writePdfWrappedLine(state, value, 18, 10.5);
+      } else {
+        state.doc.setFont('helvetica', 'normal');
+        writePdfWrappedLine(state, `- ${detail}`, 10, 10.5);
+      }
     }
     state.y += 4;
   }
 }
 
-function writePdfSkills(state: PdfState, resume: ExportableResume): void {
+function writePdfSkillBullet(state: PdfState, title: string, items: string[], language: ExportLanguage): void {
+  const localizedTitle = localizeSkillGroupTitle(title, language);
+  const suffix = items.join(', ');
+  const inlineThreshold = 110;
+
+  if (suffix.length <= inlineThreshold) {
+    state.doc.setFont('helvetica', 'bold');
+    state.doc.setFontSize(10.5);
+    writePdfWrappedLine(state, `- ${localizedTitle}:`, 0, 13);
+    state.doc.setFont('helvetica', 'normal');
+    writePdfWrappedLine(state, suffix, 12, 13);
+    return;
+  }
+
+  state.doc.setFont('helvetica', 'bold');
+  state.doc.setFontSize(10.5);
+  writePdfWrappedLine(state, `- ${localizedTitle}:`, 0, 11);
+  state.doc.setFont('helvetica', 'normal');
+  for (const item of items) {
+    writePdfWrappedLine(state, `- ${item}`, 12, 10.5);
+  }
+  state.y += 2;
+}
+
+function writePdfSkills(state: PdfState, resume: ExportableResume, locale: ExportLocale, language: ExportLanguage): void {
   const groups = resume.skillGroups ?? [];
   if (groups.length === 0) return;
 
-  writePdfSectionTitle(state, 'Skills');
+  writePdfSectionTitle(state, locale.sections.skills);
   for (const group of groups) {
-    state.doc.setFont('helvetica', 'bold');
-    writePdfWrappedLine(state, group.title);
-    state.doc.setFont('helvetica', 'normal');
-    for (const item of group.items) {
-      writePdfWrappedLine(state, `- ${item}`, 10);
-    }
-    state.y += 4;
+    writePdfSkillBullet(state, group.title, group.items, language);
   }
 }
 
-function writePdfAdditionalInfo(state: PdfState, resume: ExportableResume): void {
+function writePdfAdditionalInfo(state: PdfState, resume: ExportableResume, locale: ExportLocale): void {
   const additionalInfo = resume.additionalInformation ?? [];
   if (additionalInfo.length === 0) return;
 
-  writePdfSectionTitle(state, 'Additional Information');
+  writePdfSectionTitle(state, locale.sections.additionalInformation);
   for (const item of additionalInfo) {
-    writePdfWrappedLine(state, `- ${item}`);
+    writePdfWrappedLine(state, `- ${item}`, 0, 10.5);
   }
 }
 
@@ -319,19 +548,87 @@ async function exportResumeAsImage(
   triggerDownload(dataUrl, `${filename}.${format}`);
 }
 
-function exportResumeAsPdf(resume: ExportableResume, filename: string): void {
+async function exportElementAsPdf(element: HTMLElement, filename: string): Promise<void> {
+  const canvas = await html2canvas(element, {
+    backgroundColor: '#ffffff',
+    scale: 2,
+    useCORS: true,
+  });
+  const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+
+  const margin = 24;
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const printableWidth = pageWidth - (margin * 2);
+  const printableHeight = pageHeight - (margin * 2);
+
+  const scale = printableWidth / canvas.width;
+  const sourceSliceHeight = Math.max(1, Math.floor(printableHeight / scale));
+
+  let sourceY = 0;
+  let pageIndex = 0;
+  while (sourceY < canvas.height) {
+    const currentSliceHeight = Math.min(sourceSliceHeight, canvas.height - sourceY);
+    const sliceCanvas = document.createElement('canvas');
+    sliceCanvas.width = canvas.width;
+    sliceCanvas.height = currentSliceHeight;
+
+    const sliceContext = sliceCanvas.getContext('2d');
+    if (!sliceContext) {
+      throw new Error('Failed to create canvas context for PDF export.');
+    }
+
+    sliceContext.drawImage(
+      canvas,
+      0,
+      sourceY,
+      canvas.width,
+      currentSliceHeight,
+      0,
+      0,
+      canvas.width,
+      currentSliceHeight,
+    );
+
+    const pageImageData = sliceCanvas.toDataURL('image/png');
+    const renderedSliceHeight = currentSliceHeight * scale;
+
+    if (pageIndex > 0) {
+      pdf.addPage();
+    }
+
+    pdf.addImage(
+      pageImageData,
+      'PNG',
+      margin,
+      margin,
+      printableWidth,
+      renderedSliceHeight,
+      undefined,
+      'FAST',
+    );
+
+    sourceY += currentSliceHeight;
+    pageIndex += 1;
+  }
+
+  pdf.save(`${filename}.pdf`);
+}
+
+function exportResumeAsPdf(resume: ExportableResume, filename: string, language: ExportLanguage = 'en'): void {
   const state = createPdfState();
   const visibility = resolveVisibility(resume);
+  const locale = getExportLocale(language);
 
   writePdfHeader(state, resume);
-  writePdfContacts(state, resume);
+  writePdfContacts(state, resume, locale);
 
-  if (visibility.summary) writePdfSummary(state, resume);
-  if (visibility.experience) writePdfExperience(state, resume);
-  if (visibility.education) writePdfEducation(state, resume);
-  if (visibility.skills) writePdfSkills(state, resume);
-  if (visibility.projects) writePdfProjects(state, resume);
-  if (visibility.additionalInformation) writePdfAdditionalInfo(state, resume);
+  if (visibility.summary) writePdfSummary(state, resume, locale);
+  if (visibility.experience) writePdfExperience(state, resume, locale);
+  if (visibility.education) writePdfEducation(state, resume, locale);
+  if (visibility.projects) writePdfProjects(state, resume, locale);
+  if (visibility.skills) writePdfSkills(state, resume, locale, language);
+  if (visibility.additionalInformation) writePdfAdditionalInfo(state, resume, locale);
 
   state.doc.save(`${filename}.pdf`);
 }
@@ -368,9 +665,9 @@ function buildAtsResume(resume: ExportableResume, profile: AtsExportProfile): Ex
 abstract class ContentExporter {
   constructor(private readonly notify: NotifyFn) {}
 
-  public export(data: unknown, filename: string): void {
+  public export(data: unknown, filename: string, options?: ExportOptions): void {
     try {
-      const formattedData = this.formatData(data);
+      const formattedData = this.formatData(data, options);
       const mimeType = this.getMimeType();
       const extension = this.getExtension();
       this.downloadFile(formattedData, filename, mimeType, extension);
@@ -381,7 +678,7 @@ abstract class ContentExporter {
     }
   }
 
-  protected abstract formatData(data: unknown): string;
+  protected abstract formatData(data: unknown, options?: ExportOptions): string;
   protected abstract getMimeType(): string;
   protected abstract getExtension(): string;
 
@@ -399,17 +696,19 @@ abstract class ContentExporter {
 }
 
 export class MarkdownExporter extends ContentExporter {
-  protected formatData(data: unknown): string {
+  protected formatData(data: unknown, options?: ExportOptions): string {
     const resume = asExportableResume(data);
     if (!resume) {
       return JSON.stringify(data, null, 2);
     }
 
+    const language = options?.language ?? 'en';
+    const locale = getExportLocale(language);
+
     const lines = [`# ${resume.name}`];
     const experienceSection = buildExperienceSection(resume);
     const educationSection = buildEducationSection(resume);
-    const mergedSkills = buildMergedSkills(resume);
-
+    const projectsSection = buildProjectsSection(resume);
     if (resume.title) {
       lines.push(`## ${resume.title}`);
     }
@@ -418,18 +717,14 @@ export class MarkdownExporter extends ContentExporter {
       lines.push('', `> ${resume.summary}`);
     }
 
-    pushSection(lines, '## Experience', experienceSection);
-    pushSection(lines, '## Education', educationSection);
-    pushSection(lines, '## Skills', mergedSkills.join(', '));
+    pushSection(lines, `## ${locale.sections.experience}`, experienceSection);
+    pushSection(lines, `## ${locale.sections.education}`, educationSection);
+    pushSection(lines, `## ${locale.sections.projects}`, projectsSection);
+    pushSection(lines, `## ${locale.sections.skills}`, buildSkillLines(resume, language).join('\n'));
 
-    if (resume.contact?.email || resume.contact?.location) {
-      lines.push('', '## Contact');
-      if (resume.contact.email) {
-        lines.push(`- Email: ${resume.contact.email}`);
-      }
-      if (resume.contact.location) {
-        lines.push(`- Location: ${resume.contact.location}`);
-      }
+    const markdownContactLines = buildMarkdownContactLines(resume, locale);
+    if (markdownContactLines.length > 0) {
+      lines.push('', `## ${locale.sections.contact}`, ...markdownContactLines);
     }
 
     return lines.join('\n');
@@ -472,14 +767,25 @@ export function createResumeExporters(notify: NotifyFn) {
       },
     },
     pdf: {
-      export: (data: unknown, filename: string) => {
+      export: async (data: unknown, filename: string, language: ExportLanguage = 'en', element?: HTMLElement) => {
         try {
           const resume = asExportableResume(data);
           if (!resume) {
             notify('PDF export failed. Invalid resume data.', 'ERROR');
             return;
           }
-          exportResumeAsPdf(resume, filename);
+
+          if (language === 'th') {
+            if (!element) {
+              notify('PDF TH export failed. Resume element not found.', 'ERROR');
+              return;
+            }
+            await exportElementAsPdf(element, filename);
+            notify(`Exporting ${filename}.pdf...`, 'SUCCESS');
+            return;
+          }
+
+          exportResumeAsPdf(resume, filename, language);
           notify(`Exporting ${filename}.pdf...`, 'SUCCESS');
         } catch (error) {
           console.error('PDF export failed:', error);
@@ -488,7 +794,7 @@ export function createResumeExporters(notify: NotifyFn) {
       },
     },
     atsPdf: {
-      export: (data: unknown, filename: string, profile: AtsExportProfile) => {
+      export: async (data: unknown, filename: string, profile: AtsExportProfile, language: ExportLanguage = 'en', element?: HTMLElement) => {
         try {
           const resume = asExportableResume(data);
           if (!resume) {
@@ -496,8 +802,18 @@ export function createResumeExporters(notify: NotifyFn) {
             return;
           }
 
+          if (language === 'th') {
+            if (!element) {
+              notify('ATS PDF TH export failed. Resume element not found.', 'ERROR');
+              return;
+            }
+            await exportElementAsPdf(element, `${filename}-ats-internship`);
+            notify(`Exporting ${filename}-ats-internship.pdf...`, 'SUCCESS');
+            return;
+          }
+
           const atsResume = buildAtsResume(resume, profile);
-          exportResumeAsPdf(atsResume, `${filename}-ats-internship`);
+          exportResumeAsPdf(atsResume, `${filename}-ats-internship`, language);
           notify(`Exporting ${filename}-ats-internship.pdf...`, 'SUCCESS');
         } catch (error) {
           console.error('ATS PDF export failed:', error);
