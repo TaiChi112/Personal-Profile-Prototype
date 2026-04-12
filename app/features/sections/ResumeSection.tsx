@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, FileCode, FileImage, FileJson, FileText, Image } from 'lucide-react';
-import { INTERNSHIP_RESUME } from '../../data/resume';
+import { getInternshipResume } from '../../data/resume';
+import type { ResumeLanguage } from '../../data/resume';
 import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
 import { createResumeExporters } from '../../services/content/ResumeExporters';
+import type { ExportLanguage } from '../../services/content/ResumeExporters';
 import type { EventType } from '../../services/system/notification/NotificationBridge';
 
 type ResumeSectionProps = {
@@ -43,19 +45,62 @@ const EXPORT_GROUPS: Array<{ title: string; options: ExportMenuOption[] }> = [
   },
 ];
 
+function renderProjectDescriptionWithBoldKey(text: string) {
+  const labels = ['Problem/Motivation', 'Solution/Benefit', 'ปัญหา/แรงจูงใจ', 'แนวทางแก้/ประโยชน์'];
+  const matched = labels.find((label) => text.startsWith(`${label}:`));
+
+  if (!matched) {
+    return text;
+  }
+
+  const value = text.slice(matched.length + 1).trim();
+  return (
+    <>
+      <strong>{matched}:</strong> {value}
+    </>
+  );
+}
+
+const VIEW_LABELS: Record<ResumeLanguage, { summary: string; experience: string; education: string; projects: string; skills: string; additionalInformation: string; viewLanguage: string; exportLanguage: string }> = {
+  en: {
+    summary: 'Summary',
+    experience: 'Experience',
+    education: 'Education',
+    projects: 'Projects',
+    skills: 'Skills',
+    additionalInformation: 'Additional Information',
+    viewLanguage: 'View Language',
+    exportLanguage: 'Export Language',
+  },
+  th: {
+    summary: 'Summary',
+    experience: 'Experience',
+    education: 'Education',
+    projects: 'Projects',
+    skills: 'Skills',
+    additionalInformation: 'Additional Information',
+    viewLanguage: 'View Language',
+    exportLanguage: 'Export Language',
+  },
+};
+
 export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>) {
   const exporters = useMemo(() => createResumeExporters((message, level) => onNotify(message, level)), [onNotify]);
-  const resume = INTERNSHIP_RESUME;
   const resumeDocumentRef = useRef<HTMLDivElement | null>(null);
   const exportMenuRef = useRef<HTMLDivElement | null>(null);
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const [viewLanguage, setViewLanguage] = useState<ResumeLanguage>('en');
+  const [exportLanguage, setExportLanguage] = useState<ExportLanguage>('en');
+  const resume = useMemo(() => getInternshipResume(viewLanguage), [viewLanguage]);
+  const exportResume = useMemo(() => getInternshipResume(exportLanguage), [exportLanguage]);
+  const viewLabels = VIEW_LABELS[viewLanguage];
 
   const exportFilename = 'resume-anothai-vichapaiboon';
 
   const runExport = async (format: ExportFormat) => {
     const handlers: Record<ExportFormat, () => Promise<void> | void> = {
-      md: () => exporters.markdown.export(resume, exportFilename),
-      json: () => exporters.json.export(resume, exportFilename),
+      md: () => exporters.markdown.export(exportResume, exportFilename, { language: exportLanguage }),
+      json: () => exporters.json.export(exportResume, exportFilename),
       png: async () => {
         if (!resumeDocumentRef.current) {
           onNotify('Cannot export PNG. Resume element not found.', 'ERROR');
@@ -70,8 +115,20 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
         }
         await exporters.jpg.export(resumeDocumentRef.current, exportFilename);
       },
-      pdf: () => exporters.pdf.export(resume, exportFilename),
-      'ats-pdf': () => exporters.atsPdf.export(resume, exportFilename, resume.atsExportProfile),
+      pdf: async () => {
+        if (!resumeDocumentRef.current) {
+          onNotify('Cannot export PDF. Resume element not found.', 'ERROR');
+          return;
+        }
+        await exporters.pdf.export(exportResume, exportFilename, exportLanguage, resumeDocumentRef.current);
+      },
+      'ats-pdf': async () => {
+        if (!resumeDocumentRef.current) {
+          onNotify('Cannot export ATS PDF. Resume element not found.', 'ERROR');
+          return;
+        }
+        await exporters.atsPdf.export(exportResume, exportFilename, exportResume.atsExportProfile, exportLanguage, resumeDocumentRef.current);
+      },
     };
 
     await handlers[format]();
@@ -138,7 +195,25 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
               </div>
             </div>
           </div>
-          <div ref={exportMenuRef} className="relative">
+          <div className="flex items-start gap-3">
+            <div className="rounded-lg border border-black/10 px-2 py-2">
+              <div className="text-[11px] uppercase tracking-wider text-black/50 mb-1">{viewLabels.viewLanguage}</div>
+              <div className="flex items-center gap-2">
+                <button
+                  className={`px-2.5 py-1 rounded-md text-xs border ${viewLanguage === 'en' ? 'bg-black text-white border-black' : 'border-black/30 text-black/80 hover:bg-black/5'}`}
+                  onClick={() => setViewLanguage('en')}
+                >
+                  EN
+                </button>
+                <button
+                  className={`px-2.5 py-1 rounded-md text-xs border ${viewLanguage === 'th' ? 'bg-black text-white border-black' : 'border-black/30 text-black/80 hover:bg-black/5'}`}
+                  onClick={() => setViewLanguage('th')}
+                >
+                  TH
+                </button>
+              </div>
+            </div>
+            <div ref={exportMenuRef} className="relative">
             <button
               className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-black/80 hover:text-black transition-colors"
               onClick={() => setIsExportMenuOpen((prev) => !prev)}
@@ -149,6 +224,22 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             </button>
             {isExportMenuOpen && (
               <div className="absolute right-0 mt-2 min-w-72 rounded-2xl border border-white/10 bg-[#111317] text-white shadow-2xl py-2 z-20">
+                <div className="px-3 pt-1 pb-2 text-[11px] uppercase tracking-wider text-white/50">{viewLabels.exportLanguage}</div>
+                <div className="px-3 pb-2 flex items-center gap-2">
+                  <button
+                    className={`px-2.5 py-1 rounded-md text-xs border ${exportLanguage === 'en' ? 'bg-white text-black border-white' : 'border-white/30 text-white/80 hover:bg-white/10'}`}
+                    onClick={() => setExportLanguage('en')}
+                  >
+                    EN
+                  </button>
+                  <button
+                    className={`px-2.5 py-1 rounded-md text-xs border ${exportLanguage === 'th' ? 'bg-white text-black border-white' : 'border-white/30 text-white/80 hover:bg-white/10'}`}
+                    onClick={() => setExportLanguage('th')}
+                  >
+                    TH
+                  </button>
+                </div>
+                <div className="my-2 border-t border-white/10" />
                 {EXPORT_GROUPS.map((group, groupIndex) => (
                   <div key={group.title}>
                     {groupIndex > 0 && <div className="my-2 border-t border-white/10" />}
@@ -176,12 +267,13 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
               </div>
             )}
           </div>
+          </div>
         </div>
         {visibility.summary && <section className="mb-7">
           <h3
             className="text-sm font-bold uppercase tracking-widest mb-3"
           >
-            {labels.sections.summary}
+            {viewLanguage === 'en' ? labels.sections.summary : viewLabels.summary}
           </h3>
           <p className="leading-relaxed text-[15px]">{resume.summary}</p>
         </section>}
@@ -189,7 +281,7 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
           <h3
             className="text-sm font-bold uppercase tracking-widest mb-3"
           >
-            {labels.sections.experience}
+            {viewLanguage === 'en' ? labels.sections.experience : viewLabels.experience}
           </h3>
           <div className="space-y-6">
             {resume.experience?.map((experience) => (
@@ -214,7 +306,7 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
           <h3
             className="text-sm font-bold uppercase tracking-widest mb-3"
           >
-            Education
+            {viewLabels.education}
           </h3>
           <div className="space-y-4">
             {resume.education.map((education) => (
@@ -231,11 +323,30 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             ))}
           </div>
         </section>}
+        {visibility.projects && <section className="mb-7">
+          <h3
+            className="text-sm font-bold uppercase tracking-widest mb-3"
+          >
+            {viewLabels.projects}
+          </h3>
+          <div className="space-y-4">
+            {resume.keyProjects.map((project) => (
+              <div key={project.id}>
+                <div className="font-semibold">{project.title}</div>
+                <ul className="mt-2 list-disc list-outside ml-5 space-y-1">
+                  {project.description.map((item) => (
+                    <li key={item}>{renderProjectDescriptionWithBoldKey(item)}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>}
         {visibility.skills && <section className="mb-7">
           <h3
             className="text-sm font-bold uppercase tracking-widest mb-3"
           >
-            {labels.sections.skills}
+            {viewLanguage === 'en' ? labels.sections.skills : viewLabels.skills}
           </h3>
           <div className="grid gap-x-6 gap-y-3 lg:grid-cols-3 text-[15px]">
             {resume.skillGroups.map((group) => (
@@ -250,30 +361,11 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             ))}
           </div>
         </section>}
-        {visibility.projects && <section className="mb-7">
-          <h3
-            className="text-sm font-bold uppercase tracking-widest mb-3"
-          >
-            Projects
-          </h3>
-          <div className="space-y-4">
-            {resume.keyProjects.map((project) => (
-              <div key={project.id}>
-                <div className="font-semibold">{project.title}</div>
-                <ul className="mt-2 list-disc list-outside ml-5 space-y-1">
-                  {project.description.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>}
         {visibility.additionalInformation && <section>
           <h3
             className="text-sm font-bold uppercase tracking-widest mb-3"
           >
-            Additional Information
+            {viewLabels.additionalInformation}
           </h3>
           <ul className="list-disc list-outside ml-5 space-y-1 text-[15px]">
             {resume.additionalInformation.map((item) => (
