@@ -497,8 +497,8 @@ export function createResumeExporters(notify: NotifyFn) {
           }
 
           const atsResume = buildAtsResume(resume, profile);
-          exportResumeAsPdf(atsResume, `${filename}-ats`);
-          notify(`Exporting ${filename}-ats.pdf...`, 'SUCCESS');
+          exportResumeAsPdf(atsResume, `${filename}-ats-internship`);
+          notify(`Exporting ${filename}-ats-internship.pdf...`, 'SUCCESS');
         } catch (error) {
           console.error('ATS PDF export failed:', error);
           notify('ATS PDF export failed. Check console.', 'ERROR');
