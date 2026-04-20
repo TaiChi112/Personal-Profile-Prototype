@@ -553,64 +553,37 @@ async function exportElementAsPdf(element: HTMLElement, filename: string): Promi
     backgroundColor: '#ffffff',
     scale: 2,
     useCORS: true,
+    onclone: (documentClone) => {
+      const clonedElement = documentClone.body.querySelector('[data-resume-export-root="true"]') as HTMLElement | null;
+      if (clonedElement) {
+        clonedElement.style.transform = 'scale(0.92)';
+        clonedElement.style.transformOrigin = 'top left';
+        clonedElement.style.width = '108.695652%';
+      }
+    },
   });
   const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
 
-  const margin = 24;
+  const margin = 18;
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
   const printableWidth = pageWidth - (margin * 2);
   const printableHeight = pageHeight - (margin * 2);
 
-  const scale = printableWidth / canvas.width;
-  const sourceSliceHeight = Math.max(1, Math.floor(printableHeight / scale));
+  const scale = Math.min(printableWidth / canvas.width, printableHeight / canvas.height);
+  const renderedWidth = canvas.width * scale;
+  const renderedHeight = canvas.height * scale;
 
-  let sourceY = 0;
-  let pageIndex = 0;
-  while (sourceY < canvas.height) {
-    const currentSliceHeight = Math.min(sourceSliceHeight, canvas.height - sourceY);
-    const sliceCanvas = document.createElement('canvas');
-    sliceCanvas.width = canvas.width;
-    sliceCanvas.height = currentSliceHeight;
-
-    const sliceContext = sliceCanvas.getContext('2d');
-    if (!sliceContext) {
-      throw new Error('Failed to create canvas context for PDF export.');
-    }
-
-    sliceContext.drawImage(
-      canvas,
-      0,
-      sourceY,
-      canvas.width,
-      currentSliceHeight,
-      0,
-      0,
-      canvas.width,
-      currentSliceHeight,
-    );
-
-    const pageImageData = sliceCanvas.toDataURL('image/png');
-    const renderedSliceHeight = currentSliceHeight * scale;
-
-    if (pageIndex > 0) {
-      pdf.addPage();
-    }
-
-    pdf.addImage(
-      pageImageData,
-      'PNG',
-      margin,
-      margin,
-      printableWidth,
-      renderedSliceHeight,
-      undefined,
-      'FAST',
-    );
-
-    sourceY += currentSliceHeight;
-    pageIndex += 1;
-  }
+  pdf.addImage(
+    canvas.toDataURL('image/png'),
+    'PNG',
+    margin,
+    margin,
+    renderedWidth,
+    renderedHeight,
+    undefined,
+    'FAST',
+  );
 
   pdf.save(`${filename}.pdf`);
 }
@@ -709,8 +682,13 @@ export class MarkdownExporter extends ContentExporter {
     const experienceSection = buildExperienceSection(resume);
     const educationSection = buildEducationSection(resume);
     const projectsSection = buildProjectsSection(resume);
+    const markdownContactLines = buildMarkdownContactLines(resume, locale);
     if (resume.title) {
       lines.push(`## ${resume.title}`);
+    }
+
+    if (markdownContactLines.length > 0) {
+      lines.push('', `## ${locale.sections.contact}`, ...markdownContactLines);
     }
 
     if (resume.summary) {
@@ -721,11 +699,6 @@ export class MarkdownExporter extends ContentExporter {
     pushSection(lines, `## ${locale.sections.education}`, educationSection);
     pushSection(lines, `## ${locale.sections.projects}`, projectsSection);
     pushSection(lines, `## ${locale.sections.skills}`, buildSkillLines(resume, language).join('\n'));
-
-    const markdownContactLines = buildMarkdownContactLines(resume, locale);
-    if (markdownContactLines.length > 0) {
-      lines.push('', `## ${locale.sections.contact}`, ...markdownContactLines);
-    }
 
     return lines.join('\n');
   }
