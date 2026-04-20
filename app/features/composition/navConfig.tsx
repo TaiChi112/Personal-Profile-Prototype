@@ -12,7 +12,7 @@ export interface NavItem {
 export function createNavItems(labels: UILabels): NavItem[] {
   return [
     { name: labels.nav.home, id: 'home', icon: <User size={18} /> },
-    { name: labels.nav.feed, id: 'feed', icon: <Rss size={18} /> },
+    // { name: labels.nav.feed, id: 'feed', icon: <Rss size={18} /> },
     { name: labels.nav.projects, id: 'projects', icon: <Code size={18} /> },
     {
       name: labels.nav.library,
