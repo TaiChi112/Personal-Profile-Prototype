@@ -28,13 +28,13 @@ type InteractiveNodeLabels = {
 };
 
 type InteractiveContentNodeProps = {
-  node: LayoutNode | CompositeNode | LeafNode;
-  style: InteractiveNodeStyle;
-  labels: InteractiveNodeLabels;
-  level?: number;
-  activeNodeId: string | null;
-  isAdmin: boolean;
-  notify: (message: string, level: NotifyLevel) => void;
+  readonly node: LayoutNode | CompositeNode | LeafNode;
+  readonly style: InteractiveNodeStyle;
+  readonly labels: InteractiveNodeLabels;
+  readonly level?: number;
+  readonly activeNodeId: string | null;
+  readonly isAdmin: boolean;
+  readonly notify: (message: string, level: NotifyLevel) => void;
 };
 
 export function InteractiveContentNode({
