@@ -4,14 +4,14 @@ import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
 import { createNavItems } from './navConfig';
 
 type NavigationShellProps = {
-  currentStyle: StyleFactory;
-  labels: UILabels;
-  activeTab: string;
-  onNavigate: (tabId: string) => void;
-  isAuthenticated: boolean;
-  userDisplayName: string | null;
-  onSignIn: () => void;
-  onSignOut: () => void;
+  readonly currentStyle: StyleFactory;
+  readonly labels: UILabels;
+  readonly activeTab: string;
+  readonly onNavigate: (tabId: string) => void;
+  readonly isAuthenticated: boolean;
+  readonly userDisplayName: string | null;
+  readonly onSignIn: () => void;
+  readonly onSignOut: () => void;
 };
 
 export function NavigationShell({
