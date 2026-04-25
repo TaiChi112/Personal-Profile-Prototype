@@ -100,6 +100,7 @@ type ExportableResume = {
   }>;
   keyProjects?: Array<{
     title: string;
+    repoUrl?: string;
     description: string[];
   }>;
   additionalInformation?: string[];
@@ -159,10 +160,16 @@ function formatProjectLabelForMarkdown(detail: string): string {
 
 function buildProjectsSection(resume: ExportableResume): string {
   return (resume.keyProjects ?? [])
-    .map((project) => [
-      `### ${project.title}`,
-      ...project.description.map((detail) => `- ${formatProjectLabelForMarkdown(detail)}`),
-    ].join('\n'))
+    .map((project) => {
+      const projectHeading = project.repoUrl
+        ? `[${project.title}](${normalizeUrl(project.repoUrl)})`
+        : project.title;
+
+      return [
+        `### ${projectHeading}`,
+        ...project.description.map((detail) => `- ${formatProjectLabelForMarkdown(detail)}`),
+      ].join('\n');
+    })
     .join('\n\n');
 }
 
@@ -234,291 +241,124 @@ function pushSection(lines: string[], title: string, content: string): void {
 }
 
 function normalizeUrl(url: string): string {
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  if (
+    url.startsWith('http://')
+    || url.startsWith('https://')
+    || url.startsWith('mailto:')
+    || url.startsWith('tel:')
+    || url.startsWith('#')
+  ) {
     return url;
   }
 
   return `https://${url}`;
 }
 
-function addPdfLine(
-  doc: jsPDF,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number,
-  marginBottom: number,
-): number {
-  const pageHeight = doc.internal.pageSize.getHeight();
-  let currentY = y;
-  const wrapped = doc.splitTextToSize(text, maxWidth) as string[];
-
-  for (const line of wrapped) {
-    if (currentY > pageHeight - marginBottom) {
-      doc.addPage();
-      currentY = marginBottom;
-    }
-    doc.text(line, x, currentY);
-    currentY += lineHeight;
+function normalizeSkillGroupHeading(title: string): string {
+  if (title === 'Languages') {
+    return 'Language';
   }
 
-  return currentY;
+  if (title === 'Frameworks & Tools') {
+    return 'Framework & Tools';
+  }
+
+  return title;
 }
 
-type PdfState = {
-  doc: jsPDF;
-  margin: number;
-  maxWidth: number;
-  lineHeight: number;
-  y: number;
-};
+function formatSkillsInPdfClone(documentClone: Document): void {
+  const headings = Array.from(documentClone.querySelectorAll('section h3'));
+  const skillsHeading = headings.find((heading) => {
+    const text = heading.textContent?.trim().toLowerCase();
+    return text === 'skills' || text === 'ทักษะ';
+  });
 
-type ResolvedVisibility = {
-  summary: boolean;
-  experience: boolean;
-  education: boolean;
-  projects: boolean;
-  skills: boolean;
-  additionalInformation: boolean;
-};
-
-function createPdfState(): PdfState {
-  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-  const margin = 48;
-  const maxWidth = doc.internal.pageSize.getWidth() - (margin * 2);
-  return {
-    doc,
-    margin,
-    maxWidth,
-    lineHeight: 16,
-    y: margin,
-  };
-}
-
-function writePdfWrappedLine(state: PdfState, text: string, indent = 0, lineHeight = state.lineHeight): void {
-  state.y = addPdfLine(
-    state.doc,
-    text,
-    state.margin + indent,
-    state.y,
-    state.maxWidth - indent,
-    lineHeight,
-    state.margin,
-  );
-}
-
-function writePdfInlineLabeledPairs(
-  state: PdfState,
-  pairs: Array<{ label: string; value: string }>,
-  lineHeight = 13,
-): void {
-  if (pairs.length === 0) {
+  if (!skillsHeading) {
     return;
   }
 
-  const pageHeight = state.doc.internal.pageSize.getHeight();
-  const maxX = state.margin + state.maxWidth;
-  const separator = ' | ';
-  let x = state.margin;
-
-  for (let index = 0; index < pairs.length; index += 1) {
-    const pair = pairs[index];
-    const labelText = `${pair.label}: `;
-    const valueText = pair.value;
-    const separatorText = index < pairs.length - 1 ? separator : '';
-
-    state.doc.setFont('helvetica', 'bold');
-    state.doc.setFontSize(10.5);
-    const labelWidth = state.doc.getTextWidth(labelText);
-    state.doc.setFont('helvetica', 'normal');
-    const valueWidth = state.doc.getTextWidth(valueText);
-    const separatorWidth = state.doc.getTextWidth(separatorText);
-    const pairWidth = labelWidth + valueWidth + separatorWidth;
-
-    if (x + pairWidth > maxX && x > state.margin) {
-      state.y += lineHeight;
-      x = state.margin;
-    }
-
-    if (state.y > pageHeight - state.margin) {
-      state.doc.addPage();
-      state.y = state.margin;
-      x = state.margin;
-    }
-
-    state.doc.setFont('helvetica', 'bold');
-    state.doc.text(labelText, x, state.y);
-    x += labelWidth;
-
-    state.doc.setFont('helvetica', 'normal');
-    state.doc.text(valueText, x, state.y);
-    x += valueWidth;
-
-    if (separatorText) {
-      state.doc.text(separatorText, x, state.y);
-      x += separatorWidth;
-    }
-  }
-
-  state.y += lineHeight;
-}
-
-function writePdfSectionTitle(state: PdfState, title: string): void {
-  state.y += 6;
-  state.doc.setFont('helvetica', 'bold');
-  state.doc.setFontSize(13);
-  writePdfWrappedLine(state, title, 0, 16);
-  state.doc.setFont('helvetica', 'normal');
-  state.doc.setFontSize(10.5);
-}
-
-function resolveVisibility(resume: ExportableResume): ResolvedVisibility {
-  return {
-    summary: resume.sectionVisibility?.summary ?? true,
-    experience: resume.sectionVisibility?.experience ?? true,
-    education: resume.sectionVisibility?.education ?? true,
-    projects: resume.sectionVisibility?.projects ?? true,
-    skills: resume.sectionVisibility?.skills ?? true,
-    additionalInformation: resume.sectionVisibility?.additionalInformation ?? true,
-  };
-}
-
-function writePdfHeader(state: PdfState, resume: ExportableResume): void {
-  state.doc.setFont('helvetica', 'bold');
-  state.doc.setFontSize(16);
-  writePdfWrappedLine(state, resume.name, 0, 20);
-
-  if (resume.title) {
-    state.doc.setFont('helvetica', 'normal');
-    state.doc.setFontSize(13);
-    writePdfWrappedLine(state, resume.title);
-  }
-
-  state.y += 8;
-  state.doc.setFontSize(10.5);
-}
-
-function writePdfContacts(state: PdfState, resume: ExportableResume, locale: ExportLocale): void {
-  const primaryContacts = [
-    resume.contact?.location ? { label: locale.contact.location, value: resume.contact.location } : null,
-    resume.contact?.email ? { label: locale.contact.email, value: resume.contact.email } : null,
-    resume.contact?.phone ? { label: locale.contact.phone, value: resume.contact.phone } : null,
-  ].filter((item): item is { label: string; value: string } => Boolean(item));
-
-  writePdfInlineLabeledPairs(state, primaryContacts, 13);
-
-  const linkContacts = [
-    resume.contact?.linkedin ? { label: locale.contact.linkedin, value: resume.contact.linkedin } : null,
-    resume.contact?.github ? { label: locale.contact.github, value: resume.contact.github } : null,
-    resume.contact?.portfolio ? { label: locale.contact.portfolio, value: resume.contact.portfolio } : null,
-  ].filter((item): item is { label: string; value: string } => Boolean(item));
-
-  writePdfInlineLabeledPairs(state, linkContacts, 13);
-
-  state.y += 8;
-}
-
-function writePdfSummary(state: PdfState, resume: ExportableResume, locale: ExportLocale): void {
-  if (!resume.summary) return;
-  writePdfSectionTitle(state, locale.sections.summary);
-  writePdfWrappedLine(state, resume.summary, 0, 11);
-}
-
-function writePdfExperience(state: PdfState, resume: ExportableResume, locale: ExportLocale): void {
-  const experience = resume.experience ?? [];
-  if (experience.length === 0) return;
-
-  writePdfSectionTitle(state, locale.sections.experience);
-  for (const item of experience) {
-    writePdfWrappedLine(state, `${item.role} - ${item.company} (${item.period})`, 0, 11);
-    for (const detail of item.description) {
-      writePdfWrappedLine(state, `- ${detail}`, 10, 10.5);
-    }
-    state.y += 4;
-  }
-}
-
-function writePdfEducation(state: PdfState, resume: ExportableResume, locale: ExportLocale): void {
-  const education = resume.education ?? [];
-  if (education.length === 0) return;
-
-  writePdfSectionTitle(state, locale.sections.education);
-  for (const item of education) {
-    writePdfWrappedLine(state, `${item.degree}, ${item.institution} (${item.year})`, 0, 11);
-  }
-}
-
-function writePdfProjects(state: PdfState, resume: ExportableResume, locale: ExportLocale): void {
-  const projects = resume.keyProjects ?? [];
-  if (projects.length === 0) return;
-
-  writePdfSectionTitle(state, locale.sections.projects);
-  for (const item of projects) {
-    state.doc.setFont('helvetica', 'bold');
-    state.doc.setFontSize(12.5);
-    writePdfWrappedLine(state, item.title, 0, 14);
-    state.doc.setFontSize(10.5);
-    for (const detail of item.description) {
-      if (detail.startsWith('Problem/Motivation:') || detail.startsWith('Solution/Benefit:') || detail.startsWith('ปัญหา/แรงจูงใจ:') || detail.startsWith('แนวทางแก้/ประโยชน์:')) {
-        const separatorIndex = detail.indexOf(':');
-        const label = detail.slice(0, separatorIndex + 1);
-        const value = detail.slice(separatorIndex + 1).trim();
-
-        state.doc.setFont('helvetica', 'bold');
-        writePdfWrappedLine(state, `- ${label}`, 10, 10.5);
-        state.doc.setFont('helvetica', 'normal');
-        writePdfWrappedLine(state, value, 18, 10.5);
-      } else {
-        state.doc.setFont('helvetica', 'normal');
-        writePdfWrappedLine(state, `- ${detail}`, 10, 10.5);
-      }
-    }
-    state.y += 4;
-  }
-}
-
-function writePdfSkillBullet(state: PdfState, title: string, items: string[], language: ExportLanguage): void {
-  const localizedTitle = localizeSkillGroupTitle(title, language);
-  const suffix = items.join(', ');
-  const inlineThreshold = 110;
-
-  if (suffix.length <= inlineThreshold) {
-    state.doc.setFont('helvetica', 'bold');
-    state.doc.setFontSize(10.5);
-    writePdfWrappedLine(state, `- ${localizedTitle}:`, 0, 13);
-    state.doc.setFont('helvetica', 'normal');
-    writePdfWrappedLine(state, suffix, 12, 13);
+  const section = skillsHeading.closest('section');
+  if (!section) {
     return;
   }
 
-  state.doc.setFont('helvetica', 'bold');
-  state.doc.setFontSize(10.5);
-  writePdfWrappedLine(state, `- ${localizedTitle}:`, 0, 11);
-  state.doc.setFont('helvetica', 'normal');
-  for (const item of items) {
-    writePdfWrappedLine(state, `- ${item}`, 12, 10.5);
+  const groups = Array.from(section.querySelectorAll('div.break-inside-avoid'));
+  if (groups.length === 0) {
+    return;
   }
-  state.y += 2;
-}
 
-function writePdfSkills(state: PdfState, resume: ExportableResume, locale: ExportLocale, language: ExportLanguage): void {
-  const groups = resume.skillGroups ?? [];
-  if (groups.length === 0) return;
+  const outputList = documentClone.createElement('ul');
+  outputList.className = 'list-disc list-outside ml-5 space-y-1 text-[15px]';
 
-  writePdfSectionTitle(state, locale.sections.skills);
   for (const group of groups) {
-    writePdfSkillBullet(state, group.title, group.items, language);
+    const title = group.querySelector('h4')?.textContent?.trim();
+    if (!title) {
+      continue;
+    }
+
+    const items = Array.from(group.querySelectorAll('li'))
+      .map((item) => item.textContent?.trim() ?? '')
+      .filter((item) => item.length > 0);
+
+    const listItem = documentClone.createElement('li');
+    listItem.textContent = `${normalizeSkillGroupHeading(title)}: ${items.join(',')}`;
+    outputList.appendChild(listItem);
   }
+
+  if (outputList.children.length === 0) {
+    return;
+  }
+
+  const sourceContainer = section.querySelector('div.grid');
+  if (!sourceContainer) {
+    return;
+  }
+
+  sourceContainer.replaceWith(outputList);
 }
 
-function writePdfAdditionalInfo(state: PdfState, resume: ExportableResume, locale: ExportLocale): void {
-  const additionalInfo = resume.additionalInformation ?? [];
-  if (additionalInfo.length === 0) return;
+function formatAdditionalInformationInPdfClone(documentClone: Document): void {
+  const headings = Array.from(documentClone.querySelectorAll('section h3'));
+  const additionalInfoHeading = headings.find((heading) => {
+    const text = heading.textContent?.trim().toLowerCase();
+    return text === 'additional information' || text === 'ข้อมูลเพิ่มเติม';
+  });
 
-  writePdfSectionTitle(state, locale.sections.additionalInformation);
-  for (const item of additionalInfo) {
-    writePdfWrappedLine(state, `- ${item}`, 0, 10.5);
+  if (!additionalInfoHeading) {
+    return;
+  }
+
+  const section = additionalInfoHeading.closest('section');
+  if (!section) {
+    return;
+  }
+
+  const list = section.querySelector('ul') as HTMLElement | null;
+  if (list) {
+    // Keep bullets inside the content box so long lines are not clipped
+    // by html2canvas on the right edge during PDF rendering.
+    list.style.listStylePosition = 'inside';
+    list.style.paddingLeft = '0';
+    list.style.paddingRight = '12px';
+    list.style.marginLeft = '0';
+  }
+
+  const listItems = Array.from(section.querySelectorAll('ul li'));
+  if (listItems.length === 0) {
+    return;
+  }
+
+  for (const listItem of listItems) {
+    const htmlListItem = listItem as HTMLElement;
+    htmlListItem.style.whiteSpace = 'normal';
+    htmlListItem.style.overflowWrap = 'break-word';
+    htmlListItem.style.wordBreak = 'break-word';
+    htmlListItem.style.lineHeight = '1.35';
+    htmlListItem.style.display = 'list-item';
+    htmlListItem.style.width = '100%';
+    htmlListItem.style.maxWidth = '100%';
+    htmlListItem.style.paddingRight = '0';
+    htmlListItem.style.boxSizing = 'border-box';
   }
 }
 
@@ -531,15 +371,70 @@ function triggerDownload(url: string, filename: string): void {
   anchor.remove();
 }
 
+function getExportElementDimensions(element: HTMLElement): {
+  width: number;
+  height: number;
+} {
+  return {
+    width: Math.max(
+      element.scrollWidth,
+      element.offsetWidth,
+      Math.ceil(element.getBoundingClientRect().width),
+    ),
+    height: Math.max(
+      element.scrollHeight,
+      element.offsetHeight,
+      Math.ceil(element.getBoundingClientRect().height),
+    ),
+  };
+}
+
 async function exportResumeAsImage(
   element: HTMLElement,
   filename: string,
   format: 'png' | 'jpg',
 ): Promise<void> {
+  const { width, height } = getExportElementDimensions(element);
+
   const canvas = await html2canvas(element, {
     backgroundColor: '#ffffff',
     scale: 2,
     useCORS: true,
+    width,
+    height,
+    windowWidth: width,
+    windowHeight: height,
+    scrollX: 0,
+    scrollY: 0,
+    ignoreElements: (node) => {
+      const tag = node.tagName?.toLowerCase();
+      return tag === 'svg' || tag === 'path' || tag === 'circle' || tag === 'rect' || tag === 'polygon';
+    },
+    onclone: (documentClone) => {
+      const sanitizeStyle = documentClone.createElement('style');
+      sanitizeStyle.textContent = `
+        * {
+          color: #000000 !important;
+          background-color: transparent !important;
+          border-color: #000000 !important;
+          box-shadow: none !important;
+          text-shadow: none !important;
+          outline-color: #000000 !important;
+        }
+        a {
+          color: #000000 !important;
+          text-decoration: underline !important;
+        }
+      `;
+      documentClone.head.appendChild(sanitizeStyle);
+      formatSkillsInPdfClone(documentClone);
+      formatAdditionalInformationInPdfClone(documentClone);
+
+      const clonedBody = documentClone.body as HTMLElement | null;
+      if (clonedBody) {
+        clonedBody.style.overflow = 'visible';
+      }
+    },
   });
 
   const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
@@ -549,19 +444,71 @@ async function exportResumeAsImage(
 }
 
 async function exportElementAsPdf(element: HTMLElement, filename: string): Promise<void> {
-  const canvas = await html2canvas(element, {
-    backgroundColor: '#ffffff',
-    scale: 2,
-    useCORS: true,
-    onclone: (documentClone) => {
-      const clonedElement = documentClone.body.querySelector('[data-resume-export-root="true"]') as HTMLElement | null;
-      if (clonedElement) {
-        clonedElement.style.transform = 'scale(0.92)';
-        clonedElement.style.transformOrigin = 'top left';
-        clonedElement.style.width = '108.695652%';
-      }
-    },
-  });
+  const exportRootAttr = `pdf-export-root-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  let clonedAnchors: Array<{ href: string; x: number; y: number; width: number; height: number }> = [];
+  const { width, height } = getExportElementDimensions(element);
+
+  element.dataset.exportRoot = exportRootAttr;
+
+  try {
+    const canvas = await html2canvas(element, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+      width,
+      height,
+      windowWidth: width,
+      windowHeight: height,
+      scrollX: 0,
+      scrollY: 0,
+      ignoreElements: (node) => {
+        const tag = node.tagName?.toLowerCase();
+        return tag === 'svg' || tag === 'path' || tag === 'circle' || tag === 'rect' || tag === 'polygon';
+      },
+      onclone: (documentClone) => {
+        const sanitizeStyle = documentClone.createElement('style');
+        sanitizeStyle.textContent = `
+          * {
+            color: #000000 !important;
+            background-color: transparent !important;
+            border-color: #000000 !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+            outline-color: #000000 !important;
+          }
+          a {
+            color: #000000 !important;
+            text-decoration: underline !important;
+          }
+        `;
+        documentClone.head.appendChild(sanitizeStyle);
+        formatSkillsInPdfClone(documentClone);
+        formatAdditionalInformationInPdfClone(documentClone);
+
+        const clonedRoot = documentClone.querySelector(`[data-export-root="${exportRootAttr}"]`) as HTMLElement | null;
+        if (!clonedRoot) {
+          return;
+        }
+
+        clonedRoot.style.overflow = 'visible';
+        clonedRoot.style.height = 'auto';
+        clonedRoot.style.maxHeight = 'none';
+
+        const rootRect = clonedRoot.getBoundingClientRect();
+        clonedAnchors = Array.from(clonedRoot.querySelectorAll('a[href]'))
+          .map((anchor) => {
+            const rect = anchor.getBoundingClientRect();
+            return {
+              href: anchor.getAttribute('href') ?? '',
+              x: rect.left - rootRect.left,
+              y: rect.top - rootRect.top,
+              width: rect.width,
+              height: rect.height,
+            };
+          })
+          .filter((anchor) => anchor.href.length > 0 && anchor.width > 0 && anchor.height > 0);
+      },
+    });
   const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
 
   const margin = 18;
@@ -573,6 +520,8 @@ async function exportElementAsPdf(element: HTMLElement, filename: string): Promi
   const scale = Math.min(printableWidth / canvas.width, printableHeight / canvas.height);
   const renderedWidth = canvas.width * scale;
   const renderedHeight = canvas.height * scale;
+  const pdfScaleX = renderedWidth / Math.max(1, width);
+  const pdfScaleY = renderedHeight / Math.max(1, height);
 
   pdf.addImage(
     canvas.toDataURL('image/png'),
@@ -585,54 +534,19 @@ async function exportElementAsPdf(element: HTMLElement, filename: string): Promi
     'FAST',
   );
 
-  pdf.save(`${filename}.pdf`);
-}
+  for (const anchor of clonedAnchors) {
+    const mappedX = margin + (anchor.x * pdfScaleX);
+    const mappedY = margin + (anchor.y * pdfScaleY);
+    const mappedWidth = anchor.width * pdfScaleX;
+    const mappedHeight = anchor.height * pdfScaleY;
 
-function exportResumeAsPdf(resume: ExportableResume, filename: string, language: ExportLanguage = 'en'): void {
-  const state = createPdfState();
-  const visibility = resolveVisibility(resume);
-  const locale = getExportLocale(language);
-
-  writePdfHeader(state, resume);
-  writePdfContacts(state, resume, locale);
-
-  if (visibility.summary) writePdfSummary(state, resume, locale);
-  if (visibility.experience) writePdfExperience(state, resume, locale);
-  if (visibility.education) writePdfEducation(state, resume, locale);
-  if (visibility.projects) writePdfProjects(state, resume, locale);
-  if (visibility.skills) writePdfSkills(state, resume, locale, language);
-  if (visibility.additionalInformation) writePdfAdditionalInfo(state, resume, locale);
-
-  state.doc.save(`${filename}.pdf`);
-}
-
-function limitWords(text: string, maxWords: number): string {
-  const words = text.trim().split(/\s+/);
-  if (words.length <= maxWords) {
-    return text;
+    pdf.link(mappedX, mappedY, mappedWidth, mappedHeight, { url: normalizeUrl(anchor.href) });
   }
 
-  return `${words.slice(0, maxWords).join(' ')}...`;
-}
-
-function buildAtsResume(resume: ExportableResume, profile: AtsExportProfile): ExportableResume {
-  const limitedProjects = (resume.keyProjects ?? [])
-    .slice(0, profile.maxProjects)
-    .map((project) => ({
-      ...project,
-      description: project.description.slice(0, profile.maxBulletsPerProject),
-    }));
-
-  return {
-    ...resume,
-    summary: resume.summary ? limitWords(resume.summary, profile.summaryMaxWords) : resume.summary,
-    keyProjects: limitedProjects,
-    sectionVisibility: {
-      ...resume.sectionVisibility,
-      experience: profile.includeExperience,
-    },
-    experience: profile.includeExperience ? resume.experience : [],
-  };
+  pdf.save(`${filename}.pdf`);
+  } finally {
+    delete element.dataset.exportRoot;
+  }
 }
 
 abstract class ContentExporter {
@@ -714,17 +628,25 @@ export class JsonExporter extends ContentExporter {
 }
 
 export function createResumeExporters(notify: NotifyFn) {
+  const safeNotify: NotifyFn = (message, level) => {
+    try {
+      notify(message, level);
+    } catch (error) {
+      console.warn('Notification failed:', error);
+    }
+  };
+
   return {
-    markdown: new MarkdownExporter(notify),
-    json: new JsonExporter(notify),
+    markdown: new MarkdownExporter(safeNotify),
+    json: new JsonExporter(safeNotify),
     png: {
       export: async (element: HTMLElement, filename: string) => {
         try {
           await exportResumeAsImage(element, filename, 'png');
-          notify(`Exporting ${filename}.png...`, 'SUCCESS');
+          safeNotify(`Exporting ${filename}.png...`, 'SUCCESS');
         } catch (error) {
           console.error('PNG export failed:', error);
-          notify('PNG export failed. Check console.', 'ERROR');
+          safeNotify('PNG export failed. Check console.', 'ERROR');
         }
       },
     },
@@ -732,65 +654,57 @@ export function createResumeExporters(notify: NotifyFn) {
       export: async (element: HTMLElement, filename: string) => {
         try {
           await exportResumeAsImage(element, filename, 'jpg');
-          notify(`Exporting ${filename}.jpg...`, 'SUCCESS');
+          safeNotify(`Exporting ${filename}.jpg...`, 'SUCCESS');
         } catch (error) {
           console.error('JPG export failed:', error);
-          notify('JPG export failed. Check console.', 'ERROR');
+          safeNotify('JPG export failed. Check console.', 'ERROR');
         }
       },
     },
     pdf: {
-      export: async (data: unknown, filename: string, language: ExportLanguage = 'en', element?: HTMLElement) => {
+      export: async (data: unknown, filename: string, _language: ExportLanguage = 'en', element?: HTMLElement) => {
+        void _language;
         try {
           const resume = asExportableResume(data);
           if (!resume) {
-            notify('PDF export failed. Invalid resume data.', 'ERROR');
+            safeNotify('PDF export failed. Invalid resume data.', 'ERROR');
             return;
           }
 
-          if (language === 'th') {
-            if (!element) {
-              notify('PDF TH export failed. Resume element not found.', 'ERROR');
-              return;
-            }
-            await exportElementAsPdf(element, filename);
-            notify(`Exporting ${filename}.pdf...`, 'SUCCESS');
+          if (!element) {
+            safeNotify('PDF export failed. Resume element not found.', 'ERROR');
             return;
           }
 
-          exportResumeAsPdf(resume, filename, language);
-          notify(`Exporting ${filename}.pdf...`, 'SUCCESS');
+          await exportElementAsPdf(element, filename);
+          safeNotify(`Exporting ${filename}.pdf...`, 'SUCCESS');
         } catch (error) {
           console.error('PDF export failed:', error);
-          notify('PDF export failed. Check console.', 'ERROR');
+          safeNotify('PDF export failed. Check console.', 'ERROR');
         }
       },
     },
     atsPdf: {
-      export: async (data: unknown, filename: string, profile: AtsExportProfile, language: ExportLanguage = 'en', element?: HTMLElement) => {
+      export: async (data: unknown, filename: string, _profile: AtsExportProfile, _language: ExportLanguage = 'en', element?: HTMLElement) => {
+        void _profile;
+        void _language;
         try {
           const resume = asExportableResume(data);
           if (!resume) {
-            notify('ATS PDF export failed. Invalid resume data.', 'ERROR');
+            safeNotify('ATS PDF export failed. Invalid resume data.', 'ERROR');
             return;
           }
 
-          if (language === 'th') {
-            if (!element) {
-              notify('ATS PDF TH export failed. Resume element not found.', 'ERROR');
-              return;
-            }
-            await exportElementAsPdf(element, `${filename}-ats-internship`);
-            notify(`Exporting ${filename}-ats-internship.pdf...`, 'SUCCESS');
+          if (!element) {
+            safeNotify('ATS PDF export failed. Resume element not found.', 'ERROR');
             return;
           }
 
-          const atsResume = buildAtsResume(resume, profile);
-          exportResumeAsPdf(atsResume, `${filename}-ats-internship`, language);
-          notify(`Exporting ${filename}-ats-internship.pdf...`, 'SUCCESS');
+          await exportElementAsPdf(element, `${filename}-ats-internship`);
+          safeNotify(`Exporting ${filename}-ats-internship.pdf...`, 'SUCCESS');
         } catch (error) {
           console.error('ATS PDF export failed:', error);
-          notify('ATS PDF export failed. Check console.', 'ERROR');
+          safeNotify('ATS PDF export failed. Check console.', 'ERROR');
         }
       },
     },
