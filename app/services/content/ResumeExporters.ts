@@ -216,20 +216,20 @@ function buildSkillLines(resume: ExportableResume, language: ExportLanguage): st
 
 function buildMarkdownContactLines(resume: ExportableResume, locale: ExportLocale): string[] {
   const contact = resume.contact;
-  if (!contact) {
-    return [];
-  }
+    if (!contact) {
+      return [];
+    }
 
-  const contactLines = [
-    contact.phone ? `- **${locale.contact.phone}:** ${contact.phone}` : null,
-    contact.email ? `- **${locale.contact.email}:** ${contact.email}` : null,
-    contact.location ? `- **${locale.contact.location}:** ${contact.location}` : null,
-    contact.linkedin ? `- **${locale.contact.linkedin}:** ${contact.linkedin}` : null,
-    contact.github ? `- **${locale.contact.github}:** ${contact.github}` : null,
-    contact.portfolio ? `- **${locale.contact.portfolio}:** ${contact.portfolio}` : null,
-  ].filter((line): line is string => Boolean(line));
+    const contactLines = [
+      contact.phone ? `- **${locale.contact.phone}:** ${contact.phone}` : null,
+      contact.email ? `- **${locale.contact.email}:** ${contact.email}` : null,
+      contact.location ? `- **${locale.contact.location}:** ${contact.location}` : null,
+      contact.linkedin ? `- **${locale.contact.linkedin}:** ${contact.linkedin}` : null,
+      contact.github ? `- **${locale.contact.github}:** ${contact.github}` : null,
+      contact.portfolio ? `- **${locale.contact.portfolio}:** ${contact.portfolio}` : null,
+    ].filter((line): line is string => Boolean(line));
 
-  return contactLines;
+    return contactLines;
 }
 
 function pushSection(lines: string[], title: string, content: string): void {
@@ -301,7 +301,8 @@ function formatSkillsInPdfClone(documentClone: Document): void {
       .filter((item) => item.length > 0);
 
     const listItem = documentClone.createElement('li');
-    listItem.textContent = `${normalizeSkillGroupHeading(title)}: ${items.join(',')}`;
+    const normalizedTitle = normalizeSkillGroupHeading(title);
+    listItem.innerHTML = `<strong>${normalizedTitle}:</strong> ${items.join(',')}`;
     outputList.appendChild(listItem);
   }
 
@@ -360,6 +361,74 @@ function formatAdditionalInformationInPdfClone(documentClone: Document): void {
     htmlListItem.style.paddingRight = '0';
     htmlListItem.style.boxSizing = 'border-box';
   }
+}
+
+function applyCompactLayoutForPdfClone(clonedRoot: HTMLElement): void {
+  // Tighten vertical rhythm in export only so content fits one page more reliably.
+  const headerBlock = clonedRoot.querySelector('div.pb-6.mb-6') as HTMLElement | null;
+  if (headerBlock) {
+    headerBlock.style.paddingBottom = '10px';
+    headerBlock.style.marginBottom = '12px';
+    headerBlock.style.gap = '10px';
+    
+    // Make contact info text bold in PDF
+    const contactSpans = headerBlock.querySelectorAll('span, a');
+    for (const span of contactSpans) {
+      (span as HTMLElement).style.fontWeight = 'bold';
+    }
+  }
+
+  const summarySection = clonedRoot.querySelector('section') as HTMLElement | null;
+  if (summarySection) {
+    summarySection.style.marginBottom = '14px';
+  }
+
+  const sections = Array.from(clonedRoot.querySelectorAll('section')) as HTMLElement[];
+  for (const [index, section] of sections.entries()) {
+    section.style.marginTop = '0';
+    section.style.marginBottom = index === sections.length - 1 ? '0' : '14px';
+  }
+
+  const sectionHeadings = Array.from(clonedRoot.querySelectorAll('section h3')) as HTMLElement[];
+  for (const heading of sectionHeadings) {
+    heading.style.marginBottom = '8px';
+    heading.style.lineHeight = '1.15';
+  }
+
+  const subHeadings = Array.from(clonedRoot.querySelectorAll('section h4')) as HTMLElement[];
+  for (const heading of subHeadings) {
+    heading.style.marginBottom = '2px';
+    heading.style.lineHeight = '1.2';
+    heading.style.fontWeight = 'bold';
+  }
+
+  const lists = Array.from(clonedRoot.querySelectorAll('ul')) as HTMLElement[];
+  for (const list of lists) {
+    list.style.marginTop = '6px';
+    list.style.marginBottom = '0';
+    list.style.lineHeight = '1.25';
+    list.style.listStylePosition = 'outside';
+  }
+
+  const listItems = Array.from(clonedRoot.querySelectorAll('li')) as HTMLElement[];
+  for (const item of listItems) {
+    item.style.display = 'list-item';
+    item.style.marginTop = '0';
+    item.style.marginBottom = '3px';
+    item.style.paddingTop = '0';
+    item.style.lineHeight = '1.2';
+    item.style.verticalAlign = 'top';
+  }
+
+  const paragraphs = Array.from(clonedRoot.querySelectorAll('p')) as HTMLElement[];
+  for (const paragraph of paragraphs) {
+    paragraph.style.marginTop = '0';
+    paragraph.style.marginBottom = '0';
+    paragraph.style.lineHeight = '1.35';
+  }
+
+  // Add a small breathing room so the last baseline is not clipped by rasterization.
+  clonedRoot.style.paddingBottom = '20px';
 }
 
 function triggerDownload(url: string, filename: string): void {
@@ -446,7 +515,8 @@ async function exportResumeAsImage(
 async function exportElementAsPdf(element: HTMLElement, filename: string): Promise<void> {
   const exportRootAttr = `pdf-export-root-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   let clonedAnchors: Array<{ href: string; x: number; y: number; width: number; height: number }> = [];
-  const { width, height } = getExportElementDimensions(element);
+  let clonedContentWidth = 0;
+  let clonedContentHeight = 0;
 
   element.dataset.exportRoot = exportRootAttr;
 
@@ -455,10 +525,6 @@ async function exportElementAsPdf(element: HTMLElement, filename: string): Promi
       backgroundColor: '#ffffff',
       scale: 2,
       useCORS: true,
-      width,
-      height,
-      windowWidth: width,
-      windowHeight: height,
       scrollX: 0,
       scrollY: 0,
       ignoreElements: (node) => {
@@ -493,8 +559,12 @@ async function exportElementAsPdf(element: HTMLElement, filename: string): Promi
         clonedRoot.style.overflow = 'visible';
         clonedRoot.style.height = 'auto';
         clonedRoot.style.maxHeight = 'none';
+        applyCompactLayoutForPdfClone(clonedRoot);
 
         const rootRect = clonedRoot.getBoundingClientRect();
+        clonedContentWidth = rootRect.width;
+        clonedContentHeight = rootRect.height;
+
         clonedAnchors = Array.from(clonedRoot.querySelectorAll('a[href]'))
           .map((anchor) => {
             const rect = anchor.getBoundingClientRect();
@@ -511,17 +581,19 @@ async function exportElementAsPdf(element: HTMLElement, filename: string): Promi
     });
   const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
 
-  const margin = 18;
+  const margin = 10;
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
   const printableWidth = pageWidth - (margin * 2);
   const printableHeight = pageHeight - (margin * 2);
 
-  const scale = Math.min(printableWidth / canvas.width, printableHeight / canvas.height);
-  const renderedWidth = canvas.width * scale;
-  const renderedHeight = canvas.height * scale;
-  const pdfScaleX = renderedWidth / Math.max(1, width);
-  const pdfScaleY = renderedHeight / Math.max(1, height);
+  const sourceWidth = clonedContentWidth > 0 ? clonedContentWidth : canvas.width;
+  const sourceHeight = clonedContentHeight > 0 ? clonedContentHeight : canvas.height;
+  const scale = Math.min(printableWidth / sourceWidth, printableHeight / sourceHeight);
+  const renderedWidth = sourceWidth * scale;
+  const renderedHeight = sourceHeight * scale;
+  const pdfScaleX = renderedWidth / Math.max(1, sourceWidth);
+  const pdfScaleY = renderedHeight / Math.max(1, sourceHeight);
 
   pdf.addImage(
     canvas.toDataURL('image/png'),
@@ -663,7 +735,6 @@ export function createResumeExporters(notify: NotifyFn) {
     },
     pdf: {
       export: async (data: unknown, filename: string, _language: ExportLanguage = 'en', element?: HTMLElement) => {
-        void _language;
         try {
           const resume = asExportableResume(data);
           if (!resume) {
@@ -686,8 +757,6 @@ export function createResumeExporters(notify: NotifyFn) {
     },
     atsPdf: {
       export: async (data: unknown, filename: string, _profile: AtsExportProfile, _language: ExportLanguage = 'en', element?: HTMLElement) => {
-        void _profile;
-        void _language;
         try {
           const resume = asExportableResume(data);
           if (!resume) {
