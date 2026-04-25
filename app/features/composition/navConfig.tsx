@@ -25,7 +25,7 @@ export function createNavItems(labels: UILabels): NavItem[] {
         { name: labels.nav.podcast, id: 'podcast', icon: <Mic size={18} /> },
       ],
     },
-    { name: labels.nav.dashboard, id: 'dashboard', icon: <PieChart size={18} /> },
+    // { name: labels.nav.dashboard, id: 'dashboard', icon: <PieChart size={18} /> },
     { name: labels.nav.resume, id: 'resume', icon: <Briefcase size={18} /> },
     { name: labels.nav.contact, id: 'contact', icon: <Mail size={18} /> },
   ];
