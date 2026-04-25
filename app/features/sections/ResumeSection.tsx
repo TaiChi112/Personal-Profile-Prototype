@@ -198,14 +198,14 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             <h2 className="text-lg font-medium mb-4">{resume.title}</h2>
             <div className="flex flex-col gap-2 text-sm">
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-                <span>{resume.contact.location}</span>
-                <a href={`mailto:${resume.contact.email}`} className="underline underline-offset-2">{resume.contact.email}</a>
-                <span>{resume.contact.phone}</span>
+                <span className="font-semibold">{resume.contact.location}</span>
+                <a href={`mailto:${resume.contact.email}`} className="font-semibold underline underline-offset-2">{resume.contact.email}</a>
+                <span className="font-semibold">{resume.contact.phone}</span>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-                <a href={`https://${resume.contact.linkedin}`} target="_blank" rel="noreferrer" className="underline underline-offset-2">{resume.contact.linkedin}</a>
-                <a href={`https://${resume.contact.github}`} target="_blank" rel="noreferrer" className="underline underline-offset-2">{resume.contact.github}</a>
-                <a href={`https://${resume.contact.portfolio}`} target="_blank" rel="noreferrer" className="underline underline-offset-2">{resume.contact.portfolio}</a>
+                <a href={`https://${resume.contact.linkedin}`} target="_blank" rel="noreferrer" className="font-semibold underline underline-offset-2">{resume.contact.linkedin}</a>
+                <a href={`https://${resume.contact.github}`} target="_blank" rel="noreferrer" className="font-semibold underline underline-offset-2">{resume.contact.github}</a>
+                <a href={`https://${resume.contact.portfolio}`} target="_blank" rel="noreferrer" className="font-semibold underline underline-offset-2">{resume.contact.portfolio}</a>
               </div>
             </div>
           </div>
@@ -373,7 +373,7 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
           <div className="grid gap-x-6 gap-y-3 lg:grid-cols-3 text-[15px]">
             {resume.skillGroups.map((group) => (
               <div key={group.id} className="break-inside-avoid">
-                <h4 className="font-semibold mb-0.5">{group.title}</h4>
+                <h4 className="font-bold mb-0.5">{group.title}</h4>
                 <ul className="list-disc list-outside ml-5 space-y-1">
                   {group.items.map((item) => (
                     <li key={`${group.id}-${item}`}>{item}</li>
