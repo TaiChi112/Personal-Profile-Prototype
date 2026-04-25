@@ -87,6 +87,7 @@ const VIEW_LABELS: Record<ResumeLanguage, { summary: string; experience: string;
 export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>) {
   const exporters = useMemo(() => createResumeExporters((message, level) => onNotify(message, level)), [onNotify]);
   const resumeDocumentRef = useRef<HTMLDivElement | null>(null);
+  const exportControlsRef = useRef<HTMLDivElement | null>(null);
   const exportMenuRef = useRef<HTMLDivElement | null>(null);
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [viewLanguage, setViewLanguage] = useState<ResumeLanguage>('en');
@@ -98,40 +99,53 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
   const exportFilename = 'resume-anothai-vichapaiboon';
 
   const runExport = async (format: ExportFormat) => {
-    const handlers: Record<ExportFormat, () => Promise<void> | void> = {
-      md: () => exporters.markdown.export(exportResume, exportFilename, { language: exportLanguage }),
-      json: () => exporters.json.export(exportResume, exportFilename),
-      png: async () => {
-        if (!resumeDocumentRef.current) {
-          onNotify('Cannot export PNG. Resume element not found.', 'ERROR');
-          return;
-        }
-        await exporters.png.export(resumeDocumentRef.current, exportFilename);
-      },
-      jpg: async () => {
-        if (!resumeDocumentRef.current) {
-          onNotify('Cannot export JPG. Resume element not found.', 'ERROR');
-          return;
-        }
-        await exporters.jpg.export(resumeDocumentRef.current, exportFilename);
-      },
-      pdf: async () => {
-        if (!resumeDocumentRef.current) {
-          onNotify('Cannot export PDF. Resume element not found.', 'ERROR');
-          return;
-        }
-        await exporters.pdf.export(exportResume, exportFilename, exportLanguage, resumeDocumentRef.current);
-      },
-      'ats-pdf': async () => {
-        if (!resumeDocumentRef.current) {
-          onNotify('Cannot export ATS PDF. Resume element not found.', 'ERROR');
-          return;
-        }
-        await exporters.atsPdf.export(exportResume, exportFilename, exportResume.atsExportProfile, exportLanguage, resumeDocumentRef.current);
-      },
-    };
+    // Hide right-side controls during export to prevent them from being captured
+    const originalDisplay = exportControlsRef.current?.style.display;
+    if (exportControlsRef.current) {
+      exportControlsRef.current.style.display = 'none';
+    }
 
-    await handlers[format]();
+    try {
+      const handlers: Record<ExportFormat, () => Promise<void> | void> = {
+        md: () => exporters.markdown.export(exportResume, exportFilename, { language: exportLanguage }),
+        json: () => exporters.json.export(exportResume, exportFilename),
+        png: async () => {
+          if (!resumeDocumentRef.current) {
+            onNotify('Cannot export PNG. Resume element not found.', 'ERROR');
+            return;
+          }
+          await exporters.png.export(resumeDocumentRef.current, exportFilename);
+        },
+        jpg: async () => {
+          if (!resumeDocumentRef.current) {
+            onNotify('Cannot export JPG. Resume element not found.', 'ERROR');
+            return;
+          }
+          await exporters.jpg.export(resumeDocumentRef.current, exportFilename);
+        },
+        pdf: async () => {
+          if (!resumeDocumentRef.current) {
+            onNotify('Cannot export PDF. Resume element not found.', 'ERROR');
+            return;
+          }
+          await exporters.pdf.export(exportResume, exportFilename, exportLanguage, resumeDocumentRef.current);
+        },
+        'ats-pdf': async () => {
+          if (!resumeDocumentRef.current) {
+            onNotify('Cannot export ATS PDF. Resume element not found.', 'ERROR');
+            return;
+          }
+          await exporters.atsPdf.export(exportResume, exportFilename, exportResume.atsExportProfile, exportLanguage, resumeDocumentRef.current);
+        },
+      };
+
+      await handlers[format]();
+    } finally {
+      // Restore controls visibility after export
+      if (exportControlsRef.current) {
+        exportControlsRef.current.style.display = originalDisplay || '';
+      }
+    }
   };
 
   const handleExportOptionClick = async (format: ExportFormat) => {
@@ -195,7 +209,7 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
               </div>
             </div>
           </div>
-          <div className="flex items-start gap-3">
+          <div ref={exportControlsRef} className="flex items-start gap-3">
             <div className="rounded-lg border border-black/10 px-2 py-2">
               <div className="text-[11px] uppercase tracking-wider text-black/50 mb-1">{viewLabels.viewLanguage}</div>
               <div className="flex items-center gap-2">
@@ -332,7 +346,15 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
           <div className="space-y-4">
             {resume.keyProjects.map((project) => (
               <div key={project.id}>
-                <div className="font-semibold">{project.title}</div>
+                <div className="font-semibold">
+                  {project.repoUrl ? (
+                    <a href={project.repoUrl} target="_blank" rel="noreferrer" className="underline underline-offset-2">
+                      {project.title}
+                    </a>
+                  ) : (
+                    project.title
+                  )}
+                </div>
                 <ul className="mt-2 list-disc list-outside ml-5 space-y-1">
                   {project.description.map((item) => (
                     <li key={item}>{renderProjectDescriptionWithBoldKey(item)}</li>
