@@ -110,27 +110,32 @@ Traditional developer portfolios are static, single-purpose pages that fail to d
 
 The system follows a **Pattern-Driven UI Monolith** with a **Layered Architecture** within a single Next.js application:
 
-```
-┌──────────────────────────────────────────┐
-│          UI Layer  (React Components)    │
-│  NavigationShell · Sections · Feed · System Controls  │
-├──────────────────────────────────────────┤
-│        Domain Layer  (Models & Services) │
-│  Theme · Command · Feed · Content · Tour │
-├──────────────────────────────────────────┤
-│         Application Facade               │
-│         AppSystemFacade (Bootstrap)      │
-└──────────────┬───────────────────────────┘
-               │ HTTP / JSON
-┌──────────────▼───────────────────────────┐
-│      Server Layer  (Next.js API Routes)  │
-│  /api/auth · /api/posts · Auth Middleware│
-├──────────────────────────────────────────┤
-│      Data Access Layer  (Prisma ORM)     │
-├──────────────────────────────────────────┤
-│      Database  (PostgreSQL 16)           │
-│      users · posts · [future models]     │
-└──────────────────────────────────────────┘
+```mermaid
+block-beta
+  columns 1
+
+  block:client["Client (Browser)"]
+    columns 1
+    ui["🖥️ UI Layer — React Components\nNavigationShell · Sections · Feed · System Controls"]
+    domain["⚙️ Domain Layer — Models & Services\nTheme · Command · Feed · Content · Tour"]
+    facade["🏛️ Application Facade\nAppSystemFacade (Bootstrap)"]
+  end
+
+  arrow["HTTP / JSON"]
+
+  block:server["Server (Next.js)"]
+    columns 1
+    api["🌐 Server Layer — Next.js API Routes\n/api/auth · /api/posts · Auth Middleware"]
+    dal["🔗 Data Access Layer — Prisma ORM"]
+    db["🗄️ Database — PostgreSQL 16\nusers · posts · future models"]
+  end
+
+  ui --> domain
+  domain --> facade
+  facade --> arrow
+  arrow --> api
+  api --> dal
+  dal --> db
 ```
 
 ### 3.2 Design Patterns Implemented
@@ -177,8 +182,31 @@ All **23 Gang of Four** patterns are implemented and observable in the running a
 
 ### 3.3 Data Model
 
-```
-USER ──< POST
+```mermaid
+erDiagram
+    USER {
+        string id PK "cuid"
+        string email UK
+        string name
+        string image
+        string role
+        string provider
+        string providerAccountId
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    POST {
+        string id PK "cuid"
+        string title
+        string content
+        boolean published
+        string authorId FK
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    USER ||--o{ POST : "authors"
 ```
 
 | Entity | Fields | Notes |
@@ -190,14 +218,20 @@ USER ──< POST
 
 ### 3.4 Authentication & Authorization Flow
 
-```
-Login → Choose Provider (Google OAuth / Credentials)
-     → NextAuth OAuth Callback / Credential Validation
-     → Upsert User in PostgreSQL
-     → Generate JWT (with userId + role)
-     → Session callback augments session object
-     → Protected routes call requireAdminSession()
-     → Admin UI vs. Viewer UI rendered conditionally
+```mermaid
+flowchart TD
+    A(["🔑 Login"]) --> B{"Choose Provider"}
+    B -- "Google OAuth" --> C["NextAuth OAuth Callback"]
+    B -- "Credentials" --> D["Credential Validation"]
+    C --> E["Upsert User in PostgreSQL"]
+    D --> E
+    E --> F["Generate JWT\n(userId + role)"]
+    F --> G["Session Callback\naugments session object"]
+    G --> H{"Access Protected Route?"}
+    H -- "Yes" --> I["requireAdminSession()"]
+    H -- "No" --> K["Render Viewer UI"]
+    I -- "Admin role" --> J["Render Admin UI"]
+    I -- "Insufficient role" --> L(["401 Unauthorized"])
 ```
 
 ---
@@ -464,30 +498,36 @@ The Dockerfile uses a **multi-stage build**:
 
 ### 6.5 CI/CD Pipeline
 
-```
-Push to main / PR opened
-        │
-        ▼
-[ci.yml] GitHub Actions
-  1. Setup Bun
-  2. bun install --frozen-lockfile
-  3. prisma generate
-  4. prisma migrate deploy (against ephemeral PostgreSQL service)
-  5. prisma seed
-  6. integration:auth-db
-  7. bun run build
-  8. Start dev server → wait for /api/auth/session
-  9. integration:http-crud
- 10. integration:http-admin-users
-        │
-        ▼ (on push to main or staging)
-[deploy-gcp.yml] GitHub Actions
-  1. Authenticate to GCP (Workload Identity Federation)
-  2. docker build → tag with git SHA + latest
-  3. docker push → Google Container Registry (gcr.io)
-  4. gcloud run deploy → Cloud Run (us-central1)
-     - --set-secrets DATABASE_URL, NEXTAUTH_SECRET from Secret Manager
-  5. gcloud run services describe → output live URL
+```mermaid
+flowchart TD
+    A(["📦 Push to main / PR Opened"]) --> B
+
+    subgraph CI ["🔄 ci.yml — GitHub Actions"]
+        direction TB
+        B["1. Setup Bun"] --> C["2. bun install --frozen-lockfile"]
+        C --> D["3. prisma generate"]
+        D --> E["4. prisma migrate deploy\n(ephemeral PostgreSQL service)"]
+        E --> F["5. prisma seed"]
+        F --> G["6. integration:auth-db"]
+        G --> H["7. bun run build"]
+        H --> I["8. Start dev server\n→ wait for /api/auth/session"]
+        I --> J["9. integration:http-crud"]
+        J --> K["10. integration:http-admin-users"]
+    end
+
+    K --> L{"Push to\nmain / staging?"}
+    L -- "No" --> M(["✅ CI Complete"])
+    L -- "Yes" --> N
+
+    subgraph CD ["🚀 deploy-gcp.yml — GitHub Actions"]
+        direction TB
+        N["1. Authenticate to GCP\n(Workload Identity Federation)"] --> O["2. docker build\n→ tag with git SHA + latest"]
+        O --> P["3. docker push\n→ Google Container Registry (gcr.io)"]
+        P --> Q["4. gcloud run deploy\n→ Cloud Run (us-central1)\n--set-secrets from Secret Manager"]
+        Q --> R["5. gcloud run services describe\n→ output live URL"]
+    end
+
+    R --> S(["🌐 Live on Cloud Run"])
 ```
 
 ### 6.6 Deployment Targets
