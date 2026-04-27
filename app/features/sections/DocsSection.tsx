@@ -1,15 +1,58 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { MOCK_DOCS } from '../../data/content';
 import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
 
 type DocsSectionProps = {
   currentStyle: StyleFactory;
   labels: UILabels;
+  selectedDocParam?: string;
 };
 
-export function DocsSection({ currentStyle, labels }: DocsSectionProps) {
-  const [activeDoc, setActiveDoc] = useState(MOCK_DOCS[0]);
+export function DocsSection({ currentStyle, labels, selectedDocParam }: Readonly<DocsSectionProps>) {
+  const router = useRouter();
+  const normalizedParam = useMemo(() => decodeURIComponent(selectedDocParam ?? '').trim().toLowerCase(), [selectedDocParam]);
+
+  const docFromRoute = useMemo(
+    () =>
+      MOCK_DOCS.find((doc) => {
+        const title = doc.title.trim().toLowerCase();
+        const slug = doc.slug.trim().toLowerCase();
+        return normalizedParam.length > 0 && (title === normalizedParam || slug === normalizedParam);
+      }),
+    [normalizedParam],
+  );
+
+  const [activeDoc, setActiveDoc] = useState(docFromRoute ?? MOCK_DOCS[0]);
   const sections = Array.from(new Set(MOCK_DOCS.map((doc) => doc.section)));
+
+  useEffect(() => {
+    if (docFromRoute && docFromRoute.id !== activeDoc.id) {
+      setActiveDoc(docFromRoute);
+    }
+  }, [activeDoc.id, docFromRoute]);
+
+  const openDoc = (docId: string) => {
+    const doc = MOCK_DOCS.find((item) => item.id === docId);
+    if (!doc) {
+      return;
+    }
+
+    setActiveDoc(doc);
+    router.push(`/docs/${encodeURIComponent(doc.title)}`);
+  };
+
+  const getDocButtonClass = (docId: string) => {
+    if (activeDoc.id === docId) {
+      if (currentStyle.name === 'Future') {
+        return 'bg-cyan-900/50 text-cyan-400';
+      }
+
+      return 'bg-blue-50 text-blue-700 dark:bg-gray-800 dark:text-blue-300 font-medium';
+    }
+
+    return 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800';
+  };
 
   return (
     <div className="flex flex-col md:flex-row max-w-7xl mx-auto pt-8 min-h-[80vh] px-4">
@@ -24,14 +67,8 @@ export function DocsSection({ currentStyle, labels }: DocsSectionProps) {
               {MOCK_DOCS.filter((doc) => doc.section === section).map((doc) => (
                 <li key={doc.id}>
                   <button
-                    onClick={() => setActiveDoc(doc)}
-                    className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
-                      activeDoc.id === doc.id
-                        ? currentStyle.name === 'Future'
-                          ? 'bg-cyan-900/50 text-cyan-400'
-                          : 'bg-blue-50 text-blue-700 dark:bg-gray-800 dark:text-blue-300 font-medium'
-                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                    }`}
+                    onClick={() => openDoc(doc.id)}
+                    className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${getDocButtonClass(doc.id)}`}
                   >
                     {doc.title}
                   </button>
