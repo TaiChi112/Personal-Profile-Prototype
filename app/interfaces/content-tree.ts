@@ -3,6 +3,7 @@ export type DecorationType = 'new' | 'featured' | 'sponsor' | 'hot' | 'popular';
 export interface UnifiedContentItem {
   id: string;
   type: 'project' | 'blog' | 'video' | 'article' | 'doc' | 'podcast';
+  slug?: string;
   title: string;
   description: string;
   date: string;
