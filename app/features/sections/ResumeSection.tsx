@@ -228,59 +228,59 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
               </div>
             </div>
             <div ref={exportMenuRef} className="relative">
-            <button
-              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-black/80 hover:text-black transition-colors"
-              onClick={() => setIsExportMenuOpen((prev) => !prev)}
-              aria-haspopup="menu"
-              aria-expanded={isExportMenuOpen}
-            >
-              Export <ChevronDown size={14} className={`${isExportMenuOpen ? 'rotate-180' : ''} transition-transform`} />
-            </button>
-            {isExportMenuOpen && (
-              <div className="absolute right-0 mt-2 min-w-72 rounded-2xl border border-white/10 bg-[#111317] text-white shadow-2xl py-2 z-20">
-                <div className="px-3 pt-1 pb-2 text-[11px] uppercase tracking-wider text-white/50">{viewLabels.exportLanguage}</div>
-                <div className="px-3 pb-2 flex items-center gap-2">
-                  <button
-                    className={`px-2.5 py-1 rounded-md text-xs border ${exportLanguage === 'en' ? 'bg-white text-black border-white' : 'border-white/30 text-white/80 hover:bg-white/10'}`}
-                    onClick={() => setExportLanguage('en')}
-                  >
-                    EN
-                  </button>
-                  <button
-                    className={`px-2.5 py-1 rounded-md text-xs border ${exportLanguage === 'th' ? 'bg-white text-black border-white' : 'border-white/30 text-white/80 hover:bg-white/10'}`}
-                    onClick={() => setExportLanguage('th')}
-                  >
-                    TH
-                  </button>
-                </div>
-                <div className="my-2 border-t border-white/10" />
-                {EXPORT_GROUPS.map((group, groupIndex) => (
-                  <div key={group.title}>
-                    {groupIndex > 0 && <div className="my-2 border-t border-white/10" />}
-                    <div className="px-3 pt-1 pb-2 text-[11px] uppercase tracking-wider text-white/50">{group.title}</div>
-                    {group.options.map((option) => {
-                      const Icon = option.icon;
-                      return (
-                        <button
-                          key={option.key}
-                          className="w-full text-left px-3 py-2 text-sm hover:bg-white/5 flex items-center justify-between"
-                          onClick={() => {
-                            void handleExportOptionClick(option.key);
-                          }}
-                        >
-                          <span className="inline-flex items-center gap-2">
-                            <Icon size={16} className="text-white/70" />
-                            <span>{option.label}</span>
-                          </span>
-                          <span className="text-white/40">↗</span>
-                        </button>
-                      );
-                    })}
+              <button
+                className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-black/80 hover:text-black transition-colors"
+                onClick={() => setIsExportMenuOpen((prev) => !prev)}
+                aria-haspopup="menu"
+                aria-expanded={isExportMenuOpen}
+              >
+                Export <ChevronDown size={14} className={`${isExportMenuOpen ? 'rotate-180' : ''} transition-transform`} />
+              </button>
+              {isExportMenuOpen && (
+                <div className="absolute right-0 mt-2 min-w-72 rounded-2xl border border-white/10 bg-[#111317] text-white shadow-2xl py-2 z-20">
+                  <div className="px-3 pt-1 pb-2 text-[11px] uppercase tracking-wider text-white/50">{viewLabels.exportLanguage}</div>
+                  <div className="px-3 pb-2 flex items-center gap-2">
+                    <button
+                      className={`px-2.5 py-1 rounded-md text-xs border ${exportLanguage === 'en' ? 'bg-white text-black border-white' : 'border-white/30 text-white/80 hover:bg-white/10'}`}
+                      onClick={() => setExportLanguage('en')}
+                    >
+                      EN
+                    </button>
+                    <button
+                      className={`px-2.5 py-1 rounded-md text-xs border ${exportLanguage === 'th' ? 'bg-white text-black border-white' : 'border-white/30 text-white/80 hover:bg-white/10'}`}
+                      onClick={() => setExportLanguage('th')}
+                    >
+                      TH
+                    </button>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  <div className="my-2 border-t border-white/10" />
+                  {EXPORT_GROUPS.map((group, groupIndex) => (
+                    <div key={group.title}>
+                      {groupIndex > 0 && <div className="my-2 border-t border-white/10" />}
+                      <div className="px-3 pt-1 pb-2 text-[11px] uppercase tracking-wider text-white/50">{group.title}</div>
+                      {group.options.map((option) => {
+                        const Icon = option.icon;
+                        return (
+                          <button
+                            key={option.key}
+                            className="w-full text-left px-3 py-2 text-sm hover:bg-white/5 flex items-center justify-between"
+                            onClick={() => {
+                              void handleExportOptionClick(option.key);
+                            }}
+                          >
+                            <span className="inline-flex items-center gap-2">
+                              <Icon size={16} className="text-white/70" />
+                              <span>{option.label}</span>
+                            </span>
+                            <span className="text-white/40">↗</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         {visibility.summary && <section className="mb-7">
@@ -316,27 +316,7 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             ))}
           </div>
         </section>}
-        {visibility.education && <section className="mb-7">
-          <h3
-            className="text-sm font-bold uppercase tracking-widest mb-3"
-          >
-            {viewLabels.education}
-          </h3>
-          <div className="space-y-4">
-            {resume.education.map((education) => (
-              <div key={education.id} className="p-1">
-                <div className="font-semibold">{education.degree}</div>
-                <div>{education.institution}</div>
-                <div className="text-sm">{education.year}</div>
-                <ul className="mt-2 list-disc list-outside ml-5 space-y-1">
-                  {education.details.map((detail) => (
-                    <li key={detail}>{detail}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>}
+
         {visibility.projects && <section className="mb-7">
           <h3
             className="text-sm font-bold uppercase tracking-widest mb-3"
@@ -383,6 +363,27 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             ))}
           </div>
         </section>}
+        {visibility.education && <section className="mb-7">
+          <h3
+            className="text-sm font-bold uppercase tracking-widest mb-3"
+          >
+            {viewLabels.education}
+          </h3>
+          <div className="space-y-4">
+            {resume.education.map((education) => (
+              <div key={education.id} className="p-1">
+                <div className="font-semibold">{education.degree}</div>
+                <div>{education.institution}</div>
+                <div className="text-sm">{education.year}</div>
+                <ul className="mt-2 list-disc list-outside ml-5 space-y-1">
+                  {education.details.map((detail) => (
+                    <li key={detail}>{detail}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>}
         {visibility.additionalInformation && <section>
           <h3
             className="text-sm font-bold uppercase tracking-widest mb-3"
@@ -395,9 +396,10 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             ))}
           </ul>
         </section>}
+
       </div>
     </div>
   );
 }
 
-            
+
