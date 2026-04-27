@@ -1,0 +1,23 @@
+name: Deploy to Google Cloud
+
+# รันอัตโนมัติเมื่อมีการ push โค้ดเข้า branch main
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploying via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # คำสั่งที่จะให้หุ่นยนต์พิมพ์ลงใน Server
+          script: |
+            cd ~/personal-profile-prototype
+            git pull origin main
+            sudo docker compose -f docker-compose.prod.yml up -d --build
