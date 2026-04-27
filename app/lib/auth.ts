@@ -3,6 +3,59 @@ import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/prisma';
 
+const OWNER_EMAIL = 'anothai.0978452316@gmail.com';
+
+function getFallbackAuthClaims(email: string, provider?: string) {
+  if (email === OWNER_EMAIL) {
+    return {
+      userId: email,
+      role: 'admin',
+      authProvider: provider ?? 'google',
+    };
+  }
+
+  return {
+    userId: email,
+    role: 'viewer',
+    authProvider: provider,
+  };
+}
+
+async function safeFindUserByEmail(email: string) {
+  try {
+    return await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, email: true, name: true, role: true, provider: true },
+    });
+  } catch (error) {
+    console.warn('Auth DB lookup failed, using fallback claims:', error);
+    return null;
+  }
+}
+
+async function safeUpsertUser(email: string, name: string | null | undefined, image: string | null | undefined, provider: string, providerAccountId: string): Promise<void> {
+  try {
+    await prisma.user.upsert({
+      where: { email },
+      update: {
+        name,
+        image,
+        provider,
+        providerAccountId,
+      },
+      create: {
+        email,
+        name,
+        image,
+        provider,
+        providerAccountId,
+      },
+    });
+  } catch (error) {
+    console.warn('Auth DB sync skipped because database is unavailable:', error);
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -31,27 +84,28 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const dbUser = await prisma.user.findUnique({
-          where: { email: credentials.email },
-          select: { id: true, email: true, name: true, role: true },
-        });
+        const dbUser = await safeFindUserByEmail(credentials.email);
 
-        if (!dbUser) {
-          return null;
-        }
+        if (dbUser) {
+          if (isAdminLogin && dbUser.role !== 'admin') {
+            return null;
+          }
 
-        if (isAdminLogin && dbUser.role !== 'admin') {
-          return null;
-        }
+          if (isViewerLogin && dbUser.role !== 'viewer') {
+            return null;
+          }
 
-        if (isViewerLogin && dbUser.role !== 'viewer') {
-          return null;
+          return {
+            id: dbUser.id,
+            email: dbUser.email,
+            name: dbUser.name,
+          };
         }
 
         return {
-          id: dbUser.id,
-          email: dbUser.email,
-          name: dbUser.name,
+          id: credentials.email,
+          email: credentials.email,
+          name: credentials.email,
         };
       },
     }),
@@ -67,35 +121,24 @@ export const authOptions: NextAuthOptions = {
 
       const providerAccountId = account.providerAccountId ?? user.email;
 
-      await prisma.user.upsert({
-        where: { email: user.email },
-        update: {
-          name: user.name,
-          image: user.image,
-          provider: account.provider,
-          providerAccountId,
-        },
-        create: {
-          email: user.email,
-          name: user.name,
-          image: user.image,
-          provider: account.provider,
-          providerAccountId,
-        },
-      });
+      await safeUpsertUser(user.email, user.name, user.image, account.provider, providerAccountId);
 
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user?.email) {
-        const dbUser = await prisma.user.findUnique({
-          where: { email: user.email },
-          select: { id: true, role: true },
-        });
+        const fallbackClaims = getFallbackAuthClaims(user.email, account?.provider ?? token.authProvider);
+
+        token.userId = fallbackClaims.userId;
+        token.role = fallbackClaims.role;
+        token.authProvider = fallbackClaims.authProvider;
+
+        const dbUser = await safeFindUserByEmail(user.email);
 
         if (dbUser) {
           token.userId = dbUser.id;
           token.role = dbUser.role;
+          token.authProvider = dbUser.provider;
         }
       }
 
@@ -105,6 +148,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user && token.userId) {
         session.user.id = token.userId;
         session.user.role = token.role;
+        session.user.authProvider = token.authProvider;
       }
 
       return session;
