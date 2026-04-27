@@ -17,7 +17,7 @@ build
 out
 
 # Development
-.env
+.env*
 .env.local
 .env.development.local
 .env.test.local
@@ -51,6 +51,16 @@ README.md
 *.md
 
 # Demo and test files
-demo
-test
-scripts
+demo/
+test/
+scripts/
+Resume/
+docs/
+data/
+plan/
+src
+*.md
+*.txt
+*.log
+*.sh
+proxy.ts
