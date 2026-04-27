@@ -1,38 +1,5 @@
-version: '3.8'
-
 services:
-  # PostgreSQL Database - Production
-  postgres:
-    image: postgres:16-alpine
-    container_name: personal-profile-db-prod
-    restart: always
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-      PGDATA: /var/lib/postgresql/data/pgdata
-    ports:
-      - "${DB_PORT}:5432"
-    volumes:
-      - pgdata_prod:/var/lib/postgresql/data
-      - ./backups:/backups
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
-    networks:
-      - app-network-prod
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "50m"
-        max-file: "10"
-    security_opt:
-      - no-new-privileges:true
-
-  # Next.js Application - Production
+  # มีแค่ Next.js Application ตัวเดียวพอ เพราะ DB อยู่ที่ Supabase แล้ว
   app:
     build:
       context: .
@@ -41,12 +8,9 @@ services:
         NODE_ENV: production
     container_name: personal-profile-app-prod
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
-      # Database
-      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?schema=public
+      # ให้มันอ่านค่า DATABASE_URL จากไฟล์ .env โดยตรง
+      DATABASE_URL: ${DATABASE_URL}
       
       # Next.js
       NODE_ENV: production
@@ -56,13 +20,13 @@ services:
       NEXTAUTH_URL: ${NEXTAUTH_URL}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       
-      # Auth Providers
+      # Auth Providers (ถ้ามี)
       GITHUB_ID: ${GITHUB_ID}
       GITHUB_SECRET: ${GITHUB_SECRET}
       GOOGLE_ID: ${GOOGLE_ID}
       GOOGLE_SECRET: ${GOOGLE_SECRET}
     ports:
-      - "${APP_PORT}:3000"
+      - "${APP_PORT:-3000}:3000"
     networks:
       - app-network-prod
     logging:
@@ -80,10 +44,6 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
-
-volumes:
-  pgdata_prod:
-    driver: local
 
 networks:
   app-network-prod:

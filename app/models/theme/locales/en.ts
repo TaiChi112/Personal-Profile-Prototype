@@ -1,6 +1,6 @@
 export const EN_LABELS = {
   nav: { home: 'Home', feed: 'Feed', projects: 'Projects', library: 'Library', articles: 'Articles', blog: 'Blog', docs: 'Docs', resume: 'Resume', dashboard: 'Analytics', podcast: 'Podcast', contact: 'Contact' },
-  hero: { titlePrefix: 'Building the', titleHighlight: 'Future', description: 'Software Engineering crafting scalable applications.', btnProjects: 'View Projects', btnArticles: 'Read Articles' },
+  hero: { titlePrefix: 'Building the', titleHighlight: 'Future (CI/CD Active!)', description: 'Software Engineering crafting scalable applications.', btnProjects: 'View Projects', btnArticles: 'Read Articles' },
   sections: {
     feed: 'Unified Feed', feedDesc: 'All content in one place.',
     projects: 'Projects', projectsDesc: 'Super Projects and their related sub-modules.',
