@@ -27,9 +27,19 @@ import { getPathFromTab, normalizeTabId } from './tabRouting';
 
 type PersonalWebsiteAppProps = {
   initialTab?: string;
+  initialDocParam?: string;
+  initialProjectParam?: string;
+  initialBlogParam?: string;
+  initialArticleParam?: string;
 };
 
-export function PersonalWebsiteApp({ initialTab = 'home' }: Readonly<PersonalWebsiteAppProps>) {
+export function PersonalWebsiteApp({
+  initialTab = 'home',
+  initialDocParam,
+  initialProjectParam,
+  initialBlogParam,
+  initialArticleParam,
+}: Readonly<PersonalWebsiteAppProps>) {
   const router = useRouter();
   const normalizedInitialTab = normalizeTabId(initialTab);
 
@@ -103,6 +113,10 @@ export function PersonalWebsiteApp({ initialTab = 'home' }: Readonly<PersonalWeb
 
   const content = useContentTabMapper({
     activeTab,
+    selectedDocParam: initialDocParam,
+    selectedProjectParam: initialProjectParam,
+    selectedBlogParam: initialBlogParam,
+    selectedArticleParam: initialArticleParam,
     currentStyle,
     labels,
     projectTree,
