@@ -20,4 +20,4 @@ jobs:
           script: |
             cd ~/personal-profile-prototype
             git pull origin main
-            sudo docker compose -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.prod.yml up -d --build
