@@ -35,6 +35,7 @@ type InteractiveContentNodeProps = {
   readonly activeNodeId: string | null;
   readonly isAdmin: boolean;
   readonly notify: (message: string, level: NotifyLevel) => void;
+  readonly onTitleClick?: (item: UnifiedContentItem) => void;
 };
 
 export function InteractiveContentNode({
@@ -45,6 +46,7 @@ export function InteractiveContentNode({
   activeNodeId,
   isAdmin,
   notify,
+  onTitleClick,
 }: InteractiveContentNodeProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -65,7 +67,35 @@ export function InteractiveContentNode({
     return undefined;
   }, [activeNodeId, node.id]);
 
-  const contentItem = 'data' in node ? (node.data as UnifiedContentItem | undefined) : undefined;
+  const contentItem = 'data' in node ? node.data : undefined;
+
+  const getLayoutIcon = (layoutStyle: LayoutStyleType, size: number) => {
+    if (layoutStyle === 'grid') {
+      return <LayoutGrid size={size} />;
+    }
+
+    if (layoutStyle === 'list') {
+      return <List size={size} />;
+    }
+
+    return <Clock size={size} />;
+  };
+
+  const getChildrenLayoutClass = () => {
+    if (currentLayout === 'grid') {
+      return 'grid grid-cols-1 md:grid-cols-2 gap-4';
+    }
+
+    if (currentLayout === 'list') {
+      return 'flex flex-col space-y-4';
+    }
+
+    if (currentLayout === 'timeline') {
+      return `border-l-2 ${style.name === 'Future' ? 'border-cyan-500' : 'border-gray-300'} ml-2 pl-4 space-y-6`;
+    }
+
+    return 'flex flex-col gap-4';
+  };
 
   const renderContentCard = () => {
     if (!contentItem && !isComposite(node)) return null;
@@ -87,7 +117,7 @@ export function InteractiveContentNode({
                   }}
                   className={`p-1 rounded ${currentLayout === layoutStyle ? 'bg-white shadow text-blue-600' : 'text-gray-400'}`}
                 >
-                  {layoutStyle === 'grid' ? <LayoutGrid size={14} /> : layoutStyle === 'list' ? <List size={14} /> : <Clock size={14} />}
+                  {getLayoutIcon(layoutStyle, 14)}
                 </button>
               ))}
             </div>
@@ -122,12 +152,25 @@ export function InteractiveContentNode({
               </button>
             )}
           </div>
-          <h3 className={`text-2xl font-bold mb-2 cursor-pointer hover:underline ${style.name === 'Future' ? 'text-cyan-400' : 'text-gray-900 dark:text-gray-100'}`} onClick={() => notify(`Opened: ${contentItem!.title}`, 'INFO')}>
-            {contentItem!.title}
+          <h3 className={`text-2xl font-bold mb-2 ${style.name === 'Future' ? 'text-cyan-400' : 'text-gray-900 dark:text-gray-100'}`}>
+            <button
+              type="button"
+              className="text-left hover:underline"
+              onClick={() => {
+                if (onTitleClick) {
+                  onTitleClick(contentItem!);
+                  return;
+                }
+
+                notify(`Opened: ${contentItem!.title}`, 'INFO');
+              }}
+            >
+              {contentItem!.title}
+            </button>
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 leading-relaxed">{contentItem!.description}</p>
           <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
-            <div className="flex gap-2">{contentItem!.meta && contentItem!.meta.slice(0, 3).map((tag, index) => <span key={index} className="text-[10px] px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-gray-500">#{tag}</span>)}</div>
+            <div className="flex gap-2">{contentItem?.meta?.slice(0, 3).map((tag) => <span key={tag} className="text-[10px] px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-gray-500">#{tag}</span>)}</div>
             <button className={style.getButtonClass('text')}>{labels.actions.readMore} <ChevronRight size={14} className="inline ml-1" /></button>
           </div>
         </div>
@@ -149,17 +192,26 @@ export function InteractiveContentNode({
             <div className="flex gap-1 bg-gray-200 dark:bg-gray-700 rounded p-0.5">
               {(['grid', 'list', 'timeline'] as LayoutStyleType[]).map((layoutStyle) => (
                 <button key={layoutStyle} onClick={() => setCurrentLayout(layoutStyle)} className={`p-1.5 rounded text-xs transition-all ${currentLayout === layoutStyle ? 'bg-white dark:bg-gray-600 shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`} title={layoutStyle}>
-                  {layoutStyle === 'grid' ? <LayoutGrid size={12} /> : layoutStyle === 'list' ? <List size={12} /> : <Clock size={12} />}
+                  {getLayoutIcon(layoutStyle, 12)}
                 </button>
               ))}
             </div>
           </div>
         )}
-        <div className={currentLayout === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : currentLayout === 'list' ? 'flex flex-col space-y-4' : currentLayout === 'timeline' ? `border-l-2 ${style.name === 'Future' ? 'border-cyan-500' : 'border-gray-300'} ml-2 pl-4 space-y-6` : 'flex flex-col gap-4'}>
+        <div className={getChildrenLayoutClass()}>
           {node.children.map((child) => (
             <div key={child.id} className={currentLayout === 'timeline' ? 'relative' : ''}>
               {currentLayout === 'timeline' && <div className={`absolute -left-5.75 top-6 h-3 w-3 rounded-full border-2 ${style.name === 'Future' ? 'border-black bg-cyan-500' : 'border-white bg-gray-400'} shadow-sm`} />}
-              <InteractiveContentNode node={child} style={style} labels={labels} level={level + 1} activeNodeId={activeNodeId} isAdmin={isAdmin} notify={notify} />
+              <InteractiveContentNode
+                node={child}
+                style={style}
+                labels={labels}
+                level={level + 1}
+                activeNodeId={activeNodeId}
+                isAdmin={isAdmin}
+                notify={notify}
+                onTitleClick={onTitleClick}
+              />
             </div>
           ))}
         </div>
