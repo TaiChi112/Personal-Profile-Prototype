@@ -3,12 +3,10 @@ export interface InternshipProject {
   title: string;
   repoUrl?: string;
   description: string[];
-  timeline?: Array<{
+  timeline?: {
     start: string;
-    end?: string;
     status?: TimelineStatus;
-    note?: string;
-  }>;
+  };
 }
 
 export type TimelineStatus =
@@ -161,18 +159,10 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
         "Problem/Motivation: Learning advanced Software Design Patterns often lacks practical, real-world frontend implementation examples.",
         "Solution/Benefit: Developed a portfolio website using TypeScript and Next.js, explicitly implementing GoF patterns (Factory, Builder, Visitor) within the architecture. This resulted in a highly maintainable codebase and served as a tangible proof-of-concept for clean code engineering.",
       ],
-      timeline: [
-        {
-          start: "2024-10",
-          end: "2024-11",
-          note: "Define layout, patterns, and content model",
-        },
-        {
-          start: "2024-11",
-          status: "refactor",
-          note: "Build, refactor, and maintain the prototype",
-        },
-      ],
+      timeline: {
+        start: "18/01/2026",
+        status: "refactor",
+      },
     },
     {
       id: "ocr-pipeline",
@@ -182,18 +172,10 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
         "Problem/Motivation: Translating comics manually is highly inefficient due to the complexity of extracting text from images.",
         "Solution/Benefit: Engineered an end-to-end Python pipeline leveraging digital image processing and Optical Character Recognition (OCR). Integrated a Human-in-the-Loop (HITL) workflow to ensure high contextual accuracy and quality control in English-to-Thai translations.",
       ],
-      timeline: [
-        {
-          start: "2024-08",
-          end: "2024-09",
-          note: "Evaluate OCR pipeline and translation flow",
-        },
-        {
-          start: "2024-09",
-          status: "scale",
-          note: "Scale accuracy, refactor pipeline, and tune HITL checks",
-        },
-      ],
+      timeline: {
+        start: "24/02/2026",
+        status: "scale",
+      },
     },
     {
       id: "uaps",
@@ -203,18 +185,10 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
         "Problem/Motivation: Using a single, static resume for different roles reduces the chance of matching company-specific requirements.",
         "Solution/Benefit: Designed a normalized relational database to securely and flexibly manage skills and experiences. Built a Dynamic Resume generator that outputs tailored documents mapped to specific Job Descriptions, laying the architectural groundwork for future LLM-driven candidate-job matching.",
       ],
-      timeline: [
-        {
-          start: "2024-06",
-          end: "2024-08",
-          note: "Model skills, experiences, and resume variants",
-        },
-        {
-          start: "2024-08",
-          status: "refactor",
-          note: "Expand generation flow and maintain schema",
-        },
-      ],
+      timeline: {
+        start: "29/03/2026",
+        status: "refactor",
+      },
     },
     {
       id: "calendar-agent",
@@ -224,18 +198,10 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
         "Problem/Motivation: Manually managing schedules and checking for appointment overlaps is time-consuming and error-prone.",
         "Solution/Benefit: Developed a Python-based AI agent utilizing the Model Context Protocol (MCP) to interpret natural language commands. Integrated with the Google Calendar API to automate scheduling and perform real-time overlap detection, significantly reducing manual calendar management.",
       ],
-      timeline: [
-        {
-          start: "2024-12",
-          end: "2025-01",
-          note: "Connect natural language commands to scheduling actions",
-        },
-        {
-          start: "2025-01",
-          status: "refactor",
-          note: "Scale, refactor, and improve calendar conflict handling",
-        },
-      ],
+      timeline: {
+        start: "27/01/2026",
+        status: "refactor",
+      },
     },
     {
       id: "scaffolding-cli",
@@ -245,18 +211,10 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
         "Problem/Motivation: Setting up new software project structures involves repetitive and time-consuming manual configurations.",
         "Solution/Benefit: Built a command-line interface (CLI) to automate project bootstrapping (Selection & Contribute features). Engineered a highly flexible architecture designed to support future LLM integration, enabling developers to scaffold custom projects using simple natural language prompts.",
       ],
-      timeline: [
-        {
-          start: "2024-05",
-          end: "2024-06",
-          note: "Bootstrap core CLI commands and project templates",
-        },
-        {
-          start: "2024-06",
-          status: "refactor",
-          note: "Maintenance, feature expansion, and LLM-ready refactor",
-        },
-      ],
+      timeline: {
+        start: "12/04/2026",
+        status: "refactor",
+      },
     },
 
     {
@@ -267,18 +225,10 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
         "Problem/Motivation: Networking events often suffer from low engagement and awkward initial interactions.",
         'Solution/Benefit: Developed a "Phygital" platform merging physical and online participation. Applied AI to dynamically generate and randomize domain-specific questions (e.g., Computer Science, Data Science), effectively breaking the ice and fostering meaningful professional connections.',
       ],
-      timeline: [
-        {
-          start: "2024-09",
-          end: "2024-10",
-          note: "Validate interaction flow and engagement loop",
-        },
-        {
-          start: "2024-10",
-          status: "refactor",
-          note: "Scale scenarios, refactor interactions, and maintain content rules",
-        },
-      ],
+      timeline: {
+        start: "23/03/2026",
+        status: "refactor",
+      },
     },
   ],
   additionalInformation: [
@@ -376,18 +326,10 @@ export const INTERNSHIP_RESUME_TH: InternshipResumeData = {
         "ปัญหา/แรงจูงใจ: การใช้ resume ฉบับเดียวสมัครทุกตำแหน่ง ทำให้โอกาสตรงกับความต้องการของแต่ละบริษัทลดลง",
         "แนวทางแก้/ประโยชน์: design relational database normalized เพื่อจัดการทักษะและประสบการณ์อย่างปลอดภัยและยืดหยุ่น พร้อมพัฒนา Dynamic Resume generator ให้สร้างเอกสารตาม Job Description และวางโครงไว้สำหรับ candidate-job matching ด้วย LLM ในอนาคต",
       ],
-      timeline: [
-        {
-          start: "2024-06",
-          end: "2024-08",
-          note: "วางโครงทักษะ ประสบการณ์ และรูปแบบ resume",
-        },
-        {
-          start: "2024-08",
-          status: "present",
-          note: "ขยาย flow การสร้าง resume และดูแล schema",
-        },
-      ],
+      timeline: {
+        start: "2024-06",
+        status: "present",
+      },
     },
     {
       id: "calendar-agent",
@@ -397,18 +339,10 @@ export const INTERNSHIP_RESUME_TH: InternshipResumeData = {
         "ปัญหา/แรงจูงใจ: การจัดตารางงานและตรวจสอบเวลาซ้อนด้วยมือใช้เวลามากและผิดพลาดได้ง่าย",
         "แนวทางแก้/ประโยชน์: พัฒนา AI Agent ด้วย Python และ Model Context Protocol (MCP) เพื่อแปลคำสั่งภาษาธรรมชาติ เชื่อมต่อ Google Calendar API เพื่อจัดตารางอัตโนมัติและตรวจสอบเวลาซ้อนแบบเรียลไทม์ ลดภาระงานที่ต้องทำด้วยมืออย่างมีนัยสำคัญ",
       ],
-      timeline: [
-        {
-          start: "2024-12",
-          end: "2025-01",
-          note: "แปลคำสั่งเป็นการจัดการตารางจริง",
-        },
-        {
-          start: "2025-01",
-          status: "present",
-          note: "Scale, refactor, และเพิ่มการตรวจ overlap",
-        },
-      ],
+      timeline: {
+        start: "2024-12",
+        status: "present",
+      },
     },
     {
       id: "scaffolding-cli",
@@ -418,18 +352,10 @@ export const INTERNSHIP_RESUME_TH: InternshipResumeData = {
         "ปัญหา/แรงจูงใจ: การเริ่มโปรเจกต์ใหม่ต้องตั้งค่าโครงสร้างซ้ำๆ ซึ่งใช้เวลาและเกิดความไม่สม่ำเสมอ",
         "แนวทางแก้/ประโยชน์: สร้างเครื่องมือ CLI สำหรับตั้งต้นโครงโปรเจกต์ (Selection & Contribute) พร้อมออกแบบสถาปัตยกรรมให้ยืดหยุ่นต่อการต่อยอด LLM ในอนาคต เพื่อสร้างโปรเจกต์จากคำสั่งภาษาธรรมชาติได้",
       ],
-      timeline: [
-        {
-          start: "2024-05",
-          end: "2024-06",
-          note: "Bootstrap command flow และ project templates",
-        },
-        {
-          start: "2024-06",
-          status: "present",
-          note: "Maintenance, feature expansion, และเตรียมต่อยอด LLM",
-        },
-      ],
+      timeline: {
+        start: "2024-05",
+        status: "present",
+      },
     },
     {
       id: "ocr-pipeline",
@@ -439,18 +365,10 @@ export const INTERNSHIP_RESUME_TH: InternshipResumeData = {
         "ปัญหา/แรงจูงใจ: การแปลคอมิกด้วยมือไม่มีประสิทธิภาพ เพราะการดึงข้อความจากภาพมีความซับซ้อนสูง",
         "แนวทางแก้/ประโยชน์: ออกแบบ pipeline แบบ end-to-end ด้วย Python โดยใช้ image processing และ OCR พร้อม Human-in-the-Loop (HITL) เพื่อคงความถูกต้องเชิงบริบทและควบคุมคุณภาพงานแปล English-Thai",
       ],
-      timeline: [
-        {
-          start: "2024-08",
-          end: "2024-09",
-          note: "ประเมิน OCR pipeline และ workflow การแปล",
-        },
-        {
-          start: "2024-09",
-          status: "present",
-          note: "Scale ความแม่นยำ, refactor pipeline, และ tune HITL",
-        },
-      ],
+      timeline: {
+        start: "2024-08",
+        status: "present",
+      },
     },
     {
       id: "personal-website",
@@ -460,18 +378,10 @@ export const INTERNSHIP_RESUME_TH: InternshipResumeData = {
         "ปัญหา/แรงจูงใจ: การเรียน Design Pattern ขั้นสูงมักขาดตัวอย่างที่นำไปใช้จริงในงาน frontend",
         "แนวทางแก้/ประโยชน์: พัฒนาเว็บไซต์พอร์ตโฟลิโอด้วย TypeScript และ Next.js โดยประยุกต์ GoF patterns (Factory, Builder, Visitor) ในสถาปัตยกรรมจริง ทำให้โค้ดดูแลง่ายขึ้น และใช้เป็นหลักฐานเชิงปฏิบัติของการพัฒนาแบบมีโครงสร้าง",
       ],
-      timeline: [
-        {
-          start: "2024-10",
-          end: "2024-11",
-          note: "กำหนด layout, patterns, และ data model",
-        },
-        {
-          start: "2024-11",
-          status: "present",
-          note: "Build, refactor, และดูแล prototype ต่อเนื่อง",
-        },
-      ],
+      timeline: {
+        start: "2024-10",
+        status: "present",
+      },
     },
     {
       id: "phygital-platform",
@@ -481,18 +391,10 @@ export const INTERNSHIP_RESUME_TH: InternshipResumeData = {
         "ปัญหา/แรงจูงใจ: งาน networking มักมีการมีส่วนร่วมน้อยและบรรยากาศเกร็งในช่วงเริ่มต้นสนทนา",
         "แนวทางแก้/ประโยชน์: พัฒนาแพลตฟอร์มแบบ Phygital ที่เชื่อมการเข้าร่วมทั้งออฟไลน์และออนไลน์ ใช้ AI สุ่มและสร้างคำถามตามโดเมน (เช่น Computer Science, Data Science) เพื่อช่วยละลายพฤติกรรมและกระตุ้นบทสนทนาที่มีคุณภาพมากขึ้น",
       ],
-      timeline: [
-        {
-          start: "2024-09",
-          end: "2024-10",
-          note: "ทดสอบ flow การโต้ตอบและ engagement loop",
-        },
-        {
-          start: "2024-10",
-          status: "present",
-          note: "Scale scenarios, refactor interactions, และดูแล rule content",
-        },
-      ],
+      timeline: {
+        start: "2024-09",
+        status: "present",
+      },
     },
   ],
   additionalInformation: [
