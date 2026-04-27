@@ -28,6 +28,10 @@ import { ResumeSection } from '../sections/ResumeSection';
 
 type UseContentTabMapperParams = {
   activeTab: string;
+  selectedDocParam?: string;
+  selectedProjectParam?: string;
+  selectedBlogParam?: string;
+  selectedArticleParam?: string;
   currentStyle: StyleFactory;
   labels: UILabels;
   projectTree: CompositeNode;
@@ -39,6 +43,10 @@ type UseContentTabMapperParams = {
 
 export function useContentTabMapper({
   activeTab,
+  selectedDocParam,
+  selectedProjectParam,
+  selectedBlogParam,
+  selectedArticleParam,
   currentStyle,
   labels,
   projectTree,
@@ -96,6 +104,7 @@ export function useContentTabMapper({
             labels={labels}
             projectTree={projectTree}
             activeNodeId={activeNodeId}
+            selectedProjectParam={selectedProjectParam}
             isAdmin={isAdmin}
             onNotify={onNotify}
           />
@@ -108,6 +117,7 @@ export function useContentTabMapper({
             currentStyle={currentStyle}
             labels={labels}
             activeNodeId={activeNodeId}
+            selectedArticleParam={selectedArticleParam}
             isAdmin={isAdmin}
             onNotify={onNotify}
           />
@@ -118,12 +128,13 @@ export function useContentTabMapper({
             currentStyle={currentStyle}
             labels={labels}
             activeNodeId={activeNodeId}
+            selectedBlogParam={selectedBlogParam}
             isAdmin={isAdmin}
             onNotify={onNotify}
           />
         );
       case 'docs':
-        return <DocsSection currentStyle={currentStyle} labels={labels} />;
+        return <DocsSection currentStyle={currentStyle} labels={labels} selectedDocParam={selectedDocParam} />;
       case 'resume':
         return <ResumeSection currentStyle={currentStyle} labels={labels} onNotify={onNotify} />;
       case 'contact':
@@ -131,5 +142,18 @@ export function useContentTabMapper({
       default:
         return <HeroSection currentStyle={currentStyle} labels={labels} />;
     }
-  }, [activeTab, activeNodeId, currentStyle, isAdmin, labels, onCloneProject, onNotify, projectTree]);
+  }, [
+    activeTab,
+    activeNodeId,
+    currentStyle,
+    isAdmin,
+    labels,
+    onCloneProject,
+    onNotify,
+    projectTree,
+    selectedArticleParam,
+    selectedBlogParam,
+    selectedDocParam,
+    selectedProjectParam,
+  ]);
 }
