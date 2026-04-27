@@ -136,21 +136,15 @@ function normalizeTimelineState(status?: string): 'present' | 'scale' | 'refacto
 }
 
 function getProjectTimelineSummary(
-  timeline?: Array<{ start: string; end?: string; status?: string; note?: string }>,
+  timeline?: { start: string; status?: string },
 ): string {
-  const current = timeline?.at(-1);
-  const startDate = current ? formatTimelineDate(current.start) : '01/01/1970';
-  const endDate = current?.end ? formatTimelineDate(current.end) : '';
-  const state = normalizeTimelineState(current?.status);
-
-  if (!current) {
+  if (!timeline) {
+    const state = normalizeTimelineState();
     return `01/01/1970 | ${state}`;
   }
 
-  if (endDate) {
-    return `${startDate} - ${endDate} | ${state}`;
-  }
-
+  const startDate = formatTimelineDate(timeline.start);
+  const state = normalizeTimelineState(timeline.status);
   return `${startDate} | ${state}`;
 }
 

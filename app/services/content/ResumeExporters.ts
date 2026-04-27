@@ -106,12 +106,10 @@ type ExportableResume = {
     title: string;
     repoUrl?: string;
     description: string[];
-    timeline?: Array<{
+    timeline?: {
       start: string;
-      end?: string;
       status?: string;
-      note?: string;
-    }>;
+    };
   }>;
   additionalInformation?: string[];
   contact?: {
@@ -168,10 +166,6 @@ function formatProjectLabelForMarkdown(detail: string): string {
   return `**${matched}:** ${value}`;
 }
 
-function formatProjectTimelineRange(start: string, end?: string): string {
-  return `${start} - ${end ?? 'Present'}`;
-}
-
 function buildProjectsSection(resume: ExportableResume): string {
   return (resume.keyProjects ?? [])
     .map((project) => {
@@ -179,16 +173,14 @@ function buildProjectsSection(resume: ExportableResume): string {
         ? `[${project.title}](${normalizeUrl(project.repoUrl)})`
         : project.title;
 
-      const timelineLines = (project.timeline ?? []).map((item) => {
-        const statusLabel = item.status?.trim() || 'กำลังทำอยู่';
-        const notePart = item.note ? ` - ${item.note}` : '';
-        return `- ${formatProjectTimelineRange(item.start, item.end)} | ${statusLabel}${notePart}`;
-      });
+      const timelineLine = project.timeline
+        ? `- ${project.timeline.start} | ${(project.timeline.status?.trim() || 'present')}`
+        : null;
 
       return [
         `### ${projectHeading}`,
         ...project.description.map((detail) => `- ${formatProjectLabelForMarkdown(detail)}`),
-        ...(timelineLines.length > 0 ? ['', `**Timeline:**`, ...timelineLines] : []),
+        ...(timelineLine ? ['', `**Timeline:**`, timelineLine] : []),
       ].join('\n');
     })
     .join('\n\n');
