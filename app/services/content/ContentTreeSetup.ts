@@ -1,7 +1,6 @@
 import {
   MOCK_ARTICLES_FLAT,
   MOCK_BLOGS,
-  MOCK_PODCASTS,
   MOCK_PROJECTS,
   MOCK_VIDEOS,
   type Article,
@@ -12,15 +11,46 @@ import {
 } from '../../data/content';
 import type { CompositeNode, LayoutStyleType, LeafNode, UnifiedContentItem } from '../../interfaces/content-tree';
 
+const PROJECT_REPO_BY_TITLE: Record<string, string> = {
+  'Personal Website (Design Pattern Playground)': 'https://github.com/TaiChi112/Personal-Profile-Prototype',
+  'AI-Powered Phygital Icebreaker Platform': 'https://github.com/TaiChi112/CS-ICEbreaker-HUB',
+  'Project Scaffolding CLI Tool (MVP)': 'https://github.com/TaiChi112/Project-Scaffolding-CLI-Tool',
+  'AI-Powered Manga OCR and Translation Pipeline (HITL)': 'https://github.com/TaiChi112/Converter-Mange-OCR',
+  'Universal Academic Portfolio System (UAPs)': 'https://github.com/TaiChi112/UAPs',
+  'Google Calendar AI Agent (MCP)': 'https://github.com/TaiChi112/SDLC_HUB_PROTOTYPE',
+};
+
+const toSlug = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9\s-]/g, '')
+    .replaceAll(/\s+/g, '-')
+    .replaceAll(/-+/g, '-');
+
+const getProjectRepositoryLink = (project: Project) => {
+  const mappedLink = PROJECT_REPO_BY_TITLE[project.title];
+  if (mappedLink) {
+    return mappedLink;
+  }
+
+  if (typeof project.githubUrl === 'string' && /^https?:\/\//i.test(project.githubUrl)) {
+    return project.githubUrl;
+  }
+
+  return undefined;
+};
+
 export const adaptProjectToUnified = (project: Project): UnifiedContentItem => ({
   id: `proj-${project.id}`,
   type: 'project',
+  slug: toSlug(project.title),
   title: project.title,
   description: project.description,
   date: project.date,
   imageUrl: project.thumbnail,
   meta: project.techStack,
-  actionLink: project.githubUrl,
+  actionLink: getProjectRepositoryLink(project),
   decorations: project.featured ? ['featured'] : [],
   isLocked: project.title.includes('Merchant'),
 });
@@ -28,6 +58,7 @@ export const adaptProjectToUnified = (project: Project): UnifiedContentItem => (
 export const adaptBlogToUnified = (blog: Blog): UnifiedContentItem => ({
   id: `blog-${blog.id}`,
   type: 'blog',
+  slug: blog.slug,
   title: blog.title,
   description: blog.summary,
   date: blog.date,
@@ -51,6 +82,7 @@ export const adaptVideoToUnified = (video: ExternalVideoData): UnifiedContentIte
 export const adaptArticleToUnified = (article: Article): UnifiedContentItem => ({
   id: `art-${article.id}`,
   type: 'article',
+  slug: article.slug,
   title: article.title,
   description: article.excerpt,
   date: article.publishedAt,
@@ -71,9 +103,9 @@ export const adaptPodcastToUnified = (podcast: PodcastEpisode): UnifiedContentIt
 });
 
 class ContentBuilder {
-  private root: CompositeNode;
+  private readonly root: CompositeNode;
   private currentContainer: CompositeNode;
-  private stack: CompositeNode[] = [];
+  private readonly stack: CompositeNode[] = [];
 
   constructor(id: string, layoutStyle: LayoutStyleType = 'column', title?: string, data?: UnifiedContentItem) {
     this.root = { id, type: 'container', layoutStyle, title, children: [], data };
@@ -81,7 +113,7 @@ class ContentBuilder {
     this.stack.push(this.root);
   }
 
-  addContainer(id: string, layoutStyle: LayoutStyleType, title?: string, data?: UnifiedContentItem): ContentBuilder {
+  addContainer(id: string, layoutStyle: LayoutStyleType, title?: string, data?: UnifiedContentItem): this {
     const newContainer: CompositeNode = { id, type: 'container', layoutStyle, title, children: [], data };
     this.currentContainer.children.push(newContainer);
     this.stack.push(this.currentContainer);
@@ -89,13 +121,13 @@ class ContentBuilder {
     return this;
   }
 
-  addItem(item: UnifiedContentItem): ContentBuilder {
+  addItem(item: UnifiedContentItem): this {
     const leaf: LeafNode = { id: `leaf-${item.id}`, type: 'item', data: item };
     this.currentContainer.children.push(leaf);
     return this;
   }
 
-  up(): ContentBuilder {
+  up(): this {
     if (this.stack.length > 0) {
       this.currentContainer = this.stack.pop()!;
     }
