@@ -8,6 +8,10 @@ type ExportOptions = {
   language?: ExportLanguage;
 };
 
+type PdfExportOptions = {
+  selectedProjectIds?: string[];
+};
+
 type ExportLocale = {
   sections: {
     summary: string;
@@ -102,6 +106,12 @@ type ExportableResume = {
     title: string;
     repoUrl?: string;
     description: string[];
+    timeline?: Array<{
+      start: string;
+      end?: string;
+      status?: string;
+      note?: string;
+    }>;
   }>;
   additionalInformation?: string[];
   contact?: {
@@ -158,6 +168,10 @@ function formatProjectLabelForMarkdown(detail: string): string {
   return `**${matched}:** ${value}`;
 }
 
+function formatProjectTimelineRange(start: string, end?: string): string {
+  return `${start} - ${end ?? 'Present'}`;
+}
+
 function buildProjectsSection(resume: ExportableResume): string {
   return (resume.keyProjects ?? [])
     .map((project) => {
@@ -165,9 +179,16 @@ function buildProjectsSection(resume: ExportableResume): string {
         ? `[${project.title}](${normalizeUrl(project.repoUrl)})`
         : project.title;
 
+      const timelineLines = (project.timeline ?? []).map((item) => {
+        const statusLabel = item.status?.trim() || 'กำลังทำอยู่';
+        const notePart = item.note ? ` - ${item.note}` : '';
+        return `- ${formatProjectTimelineRange(item.start, item.end)} | ${statusLabel}${notePart}`;
+      });
+
       return [
         `### ${projectHeading}`,
         ...project.description.map((detail) => `- ${formatProjectLabelForMarkdown(detail)}`),
+        ...(timelineLines.length > 0 ? ['', `**Timeline:**`, ...timelineLines] : []),
       ].join('\n');
     })
     .join('\n\n');
@@ -363,6 +384,22 @@ function formatAdditionalInformationInPdfClone(documentClone: Document): void {
   }
 }
 
+function filterProjectsInPdfClone(documentClone: Document, selectedProjectIds?: string[]): void {
+  if (!selectedProjectIds || selectedProjectIds.length === 0) {
+    return;
+  }
+
+  const selectedProjectIdSet = new Set(selectedProjectIds);
+  const projectBlocks = Array.from(documentClone.querySelectorAll('[data-project-id]')) as HTMLElement[];
+
+  for (const block of projectBlocks) {
+    const projectId = block.dataset.projectId;
+    if (!projectId || !selectedProjectIdSet.has(projectId)) {
+      block.remove();
+    }
+  }
+}
+
 function applyCompactLayoutForPdfClone(clonedRoot: HTMLElement): void {
   // Tighten vertical rhythm in export only so content fits one page more reliably.
   const headerBlock = clonedRoot.querySelector('div.pb-6.mb-6') as HTMLElement | null;
@@ -512,7 +549,11 @@ async function exportResumeAsImage(
   triggerDownload(dataUrl, `${filename}.${format}`);
 }
 
-async function exportElementAsPdf(element: HTMLElement, filename: string): Promise<void> {
+async function exportElementAsPdf(
+  element: HTMLElement,
+  filename: string,
+  options?: PdfExportOptions,
+): Promise<void> {
   const exportRootAttr = `pdf-export-root-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   let clonedAnchors: Array<{ href: string; x: number; y: number; width: number; height: number }> = [];
   let clonedContentWidth = 0;
@@ -556,6 +597,7 @@ async function exportElementAsPdf(element: HTMLElement, filename: string): Promi
           return;
         }
 
+        filterProjectsInPdfClone(documentClone, options?.selectedProjectIds);
         clonedRoot.style.overflow = 'visible';
         clonedRoot.style.height = 'auto';
         clonedRoot.style.maxHeight = 'none';
@@ -734,7 +776,13 @@ export function createResumeExporters(notify: NotifyFn) {
       },
     },
     pdf: {
-      export: async (data: unknown, filename: string, _language: ExportLanguage = 'en', element?: HTMLElement) => {
+      export: async (
+        data: unknown,
+        filename: string,
+        _language: ExportLanguage = 'en',
+        element?: HTMLElement,
+        options?: PdfExportOptions,
+      ) => {
         try {
           const resume = asExportableResume(data);
           if (!resume) {
@@ -747,7 +795,7 @@ export function createResumeExporters(notify: NotifyFn) {
             return;
           }
 
-          await exportElementAsPdf(element, filename);
+          await exportElementAsPdf(element, filename, options);
           safeNotify(`Exporting ${filename}.pdf...`, 'SUCCESS');
         } catch (error) {
           console.error('PDF export failed:', error);
@@ -756,7 +804,14 @@ export function createResumeExporters(notify: NotifyFn) {
       },
     },
     atsPdf: {
-      export: async (data: unknown, filename: string, _profile: AtsExportProfile, _language: ExportLanguage = 'en', element?: HTMLElement) => {
+      export: async (
+        data: unknown,
+        filename: string,
+        _profile: AtsExportProfile,
+        _language: ExportLanguage = 'en',
+        element?: HTMLElement,
+        options?: PdfExportOptions,
+      ) => {
         try {
           const resume = asExportableResume(data);
           if (!resume) {
@@ -769,7 +824,7 @@ export function createResumeExporters(notify: NotifyFn) {
             return;
           }
 
-          await exportElementAsPdf(element, `${filename}-ats-internship`);
+          await exportElementAsPdf(element, `${filename}-ats-internship`, options);
           safeNotify(`Exporting ${filename}-ats-internship.pdf...`, 'SUCCESS');
         } catch (error) {
           console.error('ATS PDF export failed:', error);
