@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, FileCode, FileImage, FileJson, FileText, Image } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { getInternshipResume } from '../../data/resume';
 import type { ResumeLanguage } from '../../data/resume';
 import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
@@ -20,6 +21,8 @@ type ExportMenuOption = {
   label: string;
   icon: typeof FileText;
 };
+
+const OWNER_EMAIL = 'anothai.0978452316@gmail.com';
 
 const EXPORT_GROUPS: Array<{ title: string; options: ExportMenuOption[] }> = [
   {
@@ -61,6 +64,96 @@ function renderProjectDescriptionWithBoldKey(text: string) {
   );
 }
 
+function padDateNumber(value: number): string {
+  return String(value).padStart(2, '0');
+}
+
+function formatTimelineDate(value: string): string {
+  const normalized = value.trim();
+
+  const slashParts = normalized.split('/');
+  if (slashParts.length === 3) {
+    const [day, month, year] = slashParts;
+    const dayNumber = Number(day);
+    const monthNumber = Number(month);
+
+    if (!Number.isNaN(dayNumber) && !Number.isNaN(monthNumber) && year) {
+      return `${padDateNumber(dayNumber)}/${padDateNumber(monthNumber)}/${year}`;
+    }
+  }
+
+  const dashParts = normalized.split('-');
+  if (dashParts.length === 3) {
+    const [year, month, day] = dashParts;
+    const dayNumber = Number(day);
+    const monthNumber = Number(month);
+
+    if (!Number.isNaN(dayNumber) && !Number.isNaN(monthNumber) && year) {
+      return `${padDateNumber(dayNumber)}/${padDateNumber(monthNumber)}/${year}`;
+    }
+  }
+
+  if (dashParts.length === 2) {
+    const [year, month] = dashParts;
+    const monthNumber = Number(month);
+
+    if (!Number.isNaN(monthNumber) && year) {
+      return `01/${padDateNumber(monthNumber)}/${year}`;
+    }
+  }
+
+  if (dashParts.length === 1 && dashParts[0].length === 4) {
+    return `01/01/${dashParts[0]}`;
+  }
+
+  return normalized;
+}
+
+function normalizeTimelineState(status?: string): 'present' | 'scale' | 'refactor' | 'maintenance' | 'archive' {
+  const source = status?.trim().toLowerCase() ?? '';
+
+  if (source.includes('archive') || source.includes('archived')) {
+    return 'archive';
+  }
+
+  if (!source || source.includes('กำลังทำอยู่') || source.includes('present') || source.includes('planning')) {
+    return 'present';
+  }
+
+  if (source.includes('scale')) {
+    return 'scale';
+  }
+
+  if (source.includes('refactor')) {
+    return 'refactor';
+  }
+
+  if (source.includes('maintenance') || source.includes('maintenace') || source.includes('maintanace') || source.includes('maintain')) {
+    return 'maintenance';
+  }
+
+  return 'present';
+}
+
+function getProjectTimelineSummary(
+  timeline?: Array<{ start: string; end?: string; status?: string; note?: string }>,
+): string {
+  const current = timeline?.at(-1);
+  const startDate = current ? formatTimelineDate(current.start) : '01/01/1970';
+  const endDate = current?.end ? formatTimelineDate(current.end) : '';
+  const state = normalizeTimelineState(current?.status);
+
+  if (!current) {
+    return `01/01/1970 | ${state}`;
+  }
+
+  if (endDate) {
+    return `${startDate} - ${endDate} | ${state}`;
+  }
+
+  return `${startDate} | ${state}`;
+}
+
 const VIEW_LABELS: Record<ResumeLanguage, { summary: string; experience: string; education: string; projects: string; skills: string; additionalInformation: string; viewLanguage: string; exportLanguage: string }> = {
   en: {
     summary: 'Summary',
@@ -89,12 +182,33 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
   const resumeDocumentRef = useRef<HTMLDivElement | null>(null);
   const exportControlsRef = useRef<HTMLDivElement | null>(null);
   const exportMenuRef = useRef<HTMLDivElement | null>(null);
+  const { data: session, status } = useSession();
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [viewLanguage, setViewLanguage] = useState<ResumeLanguage>('en');
   const [exportLanguage, setExportLanguage] = useState<ExportLanguage>('en');
+  const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>(() => getInternshipResume('en').keyProjects.map((project) => project.id));
   const resume = useMemo(() => getInternshipResume(viewLanguage), [viewLanguage]);
   const exportResume = useMemo(() => getInternshipResume(exportLanguage), [exportLanguage]);
   const viewLabels = VIEW_LABELS[viewLanguage];
+  const isOwnerGoogleSession = status === 'authenticated'
+    && session?.user?.email === OWNER_EMAIL
+    && session?.user?.authProvider === 'google';
+
+  const selectAllExportProjects = () => {
+    setSelectedProjectIds(exportResume.keyProjects.map((project) => project.id));
+  };
+
+  const clearExportProjects = () => {
+    setSelectedProjectIds([]);
+  };
+
+  const toggleExportProject = (projectId: string) => {
+    setSelectedProjectIds((current) => (
+      current.includes(projectId)
+        ? current.filter((id) => id !== projectId)
+        : [...current, projectId]
+    ));
+  };
 
   const exportFilename = 'resume-anothai-vichapaiboon';
 
@@ -128,14 +242,39 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             onNotify('Cannot export PDF. Resume element not found.', 'ERROR');
             return;
           }
-          await exporters.pdf.export(exportResume, exportFilename, exportLanguage, resumeDocumentRef.current);
+
+          if (isOwnerGoogleSession && selectedProjectIds.length === 0) {
+            onNotify('Select at least one project before exporting PDF.', 'WARNING');
+            return;
+          }
+
+          await exporters.pdf.export(
+            exportResume,
+            exportFilename,
+            exportLanguage,
+            resumeDocumentRef.current,
+            isOwnerGoogleSession ? { selectedProjectIds } : undefined,
+          );
         },
         'ats-pdf': async () => {
           if (!resumeDocumentRef.current) {
             onNotify('Cannot export ATS PDF. Resume element not found.', 'ERROR');
             return;
           }
-          await exporters.atsPdf.export(exportResume, exportFilename, exportResume.atsExportProfile, exportLanguage, resumeDocumentRef.current);
+
+          if (isOwnerGoogleSession && selectedProjectIds.length === 0) {
+            onNotify('Select at least one project before exporting ATS PDF.', 'WARNING');
+            return;
+          }
+
+          await exporters.atsPdf.export(
+            exportResume,
+            exportFilename,
+            exportResume.atsExportProfile,
+            exportLanguage,
+            resumeDocumentRef.current,
+            isOwnerGoogleSession ? { selectedProjectIds } : undefined,
+          );
         },
       };
 
@@ -253,6 +392,42 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
                       TH
                     </button>
                   </div>
+                  {isOwnerGoogleSession && (
+                    <div className="px-3 pb-3 pt-1">
+                      <div className="text-[11px] uppercase tracking-wider text-white/50 mb-2">PDF Projects</div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <button
+                          className="px-2.5 py-1 rounded-md text-xs border border-white/20 text-white/80 hover:bg-white/10"
+                          onClick={selectAllExportProjects}
+                        >
+                          Select all
+                        </button>
+                        <button
+                          className="px-2.5 py-1 rounded-md text-xs border border-white/20 text-white/80 hover:bg-white/10"
+                          onClick={clearExportProjects}
+                        >
+                          Clear
+                        </button>
+                      </div>
+                      <div className="max-h-44 overflow-y-auto pr-1 space-y-1">
+                        {exportResume.keyProjects.map((project) => {
+                          const isSelected = selectedProjectIds.includes(project.id);
+
+                          return (
+                            <label key={project.id} className="flex items-start gap-2 rounded-md px-2 py-1.5 hover:bg-white/5 cursor-pointer text-sm text-white/85">
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => toggleExportProject(project.id)}
+                                className="mt-0.5 h-4 w-4 rounded border-white/30 bg-transparent text-white focus:ring-white"
+                              />
+                              <span className="leading-snug">{project.title}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                   <div className="my-2 border-t border-white/10" />
                   {EXPORT_GROUPS.map((group, groupIndex) => (
                     <div key={group.title}>
@@ -325,15 +500,20 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
           </h3>
           <div className="space-y-4">
             {resume.keyProjects.map((project) => (
-              <div key={project.id}>
-                <div className="font-semibold">
-                  {project.repoUrl ? (
-                    <a href={project.repoUrl} target="_blank" rel="noreferrer" className="underline underline-offset-2">
-                      {project.title}
-                    </a>
-                  ) : (
-                    project.title
-                  )}
+              <div key={project.id} data-project-id={project.id}>
+                <div className="flex items-baseline justify-between gap-3">
+                  <div className="font-semibold">
+                    {project.repoUrl ? (
+                      <a href={project.repoUrl} target="_blank" rel="noreferrer" className="underline underline-offset-2">
+                        {project.title}
+                      </a>
+                    ) : (
+                      project.title
+                    )}
+                  </div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-black/65 whitespace-nowrap">
+                    {getProjectTimelineSummary(project.timeline)}
+                  </div>
                 </div>
                 <ul className="mt-2 list-disc list-outside ml-5 space-y-1">
                   {project.description.map((item) => (
