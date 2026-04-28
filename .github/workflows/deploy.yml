@@ -4,14 +4,14 @@ name: Deploy to Google Cloud
 on:
   push:
     branches:
-      - main 
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Deploying via SSH
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@master # เปลี่ยนจาก v1.0.3 เป็น master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
