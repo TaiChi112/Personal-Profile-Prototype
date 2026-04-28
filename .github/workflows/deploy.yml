@@ -1,26 +1,60 @@
 name: Deploy to Google Cloud
 
-# รันอัตโนมัติเมื่อมีการ push โค้ดเข้า branch main
 on:
   push:
     branches:
       - main
 
 jobs:
+  # 🏭 Job 1: โรงงานประกอบตู้ (ทำบนเครื่องเซิร์ฟเวอร์สุดแรงของ GitHub)
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write   # 👈 อนุญาตให้หุ่นยนต์ดันตู้เข้าโกดัง GHCR ได้
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          # 👈 ระบุชื่อตู้ให้ตรงกับใน docker-compose (ต้องเป็นพิมพ์เล็กทั้งหมด)
+          tags: ghcr.io/taichi112/personal-profile-app:latest
+
+  # 🚚 Job 2: หุ่นยนต์ส่งของไปที่ Google Cloud
   deploy:
+    needs: build-and-push   # 👈 ต้องรอ Job 1 ประกอบตู้เสร็จก่อน ถึงจะเริ่มวิ่งไปส่งของ
     runs-on: ubuntu-latest
     steps:
       - name: Deploying via SSH
-        uses: appleboy/ssh-action@master # เปลี่ยนจาก v1.0.3 เป็น master
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           timeout: 30s
-          command_timeout: 30m
-          # คำสั่งที่จะให้หุ่นยนต์พิมพ์ลงใน Server
+          command_timeout: 10m  # 👈 ลดเวลากลับมาเหลือ 10 นาทีได้แล้ว เพราะไม่ต้อง Build เอง
           script: |
             cd ~/personal-profile-prototype
             git pull origin main
-            docker compose -f docker-compose.prod.yml up -d --build
+            
+            # 1. ยื่นบัตรผ่านเข้าโกดัง GHCR บน Server 
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # 2. โหลดตู้ใบใหม่ล่าสุดลงมา
+            docker compose -f docker-compose.prod.yml pull app
+            
+            # 3. รันแอปใหม่ (ใช้เวลาไม่กี่วินาที!)
+            docker compose -f docker-compose.prod.yml up -d
