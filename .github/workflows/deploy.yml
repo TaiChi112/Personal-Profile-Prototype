@@ -16,6 +16,9 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          timeout: 30s
+          command_timeout: 30m
           # คำสั่งที่จะให้หุ่นยนต์พิมพ์ลงใน Server
           script: |
             cd ~/personal-profile-prototype
