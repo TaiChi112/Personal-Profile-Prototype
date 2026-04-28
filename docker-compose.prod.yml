@@ -13,22 +13,23 @@ services:
     environment:
       # ให้มันอ่านค่า DATABASE_URL จากไฟล์ .env โดยตรง
       DATABASE_URL: ${DATABASE_URL}
-      
+
       # Next.js
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-      
+
       # NextAuth
       NEXTAUTH_URL: ${NEXTAUTH_URL}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-      
+
       # Auth Providers (ถ้ามี)
       GITHUB_ID: ${GITHUB_ID}
       GITHUB_SECRET: ${GITHUB_SECRET}
       GOOGLE_ID: ${GOOGLE_ID}
       GOOGLE_SECRET: ${GOOGLE_SECRET}
-    ports:
-      - "${APP_PORT:-3000}:3000"
+      # สังเกตว่าเรา 'comment' ports ออกไปแล้ว เพราะเราจะไม่ให้แขกเข้าแอปตรงๆ
+      # ports:
+      # - "${APP_PORT:-3000}:3000"
     networks:
       - app-network-prod
     logging:
@@ -46,7 +47,22 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
-
+  # Nginx Reverse Proxy (ยามหน้าประตู)
+  nginx:
+    image: nginx:alpine
+    container_name: personal-profile-nginx
+    restart: always
+    ports:
+      - "80:80" # รับแขกทางประตู 80
+      # - "443:443" # เตรียมไว้สำหรับเฟส 2 (HTTPS)
+    volumes:
+      # เอาไฟล์ตั้งค่าที่เราเขียนไปสวมทับค่าเริ่มต้นของ Nginx
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - app-network-prod
+      
 networks:
   app-network-prod:
     driver: bridge
