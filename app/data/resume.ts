@@ -240,7 +240,7 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
     location: "Bangkok, Thailand",
     linkedin: "linkedin.com/in/anothai-vichapaiboon-a88790260",
     github: "github.com/TaiChi112",
-    portfolio: "personal-profile-prototype.vercel.app",
+    portfolio: "taichi112.works",
   },
 };
 
