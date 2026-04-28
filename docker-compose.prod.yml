@@ -3,11 +3,12 @@ version: '3.8'
 services:
   # มีแค่ Next.js Application ตัวเดียวพอ เพราะ DB อยู่ที่ Supabase แล้ว
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NODE_ENV: production
+    image: ghcr.io/taichi112/personal-profile-app:latest  # 👈 [เพิ่มใหม่] ชี้ไปที่โกดัง GHCR ของคุณ
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    #   args:
+    #     NODE_ENV: production
     container_name: personal-profile-app-prod
     restart: always
     environment:
