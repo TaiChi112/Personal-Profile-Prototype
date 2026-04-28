@@ -54,15 +54,25 @@ services:
     restart: always
     ports:
       - "80:80" # รับแขกทางประตู 80
-      # - "443:443" # เตรียมไว้สำหรับเฟส 2 (HTTPS)
+      - "443:443" # เตรียมไว้สำหรับเฟส 2 (HTTPS)
     volumes:
       # เอาไฟล์ตั้งค่าที่เราเขียนไปสวมทับค่าเริ่มต้นของ Nginx
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/conf:/etc/letsencrypt    # [เพิ่ม] โฟลเดอร์รับกุญแจ
+      - ./certbot/www:/var/www/certbot     # [เพิ่ม] โฟลเดอร์ยืนยันตัวตน
     depends_on:
       - app
     networks:
       - app-network-prod
-      
+
+  # [เพิ่มใหม่ทั้งก้อน] หุ่นยนต์ขอใบรับรอง
+  certbot:
+    image: certbot/certbot
+    container_name: personal-profile-certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
 networks:
   app-network-prod:
     driver: bridge
