@@ -33,7 +33,7 @@ jobs:
           tags: ghcr.io/taichi112/personal-profile-app:latest
 
   # 🚚 Job 2: หุ่นยนต์ส่งของไปที่ Google Cloud
-  deploy:
+  deploy-gcp:
     needs: build-and-push   # 👈 ต้องรอ Job 1 ประกอบตู้เสร็จก่อน ถึงจะเริ่มวิ่งไปส่งของ
     runs-on: ubuntu-latest
     steps:
@@ -46,6 +46,32 @@ jobs:
           port: 22
           timeout: 30s
           command_timeout: 10m  # 👈 ลดเวลากลับมาเหลือ 10 นาทีได้แล้ว เพราะไม่ต้อง Build เอง
+          script: |
+            cd ~/personal-profile-prototype
+            git pull origin main
+            
+            # 1. ยื่นบัตรผ่านเข้าโกดัง GHCR บน Server 
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # 2. โหลดตู้ใบใหม่ล่าสุดลงมา
+            docker compose -f docker-compose.prod.yml pull app
+            
+            # 3. รันแอปใหม่ (ใช้เวลาไม่กี่วินาที!)
+            docker compose -f docker-compose.prod.yml up -d
+
+  deploy-azure:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploying to Azure via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USERNAME }}
+          key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
+          port: 22
+          timeout: 30s
+          command_timeout: 10m
           script: |
             cd ~/personal-profile-prototype
             git pull origin main
