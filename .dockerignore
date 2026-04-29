@@ -58,7 +58,7 @@ Resume/
 docs/
 data/
 plan/
-src
+src/
 *.md
 *.txt
 *.log
@@ -67,3 +67,5 @@ proxy.ts
 
 certbot/
 secrets
+docs/
+data/
