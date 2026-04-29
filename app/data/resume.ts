@@ -96,7 +96,7 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
     {
       id: "databases",
       title: "Databases",
-      items: ["PostgreSQL", "MySQL", "MongoDB", "SQL", "NoSQL"],
+      items: ["PostgreSQL", "MySQL", "MongoDB"],
     },
     {
       id: "other",
@@ -106,7 +106,9 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
         "Git",
         "GitHub",
         "GitHub Copilot",
-        "Gemini",
+        "GitHub Copilot CLI",
+        "GitHub Action",
+        "Gemini CLI",
         "Claude",
         "Design Patterns(GoF)",
         "SOLID",
