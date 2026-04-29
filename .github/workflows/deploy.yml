@@ -59,16 +59,27 @@ jobs:
             # 3. รันแอปใหม่ (ใช้เวลาไม่กี่วินาที!)
             docker compose -f docker-compose.prod.yml up -d
 
+  # 🚀 Job 3: หุ่นยนต์ส่งของไปที่ Azure (ฐานทัพใหม่)
   deploy-azure:
-    needs: build-and-push
+    needs: build-and-push   # 👈 รอประกอบตู้เสร็จก่อนเช่นกัน (รันพร้อมกับ GCP เลย)
     runs-on: ubuntu-latest
     steps:
+      # --- เพิ่มด่านตรวจตรงนี้ ---
+      - name: Check if Secret is Empty
+        run: |
+          if [ -z "${{ secrets.AZURE_SSH_KEY }}" ]; then
+            echo "🚨 พังพินาศ! หุ่นยนต์มองไม่เห็นกุญแจ AZURE_SSH_KEY (ค่าเป็นค่าว่าง)"
+            exit 1
+          else
+            echo "✅ เยี่ยม! หุ่นยนต์เจอกุญแจแล้ว"
+          fi
+      # ------------------------
       - name: Deploying to Azure via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AZURE_HOST }}
           username: ${{ secrets.AZURE_USERNAME }}
-          key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
           port: 22
           timeout: 30s
           command_timeout: 10m
@@ -82,5 +93,5 @@ jobs:
             # 2. โหลดตู้ใบใหม่ล่าสุดลงมา
             docker compose -f docker-compose.prod.yml pull app
             
-            # 3. รันแอปใหม่ (ใช้เวลาไม่กี่วินาที!)
+            # 3. รันแอปใหม่
             docker compose -f docker-compose.prod.yml up -d
