@@ -63,7 +63,7 @@ function getDecoratorIcon(type: DecorationType) {
   }
 }
 
-function DecoratedContent({ children, decorations, style }: { children: ReactNode; decorations?: DecorationType[]; style: ProtectedStyle }) {
+function DecoratedContent({ children, decorations, style }: Readonly<{ children: ReactNode; decorations?: DecorationType[]; style: ProtectedStyle }>) {
   if (!decorations || decorations.length === 0) return <>{children}</>;
 
   return (
@@ -91,7 +91,7 @@ export function ProtectedDecoratedContent({
   style,
   labels,
   onRequestUnlock,
-}: ProtectedDecoratedContentProps) {
+}: Readonly<ProtectedDecoratedContentProps>) {
   // Future ACL seam:
   // Replace the simple `isAdmin` check with role/resource policy evaluation
   // once role-based authorization is enabled globally.
@@ -112,7 +112,7 @@ export function ProtectedDecoratedContent({
           <Lock size={24} />
         </div>
         <h3 className="text-lg font-bold mb-1">{labels.actions.locked}</h3>
-        <p className="text-sm opacity-70 mb-4 max-w-50">This content is restricted to admin users.</p>
+        <p className="text-sm opacity-70 mb-4 max-w-50">This content is restricted to users signed in with Google.</p>
         <button onClick={onRequestUnlock} className={style.getButtonClass('primary')}>
           {labels.actions.unlock}
         </button>
