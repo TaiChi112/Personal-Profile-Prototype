@@ -237,7 +237,7 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
     },
   ],
   additionalInformation: [
-    "Language Proficiency: Thai (Native), English (Intermediate)",
+    "Language Proficiency: Thai (Native), English",
   ],
   contact: {
     phone: "+66 96 910 7926",
