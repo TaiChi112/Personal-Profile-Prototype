@@ -50,6 +50,9 @@ jobs:
             cd ~/personal-profile-prototype
             git pull origin main
             
+            # ✅ ล้างพื้นที่บน GCP ก่อนเริ่มโหลด Image ใหม่ (สำคัญมากสำหรับ Disk 20GB)
+            docker system prune -f  # 👈 ทำความสะอาดหน่อยก่อน เพื่อให้มีพื้นที่ว่างพอสำหรับตู้ใบใหม่
+            
             # 1. ยื่นบัตรผ่านเข้าโกดัง GHCR บน Server 
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
@@ -58,7 +61,9 @@ jobs:
             
             # 3. รันแอปใหม่ (ใช้เวลาไม่กี่วินาที!)
             docker compose -f docker-compose.prod.yml up -d
-
+            
+            # 4. ล้าง Image เก่าที่ไม่ได้ใช้แล้ว (Dangling Images)
+            docker image prune -f
   # 🚀 Job 3: หุ่นยนต์ส่งของไปที่ Azure (ฐานทัพใหม่)
   deploy-azure:
     needs: build-and-push   # 👈 รอประกอบตู้เสร็จก่อนเช่นกัน (รันพร้อมกับ GCP เลย)
@@ -95,3 +100,6 @@ jobs:
             
             # 3. รันแอปใหม่
             docker compose -f docker-compose.prod.yml up -d
+            
+            # 4. ล้าง Image เก่าที่ไม่ได้ใช้แล้ว (Dangling Images)
+            docker image prune -f
