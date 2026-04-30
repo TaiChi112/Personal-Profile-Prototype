@@ -17,7 +17,14 @@ type FeedItemCardStyle = FeedStyleContract & {
   getLockedOverlayClass: () => string;
 };
 
-type FeedItemCardProps = {
+type DecoratedFeedItemProps = Readonly<{
+  item: FeedItem;
+  currentLayout: FeedLayoutType;
+  style: FeedItemCardStyle;
+  onOpenTitle: (itemTitle: string) => void;
+}>;
+
+type FeedItemCardProps = Readonly<{
   item: FeedItem;
   currentLayout: FeedLayoutType;
   style: FeedItemCardStyle;
@@ -25,7 +32,7 @@ type FeedItemCardProps = {
   isAdmin: boolean;
   onOpenTitle: (itemTitle: string) => void;
   onRequestUnlock: () => void;
-};
+}>;
 
 function getDecoratorStyle(type: FeedDecoration): string {
   switch (type) {
@@ -61,12 +68,7 @@ function getDecoratorIcon(type: FeedDecoration) {
   }
 }
 
-function DecoratedFeedItem({ item, currentLayout, style, onOpenTitle }: {
-  item: FeedItem;
-  currentLayout: FeedLayoutType;
-  style: FeedItemCardStyle;
-  onOpenTitle: (itemTitle: string) => void;
-}) {
+function DecoratedFeedItem({ item, currentLayout, style, onOpenTitle }: DecoratedFeedItemProps) {
   const decorations = (item.decorations ?? []) as FeedDecoration[];
 
   if (decorations.length === 0) {
@@ -118,7 +120,7 @@ export function FeedItemCard({
           <Lock size={24} />
         </div>
         <h3 className="text-lg font-bold mb-1">{labels.actions.locked}</h3>
-        <p className="text-sm opacity-70 mb-4 max-w-50">This content is restricted to admin users.</p>
+        <p className="text-sm opacity-70 mb-4 max-w-50">This content is restricted to users signed in with Google.</p>
         <button onClick={onRequestUnlock} className={style.getButtonClass('primary')}>
           {labels.actions.unlock}
         </button>
