@@ -92,7 +92,7 @@ export function useContentTabMapper({
                 labels={labels}
                 isAdmin={isAdmin}
                 onOpenTitle={(itemTitle) => onNotify(`Viewing details for: ${itemTitle}`, 'INFO')}
-                onRequestUnlock={() => onNotify('Please ask Admin for access', 'WARNING')}
+                onRequestUnlock={() => onNotify('Please sign in with Google to access this content', 'WARNING')}
               />
             )}
           />
