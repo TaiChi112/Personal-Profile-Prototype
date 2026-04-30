@@ -24,8 +24,8 @@ export class AuthManager {
         return false;
       }
 
-      const session = (await response.json()) as { user?: unknown } | null;
-      return Boolean(session?.user);
+      const session = (await response.json()) as { user?: { authProvider?: string } } | null;
+      return session?.user?.authProvider === 'google';
     } catch {
       return false;
     }
