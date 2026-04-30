@@ -91,7 +91,7 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
     {
       id: "frameworks-tools",
       title: "Frameworks & Tools",
-      items: ["Next.js", "Express.js", "Elysia", "Prisma", "FastAPI", "Docker"],
+      items: ["React", "Next.js", "Express.js", "Elysia", "Prisma", "FastAPI", "Docker"],
     },
     {
       id: "databases",
@@ -107,7 +107,9 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
         "GitHub",
         "GitHub Copilot",
         "GitHub Copilot CLI",
-        "GitHub Action",
+        "GitHub Action(CI,CD)",
+        "GCP",
+        "Azure",
         "Gemini CLI",
         "Claude",
         "Design Patterns(GoF)",
