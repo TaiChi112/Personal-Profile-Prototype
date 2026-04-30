@@ -138,7 +138,7 @@ export function InteractiveContentNode({
         decorations={contentItem!.decorations}
         style={style}
         labels={labels}
-        onRequestUnlock={() => notify('Please ask Admin for access', 'WARNING')}
+        onRequestUnlock={() => notify('Please sign in with Google to access this content', 'WARNING')}
       >
         <div id={`node-${node.id}`} className={`${style.getCardClass()} p-6 ${activeNodeId === node.id ? 'ring-2 ring-blue-500 dark:ring-blue-400 shadow-xl scale-[1.01]' : ''} transition-all duration-500`}>
           <div className="flex justify-between items-start mb-3">
