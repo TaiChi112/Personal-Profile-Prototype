@@ -110,6 +110,7 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
         "GitHub Action(CI,CD)",
         "GCP",
         "Azure",
+        "Cloudflare",
         "Gemini CLI",
         "Claude",
         "Design Patterns(GoF)",
