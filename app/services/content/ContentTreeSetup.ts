@@ -249,9 +249,6 @@ export const INITIAL_PROJECTS_TREE = new ContentBuilder(
     decorations: ["featured"],
     isLocked: false,
   })
-  .addItem({ ...adaptProjectToUnified(MOCK_PROJECTS[7]), isLocked: true })
-  // .addItem(adaptProjectToUnified(MOCK_PROJECTS[8]))
-  .up()
   .build();
 
 export const BLOGS_TREE = new ContentBuilder(
