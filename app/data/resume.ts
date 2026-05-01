@@ -86,7 +86,7 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
     {
       id: "languages",
       title: "Languages",
-      items: ["TypeScript (Primary)", "Python", "C++", "Go"],
+      items: ["TypeScript (Primary)", "Python", "C++"],
     },
     {
       id: "frameworks-tools",
@@ -241,7 +241,7 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
   ],
   contact: {
     phone: "+66 96 910 7926",
-    email: "anothai.0978452316@gmail.com",
+    email: "contact.anothai.v@gmail.com",
     location: "Bangkok, Thailand",
     linkedin: "linkedin.com/in/anothai-vichapaiboon-a88790260",
     github: "github.com/TaiChi112",
@@ -407,7 +407,7 @@ export const INTERNSHIP_RESUME_TH: InternshipResumeData = {
   ],
   contact: {
     phone: "+66 96 910 7926",
-    email: "anothai.0978452316@gmail.com",
+    email: "contact.anothai.v@gmail.com",
     location: "กรุงเทพมหานคร, ประเทศไทย",
     linkedin: "linkedin.com/in/anothai-vichapaiboon-a88790260",
     github: "github.com/TaiChi112",
