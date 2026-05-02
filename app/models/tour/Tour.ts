@@ -2,6 +2,9 @@ export interface TourStep {
   type: 'NAV' | 'EXPAND' | 'RESET_EXPAND';
   targetId?: string;
   label?: string;
+  description?: string;
+  hint?: string;
+  highlightId?: string;
 }
 
 export interface IIterator<T> {
@@ -17,7 +20,7 @@ export interface IIterator<T> {
 export class TourIterator implements IIterator<TourStep> {
   private position = 0;
 
-  constructor(private steps: TourStep[]) {}
+  constructor(private readonly steps: TourStep[]) {}
 
   next(): TourStep | null {
     if (this.hasNext()) {
