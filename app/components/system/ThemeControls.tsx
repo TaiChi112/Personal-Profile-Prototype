@@ -55,13 +55,13 @@ export function ThemeControls({
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 items-end">
-      <div className="bg-white/90 dark:bg-gray-800/90 border border-gray-200 dark:border-gray-600 rounded-full shadow-lg px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 max-w-52 truncate">
+      {/* <div className="bg-white/90 dark:bg-gray-800/90 border border-gray-200 dark:border-gray-600 rounded-full shadow-lg px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 max-w-52 truncate">
         {isAuthenticated ? `Signed in: ${userDisplayName ?? 'Google User'}` : 'Signed out'}
-      </div>
+      </div> */}
       <div className="mb-2 bg-black/80 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm pointer-events-none opacity-50">
         Try <span className="font-mono font-bold">Cmd+K</span>
       </div>
-      <div className="flex gap-2">
+      {/* <div className="flex gap-2">
         <FloatingActionButton
           onClick={isAuthenticated ? onSignOut : onSignIn}
           title={isAuthenticated ? 'Sign out' : 'Sign in with Google'}
@@ -69,7 +69,7 @@ export function ThemeControls({
         >
           {isAuthenticated ? 'Sign Out' : 'Sign In'}
         </FloatingActionButton>
-      </div>
+      </div> */}
       <div className="flex gap-2">
         <FloatingActionButton onClick={startTour} title="Start Guided Tour" className="p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 hover:scale-110 transition-transform animate-bounce">
           <Play size={20} fill="currentColor" />
