@@ -8,6 +8,7 @@ import type { StyleKey } from '../../models/theme/ThemeConfig';
 type UseTourCommandOrchestrationParams = {
   activeTab: string;
   styleKey: StyleKey;
+  setTourTab: (tab: string) => void;
   setActiveTab: (tab: string) => void;
   setStyleKey: (style: StyleKey) => void;
   toggleDark: () => void;
@@ -16,23 +17,60 @@ type UseTourCommandOrchestrationParams = {
 };
 
 const TOUR_SEQUENCE: TourStep[] = [
-  { type: 'NAV', targetId: 'home', label: 'Start' },
-  { type: 'NAV', targetId: 'dashboard', label: 'Stats' },
-  { type: 'NAV', targetId: 'projects', label: 'Projects' },
-  { type: 'EXPAND', targetId: 'super-app', label: 'Deep Dive' },
-  { type: 'RESET_EXPAND', label: 'Reset' },
-  { type: 'NAV', targetId: 'feed', label: 'Feed' },
-  { type: 'NAV', targetId: 'podcast', label: 'Podcast' },
-  { type: 'NAV', targetId: 'articles', label: 'Articles' },
-  { type: 'NAV', targetId: 'blog', label: 'Blog' },
-  { type: 'NAV', targetId: 'docs', label: 'Docs' },
-  { type: 'NAV', targetId: 'resume', label: 'Resume' },
-  { type: 'NAV', targetId: 'contact', label: 'Contact' },
+  {
+    type: 'NAV',
+    targetId: 'home',
+    label: 'Start',
+    description: 'เริ่มจากหน้า Home เพื่อดูภาพรวมของโปรไฟล์และธีมของเว็บไซต์',
+    hint: 'คลิกไอคอน Home หรือปุ่มถัดไปเพื่อไปต่อ',
+    highlightId: 'nav-home',
+  },
+  {
+    type: 'NAV',
+    targetId: 'projects',
+    label: 'Projects',
+    description: 'หน้าที่รวมโปรเจกต์และผลงานที่สามารถเข้าไปสำรวจได้',
+    hint: 'คุณสามารถเปิดดูรายละเอียดโปรเจกต์หรือไปยังหน้าถัดไปได้',
+    highlightId: 'nav-projects',
+  },
+  {
+    type: 'NAV',
+    targetId: 'articles',
+    label: 'Articles',
+    description: 'ส่วนบทความสำหรับอ่านแนวคิด เทคนิค และการสรุปการทำงาน',
+    hint: 'เหมาะสำหรับคนที่อยากรู้วิธีคิดและแนวทางการพัฒนา',
+    highlightId: 'nav-articles',
+  },
+  {
+    type: 'NAV',
+    targetId: 'blog',
+    label: 'Blog',
+    description: 'พื้นที่สำหรับบันทึกเรื่องเล่า หรือมุมมองส่วนตัวระหว่างพัฒนา',
+    hint: 'ถ้าชอบอ่านสั้น ๆ แต่มีบริบท ลองดูส่วนนี้',
+    highlightId: 'nav-blog',
+  },
+  {
+    type: 'NAV',
+    targetId: 'docs',
+    label: 'Docs',
+    description: 'หน้าเอกสารและข้อมูลอ้างอิงของระบบ เพื่อช่วยให้เข้าใจโครงสร้าง',
+    hint: 'ใช้เป็นจุดอ้างอิงเมื่ออยากรู้ว่าระบบนี้ประกอบด้วยอะไร',
+    highlightId: 'nav-docs',
+  },
+  {
+    type: 'NAV',
+    targetId: 'resume',
+    label: 'Resume',
+    description: 'หน้าประวัติและสรุปประสบการณ์ เพื่อดูความพร้อมในการทำงาน',
+    hint: 'เหมาะสำหรับดู timeline ทักษะและประสบการณ์',
+    highlightId: 'nav-resume',
+  },
 ];
 
 export function useTourCommandOrchestration({
   activeTab,
   styleKey,
+  setTourTab,
   setActiveTab,
   setStyleKey,
   toggleDark,
@@ -47,7 +85,7 @@ export function useTourCommandOrchestration({
 
   const startTour = () => {
     setIsTourActive(true);
-    setActiveTab('home');
+    setTourTab('home');
     tourIterator.reset();
   };
 
@@ -64,8 +102,8 @@ export function useTourCommandOrchestration({
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    globalThis.addEventListener('keydown', handleKeyDown);
+    return () => globalThis.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const commands = useCommandList({
@@ -90,7 +128,7 @@ export function useTourCommandOrchestration({
 
   const handleTourStep = (step: TourStep) => {
     if (step.type === 'NAV' && step.targetId) {
-      setActiveTab(step.targetId);
+      setTourTab(step.targetId);
       setActiveNodeId(null);
       return;
     }
