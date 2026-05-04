@@ -16,7 +16,7 @@ export default async function Page(props: Readonly<{
 
   // 2. ดักจับที่นี่! ถ้าเข้า /docs เฉยๆ ให้เด้งไปที่หน้าแรกของเอกสาร
   if (!params.slug || params.slug.length === 0) {
-    redirect('/docs/computer_science'); // สามารถเปลี่ยน path ให้ตรงกับหน้าแรกของคุณได้เลยครับ
+    redirect('/docs/'); // สามารถเปลี่ยน path ให้ตรงกับหน้าแรกของคุณได้เลยครับ
   }
 
   // ดึงหน้าเอกสารตาม URL
