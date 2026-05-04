@@ -6,6 +6,8 @@ import { Pause, Play, PlayCircle, SkipBack, SkipForward, StopCircle, X } from 'l
 type TourStepLike = {
   targetId?: string;
   label?: string;
+  description?: string; // เติมบรรทัดนี้
+  hint?: string;        // เติมบรรทัดนี้
 };
 
 type TourIteratorLike<T> = {
