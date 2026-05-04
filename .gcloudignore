@@ -27,7 +27,6 @@ test
 
 # Demo files
 demo
-docs
 
 # CI/CD
 .github
