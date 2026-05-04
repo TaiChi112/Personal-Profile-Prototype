@@ -4,10 +4,6 @@ import { authOptions } from '@/app/lib/auth';
 
 export async function requireAuthenticatedSession() {
   const session = await getServerSession(authOptions);
-
-  if (!session?.user) {
-    return {
-      session: null,
       error: NextResponse.json({ error: 'unauthorized' }, { status: 401 }),
     };
   }
