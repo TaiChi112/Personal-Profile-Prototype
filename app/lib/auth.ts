@@ -1,34 +1,8 @@
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import type { NextAuthOptions, User, Account, Session } from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
 import { prisma } from '@/lib/prisma';
-
-type AuthUser = {
-  email?: string | null;
-  name?: string | null;
-  image?: string | null;
-};
-
-type AuthAccount = {
-  provider?: string;
-  providerAccountId?: string | null;
-};
-
-type AuthToken = {
-  userId?: string;
-  role?: string;
-  authProvider?: string;
-};
-
-type AuthSession = {
-  user?: {
-    id?: string;
-    role?: string;
-    authProvider?: string;
-    email?: string | null;
-    name?: string | null;
-    image?: string | null;
-  };
-};
 
 const OWNER_EMAIL = 'anothai.0978452316@gmail.com';
 
@@ -83,7 +57,7 @@ async function safeUpsertUser(email: string, name: string | null | undefined, im
   }
 }
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? '',
@@ -141,7 +115,7 @@ export const authOptions = {
     strategy: 'jwt',
   },
   callbacks: {
-    async signIn({ user, account }: { user: AuthUser; account: AuthAccount | null }) {
+    async signIn({ user, account }: { user: User; account: Account | null }) {
       if (!user.email || !account?.provider) {
         return false;
       }
@@ -152,7 +126,7 @@ export const authOptions = {
 
       return true;
     },
-    async jwt({ token, user, account }: { token: AuthToken; user?: AuthUser; account?: AuthAccount | null }) {
+    async jwt({ token, user, account }: { token: JWT; user?: User; account?: Account | null }) {
       if (user?.email) {
         const fallbackClaims = getFallbackAuthClaims(user.email, account?.provider ?? token.authProvider);
 
@@ -171,7 +145,7 @@ export const authOptions = {
 
       return token;
     },
-    async session({ session, token }: { session: AuthSession; token: AuthToken }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user && token.userId) {
         session.user.id = token.userId;
         session.user.role = token.role;
