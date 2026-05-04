@@ -1,0 +1,9 @@
+{
+  "title": "Business",
+  "description": "Documentation for Business",
+  "root": true,
+  "pages": [
+        "---Introduction---",
+        "index"
+  ]
+}

@@ -186,7 +186,7 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
   const viewLabels = VIEW_LABELS[viewLanguage];
   const isOwnerGoogleSession = status === 'authenticated'
     && session?.user?.email === OWNER_EMAIL
-    && session?.user?.authProvider === 'google';
+    && (session?.user as { authProvider?: string } | undefined)?.authProvider === 'google';
 
   const selectAllExportProjects = () => {
     setSelectedProjectIds(exportResume.keyProjects.map((project) => project.id));
