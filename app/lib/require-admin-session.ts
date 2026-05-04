@@ -3,11 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/lib/auth';
 
 export async function requireAuthenticatedSession() {
-  const session = (await getServerSession(authOptions as any)) as {
-    user?: {
-      role?: string;
-    };
-  } | null;
+  const session = await getServerSession(authOptions);
 
   if (!session?.user) {
     return {
