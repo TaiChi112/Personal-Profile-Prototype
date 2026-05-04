@@ -1,6 +1,7 @@
-import type { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import type { NextAuthOptions, User, Account, Session } from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
 import { prisma } from '@/lib/prisma';
 
 const OWNER_EMAIL = 'anothai.0978452316@gmail.com';
@@ -114,7 +115,7 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account }: { user: User; account: Account | null }) {
       if (!user.email || !account?.provider) {
         return false;
       }
@@ -125,7 +126,7 @@ export const authOptions: NextAuthOptions = {
 
       return true;
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account }: { token: JWT; user?: User; account?: Account | null }) {
       if (user?.email) {
         const fallbackClaims = getFallbackAuthClaims(user.email, account?.provider ?? token.authProvider);
 
@@ -144,7 +145,7 @@ export const authOptions: NextAuthOptions = {
 
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user && token.userId) {
         session.user.id = token.userId;
         session.user.role = token.role;

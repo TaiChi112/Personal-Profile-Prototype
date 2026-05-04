@@ -48,6 +48,11 @@ export function NavigationShell({
     `flex items-center gap-2 w-full text-left px-3 py-3 text-gray-600 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800 last:border-0 ${activeTab === tabId ? getActiveMobileNavClassName() : ''}`;
 
   const navigateAndClose = (tabId: string) => {
+    // ดักจับตรงนี้! ถ้ากดไป docs ให้บังคับโหลดหน้าเว็บใหม่ไปเลย
+    if (tabId === 'docs') {
+      globalThis.location.href = '/docs';
+      return;
+    }
     onNavigate(tabId);
     setIsMenuOpen(false);
     setActiveDropdown(null);

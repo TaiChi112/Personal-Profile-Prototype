@@ -1,0 +1,9 @@
+{
+  "title": "Wellness",
+  "description": "Documentation for Wellness",
+  "root": true,
+  "pages": [
+        "---Introduction---",
+        "index"
+  ]
+}

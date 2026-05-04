@@ -69,3 +69,5 @@ certbot/
 secrets
 docs/
 data/
+
+.source

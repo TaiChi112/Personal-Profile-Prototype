@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/lib/auth';
 
 export async function requireAuthenticatedSession() {
@@ -25,7 +25,7 @@ export async function requireAdminSession() {
     return error;
   }
 
-  if (session.user.role !== 'admin') {
+  if (session.user?.role !== 'admin') {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 
