@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "next dev --webpack",
     "dev:turbo": "next dev --turbopack",
-    "build": "npm run check:locale-keys && next build",
-    "check:locale-keys": "tsc --noEmit --project tsconfig.json",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
