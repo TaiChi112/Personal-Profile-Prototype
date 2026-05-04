@@ -1,5 +1,5 @@
 import { source } from "../../lib/source";
-import { notFound, redirect } from "next/navigation"; // 1. นำเข้า redirect
+import { notFound } from "next/navigation";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import { Mermaid } from "../../components/Mermaid";
 import {
@@ -14,11 +14,6 @@ export default async function Page(props: Readonly<{
 }>) {
   const params = await props.params;
 
-  // 2. ดักจับที่นี่! ถ้าเข้า /docs เฉยๆ ให้เด้งไปที่หน้าแรกของเอกสาร
-  if (!params.slug || params.slug.length === 0) {
-    redirect('/docs/'); // สามารถเปลี่ยน path ให้ตรงกับหน้าแรกของคุณได้เลยครับ
-  }
-
   // ดึงหน้าเอกสารตาม URL
   const page = source.getPage(params.slug);
 
@@ -30,6 +25,12 @@ export default async function Page(props: Readonly<{
   return (
     <DocsPage toc={page.data.toc} full={page.data.full}>
       <main className="container mx-auto py-10 px-6 max-w-4xl">
+        {/* <div className="mb-8 border-b pb-4">
+          <h1 className="text-4xl font-bold">{page.data.title}</h1>
+          <p className="text-gray-500 mt-2">
+            กำลังแสดงผลในโหมดทดสอบ (Demo Route)
+          </p>
+        </div> */}
         <DocsTitle>{page.data.title}</DocsTitle>
         <DocsDescription>{page.data.description}</DocsDescription>
         {/* โซนแสดงผลเนื้อหา Markdown */}
