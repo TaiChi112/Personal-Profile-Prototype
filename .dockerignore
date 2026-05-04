@@ -48,20 +48,19 @@ prisma/migrations
 README.md
 
 # Demo and test files
-demo/
-test/
-scripts/
-Resume/
-data/
-plan/
-src/
+demo
+test
+scripts
+Resume
+data
+plan
+src
 *.txt
 *.log
 *.sh
 proxy.ts
 
-certbot/
+certbot
 secrets
-data/
 
 .source
