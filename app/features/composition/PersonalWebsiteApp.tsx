@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { CommandPalette } from '../../components/system/CommandPalette';
 import { TourControls } from '../../components/system/TourControls';
 import { ToastContainer } from '../../components/system/ToastContainer';
 import { ParticleBackground } from '../../components/system/ParticleBackground';
-import { ThemeControls } from '../../components/system/ThemeControls';
 import { TourHighlight } from '../../components/system/TourHighlight';
+import { FloatingThemeControls } from '../../components/system/FloatingThemeControls';
+
 import {
   FONTS,
   LOCALES,
@@ -45,6 +46,14 @@ export function PersonalWebsiteApp({
   const normalizedInitialTab = normalizeTabId(initialTab);
 
   const [activeTab, setActiveTab] = useState(normalizedInitialTab);
+
+  // Sync state with props during render to avoid cascading renders (React warning)
+  const [prevInitialTab, setPrevInitialTab] = useState(initialTab);
+  if (initialTab !== prevInitialTab) {
+    setPrevInitialTab(initialTab);
+    setActiveTab(normalizeTabId(initialTab));
+  }
+
   const [styleKey, setStyleKey] = useState<StyleKey>('modern');
   const [langKey, setLangKey] = useState<LocaleKey>('en');
   const [fontKey, setFontKey] = useState<FontKey>('sans');
@@ -69,10 +78,6 @@ export function PersonalWebsiteApp({
     }
   }, [isDark]);
 
-  useEffect(() => {
-    const resolvedTab = normalizeTabId(initialTab);
-    setActiveTab(resolvedTab);
-  }, [initialTab]);
 
   const setActiveTabWithoutNavigation = (tabId: string) => {
     setActiveTab(normalizeTabId(tabId));
@@ -94,23 +99,23 @@ export function PersonalWebsiteApp({
   const toggleRole = () => setIsAdmin((prev) => !prev);
   const { projectTree, addProjectFromTemplate } = useProjectTreeState({ onNotify: notify.notify });
 
-  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-  const paletteRef = useRef<HTMLDivElement | null>(null);
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  // const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  // const paletteRef = useRef<HTMLDivElement | null>(null);
+  // const buttonRef = useRef<HTMLButtonElement | null>(null);
 
-  useEffect(() => {
-    if (!isPaletteOpen) return;
-    function handleClickOutside(e: MouseEvent) {
-      const target = e.target as Node;
-      const isClickedInside = paletteRef.current?.contains(target) || buttonRef.current?.contains(target);
-      
-      if (!isClickedInside) {
-        setIsPaletteOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isPaletteOpen]);
+  // useEffect(() => {
+  //   if (!isPaletteOpen) return;
+  //   function handleClickOutside(e: MouseEvent) {
+  //     const target = e.target as Node;
+  //     const isClickedInside = paletteRef.current?.contains(target) || buttonRef.current?.contains(target);
+
+  //     if (!isClickedInside) {
+  //       setIsPaletteOpen(false);
+  //     }
+  //   }
+  //   document.addEventListener('mousedown', handleClickOutside);
+  //   return () => document.removeEventListener('mousedown', handleClickOutside);
+  // }, [isPaletteOpen]);
 
   const {
     activeNodeId,
@@ -169,48 +174,19 @@ export function PersonalWebsiteApp({
         />
         <main className="pt-8 min-h-screen">{content}</main>
         {/* Floating palette drawer (closed by default) - refined styling */}
-        <div className="fixed bottom-8 right-8 z-50 flex flex-col-reverse items-end gap-2">
-          <button
-            ref={buttonRef}
-            aria-expanded={isPaletteOpen}
-            aria-label={isPaletteOpen ? 'Close controls' : 'Open controls'}
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsPaletteOpen((p) => !p);
-            }}
-            className="relative w-16 h-16 rounded-full flex items-center justify-center shadow-2xl ring-1 ring-gray-200 dark:ring-gray-700 transform transition-all duration-300 hover:scale-105 bg-linear-to-br from-white to-gray-100 dark:from-gray-800 dark:to-black z-50"
-            title={isPaletteOpen ? 'Close' : 'Open'}
-          >
-            {/* subtle pulse when closed */}
-            {!isPaletteOpen && <span className="absolute inset-0 rounded-full bg-blue-400/10 animate-pulse" aria-hidden />}
-
-            <svg className={`w-7 h-7 text-gray-700 dark:text-gray-200 transform transition-transform duration-300 ${isPaletteOpen ? 'rotate-45' : 'rotate-0'}`} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-              <path d="M12 5v14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-
-          <div
-            ref={paletteRef}
-            className={`origin-bottom-right transform transition-all duration-300 z-40 ${isPaletteOpen ? 'translate-y-0 opacity-100 scale-100 pointer-events-auto' : 'translate-y-4 opacity-0 scale-95 pointer-events-none'}`}>
-            {/* Wrapper to close drawer on any control click */}
-            {/* <div className="mb-1 bg-white/95 dark:bg-gray-900/95 rounded-2xl p-4 shadow-2xl border border-gray-100 dark:border-gray-800 backdrop-blur-md min-w-[240px] max-w-sm" onClick={() => setIsPaletteOpen(false)}> */}
-              <ThemeControls
-                isDark={isDark}
-                toggleDark={toggleDark}
-                openCommandPalette={openCommandPalette}
-                undoLastAction={handleUndo}
-                isAdmin={isAdmin}
-                toggleRole={toggleRole}
-                startTour={startTour}
-                isAuthenticated={isAuthenticated}
-                userDisplayName={userDisplayName}
-                onSignIn={() => signIn('google')}
-                onSignOut={() => signOut({ callbackUrl: '/' })}
-              />
-            {/* </div> */}
-          </div>
-        </div>
+        <FloatingThemeControls
+          isDark={isDark}
+          toggleDark={toggleDark}
+          openCommandPalette={openCommandPalette}
+          undoLastAction={handleUndo}
+          isAdmin={isAdmin}
+          toggleRole={toggleRole}
+          startTour={startTour}
+          isAuthenticated={isAuthenticated}
+          userDisplayName={userDisplayName}
+          onSignIn={() => signIn('google')}
+          onSignOut={() => signOut({ callbackUrl: '/' })}
+        />
         <TourControls iterator={tourIterator} isActive={isTourActive} onStop={stopTour} onExecuteStep={handleTourStep} style={currentStyle} labels={labels} />
         <ToastContainer style={currentStyle} subscribe={subscribeToToasts} />
 
