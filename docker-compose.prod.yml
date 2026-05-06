@@ -1,37 +1,16 @@
 services:
-  # มีแค่ Next.js Application ตัวเดียวพอ เพราะ DB อยู่ที่ Supabase แล้ว
   app:
-    image: ghcr.io/taichi112/personal-profile-app:latest  # 👈 [เพิ่มใหม่] ชี้ไปที่โกดัง GHCR ของคุณ
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
-    #   args:
-    #     NODE_ENV: production
+    image: ghcr.io/taichi112/personal-profile-app:latest
     container_name: personal-profile-app-prod
     restart: always
     environment:
-      # ให้มันอ่านค่า DATABASE_URL จากไฟล์ .env โดยตรง
       DATABASE_URL: ${DATABASE_URL}
-
-      # Next.js
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-
-      # NextAuth
-      AUTH_TRUST_HOST: ${AUTH_TRUST_HOST}
       AUTH_URL: ${AUTH_URL}
       AUTH_SECRET: ${AUTH_SECRET}
-
-      # Auth Providers (ถ้ามี)
-      GITHUB_ID: ${GITHUB_ID}
-      GITHUB_SECRET: ${GITHUB_SECRET}
-      GOOGLE_ID: ${GOOGLE_ID}
-      GOOGLE_SECRET: ${GOOGLE_SECRET}
-      GOOGLE_CLIENT_ID: ${GOOGLE_ID}          # 👈 [เพิ่ม]
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_SECRET}  # 👈 [เพิ่ม]
-      # สังเกตว่าเรา 'comment' ports ออกไปแล้ว เพราะเราจะไม่ให้แขกเข้าแอปตรงๆ
-      # ports:
-      # - "${APP_PORT:-3000}:3000"
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     networks:
       - app-network-prod
     logging:
@@ -49,25 +28,23 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
-  # Nginx Reverse Proxy (ยามหน้าประตู)
+
   nginx:
     image: nginx:alpine
     container_name: personal-profile-nginx
     restart: always
     ports:
-      - "80:80" # รับแขกทางประตู 80
-      - "443:443" # เตรียมไว้สำหรับเฟส 2 (HTTPS)
+      - "80:80"
+      - "443:443"
     volumes:
-      # เอาไฟล์ตั้งค่าที่เราเขียนไปสวมทับค่าเริ่มต้นของ Nginx
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./certbot/conf:/etc/letsencrypt    # [เพิ่ม] โฟลเดอร์รับกุญแจ
-      - ./certbot/www:/var/www/certbot     # [เพิ่ม] โฟลเดอร์ยืนยันตัวตน
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
     depends_on:
       - app
     networks:
       - app-network-prod
 
-  # [เพิ่มใหม่ทั้งก้อน] หุ่นยนต์ขอใบรับรอง
   certbot:
     image: certbot/certbot
     container_name: personal-profile-certbot
