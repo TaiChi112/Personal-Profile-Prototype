@@ -1,4 +1,4 @@
-name: Deploy to Google Cloud
+name: Deploy to Google Cloud and Azure
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write   # 👈 อนุญาตให้หุ่นยนต์ดันตู้เข้าโกดัง GHCR ได้
+      packages: write
 
     steps:
       - name: Checkout code
@@ -29,15 +29,14 @@ jobs:
         with:
           context: .
           push: true
-          # 👈 ระบุชื่อตู้ให้ตรงกับใน docker-compose (ต้องเป็นพิมพ์เล็กทั้งหมด)
           tags: ghcr.io/taichi112/personal-profile-app:latest
 
-  # 🚚 Job 2: หุ่นยนต์ส่งของไปที่ Google Cloud
+  # 🚚 Job 2: หุ่นยนต์ส่งของไปที่ Google Cloud (GCP)
   deploy-gcp:
-    needs: build-and-push   # 👈 ต้องรอ Job 1 ประกอบตู้เสร็จก่อน ถึงจะเริ่มวิ่งไปส่งของ
+    needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Deploying via SSH
+      - name: Deploying to GCP via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -45,40 +44,40 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           timeout: 30s
-          command_timeout: 10m  # 👈 ลดเวลากลับมาเหลือ 10 นาทีได้แล้ว เพราะไม่ต้อง Build เอง
+          command_timeout: 10m
           script: |
             cd ~/personal-profile-prototype
             git pull origin main
             
-            # ✅ ล้างพื้นที่บน GCP ก่อนเริ่มโหลด Image ใหม่ (สำคัญมากสำหรับ Disk 20GB)
-            docker system prune -f  # 👈 ทำความสะอาดหน่อยก่อน เพื่อให้มีพื้นที่ว่างพอสำหรับตู้ใบใหม่
+            echo "🛑 1. ปิดระบบตัวเก่าก่อนเพื่อคืน RAM ให้ Server..."
+            docker compose -f docker-compose.prod.yml down
             
-            # 1. ยื่นบัตรผ่านเข้าโกดัง GHCR บน Server 
+            echo "🧹 2. ล้างขยะ Image เก่าทิ้งให้หมด เพื่อเอาพื้นที่คืน..."
+            docker system prune -af --volumes
+            
+            echo "🔑 3. ล็อกอินเข้า GitHub Container Registry..."
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            # 2. โหลดตู้ใบใหม่ล่าสุดลงมา
+            echo "📥 4. โหลดตู้ใบใหม่ล่าสุด..."
             docker compose -f docker-compose.prod.yml pull app
             
-            # 3. รันแอปใหม่ (ใช้เวลาไม่กี่วินาที!)
+            echo "🚀 5. รันระบบใหม่!"
             docker compose -f docker-compose.prod.yml up -d
-            
-            # 4. ล้าง Image เก่าที่ไม่ได้ใช้แล้ว (Dangling Images)
-            docker image prune -f
-  # 🚀 Job 3: หุ่นยนต์ส่งของไปที่ Azure (ฐานทัพใหม่)
+
+  # 🚀 Job 3: หุ่นยนต์ส่งของไปที่ Azure (ฐานทัพใหม่ - RAM 1GB)
   deploy-azure:
-    needs: build-and-push   # 👈 รอประกอบตู้เสร็จก่อนเช่นกัน (รันพร้อมกับ GCP เลย)
+    needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      # --- เพิ่มด่านตรวจตรงนี้ ---
       - name: Check if Secret is Empty
         run: |
           if [ -z "${{ secrets.AZURE_SSH_KEY }}" ]; then
-            echo "🚨 พังพินาศ! หุ่นยนต์มองไม่เห็นกุญแจ AZURE_SSH_KEY (ค่าเป็นค่าว่าง)"
+            echo "🚨 พังพินาศ! หุ่นยนต์มองไม่เห็นกุญแจ AZURE_SSH_KEY"
             exit 1
           else
             echo "✅ เยี่ยม! หุ่นยนต์เจอกุญแจแล้ว"
           fi
-      # ------------------------
+          
       - name: Deploying to Azure via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -92,14 +91,20 @@ jobs:
             cd ~/personal-profile-prototype
             git pull origin main
             
-            # 1. ยื่นบัตรผ่านเข้าโกดัง GHCR บน Server 
+            # ท่าไม้ตายสำหรับ Server สเปคน้อย (B1s - RAM 1GB)
+            # ต้องปิดของเก่าทิ้งก่อนค่อยโหลดของใหม่ เพื่อไม่ให้ RAM ชนเพดาน
+            
+            echo "🛑 1. ปิดระบบตัวเก่าก่อนเพื่อคืน RAM ให้ Server..."
+            docker compose -f docker-compose.prod.yml down
+            
+            echo "🧹 2. ล้างขยะ Image เก่าทิ้งให้หมด เพื่อเอาพื้นที่คืน..."
+            docker system prune -af --volumes
+            
+            echo "🔑 3. ล็อกอินเข้า GitHub Container Registry..."
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            # 2. โหลดตู้ใบใหม่ล่าสุดลงมา
+            echo "📥 4. โหลดตู้ใบใหม่ล่าสุด..."
             docker compose -f docker-compose.prod.yml pull app
             
-            # 3. รันแอปใหม่
+            echo "🚀 5. รันระบบใหม่!"
             docker compose -f docker-compose.prod.yml up -d
-            
-            # 4. ล้าง Image เก่าที่ไม่ได้ใช้แล้ว (Dangling Images)
-            docker image prune -f
