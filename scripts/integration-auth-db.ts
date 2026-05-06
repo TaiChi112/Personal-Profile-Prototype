@@ -1,78 +1,113 @@
-import { prisma } from '../lib/prisma';
-import { authOptions } from '../app/lib/auth';
+/**
+ * Integration test: Auth callbacks ↔ Database round-trip
+ *
+ * This script exercises the three Auth.js callbacks (signIn → jwt → session)
+ * against a live database to verify that:
+ *   1. `signIn` persists the user record.
+ *   2. `jwt` attaches the correct userId claim.
+ *   3. `session` exposes session.user.id to the application layer.
+ *   4. A post can be created, read, updated, and deleted for that user.
+ *
+ * Type strategy:
+ *   - All mock parameters are typed via `Parameters<NonNullable<typeof ...>>[0]`
+ *     so they stay in sync with the actual callback signatures automatically.
+ *   - `unknown` is used for intermediate `as unknown as X` double-casts where
+ *     we deliberately provide only the fields the callback actually reads, which
+ *     is structurally narrower than the full parameter type.
+ *   - Zero `any` types are used anywhere in this file.
+ */
 
-async function main() {
+import { prisma } from '../lib/prisma';
+import { authConfig } from '../app/lib/auth';
+
+// ---------------------------------------------------------------------------
+// Utility type aliases derived directly from the authConfig callbacks so that
+// if the callback signatures change, these automatically update.
+// ---------------------------------------------------------------------------
+
+type SignInCallbacks = NonNullable<typeof authConfig.callbacks>;
+type SignInParams = Parameters<NonNullable<SignInCallbacks['signIn']>>[0];
+type JwtParams = Parameters<NonNullable<SignInCallbacks['jwt']>>[0];
+type SessionParams = Parameters<NonNullable<SignInCallbacks['session']>>[0];
+
+// ---------------------------------------------------------------------------
+// Main integration flow
+// ---------------------------------------------------------------------------
+
+async function main(): Promise<void> {
   const ts = Date.now();
   const email = `integration-${ts}@example.com`;
 
-  const signInResult = await authOptions.callbacks?.signIn?.({
+  // ── 1. signIn callback ────────────────────────────────────────────────────
+  // We cast via `unknown` because we only supply the subset of fields the
+  // callback actually reads (user.email, account.provider, account.providerAccountId).
+  const signInArgs = {
     user: {
       id: `integration-user-${ts}`,
       email,
       name: 'Integration User',
-      image: null,
     },
     account: {
       provider: 'google',
       providerAccountId: `google-integration-${ts}`,
       type: 'oauth',
-      access_token: null,
-      expires_at: null,
-      id_token: null,
-      refresh_token: null,
-      scope: null,
-      session_state: null,
-      token_type: null,
     },
+    // Required shape fields not consumed by our signIn callback
     credentials: undefined,
-    email: undefined,
-    profile: undefined,
-  } as any);
+    request: undefined,
+  } as unknown as SignInParams;
+
+  const signInResult = await authConfig.callbacks?.signIn?.(signInArgs);
 
   if (!signInResult) {
-    throw new Error('signIn callback rejected integration user');
+    throw new Error('[integration] signIn callback rejected the integration user');
   }
 
+  // ── 2. Verify DB persistence ──────────────────────────────────────────────
   const dbUser = await prisma.user.findUnique({
     where: { email },
     select: { id: true, role: true, email: true },
   });
 
   if (!dbUser) {
-    throw new Error('user not persisted by signIn callback');
+    throw new Error('[integration] user was not persisted by the signIn callback');
   }
 
-  const token = await authOptions.callbacks?.jwt?.({
-    token: { email },
-    user: { email } as any,
+  // ── 3. jwt callback ───────────────────────────────────────────────────────
+  const jwtArgs = {
+    token: { email, sub: email },
+    user: { id: `integration-user-${ts}`, email, name: 'Integration User' },
     account: null,
-    profile: undefined,
-    trigger: undefined,
-    isNewUser: false,
+    trigger: 'signIn',
+    isNewUser: true,
     session: undefined,
-  } as any);
+  } as unknown as JwtParams;
+
+  const token = await authConfig.callbacks?.jwt?.(jwtArgs);
 
   if (!token?.userId) {
-    throw new Error('jwt callback did not set userId');
+    throw new Error('[integration] jwt callback did not set token.userId');
   }
 
-  const session = await authOptions.callbacks?.session?.({
-    session: { user: { email } },
+  // ── 4. session callback ───────────────────────────────────────────────────
+  // `token` is already typed as the JWT return from step 3 (inferred as JWT).
+  const sessionArgs = {
+    session: {
+      user: { email },
+      expires: new Date(Date.now() + 86_400_000).toISOString(),
+    },
     token,
-    user: undefined,
-    newSession: undefined,
-    trigger: undefined,
-  } as any);
+  } as unknown as SessionParams;
 
-  const sessionUserId =
-    session?.user && 'id' in session.user
-      ? (session.user as { id?: string }).id
-      : undefined;
+  const session = await authConfig.callbacks?.session?.(sessionArgs);
 
-  if (!sessionUserId) {
-    throw new Error('session callback did not expose session.user.id');
+  // After our type augmentation, session.user.id is a `string` field —
+  // no additional narrowing cast required.
+  if (!session?.user?.id) {
+    throw new Error('[integration] session callback did not expose session.user.id');
   }
 
+  // ── 5. DB CRUD flow ───────────────────────────────────────────────────────
   const createdPost = await prisma.post.create({
     data: {
       title: 'Integration Flow Post',
@@ -88,7 +123,7 @@ async function main() {
   });
 
   if (!readBack || readBack.author.email !== email) {
-    throw new Error('failed to read back post with linked author');
+    throw new Error('[integration] failed to read back post with linked author');
   }
 
   const updatedPost = await prisma.post.update({
@@ -97,18 +132,19 @@ async function main() {
   });
 
   if (!updatedPost.published) {
-    throw new Error('post update failed in integration flow');
+    throw new Error('[integration] post update failed in integration flow');
   }
 
+  // ── 6. Cleanup ────────────────────────────────────────────────────────────
   await prisma.post.delete({ where: { id: createdPost.id } });
   await prisma.user.delete({ where: { id: dbUser.id } });
 
-  console.log('[integration] auth callbacks + db CRUD flow passed');
+  console.log('[integration] ✓ auth callbacks + db CRUD flow passed');
 }
 
 main()
-  .catch((error) => {
-    console.error('[integration] failed', error);
+  .catch((error: unknown) => {
+    console.error('[integration] ✗ failed:', error);
     process.exit(1);
   })
   .finally(async () => {
