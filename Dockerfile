@@ -43,8 +43,8 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/.source ./.source
 COPY --from=builder /app/docs ./docs
 
-RUN mkdir -p /app/.next/cache/images
-RUN chown -R bun:bun /app/.next
+RUN mkdir -p /app/.next/cache/images && \
+    chown -R bun:bun /app/.next
 
 # ใช้ user 'bun' ที่แถมมากับ image เพื่อความปลอดภัย (ไม่ใช้ root)
 USER bun
