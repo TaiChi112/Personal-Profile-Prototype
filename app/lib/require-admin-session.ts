@@ -8,7 +8,7 @@
  */
 import type { Session } from 'next-auth';
 import { NextResponse } from 'next/server';
-import { auth } from '@/app/lib/auth';
+import { auth } from '@/auth';
 
 // ---------------------------------------------------------------------------
 // Discriminated union return types — no `any`, fully type-safe
