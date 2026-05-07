@@ -18,7 +18,7 @@
  */
 
 import { prisma } from '../lib/prisma';
-import { authConfig } from '../app/lib/auth';
+import { authConfig } from '../auth';
 
 // ---------------------------------------------------------------------------
 // Utility type aliases derived directly from the authConfig callbacks so that
