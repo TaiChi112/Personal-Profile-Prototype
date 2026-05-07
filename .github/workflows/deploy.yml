@@ -81,22 +81,11 @@ jobs:
           command_timeout: 10m
           script: |
             cd ~/personal-profile-prototype
-            git pull origin main
+            git fetch --all
+            git reset --hard origin/main
 
-            # ท่าไม้ตายสำหรับ Server สเปคน้อย (B1s - RAM 1GB)
-            # ต้องปิดของเก่าทิ้งก่อนค่อยโหลดของใหม่ เพื่อไม่ให้ RAM ชนเพดาน
-
-            echo "🛑 1. ปิดระบบตัวเก่าก่อนเพื่อคืน RAM ให้ Server..."
             docker compose -f docker-compose.prod.yml down
-
-            echo "🧹 2. ล้างขยะ Image เก่าทิ้งให้หมด เพื่อเอาพื้นที่คืน..."
             docker system prune -af --volumes
-
-            echo "🔑 3. ล็อกอินเข้า GitHub Container Registry..."
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-            echo "📥 4. โหลดตู้ใบใหม่ล่าสุด..."
             docker compose -f docker-compose.prod.yml pull app
-
-            echo "🚀 5. รันระบบใหม่!"
             docker compose -f docker-compose.prod.yml up -d
