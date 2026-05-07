@@ -20,6 +20,8 @@ services:
       ADMIN_TEST_PASSWORD: ${ADMIN_TEST_PASSWORD}
       VIEWER_TEST_PASSWORD: ${VIEWER_TEST_PASSWORD}
       OWNER_EMAIL: ${OWNER_EMAIL}
+
+      SERVER_NODE: ${SERVER_NODE}
     networks:
       - app-network-prod
     logging:
