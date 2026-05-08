@@ -1,0 +1,107 @@
+---
+title: Data Mining Exercise 0
+description: An overview of Data Mining (DM), its techniques, applications, and challenges.
+---
+<Callout title="Warning" type="warning">
+This article is a work in progress and may contain incomplete information or inaccuracies. Please verify details from reliable sources.
+</Callout>
+
+# Data Mining Exercise 0
+
+## 1. 🎯 Data Selection (การคัดเลือกข้อมูล)
+
+คือการเลือก **"วัตถุดิบ"** ที่เราจะใช้ ไม่ใช่ทุกข้อมูลในฐานข้อมูลจะจำเป็นเสมอไป
+
+### สิ่งที่ทำ:
+- ดึงข้อมูลจาก **Database**, **Data Warehouse** หรือไฟล์ต่างๆ
+- เลือกเฉพาะส่วนที่เกี่ยวข้องกับโจทย์ที่เราตั้งไว้
+
+<Callout title="💡 ตัวอย่าง" type="info">
+ถ้าจะวิเคราะห์ **"ยอดขายกาแฟ"** เราก็ดึงข้อมูลบิลขาย แต่**ไม่ต้องดึง**ข้อมูล "ทะเบียนรถพนักงาน" มาใช้
+</Callout>
+
+## 2. 🧹 Data Preprocessing (การเตรียมและทำความสะอาดข้อมูล)
+
+<Callout title="⚡ ข้อสำคัญ" type="warn">
+ขั้นตอนนี้**สำคัญที่สุด** (ใช้เวลา **60-80%** ของงาน) คือการล้างและเตรียมวัตถุดิบให้พร้อมปรุง
+</Callout>
+
+### ขั้นตอนย่อย:
+
+#### 🧽 Data Cleaning
+จัดการกับ **Noise** (ข้อมูลเพี้ยน) และ **Missing Values** (ข้อมูลแหว่ง)
+
+#### 🔗 Data Integration
+รวมข้อมูลจากหลายแหล่ง (เช่น ไฟล์ Excel ยอดขาย + ฐานข้อมูลลูกค้า SQL) ให้เป็นก้อนเดียวกัน
+
+#### 🔄 Data Transformation/Normalization
+ปรับรูปแบบข้อมูล เช่น:
+- แปลงข้อมูลให้อยู่ในช่วง `0-1` (Min-Max)
+- แปลงข้อความให้เป็นตัวเลข
+
+#### 🎯 Feature Selection/Reduction
+เลือกเฉพาะคอลัมน์ที่สำคัญ ตัดสิ่งที่ไม่จำเป็นออกเพื่อลดขนาดข้อมูล
+
+## 3. ⛏️ Data Mining (การขุดค้นข้อมูล)
+
+คือขั้นตอน **"การปรุงอาหาร"** หรือหัวใจหลักที่เราใช้ Algorithm เข้ามาจับ
+
+### สิ่งที่ทำ:
+เลือกโมเดลทางคณิตศาสตร์ที่เหมาะสมกับโจทย์
+
+### เทคนิคที่ใช้:
+
+- **📊 Classification:** ทำนายกลุ่ม
+  - ตัวอย่าง: ลูกค้าจะเลิก/ไม่เลิก
+
+- **🎨 Clustering:** จัดกลุ่ม
+  - ตัวอย่าง: แบ่งกลุ่มลูกค้าตามพฤติกรรม
+
+- **🔗 Association:** หาความสัมพันธ์
+  - ตัวอย่าง: คนซื้อเบียร์มักซื้อผ้าอ้อม
+
+## 4. 🔍 Pattern Evaluation / Postprocessing (การประเมินและกลั่นกรองผลลัพธ์)
+
+เมื่อปรุงเสร็จ เราต้อง **"ชิม"** และ **"จัดจาน"** ไม่ใช่ทุก Pattern ที่ขุดเจอจะมีประโยชน์
+
+### ขั้นตอน:
+
+#### 🧪 Filtering
+คัดกรองกฎที่ซ้ำซ้อน หรือกฎที่เรารู้อยู่แล้ว (Trivial) ออกไป
+
+#### 📈 Visualization
+แปลงตัวเลขผลลัพธ์ให้เป็น:
+- กราฟ
+- แผนภาพ (เช่น Decision Tree Diagram)
+- เพื่อให้ดูง่าย
+
+#### 💬 Interpretation
+แปลความหมายทางคณิตศาสตร์ให้เป็นภาษาธุรกิจ
+
+## 5. 🎁 Knowledge Presentation (การนำเสนอความรู้)
+
+คือ **"จานอาหารที่พร้อมเสิร์ฟ"**
+
+### สิ่งที่ได้:
+
+<Callout title="✨ ความรู้ที่นำไปใช้ได้จริง" type="success">
+ไม่ใช่แค่ข้อมูล (**Data**) หรือสารสนเทศ (**Information**) แต่คือ **ความรู้ (Knowledge)** ที่นำไปตัดสินใจได้จริง (**Actionable Insights**)
+</Callout>
+
+### 💡 ตัวอย่าง:
+
+> "เราควรจัดโปรโมชั่นลดราคาแป้งทำขนม ในช่วงเย็นวันศุกร์ เพราะกลุ่มแม่บ้านมักจะมาซื้อคู่กับนมสด"
+
+---
+
+## 📝 สรุปสั้นๆ ให้จำได้ขึ้นใจ
+
+| ขั้นตอน | คำอธิบาย | Analogy |
+|---------|----------|----------|
+| 1️⃣ Selection | คัดเลือกข้อมูล | เลือกของ |
+| 2️⃣ Preprocessing | เตรียมและทำความสะอาด | ล้าง/หั่น |
+| 3️⃣ Mining | ขุดค้น Pattern | ปรุง |
+| 4️⃣ Evaluation | ประเมินและกลั่นกรอง | ชิม/จัดจาน |
+| 5️⃣ Knowledge | นำเสนอความรู้ | อาหารอร่อย 🍽️ |
+
+<a href="https://github.com/TaiChi112/FumadProff/blob/main/content/docs/Computer_Science/DM/Exercies/0.mdx" target="_blank" className="editLink_e1cfa">📝 Edit this page on GitHub</a>

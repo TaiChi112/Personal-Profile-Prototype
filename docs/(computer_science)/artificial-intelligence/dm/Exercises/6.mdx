@@ -1,0 +1,154 @@
+---
+title: Data Mining Exercise 6
+description: Data Preprocessing & Decision Tree - การสุ่มตัวอย่างและการคำนวณ Entropy เพื่อเลือก Node
+---
+
+<Callout title="Warning" type="warning">
+This article is a work in progress and may contain incomplete information or inaccuracies. Please verify details from reliable sources.
+</Callout>
+
+# Data Mining Exercise 6
+
+รากฐานของ **Data Preprocessing** (การสุ่มตัวอย่าง) และ **Decision Tree Model** (การคำนวณ Entropy เพื่อเลือก Node)
+
+---
+
+## ข้อ 3: ความแตกต่างระหว่างการสุ่ม 2 แบบ (Stratified vs. Simple Random)
+
+### โจทย์
+
+ต้องการสุ่มตัวอย่าง $n$ จากประชากรที่มีกลุ่มย่อย $k$ กลุ่ม
+
+- **แบบที่ 1:** Stratified Sampling (เลือกตามสัดส่วน)
+- **แบบที่ 2:** Simple Random Sampling (สุ่มรวม ไม่สนกลุ่ม)
+
+### ความแตกต่าง (Difference)
+
+หัวใจสำคัญอยู่ที่ **"ความน่าจะเป็นที่จะได้ตัวแทนครบทุกกลุ่ม"** และ **"ความแม่นยำ (Precision)"**
+
+#### 1. การการันตีตัวแทน (Representation Guarantee)
+
+**แบบที่ 1 (Stratified):**
+- การันตี 100% ว่าจะได้ข้อมูลครบทุกกลุ่ม $k$ ตามสัดส่วนจริง
+- วิธีนี้ดีมากถ้าข้อมูลเรา **Imbalanced** (เช่น มีกลุ่มที่หายากมากๆ อยู่)
+
+<Callout title="📌 ตัวอย่าง: สำรวจความเห็นในมหาวิทยาลัย" type="info">
+มีนักศึกษา 9,000 คน และ อาจารย์ 100 คน
+
+ถ้าสุ่มแบบ **Stratified** เราจะบังคับโควตาเลยว่าต้องหยิบอาจารย์มาด้วย
+</Callout>
+
+**แบบที่ 2 (Simple Random):**
+- อาศัยดวง ถ้ากลุ่ม $k$ ไหนมีขนาดเล็กมาก มีโอกาสสูงที่เราจะ **"สุ่มไม่เจอเลย"**
+- ทำให้ข้อมูลกลุ่มนั้นหายไป (Under-represented)
+
+<Callout title="ตัวอย่าง: ปัญหาของ Simple Random" type="warn">
+จากเคสมหาวิทยาลัย ถ้าสุ่มรวมๆ เราอาจจะได้แต่นักเรียนล้วนๆ ไม่ได้อาจารย์เลย ทำให้ผลสำรวจเพี้ยน
+</Callout>
+
+#### 2. ความคลาดเคลื่อน (Standard Error)
+
+| วิธีสุ่ม | ค่า Error | เหตุผล |
+|---------|----------|--------|
+| **Stratified** | ต่ำกว่า | รับประกันโครงสร้างของประชากรไว้แล้ว ข้อมูลที่ได้จะกระจายตัวดีกว่า |
+| **Simple Random** | สูงกว่า | โดยเฉพาะถ้าแต่ละกลุ่มมีความแตกต่างกันมาก |
+
+### สรุป
+
+<Callout title="✅ ข้อแนะนำ" type="success">
+ถ้าคุณรู้ว่าข้อมูลแบ่งเป็นกลุ่มๆ อยู่แล้ว และอยากให้แต่ละกลุ่มมีที่ยืน ต้องใช้ **Stratified**
+
+(นี่คือ Standard ในการแบ่ง Train/Test set ของงาน Classification ด้วย)
+</Callout>
+
+{/* ![Stratified Sampling Diagram](/image/licensed-image.jpg) */}
+
+---
+
+## ข้อ 4: การคำนวณ Entropy (ค่าความไม่แน่นอน)
+
+### ข้อมูล
+
+ลูกบอลรวม 8 ลูก:
+- 🔴 แดง: 4 ลูก
+- 🟢 เขียว: 2 ลูก
+- 🔵 ฟ้า: 2 ลูก
+
+### สูตร Entropy:
+
+$$H(X) = - \sum_{i=1}^{n} p(x_i) \log_2 p(x_i)$$
+
+### ขั้นตอนการคำนวณ
+
+#### 1. หาความน่าจะเป็น ($p$) ของแต่ละสี
+
+$$
+P(\text{Red}) = \frac{4}{8} = 0.5
+$$
+$$
+P(\text{Green}) = \frac{2}{8} = 0.25
+$$
+$$
+P(\text{Blue}) = \frac{2}{8} = 0.25
+$$
+
+#### 2. แทนค่าลงในสูตร
+
+เราต้องคิดทีละเทอมแล้วเอามารวมกัน (อย่าลืมเครื่องหมายลบข้างหน้าสุด):
+
+$$
+H(X) = - [ (0.5 \log_2 0.5) + (0.25 \log_2 0.25) + (0.25 \log_2 0.25) ]
+$$
+
+#### 3. แปลงค่า Log (ฐาน 2):
+$$
+\log_2(0.5) = \log_2(2^{-1}) = -1
+$$
+$$
+\log_2(0.25) = \log_2(2^{-2}) = -2
+$$
+
+#### 4. คำนวณตัวเลข
+
+$$
+\begin{aligned}
+\text{Term Red} &= 0.5 \times (-1) = -0.5 \\
+\text{Term Green} &= 0.25 \times (-2) = -0.5 \\
+\text{Term Blue} &= 0.25 \times (-2) = -0.5
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+\text{Sum inside bracket} &= -0.5 + (-0.5) + (-0.5) = -1.5 \\
+H(X) &= - (-1.5) \\
+H(X) &= \mathbf{1.5} \text{ bits}
+\end{aligned}
+$$
+
+### คำตอบ
+
+<Callout title="✅ ผลลัพธ์" type="success">
+ค่า Entropy คือ **1.5 bits**
+</Callout>
+
+---
+
+## เกร็ดความรู้เชื่อมโยง Data Mining
+
+### ค่าสูงสุดที่เป็นไปได้ (Max Entropy) ของโจทย์นี้คือเท่าไหร่?
+
+ถ้าลูกบอล 3 สี มีจำนวนเท่ากันเป๊ะ (โอกาสเกิดเท่ากันหมด) ค่า Entropy จะสูงที่สุดคือ $\log_2(3) \approx 1.585$ bits
+
+<Callout title="💡 การตีความผลลัพธ์" type="info">
+ค่าที่เราคำนวณได้ **1.5** ซึ่งเกือบเต็ม Max แปลว่าข้อมูลชุดนี้ **"มีความไม่แน่นอนสูง"** (เดายากว่าจะหยิบได้สีอะไร แม้สีแดงจะเยอะสุดก็ตาม)
+</Callout>
+
+### ความเชื่อมโยงกับ Decision Tree
+
+**ใน Decision Tree:**
+- เราชอบ Node ที่มี **Entropy ต่ำๆ** (เช่น มีสีแดงล้วน = Entropy 0)
+- เพราะมันแปลว่าข้อมูล**บริสุทธิ์ (Pure)**
+- ยิ่ง Pure ยิ่งทำนายได้แม่นยำ!
+
+<a href="https://github.com/TaiChi112/FumadProff/blob/main/content/docs/Computer_Science/DM/Exercies/6.mdx" target="_blank" className="editLink_e1cfa">📝 Edit this page on GitHub</a>
