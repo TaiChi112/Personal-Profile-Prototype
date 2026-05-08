@@ -1,13 +1,11 @@
 import { defineDocs, defineConfig } from 'fumadocs-mdx/config';
-import { rehypeCodeDefaultOptions,remarkMdxMermaid } from 'fumadocs-core/mdx-plugins';
+import { rehypeCodeDefaultOptions, remarkMdxMermaid, remarkMdxFiles } from 'fumadocs-core/mdx-plugins';
 import { z } from 'zod';
-
-// import remarkMath from 'remark-math';
-// import rehypeKatex from 'rehype-katex';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 export const { docs, meta } = defineDocs({
-  // ชี้ไปที่โฟลเดอร์ docs ที่อยู่หน้าสุดของโปรเจกต์ (ที่เก็บไฟล์ .md ของคุณ)
-  dir: 'docs', 
+  dir: 'docs',
   docs: {
     schema: z
       .object({
@@ -30,10 +28,13 @@ export default defineConfig({
         env: 'dotenv',
       },
     },
-    remarkPlugins: (v) => [remarkMdxMermaid, ...v],
+    // remarkPlugins: (v) => [remarkMdxMermaid, ...v],
     // remarkPlugins: [remarkMdxMermaid],
     // remarkPlugins: [remarkMath, remarkMdxMermaid, remarkMdxFiles],
-    //     // rehypePlugins: [[rehypeKatex, { output: 'html' }]],
-    //     rehypePlugins: (v) => [rehypeKatex, ...v],
+    // rehypePlugins: [[rehypeKatex, { output: 'html' }]],
+    // rehypePlugins: (v) => [rehypeKatex, ...v],
+    // rehypePlugins: [[rehypeKatex, { output: 'html' }]],
+    remarkPlugins: [remarkMath, remarkMdxMermaid, remarkMdxFiles],
+    rehypePlugins: (v) => [rehypeKatex, ...v],
   },
 });
