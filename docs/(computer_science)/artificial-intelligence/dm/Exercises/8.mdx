@@ -1,0 +1,226 @@
+---
+title: Data Mining Exercise 8
+description: Decision Tree - Information Gain vs Gini Index การเลือก Attribute ที่ดีที่สุด
+---
+
+<Callout title="Warning" type="warning">
+This article is a work in progress and may contain incomplete information or inaccuracies. Please verify details from reliable sources.
+</Callout>
+
+# Data Mining Exercise 8
+
+<Callout title="📌 ข้อควรระวัง" type="info">
+ในตารางข้อมูลข้อ 5 ช่อง Class Label มีบางช่องที่เป็น "ค่าว่าง" (ไม่มีเครื่องหมาย +) ผมจะขอสมมติว่าค่าว่างเหล่านั้นคือ คลาสลบ (-) เพื่อให้เป็น Binary Class Problem ตามโจทย์
+</Callout>
+
+---
+
+|A|B|Class Label|
+|--|--|-----------|
+|T|F|+|
+|T|T|+|
+|T|T|+|
+|T|F|-|
+|T|T|+|
+|F|F|-|
+|F|F|-|
+|F|F|-|
+|T|T|-|
+|T|F|-|
+
+## ข้อ 5: การเลือก Attribute A หรือ B
+
+### สรุปข้อมูล (Data Summary)
+
+จำนวนข้อมูลทั้งหมด **10 แถว**
+
+- **Class (+):** 4 คน (แถว 1, 2, 3, 5)
+- **Class (-):** 6 คน (แถว 4, 6, 7, 8, 9, 10)
+
+---
+
+### 5a. คำนวณ Information Gain (เลือก A หรือ B?)
+
+#### สูตร Entropy
+
+$$H(S) = -p_+ \log_2 p_+ - p_- \log_2 p_-$$
+
+#### Entropy ของ Parent (P)
+
+$$p_+ = \frac{4}{10} = 0.4, \quad p_- = \frac{6}{10} = 0.6$$
+
+$$H(P) = -(0.4 \log_2 0.4) - (0.6 \log_2 0.6) \approx \mathbf{0.971}$$
+
+#### Information Gain ของ Attribute A
+
+**A = T (7 คน):** มี (+)4, (-)3
+
+$$H(A_T) = -(4/7 \log_2 4/7) - (3/7 \log_2 3/7) \approx 0.985$$
+
+**A = F (3 คน):** มี (+)0, (-)3 (บริสุทธิ์)
+
+$$H(A_F) = -(0) - (1 \log_2 1) = 0$$
+
+**Weighted Entropy:**
+
+$$\frac{7}{10}(0.985) + \frac{3}{10}(0) = 0.6895$$
+
+**Information Gain(A):**
+
+$$0.971 - 0.6895 = \mathbf{0.2815}$$
+
+#### Information Gain ของ Attribute B
+
+**B = T (4 คน):** มี (+)3, (-)1
+
+$$H(B_T) = -(0.75 \log_2 0.75) - (0.25 \log_2 0.25) \approx 0.811$$
+
+**B = F (6 คน):** มี (+)1, (-)5
+
+$$H(B_F) = -(1/6 \log_2 1/6) - (5/6 \log_2 5/6) \approx 0.650$$
+
+**Weighted Entropy:**
+
+$$\frac{4}{10}(0.811) + \frac{6}{10}(0.650) = 0.3244 + 0.39 = 0.7144$$
+
+**Information Gain(B):**
+
+$$0.971 - 0.7144 = \mathbf{0.2566}$$
+
+#### สรุป 5a
+
+<Callout title="✅ เลือก Attribute A" type="success">
+เพราะ Gain(A) = 0.2815 > Gain(B) = 0.2566
+</Callout>
+
+---
+
+### 5b. คำนวณ Gain in Gini Index (เลือก A หรือ B?)
+
+#### สูตร Gini Index
+
+$$\text{Gini}(S) = 1 - \sum p_i^2$$
+
+#### Gini ของ Parent (P)
+
+$$\text{Gini}(P) = 1 - [(0.4)^2 + (0.6)^2] = 1 - (0.16 + 0.36) = \mathbf{0.48}$$
+
+#### Gini ของ Attribute A
+
+**A = T:**
+
+$$1 - [(4/7)^2 + (3/7)^2] = 1 - (0.327 + 0.184) \approx 0.489$$
+
+**A = F:**
+
+$$1 - [0^2 + 1^2] = 0$$
+
+**Weighted Gini:**
+
+$$\frac{7}{10}(0.489) + \frac{3}{10}(0) = \mathbf{0.3423}$$
+
+**Gain Gini(A):**
+
+$$0.48 - 0.3423 = \mathbf{0.1377}$$
+
+#### Gini ของ Attribute B
+
+**B = T:**
+
+$$1 - [(0.75)^2 + (0.25)^2] = 1 - (0.5625 + 0.0625) = 0.375$$
+
+**B = F:**
+
+$$1 - [(1/6)^2 + (5/6)^2] = 1 - (0.028 + 0.694) \approx 0.278$$
+
+**Weighted Gini:**
+
+$$\frac{4}{10}(0.375) + \frac{6}{10}(0.278) = 0.15 + 0.1668 = \mathbf{0.3168}$$
+
+**Gain Gini(B):**
+
+$$0.48 - 0.3168 = \mathbf{0.1632}$$
+
+#### สรุป 5b
+
+<Callout title="✅ เลือก Attribute B" type="success">
+เพราะ Gain Gini(B) = 0.1632 > Gain Gini(A) = 0.1377
+</Callout>
+
+---
+
+### 5c. Explanation - สามารถเลือกคนละ Attribute ได้หรือไม่?
+
+#### คำตอบ
+
+<Callout title="✅ เป็นไปได้ (Yes)" type="success">
+ดังที่เห็นในตัวอย่างนี้ (Info Gain เลือก A แต่ Gini เลือก B)
+</Callout>
+
+#### เหตุผล
+
+**Information Gain (Entropy):**
+- มักจะลำเอียงไปทาง Attribute ที่แบ่งแล้วได้กลุ่มย่อยที่ "บริสุทธิ์ที่สุด" (Purity)
+- แม้ว่ากลุ่มนั้นจะเล็ก (เช่น A=F มีแค่ 3 คน แต่บริสุทธิ์ 100% ทำให้ Entropy ลดลงฮวบ)
+
+**Gini Index:**
+- มักจะชอบการแบ่งที่ได้กลุ่ม "ขนาดใหญ่และมีความบริสุทธิ์พอประมาณ" มากกว่ากลุ่มเล็กๆ ที่บริสุทธิ์มาก
+- Gini จะไม่ลดลงเร็วเท่า Entropy เมื่อเจอ Pure node เล็กๆ
+
+---
+
+## ข้อ 6: Gini Index ของการแตก Node
+
+
+||P|C1|C2|
+|--|--|--|--|
+|Class 0|7|3|4|
+|Class 1|3|0|3|
+
+### ข้อมูล
+
+- **Parent (P):** Class 0 = 7, Class 1 = 3 (รวม 10)
+- **Child 1 (C1):** Class 0 = 3, Class 1 = 0 (รวม 3) → บริสุทธิ์
+- **Child 2 (C2):** Class 0 = 4, Class 1 = 3 (รวม 7)
+
+---
+
+### 6a. Calculate Gini index of node P
+
+$$\text{Gini}(P) = 1 - \left[ \left(\frac{7}{10}\right)^2 + \left(\frac{3}{10}\right)^2 \right]$$
+
+$$\text{Gini}(P) = 1 - [0.49 + 0.09] = 1 - 0.58 = \mathbf{0.42}$$
+
+---
+
+### 6b. Calculate Weighted Gini index & Decision
+
+#### Gini ของ Child 1 (C1)
+
+กลุ่มนี้มีแต่ Class 0 (บริสุทธิ์)
+
+$$\text{Gini}(C1) = 1 - [(3/3)^2 + (0/3)^2] = 1 - 1 = \mathbf{0}$$
+
+#### Gini ของ Child 2 (C2)
+
+$$\text{Gini}(C2) = 1 - [(4/7)^2 + (3/7)^2] = 1 - [0.3265 + 0.1837] \approx 1 - 0.51 = \mathbf{0.49}$$
+
+#### Weighted Gini
+
+$$\text{Weighted Gini} = \frac{3}{10} \times \text{Gini}(C1) + \frac{7}{10} \times \text{Gini}(C2)$$
+
+$$= (0.3 \times 0) + (0.7 \times 0.49) = \mathbf{0.343}$$
+
+#### สรุปการตัดสินใจ (Decision)
+
+<Callout title="📊 ผลการเปรียบเทียบ" type="info">
+- Gini เดิม: 0.42
+- Gini ใหม่ (Weighted): 0.343
+- ค่าลดลง (Gain): 0.42 - 0.343 = **0.077**
+</Callout>
+
+<Callout title="✅ ควรพิจารณา (Yes)" type="success">
+เพราะค่า Gini ลดลง แปลว่าข้อมูลมีความบริสุทธิ์เพิ่มขึ้น (Impurity ลดลง) โดยเฉพาะ Node C1 ที่แยกออกมาได้บริสุทธิ์ 100%
+</Callout>
+
+<a href="https://github.com/TaiChi112/FumadProff/blob/main/content/docs/Computer_Science/DM/Exercies/8.mdx" target="_blank" className="editLink_e1cfa">📝 Edit this page on GitHub</a>

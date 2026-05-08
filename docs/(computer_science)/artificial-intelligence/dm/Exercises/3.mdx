@@ -1,0 +1,159 @@
+---
+title: Data Mining Exercise 3
+description: An overview of Data Mining (DM), its techniques, applications, and challenges.
+---
+<Callout title="Warning" type="warning">
+This article is a work in progress and may contain incomplete information or inaccuracies. Please verify details from reliable sources.
+</Callout>
+
+# Data Mining Exercise 3
+
+## 📏 Distance & Similarity Measures
+
+<Callout title="💡 แนวคิดหลัก" type="info">
+สูตรคณิตศาสตร์เหล่านี้ (Distance & Similarity Measures) เปรียบเสมือน **"ไม้บรรทัด"** ในโลกของ Data Mining
+</Callout>
+
+ถ้าเราไม่มี "ไม้บรรทัด" พวกนี้ คอมพิวเตอร์จะไม่รู้เลยว่าข้อมูล A **"เหมือน"** หรือ **"ต่าง"** กับข้อมูล B แค่ไหน
+
+และถ้าไม่รู้ความเหมือน/ต่าง ก็จะไม่สามารถ:
+- 📊 **Clustering** (จัดกลุ่ม)
+- 🎯 **Recommendation** (แนะนำสินค้า)
+
+มาดูการคำนวณพร้อม **"สถานการณ์จำลอง (Use Case)"** ที่จะทำให้คุณเห็นภาพชัดเจน
+
+---
+
+## 📝 โจทย์ 2.1: ข้อมูลที่มีทิศทางเดียวกัน แต่ขนาดต่างกัน
+
+**Input:** $x = (1,1,1,1)$ และ $y = (2,2,2,2)$
+
+### 🧮 1. การคำนวณ (Calculation)
+
+#### 📐 Euclidean Distance
+
+$d(x,y) = \sqrt{(1-2)^2 + (1-2)^2 + (1-2)^2 + (1-2)^2} = \sqrt{1+1+1+1} = \sqrt{4} = \mathbf{2}$
+
+#### Cosine Similarity
+
+$\cos(x,y) = \frac{x \cdot y}{||x|| ||y||} = \frac{(1\times2 + 1\times2 + 1\times2 + 1\times2)}{\sqrt{4} \times \sqrt{16}} = \frac{8}{2 \times 4} = \mathbf{1.0}$
+
+#### 📈 Correlation
+
+<Callout title="สำคัญ" type="warn">
+เนื่องจากค่าใน $x$ เท่ากันหมด (Variance = 0) และ $y$ เท่ากันหมด การหา Correlation จะเกิดการ**หารด้วยศูนย์ (Undefined)**
+
+**ความหมายใน Data Mining:** ไม่สามารถหาความสัมพันธ์เชิงเส้นได้ เพราะข้อมูลไม่มีการเปลี่ยนแปลงเลย (Flat line)
+</Callout>
+
+### 🌍 2. สถานการณ์ใช้งานจริง (Real-world Scenario)
+
+**Context:** การวิเคราะห์ความถี่คำในเอกสาร (Text Mining)
+
+สมมติเวกเตอร์แทนจำนวนคำว่า "Data", "Mining", "KDD", "AI" ในเอกสาร:
+
+- **เอกสาร x:** มีคำละ 1 ครั้ง (บทคัดย่อสั้นๆ)
+- **เอกสาร y:** มีคำละ 2 ครั้ง (บทความฉบับเต็ม เนื้อหาเหมือน x แต่เขียนยาวกว่า 2 เท่า)
+
+<Callout title="🎯 บทเรียนที่ได้ (Key Takeaway)" type="success">
+- **Euclidean = 2** (ห่างกัน): บอกว่า "สองไฟล์นี้ยาวไม่เท่ากันนะ"
+- **Cosine = 1** (เหมือนเป๊ะ): บอกว่า "สองไฟล์นี้พูดเรื่องเดียวกันเป๊ะเลย!"
+</Callout>
+
+#### 💡 การประยุกต์ใช้:
+
+ถ้าคุณทำระบบ **Search Engine** หรือ **Plagiarism Detection** (ตรวจการลอกงาน) คุณควรใช้ **Cosine** เพราะเราสนใจ **"เนื้อหา"** ไม่ใช่ **"ความยาว"** ของเอกสาร
+
+---
+
+## 📝 โจทย์ 2.2: ข้อมูลไบนารี (0/1) ที่ตรงข้ามกัน
+
+**Input:** $x = (0,1,0,1)$ และ $y = (1,0,1,0)$
+
+### 🧮 1. การคำนวณ (Calculation)
+
+#### 📐 Euclidean Distance
+
+{/* d(x,y) = √[(0-1)² + (1-0)² + (0-1)² + (1-0)²] = √4 = **2** */}
+$$d(x,y) = \sqrt{(0-1)^2 + (1-0)^2 + (0-1)^2 + (1-0)^2} = \sqrt{1+1+1+1} = \mathbf{2}$$
+
+#### 📊 Cosine Similarity
+
+{/* cos(x,y) = (0×1 + ...) / (‖x‖ · ‖y‖) = 0 / (√2 × √2) = **0** */}
+$$\cos(x,y) = \frac{(0\times1 + ...)}{||x|| ||y||} = \frac{0}{\sqrt{2} \times \sqrt{2}} = \mathbf{0}$$
+
+<Callout title="📌 หมายเหตุ" type="info">
+Dot product ได้ 0 แปลว่า**ตั้งฉากกัน** หรือ**ไม่มีความคล้ายกันเลย**
+</Callout>
+
+#### 🔗 Jaccard Similarity
+
+- M₁₁ (มี 1 ทั้งคู่) = `0`
+- M₀₁ หรือ M₁₀ (มี 1 แค่คนใดคนหนึ่ง) = `4`
+
+{/* J = M₁₁ / (M₀₁ + M₁₀ + M₁₁) = 0 / 4 = **0** */}
+$$J = \frac{M_{11}}{M_{01} + M_{10} + M_{11}} = \frac{0}{4} = \mathbf{0}$$
+
+#### 📈 Correlation
+
+คำนวณแล้วจะได้ **-1.0** (Perfect Negative Correlation) เพราะเมื่อ $x$ เป็น 1, $y$ จะเป็น 0 เสมอ (สวนทางกัน)
+
+### 🌍 2. สถานการณ์ใช้งานจริง (Real-world Scenario)
+
+**Context:** ระบบแนะนำสินค้า (Recommender System) หรือ Market Basket Analysis
+
+สมมติเวกเตอร์แทนการซื้อสินค้า 4 อย่าง: `{นม, เบียร์, ผ้าอ้อม, ขนม}`
+
+- **ลูกค้า x:** ซื้อ (เบียร์, ขนม) → `(0,1,0,1)`
+- **ลูกค้า y:** ซื้อ (นม, ผ้าอ้อม) → `(1,0,1,0)`
+
+<Callout title="🎯 บทเรียนที่ได้ (Key Takeaway)" type="success">
+- **Jaccard = 0:** บอกว่า "สองคนนี้ไม่ซื้อของเหมือนกันเลยสักชิ้น" (เอาไว้กรองคนที่ไม่เหมือนกันทิ้ง)
+- **Correlation = -1:** บอกลึกไปกว่านั้นว่า "รสนิยมสองคนนี้สวนทางกันอย่างสิ้นเชิง"
+</Callout>
+
+#### 💡 การประยุกต์ใช้:
+
+ใน KDD ถ้าเราจะทำ **Clustering** (จัดกลุ่มลูกค้า):
+
+- ✅ ถ้าใช้ **Euclidean** → ระยะห่างคือ 2 (ดูเหมือนไม่เยอะ)
+- ✅ ถ้าใช้ **Jaccard** หรือ **Cosine** → จะบอกชัดเจนว่าเป็น 0 (คนละกลุ่มชัดเจน)
+
+<Callout title="⚡ ข้อสรุป" type="warn">
+สำหรับข้อมูล **Sparse** (ข้อมูลที่มีเลข 0 เยอะๆ) เช่น ตะกร้าสินค้า **Jaccard** หรือ **Cosine** มักจะทำงานได้ดีกว่า **Euclidean**
+</Callout>
+
+---
+
+## 🔄 สรุปความเกี่ยวข้องกับ KDD Process
+
+สูตรพวกนี้คือ **Engine (กลไก)** ที่ทำงานอยู่เบื้องหลังขั้นตอน Data Mining
+
+### 1️⃣ ขั้นตอน Preprocessing (เตรียมข้อมูล)
+
+**🔍 Deduplication:**
+- **คำถาม:** เราจะรู้ได้ไงว่าข้อมูลลูกค้า 2 คนในฐานข้อมูลคือคนเดียวกันที่พิมพ์ชื่อผิด?
+- **วิธีแก้:** ใช้ **String Similarity** (คล้ายๆ Cosine/Jaccard) เทียบตัวอักษร ถ้าเหมือนกัน > 90% ให้ยุบรวมกัน
+
+### 2️⃣ ขั้นตอน Data Mining (ขุดข้อมูล)
+
+**📊 Clustering (เช่น K-Means):**
+- อัลกอริทึมต้องรู้ว่าจุดไหน **"ใกล้"** จุดศูนย์กลางที่สุด
+- ต้องใช้ **Euclidean Distance** ในการวัดระยะเพื่อดึงข้อมูลมากองรวมกัน
+
+**🎯 Classification (เช่น K-Nearest Neighbors - KNN):**
+- จะทายว่าลูกค้าใหม่เป็นคนกลุ่มไหน
+- ต้องหา **"เพื่อนบ้านที่ใกล้ที่สุด"** 5 คนแรก โดยใช้สูตร Distance เหล่านี้แหละครับวัดดูว่าใครใกล้สุด
+
+---
+
+## 📋 ตารางสรุปการเลือกใช้ (Decision Guide)
+
+| สูตร (Formula) | จุดเด่น (Focus)                    | เหมาะกับงาน (Application)                                                    |
+| -------------- | ---------------------------------- | --------------------------------------------------------------------------- |
+| **Euclidean**  | วัดระยะทางทางกายภาพ                | ข้อมูลตัวเลขต่อเนื่องทั่วไป, วัดระยะทางภูมิศาสตร์ (GPS)                     |
+| **Cosine**     | วัดทิศทาง (ไม่สนขนาด)              | Text Mining (เอกสาร), การค้นหาข้อมูล, เปรียบเทียบโปรไฟล์ผู้ใช้               |
+| **Jaccard**    | วัดการซ้อนทับกันของเซต              | Market Basket Analysis (ตะกร้าสินค้า), ข้อมูล Binary (0/1)                   |
+| **Correlation**| วัดความสัมพันธ์เชิงเส้น             | การวิเคราะห์หุ้น, หาความสัมพันธ์ของ Feature (Feature Selection)            |
+
+<a href="https://github.com/TaiChi112/FumadProff/blob/main/content/docs/Computer_Science/DM/Exercies/3.mdx" target="_blank" className="editLink_e1cfa">📝 Edit this page on GitHub</a>

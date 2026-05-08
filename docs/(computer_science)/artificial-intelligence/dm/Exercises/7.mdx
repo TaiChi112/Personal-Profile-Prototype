@@ -1,0 +1,84 @@
+---
+title: Data Mining Exercise 7
+description: Min-Max Normalization - การปรับค่าข้อมูลเข้าสู่ช่วงใหม่
+---
+
+<Callout title="Warning" type="warning">
+This article is a work in progress and may contain incomplete information or inaccuracies. Please verify details from reliable sources.
+</Callout>
+
+# Data Mining Exercise 7
+
+สำหรับโจทย์นี้ เป็นการทำ **Min-Max Normalization** มาดูเฉลยพร้อมวิธีทำแบบละเอียดกันเลย
+
+---
+
+## คำตอบ
+
+<Callout title="✅ เฉลย" type="success">
+ค่าใหม่ที่ได้คือ **3**
+</Callout>
+
+---
+
+## วิธีทำ (Step-by-Step)
+
+### สูตร Min-Max Normalization
+
+$$v' = \frac{v - \min_{old}}{\max_{old} - \min_{old}} \times (\max_{new} - \min_{new}) + \min_{new}$$
+
+### 1. กำหนดตัวแปรจากโจทย์
+
+$$v (\text{ค่าเดิม}) = 600$$
+
+$$\min_{old} (\text{ต่ำสุดเดิม}) = 200$$
+
+$$\max_{old} (\text{สูงสุดเดิม}) = 1,000$$
+
+$$\min_{new} (\text{ต่ำสุดใหม่}) = 1$$
+
+$$\max_{new} (\text{สูงสุดใหม่}) = 5$$
+
+### 2. แทนค่าลงในสูตร
+
+$$v' = \frac{600 - 200}{1000 - 200} \times (5 - 1) + 1$$
+
+### 3. คำนวณทีละส่วน
+
+**ส่วนแรก (หาตำแหน่งสัดส่วน):**
+
+$$\frac{400}{800} = 0.5$$
+
+<Callout title="💡 ความหมาย" type="info">
+แปลว่า 600 อยู่ตรงกึ่งกลางพอดีระหว่าง 200 กับ 1000
+</Callout>
+
+**ส่วนสอง (ขยายเข้าช่วงใหม่):**
+
+$$0.5 \times 4 = 2$$
+
+**ส่วนสาม (บวกค่าเริ่มต้นใหม่):**
+
+$$2 + 1 = \mathbf{3}$$
+
+---
+
+## วิธีตรวจสอบความเข้าใจแบบ "ตกผลึก" (Intuitive Check)
+
+ถ้าไม่อยากจำสูตร ให้ลองจินตนาการภาพเส้นจำนวน:
+
+<Callout title="📊 การคิดแบบภาพ" type="info">
+**ช่วงเดิม:** 200 ถึง 1,000 (ระยะห่าง 800)
+- ค่า 600 คือ **จุดกึ่งกลาง** พอดี ($200 + 400 = 600$)
+
+**ช่วงใหม่:** 1 ถึง 5 (ระยะห่าง 4)
+- จุดกึ่งกลางของ 1 ถึง 5 ก็คือ **3** นั่นเองครับ ($1 + 2 = 3$)
+</Callout>
+
+### สรุป
+
+<Callout title="✅ คำตอบ" type="success">
+คำตอบคือ **3** ถูกต้องแน่นอน
+</Callout>
+
+<a href="https://github.com/TaiChi112/FumadProff/blob/main/content/docs/Computer_Science/DM/Exercies/7.mdx" target="_blank" className="editLink_e1cfa">📝 Edit this page on GitHub</a>
