@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, FileCode, FileImage, FileJson, FileText, Image } from 'lucide-react';
+import { ChevronDown, FileCode, FileImage, FileJson, FileText, Image, Loader2, Printer } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { getInternshipResume } from '../../data/resume';
 import type { ResumeLanguage } from '../../data/resume';
@@ -14,7 +14,7 @@ type ResumeSectionProps = {
   onNotify: (message: string, level: EventType) => void;
 };
 
-type ExportFormat = 'md' | 'json' | 'png' | 'jpg' | 'pdf' | 'ats-pdf';
+type ExportFormat = 'md' | 'json' | 'png' | 'jpg' | 'pdf' | 'ats-pdf' | 'print';
 
 type ExportMenuOption = {
   key: ExportFormat;
@@ -44,6 +44,7 @@ const EXPORT_GROUPS: Array<{ title: string; options: ExportMenuOption[] }> = [
     options: [
       { key: 'pdf', label: 'Export PDF (clickable links)', icon: FileText },
       { key: 'ats-pdf', label: 'Export ATS PDF (one-page friendly)', icon: FileText },
+      { key: 'print', label: 'Print Resume (browser native)', icon: Printer },
     ],
   },
 ];
@@ -178,6 +179,7 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
   const exportMenuRef = useRef<HTMLDivElement | null>(null);
   const { data: session, status } = useSession();
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [viewLanguage, setViewLanguage] = useState<ResumeLanguage>('en');
   const [exportLanguage, setExportLanguage] = useState<ExportLanguage>('en');
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>(() => getInternshipResume('en').keyProjects.map((project) => project.id));
@@ -207,6 +209,7 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
   const exportFilename = 'resume-anothai-vichapaiboon';
 
   const runExport = async (format: ExportFormat) => {
+    setIsExporting(true);
     // Hide right-side controls during export to prevent them from being captured
     const originalDisplay = exportControlsRef.current?.style.display;
     if (exportControlsRef.current) {
@@ -270,10 +273,17 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             isOwnerGoogleSession ? { selectedProjectIds } : undefined,
           );
         },
+        print: () => {
+          window.print();
+        },
       };
 
       await handlers[format]();
+    } catch (err) {
+      console.error('Export failed:', err);
+      onNotify('Export failed. Please try again or use the Print option.', 'ERROR');
     } finally {
+      setIsExporting(false);
       // Restore controls visibility after export
       if (exportControlsRef.current) {
         exportControlsRef.current.style.display = originalDisplay || '';
@@ -364,10 +374,19 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
               <button
                 className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-black/80 hover:text-black transition-colors"
                 onClick={() => setIsExportMenuOpen((prev) => !prev)}
+                disabled={isExporting}
                 aria-haspopup="menu"
                 aria-expanded={isExportMenuOpen}
               >
-                Export <ChevronDown size={14} className={`${isExportMenuOpen ? 'rotate-180' : ''} transition-transform`} />
+                {isExporting ? (
+                  <>
+                    Processing... <Loader2 size={14} className="animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    Export <ChevronDown size={14} className={`${isExportMenuOpen ? 'rotate-180' : ''} transition-transform`} />
+                  </>
+                )}
               </button>
               {isExportMenuOpen && (
                 <div className="absolute right-0 mt-2 min-w-72 rounded-2xl border border-white/10 bg-[#111317] text-white shadow-2xl py-2 z-20">
@@ -454,15 +473,16 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
         </div>
         {visibility.summary && <section className="mb-7">
           <h3
-            className="text-sm font-bold uppercase tracking-widest mb-3"
+            className="text-[16px] font-bold uppercase mb-1.5"
           >
             {viewLanguage === 'en' ? labels.sections.summary : viewLabels.summary}
           </h3>
-          <p className="leading-relaxed text-[15px]">{resume.summary}</p>
+          <p className="leading-relaxed text-sm text-black/65">{resume.summary}</p>
         </section>}
+
         {visibility.experience && hasExperience && <section className="mb-7">
           <h3
-            className="text-sm font-bold uppercase tracking-widest mb-3"
+            className="text-[16px] font-bold uppercase mb-3"
           >
             {viewLanguage === 'en' ? labels.sections.experience : viewLabels.experience}
           </h3>
@@ -476,7 +496,7 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
                 <div className="font-medium mb-2">
                   {experience.company}
                 </div>
-                <ul className="list-disc list-outside ml-5 space-y-1 text-[15px]">
+                <ul className="list-disc list-outside ml-5 space-y-1 text-[14px]">
                   {experience.description.map((description) => (
                     <li key={`${experience.id}-${description}`}>{description}</li>
                   ))}
@@ -488,7 +508,7 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
 
         {visibility.projects && <section className="mb-7">
           <h3
-            className="text-sm font-bold uppercase tracking-widest mb-3"
+            className="text-[16px] font-bold uppercase mb-1.5"
           >
             {viewLabels.projects}
           </h3>
@@ -505,11 +525,11 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
                       project.title
                     )}
                   </div>
-                  <div className="text-xs font-semibold uppercase tracking-wide text-black/65 whitespace-nowrap">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-black/85 whitespace-nowrap">
                     {getProjectTimelineSummary(project.timeline)}
                   </div>
                 </div>
-                <ul className="mt-2 list-disc list-outside ml-5 space-y-1">
+                <ul className="mt-2 list-disc list-outside text-black/75 ml-5 space-y-1 text-[14px]">
                   {project.description.map((item) => (
                     <li key={item}>{renderProjectDescriptionWithBoldKey(item)}</li>
                   ))}
@@ -520,15 +540,15 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
         </section>}
         {visibility.skills && <section className="mb-7">
           <h3
-            className="text-sm font-bold uppercase tracking-widest mb-3"
+            className="text-[16px] font-bold uppercase mb-1.5"
           >
             {viewLanguage === 'en' ? labels.sections.skills : viewLabels.skills}
           </h3>
-          <div className="grid gap-x-6 gap-y-3 lg:grid-cols-3 text-[15px]">
+          <div className="grid gap-x-6 gap-y-3 lg:grid-cols-3 text-[14px]">
             {resume.skillGroups.map((group) => (
               <div key={group.id} className="break-inside-avoid">
                 <h4 className="font-bold mb-0.5">{group.title}</h4>
-                <ul className="list-disc list-outside ml-5 space-y-1">
+                <ul className="list-disc list-outside text-black/80 ml-5 space-y-1 text-[14px]">
                   {group.items.map((item) => (
                     <li key={`${group.id}-${item}`}>{item}</li>
                   ))}
@@ -537,9 +557,10 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             ))}
           </div>
         </section>}
+
         {visibility.education && <section className="mb-7">
           <h3
-            className="text-sm font-bold uppercase tracking-widest mb-3"
+            className="text-[16px] font-bold uppercase mb-1.5"
           >
             {viewLabels.education}
           </h3>
@@ -547,9 +568,9 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             {resume.education.map((education) => (
               <div key={education.id} className="p-1">
                 <div className="font-semibold">{education.degree}</div>
-                <div>{education.institution}</div>
-                <div className="text-sm">{education.year}</div>
-                <ul className="mt-2 list-disc list-outside ml-5 space-y-1">
+                <div className="text-black/75">{education.institution}</div>
+                <div className="text-sm text-black/75">{education.year}</div>
+                <ul className="mt-2 list-disc list-outside text-black/75 ml-5 space-y-1 text-[14px]">
                   {education.details.map((detail) => (
                     <li key={detail}>{detail}</li>
                   ))}
@@ -558,18 +579,19 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             ))}
           </div>
         </section>}
-        {visibility.additionalInformation && <section>
+
+        {/* {visibility.additionalInformation && <section>
           <h3
-            className="text-sm font-bold uppercase tracking-widest mb-3"
+            className="text-[16px] font-bold uppercase mb-3"
           >
             {viewLabels.additionalInformation}
           </h3>
-          <ul className="list-disc list-outside ml-5 space-y-1 text-[15px]">
+          <ul className="list-disc list-outside ml-5 space-y-1 text-[14px]">
             {resume.additionalInformation.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
-        </section>}
+        </section>} */}
 
       </div>
     </div>

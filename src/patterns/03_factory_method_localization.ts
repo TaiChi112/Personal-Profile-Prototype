@@ -136,7 +136,7 @@ const EnglishLocalization: LocalizationFactory = {
     hero: {
       titlePrefix: 'Building the',
       titleHighlight: 'Future',
-      description: 'Full Stack Developer crafting scalable applications.',
+      description: 'Software Engineering crafting scalable applications.',
       btnProjects: 'View Projects',
       btnArticles: 'Read Articles'
     },
