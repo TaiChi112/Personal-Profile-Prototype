@@ -4,7 +4,7 @@ FROM oven/bun:1 AS builder
 WORKDIR /app
 
 # คัดลอกเฉพาะไฟล์ที่จำเป็นสำหรับการติดตั้ง dependencies ก่อน (เพื่อทำ Caching)
-COPY package.json bun.lock ./
+COPY bun.lock ./
 COPY prisma ./prisma
 
 # ติดตั้ง Dependencies ด้วย Bun
