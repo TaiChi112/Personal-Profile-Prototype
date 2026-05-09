@@ -77,6 +77,66 @@ export interface InternshipResumeData {
 
 export type ResumeLanguage = "en" | "th";
 
+export function normalizeExternalUrl(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  try {
+    if (/^(https?:|mailto:|tel:|#)/i.test(trimmed)) {
+      return trimmed;
+    }
+
+    return `https://${trimmed}`;
+  } catch {
+    return null;
+  }
+}
+
+export function isValidExternalUrl(value: string): boolean {
+  const normalized = normalizeExternalUrl(value);
+  if (!normalized) {
+    return false;
+  }
+
+  if (normalized.startsWith('#')) {
+    return true;
+  }
+
+  try {
+    const parsed = new URL(normalized, 'https://example.com');
+    return ['http:', 'https:', 'mailto:', 'tel:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
+export function validateResumeLinks(resume: InternshipResumeData): string[] {
+  const warnings: string[] = [];
+
+  const contactChecks: Array<[keyof InternshipResumeData['contact'], string]> = [
+    ['email', `mailto:${resume.contact.email}`],
+    ['linkedin', resume.contact.linkedin],
+    ['github', resume.contact.github],
+    ['portfolio', resume.contact.portfolio],
+  ];
+
+  for (const [field, value] of contactChecks) {
+    if (!isValidExternalUrl(value)) {
+      warnings.push(`Invalid resume contact URL: ${field}`);
+    }
+  }
+
+  for (const project of resume.keyProjects) {
+    if (project.repoUrl && !isValidExternalUrl(project.repoUrl)) {
+      warnings.push(`Invalid project repo URL: ${project.title}`);
+    }
+  }
+
+  return warnings;
+}
+
 export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
   name: "Anothai Vichapaiboon",
   title: "Software Engineer Intern / Agentic Software Engineer Intern",
