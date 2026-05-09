@@ -87,7 +87,7 @@ class NotificationService {
     this.notify(`Switched notification channel to ${channel.constructor.name}`, 'INFO');
   }
 
-  notify(message: string, type: EventType = 'INFO') {
+  notify = (message: string, type: EventType = 'INFO') => {
     this.channel.send(message, type);
   }
 }
