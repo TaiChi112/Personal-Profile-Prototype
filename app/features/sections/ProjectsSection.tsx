@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { InteractiveContentNode } from '../../components/content/InteractiveContentNode';
 import { ContentSectionShell } from '../../components/section/SectionPrimitives';
+import { normalizeExternalUrl } from '../../data/resume';
 import type { CompositeNode, LayoutNode, UnifiedContentItem } from '../../interfaces/content-tree';
 import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
 import type { EventType } from '../../services/system/notification/NotificationBridge';
@@ -54,15 +55,15 @@ export function ProjectsSection({ currentStyle, labels, projectTree, activeNodeI
   const effectiveActiveNodeId = selectedNodeId ?? activeNodeId;
 
   const handleProjectTitleClick = (item: UnifiedContentItem) => {
-    router.push(`/projects/${encodeURIComponent(item.title)}`);
-
     if (item.type !== 'project') {
+      router.push(`/projects/${encodeURIComponent(item.title)}`);
       onNotify(`Opened: ${item.title}`, 'INFO');
       return;
     }
 
-    if (typeof item.actionLink === 'string' && /^https?:\/\//i.test(item.actionLink)) {
-      window.open(item.actionLink, '_blank', 'noopener,noreferrer');
+    const targetUrl = typeof item.actionLink === 'string' ? normalizeExternalUrl(item.actionLink) : null;
+    if (targetUrl) {
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
       onNotify(`Opened repository: ${item.title}`, 'SUCCESS');
       return;
     }
