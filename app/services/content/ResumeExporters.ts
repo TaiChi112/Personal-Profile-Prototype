@@ -301,7 +301,7 @@ function formatSkillsInPdfClone(documentClone: Document): void {
   }
 
   const outputList = documentClone.createElement('ul');
-  outputList.className = 'list-disc list-outside ml-5 space-y-1 text-[15px]';
+  outputList.className = 'list-disc list-outside ml-5 space-y-1 text-[14px]';
 
   for (const group of groups) {
     const title = group.querySelector('h4')?.textContent?.trim();
@@ -315,7 +315,7 @@ function formatSkillsInPdfClone(documentClone: Document): void {
 
     const listItem = documentClone.createElement('li');
     const normalizedTitle = normalizeSkillGroupHeading(title);
-    listItem.innerHTML = `<strong>${normalizedTitle}:</strong> ${items.join(',')}`;
+    listItem.innerHTML = `<strong>${normalizedTitle}:</strong> ${items.join(', ')}`;
     outputList.appendChild(listItem);
   }
 
@@ -415,27 +415,24 @@ function applyCompactLayoutForPdfClone(clonedRoot: HTMLElement): void {
   const sections = Array.from(clonedRoot.querySelectorAll('section')) as HTMLElement[];
   for (const [index, section] of sections.entries()) {
     section.style.marginTop = '0';
-    section.style.marginBottom = index === sections.length - 1 ? '0' : '14px';
+    section.style.marginBottom = index === sections.length - 1 ? '0' : '28px';
   }
 
   const sectionHeadings = Array.from(clonedRoot.querySelectorAll('section h3')) as HTMLElement[];
   for (const heading of sectionHeadings) {
-    heading.style.marginBottom = '8px';
-    heading.style.lineHeight = '1.15';
+    heading.style.marginBottom = '12px';
   }
 
   const subHeadings = Array.from(clonedRoot.querySelectorAll('section h4')) as HTMLElement[];
   for (const heading of subHeadings) {
-    heading.style.marginBottom = '2px';
-    heading.style.lineHeight = '1.2';
+    heading.style.marginBottom = '4px';
     heading.style.fontWeight = 'bold';
   }
 
   const lists = Array.from(clonedRoot.querySelectorAll('ul')) as HTMLElement[];
   for (const list of lists) {
-    list.style.marginTop = '6px';
+    list.style.marginTop = '8px';
     list.style.marginBottom = '0';
-    list.style.lineHeight = '1.25';
     list.style.listStylePosition = 'outside';
   }
 
@@ -443,9 +440,8 @@ function applyCompactLayoutForPdfClone(clonedRoot: HTMLElement): void {
   for (const item of listItems) {
     item.style.display = 'list-item';
     item.style.marginTop = '0';
-    item.style.marginBottom = '3px';
+    item.style.marginBottom = '4px';
     item.style.paddingTop = '0';
-    item.style.lineHeight = '1.2';
     item.style.verticalAlign = 'top';
   }
 
@@ -453,7 +449,6 @@ function applyCompactLayoutForPdfClone(clonedRoot: HTMLElement): void {
   for (const paragraph of paragraphs) {
     paragraph.style.marginTop = '0';
     paragraph.style.marginBottom = '0';
-    paragraph.style.lineHeight = '1.35';
   }
 
   // Add a small breathing room so the last baseline is not clipped by rasterization.
@@ -512,7 +507,6 @@ async function exportResumeAsImage(
       const sanitizeStyle = documentClone.createElement('style');
       sanitizeStyle.textContent = `
         * {
-          color: #000000 !important;
           background-color: transparent !important;
           border-color: #000000 !important;
           box-shadow: none !important;
@@ -520,7 +514,6 @@ async function exportResumeAsImage(
           outline-color: #000000 !important;
         }
         a {
-          color: #000000 !important;
           text-decoration: underline !important;
         }
       `;
@@ -568,17 +561,22 @@ async function exportElementAsPdf(
         const sanitizeStyle = documentClone.createElement('style');
         sanitizeStyle.textContent = `
           * {
-            color: #000000 !important;
+            -webkit-print-color-adjust: exact;
             background-color: transparent !important;
-            border-color: #000000 !important;
+            border-color: currentColor !important;
             box-shadow: none !important;
             text-shadow: none !important;
-            outline-color: #000000 !important;
+            outline: none !important;
           }
-          a {
-            color: #000000 !important;
-            text-decoration: underline !important;
-          }
+          /* Fix for html2canvas oklab/oklch crash by providing Hex fallbacks for common Tailwind classes */
+          .text-black { color: #000000 !important; }
+          .text-black\\/85 { color: #262626 !important; }
+          .text-black\\/80 { color: #333333 !important; }
+          .text-black\\/75 { color: #404040 !important; }
+          .text-black\\/65 { color: #595959 !important; }
+          
+          h1, h2, h3, h4, strong { color: #000000 !important; }
+          a { text-decoration: underline !important; color: #000000 !important; }
         `;
         documentClone.head.appendChild(sanitizeStyle);
         formatSkillsInPdfClone(documentClone);
@@ -734,9 +732,9 @@ export class JsonExporter extends ContentExporter {
 }
 
 export function createResumeExporters(notify: NotifyFn) {
-  const safeNotify: NotifyFn = (message, level) => {
+  const safeNotify: NotifyFn = (message: string, type: NotifyLevel = 'INFO') => {
     try {
-      notify(message, level);
+      notify(message, type);
     } catch (error) {
       console.warn('Notification failed:', error);
     }
