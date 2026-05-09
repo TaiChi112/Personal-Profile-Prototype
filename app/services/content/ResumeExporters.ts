@@ -394,6 +394,9 @@ function filterProjectsInPdfClone(documentClone: Document, selectedProjectIds?: 
 
 function applyCompactLayoutForPdfClone(clonedRoot: HTMLElement): void {
   // Tighten vertical rhythm in export only so content fits one page more reliably.
+  clonedRoot.style.margin = '0';
+  clonedRoot.style.boxSizing = 'border-box';
+
   const headerBlock = clonedRoot.querySelector('div.pb-6.mb-6') as HTMLElement | null;
   if (headerBlock) {
     headerBlock.style.paddingBottom = '10px';
@@ -451,8 +454,8 @@ function applyCompactLayoutForPdfClone(clonedRoot: HTMLElement): void {
     paragraph.style.marginBottom = '0';
   }
 
-  // Add a small breathing room so the last baseline is not clipped by rasterization.
-  clonedRoot.style.paddingBottom = '20px';
+  // Keep a minimal buffer so the last baseline is not clipped by rasterization.
+  clonedRoot.style.paddingBottom = '6px';
 }
 
 function triggerDownload(url: string, filename: string): void {
@@ -626,12 +629,14 @@ async function exportElementAsPdf(
   const renderedHeight = sourceHeight * scale;
   const pdfScaleX = renderedWidth / Math.max(1, sourceWidth);
   const pdfScaleY = renderedHeight / Math.max(1, sourceHeight);
+  const renderedX = margin + Math.max(0, (printableWidth - renderedWidth) / 2);
+  const renderedY = margin;
 
   pdf.addImage(
     canvas.toDataURL('image/png'),
     'PNG',
-    margin,
-    margin,
+    renderedX,
+    renderedY,
     renderedWidth,
     renderedHeight,
     undefined,
@@ -639,8 +644,8 @@ async function exportElementAsPdf(
   );
 
   for (const anchor of clonedAnchors) {
-    const mappedX = margin + (anchor.x * pdfScaleX);
-    const mappedY = margin + (anchor.y * pdfScaleY);
+    const mappedX = renderedX + (anchor.x * pdfScaleX);
+    const mappedY = renderedY + (anchor.y * pdfScaleY);
     const mappedWidth = anchor.width * pdfScaleX;
     const mappedHeight = anchor.height * pdfScaleY;
 
