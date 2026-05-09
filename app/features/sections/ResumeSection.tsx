@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, FileCode, FileImage, FileJson, FileText, Image, Loader2, Printer } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { getInternshipResume } from '../../data/resume';
+import { getInternshipResume, normalizeExternalUrl, validateResumeLinks } from '../../data/resume';
 import type { ResumeLanguage } from '../../data/resume';
 import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
 import { createResumeExporters } from '../../services/content/ResumeExporters';
@@ -190,6 +190,13 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
     && session?.user?.email === OWNER_EMAIL
     && (session?.user as { authProvider?: string } | undefined)?.authProvider === 'google';
 
+  useEffect(() => {
+    const warnings = validateResumeLinks(resume);
+    if (warnings.length > 0) {
+      console.warn('[resume-link-validation]', warnings);
+    }
+  }, [resume]);
+
   const selectAllExportProjects = () => {
     setSelectedProjectIds(exportResume.keyProjects.map((project) => project.id));
   };
@@ -207,6 +214,13 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
   };
 
   const exportFilename = 'resume-anothai-vichapaiboon';
+
+  const contactLinks = {
+    email: normalizeExternalUrl(`mailto:${resume.contact.email}`),
+    linkedin: normalizeExternalUrl(`https://${resume.contact.linkedin}`),
+    github: normalizeExternalUrl(`https://${resume.contact.github}`),
+    portfolio: normalizeExternalUrl(`https://${resume.contact.portfolio}`),
+  };
 
   const runExport = async (format: ExportFormat) => {
     setIsExporting(true);
@@ -342,13 +356,29 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             <div className="flex flex-col gap-2 text-sm">
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                 <span className="font-semibold">{resume.contact.location}</span>
-                <a href={`mailto:${resume.contact.email}`} className="font-semibold underline underline-offset-2">{resume.contact.email}</a>
+                {contactLinks.email ? (
+                  <a href={contactLinks.email} target="_blank" rel="noreferrer noopener" className="font-semibold underline underline-offset-2">{resume.contact.email}</a>
+                ) : (
+                  <span className="font-semibold">{resume.contact.email}</span>
+                )}
                 <span className="font-semibold">{resume.contact.phone}</span>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-                <a href={`https://${resume.contact.linkedin}`} target="_blank" rel="noreferrer" className="font-semibold underline underline-offset-2">{resume.contact.linkedin}</a>
-                <a href={`https://${resume.contact.github}`} target="_blank" rel="noreferrer" className="font-semibold underline underline-offset-2">{resume.contact.github}</a>
-                <a href={`https://${resume.contact.portfolio}`} target="_blank" rel="noreferrer" className="font-semibold underline underline-offset-2">{resume.contact.portfolio}</a>
+                {contactLinks.linkedin ? (
+                  <a href={contactLinks.linkedin} target="_blank" rel="noreferrer noopener" className="font-semibold underline underline-offset-2">{resume.contact.linkedin}</a>
+                ) : (
+                  <span className="font-semibold">{resume.contact.linkedin}</span>
+                )}
+                {contactLinks.github ? (
+                  <a href={contactLinks.github} target="_blank" rel="noreferrer noopener" className="font-semibold underline underline-offset-2">{resume.contact.github}</a>
+                ) : (
+                  <span className="font-semibold">{resume.contact.github}</span>
+                )}
+                {contactLinks.portfolio ? (
+                  <a href={contactLinks.portfolio} target="_blank" rel="noreferrer noopener" className="font-semibold underline underline-offset-2">{resume.contact.portfolio}</a>
+                ) : (
+                  <span className="font-semibold">{resume.contact.portfolio}</span>
+                )}
               </div>
             </div>
           </div>
@@ -517,8 +547,8 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
               <div key={project.id} data-project-id={project.id}>
                 <div className="flex items-baseline justify-between gap-3">
                   <div className="font-semibold">
-                    {project.repoUrl ? (
-                      <a href={project.repoUrl} target="_blank" rel="noreferrer" className="underline underline-offset-2">
+                    {project.repoUrl && normalizeExternalUrl(project.repoUrl) ? (
+                      <a href={normalizeExternalUrl(project.repoUrl) ?? undefined} target="_blank" rel="noreferrer noopener" className="underline underline-offset-2">
                         {project.title}
                       </a>
                     ) : (
