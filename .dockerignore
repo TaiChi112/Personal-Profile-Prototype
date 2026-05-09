@@ -1,73 +1,59 @@
-# Git
+# Version control
 .git
 .gitignore
 .gitattributes
 
-# Dependencies
+# Dependencies and package-manager artifacts
 node_modules
-npm-debug.log
-yarn-debug.log
-yarn-error.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Build outputs
+# Build outputs and caches
 .next
 dist
 build
 out
-
-# Development
-.env*
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Testing
 coverage
-.jest
+*.tsbuildinfo
 
-# IDE
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+secrets/
+
+# Editors and OS files
 .vscode
 .idea
 .DS_Store
 *.swp
 *.swo
 *~
-.env.*
 
-# Prisma
-prisma/migrations
-.env.example
-
-# CI/CD
+# CI/CD metadata (not needed in image)
 .github
 .gitlab-ci.yml
 .circleci
 
-# Documentation
-README.md
+# Docker and deployment files not required in app image
+docker-compose*.yml
+certbot/
+nginx/
 
-# Demo and test files
-demo
-test
-scripts
-Resume
-data
-plan
-src
-*.txt
+# Local/auxiliary project content not needed for runtime image
+demo/
+data/
+plan/
+Resume/
+scripts/
+src/
+test/
+
+# Large local text/log artifacts
 *.log
-*.sh
-proxy.ts
+*.tmp
 
-certbot
-secrets
-
-.source
-
-/demo
-/data
-/Resume
-/src
-/plan
-/app/_docs
+# Optional: keep migration history out of image context (runtime uses generated client)
+prisma/migrations/

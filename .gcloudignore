@@ -27,6 +27,11 @@ test
 
 # Demo files
 demo
+nginx
+plan
+Resume
+script
+src
 
 # CI/CD
 .github
