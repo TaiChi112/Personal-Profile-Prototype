@@ -1,5 +1,5 @@
 # Stage 1: Build stage
-FROM oven/bun:1.1.21-alpine AS builder
+FROM oven/bun:1.1.23-alpine AS builder
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy_db"
 RUN bun run build
 
 # Stage 2: Production stage
-FROM oven/bun:1.1.21-alpine AS runner
+FROM oven/bun:1.1.23-alpine AS runner
 
 WORKDIR /app
 
