@@ -1,10 +1,10 @@
 # Stage 1: Build stage
-FROM oven/bun:1 AS builder
+FROM oven/bun:1.1.21-alpine AS builder
 
 WORKDIR /app
 
 # คัดลอกเฉพาะไฟล์ที่จำเป็นสำหรับการติดตั้ง dependencies ก่อน (เพื่อทำ Caching)
-COPY bun.lock ./
+COPY package.json bun.lock ./
 COPY prisma ./prisma
 
 # ติดตั้ง Dependencies ด้วย Bun
@@ -26,7 +26,7 @@ ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy_db"
 RUN bun run build
 
 # Stage 2: Production stage
-FROM oven/bun:1-slim AS runner
+FROM oven/bun:1.1.21-alpine AS runner
 
 WORKDIR /app
 
