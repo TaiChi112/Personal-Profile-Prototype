@@ -1,7 +1,10 @@
 # Stage 1: Build stage
-FROM oven/bun:1.1.23-alpine AS builder
+FROM node:20.19-alpine AS builder
 
 WORKDIR /app
+
+# ติดตั้ง Bun
+RUN npm install -g bun
 
 # คัดลอกเฉพาะไฟล์ที่จำเป็นสำหรับการติดตั้ง dependencies ก่อน (เพื่อทำ Caching)
 COPY package.json bun.lock ./
@@ -26,9 +29,12 @@ ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy_db"
 RUN bun run build
 
 # Stage 2: Production stage
-FROM oven/bun:1.1.23-alpine AS runner
+FROM node:20.19-alpine AS runner
 
 WORKDIR /app
+
+# ติดตั้ง Bun
+RUN npm install -g bun
 
 # กำหนด Environment 
 ENV NODE_ENV=production
@@ -44,10 +50,10 @@ COPY --from=builder /app/.source ./.source
 COPY --from=builder /app/docs ./docs
 
 RUN mkdir -p /app/.next/cache/images && \
-    chown -R bun:bun /app/.next
+    chown -R node:node /app
 
-# ใช้ user 'bun' ที่แถมมากับ image เพื่อความปลอดภัย (ไม่ใช้ root)
-USER bun
+# ใช้ user 'node' ที่แถมมากับ Node image เพื่อความปลอดภัย (ไม่ใช้ root)
+USER node
 
 # เปิด Port 3000
 EXPOSE 3000
