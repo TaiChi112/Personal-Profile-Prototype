@@ -1,0 +1,33 @@
+---
+title: Adapter Pattern
+description: "Learn about the Adapter design pattern in software development."
+---
+<Callout title="Warning" type="warning">
+This article is a work in progress and may contain incomplete information or inaccuracies. Please verify details from reliable sources.
+</Callout>
+## Definition
+The Adapter Pattern is a structural design pattern that allows objects with incompatible interfaces to work together. It acts as a bridge between two incompatible interfaces by wrapping one interface with another.
+
+```mermaid
+classDiagram
+    direction LR
+    class ModernLogger {
+        <<Target>>
+        +log(message)
+    }
+    class LegacyDatabaseLogger {
+        <<Adaptee>>
+        +logOldSystem(text)
+    }
+    class LogAdapter {
+        <<Adapter>>
+        +log(message)
+    }
+    class Application {
+        <<Client>>
+    }
+    
+    ModernLogger <|-- LogAdapter
+    LogAdapter --> LegacyDatabaseLogger : "adapts"
+    Application --> ModernLogger : "uses"
+```

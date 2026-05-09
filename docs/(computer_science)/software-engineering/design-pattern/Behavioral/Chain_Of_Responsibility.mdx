@@ -1,0 +1,23 @@
+---
+title: Chain of Responsibility
+Description: Chain of Responsibility is a behavioral design pattern that allows passing request along the chain of potential handlers until one of them handles the request.
+---
+<Callout title="Warning" type="warning">
+This article is a work in progress and may contain incomplete information or inaccuracies. Please verify details from reliable sources.
+</Callout>
+
+# Definition
+The Chain of Responsibility is a behavioral design pattern that allows passing request along the chain of potential handlers until one of them handles the request.
+
+```mermaid
+graph TD
+    A[Customer] --> B{Support Request}
+    B --> C[General Inquiry Handler]
+    C --> D[Technical Issue Handler]
+    D --> E[Billing Issue Handler]
+    E --> F[Fallback Handler]
+    C -- Handles --> G[Resolve General Inquiry]
+    D -- Handles --> H[Resolve Technical Issue]
+    E -- Handles --> I[Resolve Billing Issue]
+    F -- Handles --> J[Escalate to Senior Support]
+```
