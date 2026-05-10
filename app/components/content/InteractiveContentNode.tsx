@@ -178,26 +178,108 @@ export function InteractiveContentNode({
     );
   };
 
+  const renderRelatedItemsModal = () => {
+    if (!isComposite(node) || !contentItem) return null;
+
+    return (
+      <>
+        {/* Backdrop */}
+        {isOpen && (
+          <div
+            className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"
+            onClick={() => setIsOpen(false)}
+          />
+        )}
+
+        {/* Modal */}
+        {isOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+            <div
+              className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto animate-in fade-in zoom-in-95 duration-300"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-6 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <Layers size={20} className="text-blue-600 dark:text-blue-400" />
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                    {labels.actions.related} ({node.children.length})
+                  </h2>
+                </div>
+                <div className="flex gap-4 items-center">
+                  {/* Layout Toggle */}
+                  <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded p-1">
+                    {(['grid', 'list', 'timeline'] as LayoutStyleType[]).map((layoutStyle) => (
+                      <button
+                        key={layoutStyle}
+                        onClick={() => setCurrentLayout(layoutStyle)}
+                        className={`p-2 rounded text-sm transition-all ${
+                          currentLayout === layoutStyle
+                            ? 'bg-white dark:bg-gray-700 shadow text-blue-600 dark:text-blue-400'
+                            : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                        }`}
+                        title={layoutStyle}
+                      >
+                        {getLayoutIcon(layoutStyle, 16)}
+                      </button>
+                    ))}
+                  </div>
+                  {/* Close Button */}
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    aria-label="Close modal"
+                  >
+                    <ChevronDown size={20} className="rotate-180 text-gray-600 dark:text-gray-400" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6">
+                <div className={getChildrenLayoutClass()}>
+                  {node.children.map((child) => (
+                    <div key={child.id} className={currentLayout === 'timeline' ? 'relative' : ''}>
+                      {currentLayout === 'timeline' && (
+                        <div className={`absolute -left-5 top-8 h-3 w-3 rounded-full border-2 ${
+                          style.name === 'Future' ? 'border-black bg-cyan-500' : 'border-white bg-gray-400'
+                        } shadow-sm`} />
+                      )}
+                      <InteractiveContentNode
+                        node={child}
+                        style={style}
+                        labels={labels}
+                        level={level + 1}
+                        activeNodeId={activeNodeId}
+                        isAdmin={isAdmin}
+                        notify={notify}
+                        onTitleClick={onTitleClick}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  };
+
   const renderChildren = () => {
+    // For top-level items with content, show modal instead of inline
+    if (isComposite(node) && contentItem) {
+      return renderRelatedItemsModal();
+    }
+
+    // For container-only nodes (no content), show children inline
     if (!isComposite(node)) return null;
 
-    const shouldRender = contentItem ? isOpen : (isOpen || true);
+    const shouldRender = isOpen || true;
     if (!shouldRender) return null;
 
     return (
       <div className={`${style.getContainerClass(currentLayout)} animate-in fade-in slide-in-from-top-4 duration-300`}>
-        {contentItem && (
-          <div className="flex justify-between items-center mb-4 px-2">
-            <span className="text-xs font-bold uppercase text-gray-400 flex items-center gap-2"><Layers size={14} /> {labels.actions.related}</span>
-            <div className="flex gap-1 bg-gray-200 dark:bg-gray-700 rounded p-0.5">
-              {(['grid', 'list', 'timeline'] as LayoutStyleType[]).map((layoutStyle) => (
-                <button key={layoutStyle} onClick={() => setCurrentLayout(layoutStyle)} className={`p-1.5 rounded text-xs transition-all ${currentLayout === layoutStyle ? 'bg-white dark:bg-gray-600 shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`} title={layoutStyle}>
-                  {getLayoutIcon(layoutStyle, 12)}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
         <div className={getChildrenLayoutClass()}>
           {node.children.map((child) => (
             <div key={child.id} className={currentLayout === 'timeline' ? 'relative' : ''}>
