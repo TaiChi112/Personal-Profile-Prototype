@@ -68,10 +68,10 @@ Never read, expose, or modify real secret values unless the user provides a spec
 
 **Approved workflow:**
 1. Edit `prisma/schema.prisma` with your changes
-2. Run `npm run prisma:migrate:dev`
+2. Run `bun run prisma:migrate:dev`
 3. Prisma CLI prompts for migration name; confirm
 4. Review generated `.sql` migration file
-5. Run `npm run build` to verify TypeScript
+5. Run `bun run build` to verify TypeScript
 
 **Never:**
 - Delete or rename existing migrations
@@ -82,34 +82,38 @@ Never read, expose, or modify real secret values unless the user provides a spec
 
 ```bash
 # Development
-npm run dev              # Start Next.js dev server (webpack)
-npm run build            # Compile + type-check
-npm run lint             # ESLint validation
-npm run start            # Production server (after build)
+bun run dev              # Start Next.js dev server (webpack)
+bun run build            # Compile + type-check
+bun run lint             # ESLint validation
+bun run start            # Production server (after build)
 
 # Database
-npm run db:up            # Start PostgreSQL + app (docker-compose)
-npm run db:down          # Stop services
-npm run db:logs          # Tail PostgreSQL logs
-npm run prisma:migrate:dev    # Create & apply dev migration
-npm run prisma:migrate:status  # Check migration status
+bun run db:up            # Start PostgreSQL + app (docker-compose)
+bun run db:down          # Stop services
+bun run db:logs          # Tail PostgreSQL logs
+bun run prisma:migrate:dev    # Create & apply dev migration
+bun run prisma:migrate:status  # Check migration status
 
 # Scripts & Tests
-npm run integration:http-crud         # Integration test (Bun runtime)
-npm run integration:auth-db           # Auth + database integration test
-npm run integration:http-admin-users  # Admin users integration test
+bun run integration:http-crud         # Integration test (Bun runtime)
+bun run integration:auth-db           # Auth + database integration test
+bun run integration:http-admin-users  # Admin users integration test
 ```
 
 ---
 
-## Package Manager Status (UNRESOLVED)
+## Package Manager Policy
 
-**Current state**: Both `bun.lock` and `package-lock.json` exist; Dockerfile uses Bun.
+**Canonical package manager**: Bun.
 
-**Guidance for agents:**
-- **Do not modify dependencies or lockfiles** until policy is explicitly confirmed by the repository owner
-- If a dependency must be added, ask for approval first
-- Do not run `npm install` or `bun install` unless instructed
+- `bun.lock` is the only committed dependency lockfile and the source of truth for reproducible installs.
+- Use `bun run <script>` for package scripts.
+- Use `bun ci` or `bun install --frozen-lockfile` for reproducible validation, CI, and container builds.
+- Do not run `npm install`, `npm ci`, or commit `package-lock.json`.
+- npm may be used only as a bootstrap mechanism where existing tooling requires it.
+- Do not add, remove, or update dependencies or regenerate `bun.lock` without explicit owner approval.
+- When dependency changes are approved, commit `package.json` and `bun.lock` together.
+- If npm compatibility becomes a requirement later, define and validate an explicit dual-lockfile workflow before reintroducing `package-lock.json`.
 
 ---
 
@@ -119,8 +123,8 @@ npm run integration:http-admin-users  # Admin users integration test
 |---|---|
 | Instruction files only (`AGENTS.md`, `CLAUDE.md`) | Review diff and confirm no unrelated files changed |
 | Prose-only `/docs/**/*.{md,mdx}` edits | Preview the affected page when practical |
-| MDX imports, components, navigation metadata, or docs configuration | Preview affected routes and run `npm run build` |
-| Application TypeScript/React changes | Run `npm run lint` and `npm run build` |
+| MDX imports, components, navigation metadata, or docs configuration | Preview affected routes and run `bun run build` |
+| Application TypeScript/React changes | Run `bun run lint` and `bun run build` |
 | Prisma schema or migration changes | Follow the approved migration workflow and run relevant build/database checks |
 | Authentication, deployment, CI/CD, or environment-related changes | Require explicit approval and define a task-specific validation plan before editing |
 
@@ -130,8 +134,8 @@ npm run integration:http-admin-users  # Admin users integration test
 
 Documentation in `/docs/**/*.{md,mdx}`:
 - **Prose-only edits**: Preview in dev server (low risk)
-- **Metadata/frontmatter changes**: Verify in browser after `npm run dev`
-- **Config changes** (`source.config.ts`, Fumadocs plugins): Run `npm run build` to validate
+- **Metadata/frontmatter changes**: Verify in browser after `bun run dev`
+- **Config changes** (`source.config.ts`, Fumadocs plugins): Run `bun run build` to validate
 - **Link changes**: Test links manually in dev server
 
 Documentation is rendered via Fumadocs in `/app/docs`; content changes do not require migrations.
