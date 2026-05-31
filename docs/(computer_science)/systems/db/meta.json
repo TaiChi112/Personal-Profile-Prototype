@@ -1,0 +1,11 @@
+{
+    "pages": [
+        "overview",
+        "foundations",
+        "schema-design",
+        "reliability",
+        "performance",
+        "agentic-applications",
+        "labs"
+    ]
+}
