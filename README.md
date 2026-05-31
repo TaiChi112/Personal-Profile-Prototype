@@ -40,12 +40,12 @@ Traditional developer portfolios are static, single-purpose pages that fail to d
 | **Frontend Framework** | Next.js 16 + React 19 | App Router support, SSR/CSR flexibility, API routes co-location |
 | **Language** | TypeScript 5.9 (strict) | Type safety essential for pattern demonstrations; generics power Strategy/Iterator/Composite |
 | **Styling** | Tailwind CSS 4 + PostCSS | Utility-first enables rapid theme switching; supports Abstract Factory theme families |
-| **Runtime Scripting** | Bun | Fast script execution for seeding, integration tests, and CI pipelines |
+| **Runtime Scripting** | Bun | Canonical package management and script execution for seeding, integration tests, and container builds |
 | **ORM** | Prisma 7 | Type-safe database access; migration management for schema evolution |
 | **Database** | PostgreSQL 16 | ACID compliance; relational model suits User→Post ownership graph |
 | **Authentication** | NextAuth.js 4 | Pluggable OAuth providers; JWT session strategy with role augmentation |
-| **Containerization** | Docker + Docker Compose | Environment parity; isolates PostgreSQL; enables GCP Cloud Run deployment |
-| **CI/CD** | GitHub Actions | Automated lint → integration test → build → GCP deploy pipeline |
+| **Containerization** | Docker + Docker Compose | Environment parity; isolates PostgreSQL; supports SSH-based production deployment |
+| **CI/CD** | GitHub Actions | Builds a GHCR image and deploys it over SSH with production Docker Compose |
 
 ### 1.4 Success Criteria (MVP)
 
@@ -56,7 +56,7 @@ Traditional developer portfolios are static, single-purpose pages that fail to d
 - [x] Guided tour system with iterator-driven step navigation
 - [x] Command palette (Ctrl+K) with undo/redo history
 - [x] Docker-containerized development and production environments
-- [x] GitHub Actions CI/CD with GCP Cloud Run deployment target
+- [x] GitHub Actions deployment workflow for GCP and Azure hosts
 - [ ] Performance benchmarks (FCP < 2.5s, LCP < 4.0s) — *In Progress*
 - [ ] Full WCAG 2.1 AA accessibility audit — *In Progress*
 
@@ -309,9 +309,7 @@ personal-profile-prototype/
 ├── lib/
 │   └── prisma.ts               # Root Prisma singleton (for scripts)
 ├── .github/workflows/
-│   ├── ci.yml                  # CI: lint → migrate → seed → integration tests → build
-│   ├── deploy-gcp.yml          # CD: Docker build → GCR push → Cloud Run deploy
-│   └── codeql.yml              # CodeQL security scanning
+│   └── deploy.yml              # Build GHCR image → SSH deploy to GCP and Azure hosts
 ├── Dockerfile                  # Multi-stage production build
 ├── docker-compose.yml          # Dev: PostgreSQL + Next.js app
 ├── docker-compose.prod.yml     # Production compose configuration
@@ -357,9 +355,9 @@ personal-profile-prototype/
 | Layer | Framework | Status |
 |-------|-----------|--------|
 | **Pattern Unit Tests** | Bun (`bun:test`) | ✅ 140+ test cases across all 23 patterns |
-| **Integration — Auth + DB** | Bun script (`scripts/integration-auth-db.ts`) | ✅ Automated in CI |
-| **Integration — HTTP CRUD** | Bun script (`scripts/integration-http-crud.ts`) | ✅ Automated in CI |
-| **Integration — Admin Users** | Bun script (`scripts/integration-http-admin-users.ts`) | ✅ Automated in CI |
+| **Integration — Auth + DB** | Bun script (`scripts/integration-auth-db.ts`) | ✅ Available locally; not run by the current deployment workflow |
+| **Integration — HTTP CRUD** | Bun script (`scripts/integration-http-crud.ts`) | ✅ Available locally; not run by the current deployment workflow |
+| **Integration — Admin Users** | Bun script (`scripts/integration-http-admin-users.ts`) | ✅ Available locally; not run by the current deployment workflow |
 | **Unit Tests — React Components** | Jest / React Testing Library | 🔲 To be defined |
 | **E2E Tests** | Playwright | 🔲 To be defined |
 
@@ -422,10 +420,10 @@ E2E Tests (Playwright)
 
 ### 6.1 Prerequisites
 
-- Node.js 18+
+- Node.js 20.19+ (the Docker image uses `node:20.19-alpine`)
 - Docker & Docker Compose
-- Bun (for scripts and CI)
-- Google Cloud SDK (for GCP deployment)
+- Bun (canonical package manager and script runner)
+- Google Cloud SDK (optional, for manual GCP tooling)
 
 ### 6.2 Local Development
 
@@ -456,27 +454,22 @@ bun run dev                 # Webpack dev server → http://localhost:3000
 
 ### 6.3 Required Environment Variables
 
-```env
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/personal_profile_prototype
+The Compose files use different variable names for local development and production deployment. Configure the appropriate environment file for the selected runtime and do not commit secret values.
 
-# NextAuth
+```env
+# Local docker-compose.yml
+DATABASE_URL=postgresql://user:password@localhost:5432/personal_profile_prototype
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=<random-256-bit-secret>
-
-# Google OAuth (optional for dev)
-GOOGLE_CLIENT_ID=<gcp-oauth-client-id>
-GOOGLE_CLIENT_SECRET=<gcp-oauth-client-secret>
-
-# Test credentials (dev/staging only)
-ADMIN_TEST_EMAIL=admin@example.com
-ADMIN_TEST_PASSWORD=admin123
-VIEWER_TEST_PASSWORD=viewer123
-
-# App
+GITHUB_ID=<optional-github-client-id>
+GITHUB_SECRET=<optional-github-client-secret>
+GOOGLE_ID=<optional-google-client-id>
+GOOGLE_SECRET=<optional-google-client-secret>
 NODE_ENV=development
 NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
+
+`docker-compose.prod.yml` uses `DATABASE_URL`, `NODE_ENV`, and `NEXT_PUBLIC_API_URL`, and also expects production values for `AUTH_SECRET`, `AUTH_URL`, `AUTH_TRUST_HOST`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `ADMIN_TEST_EMAIL`, `ADMIN_TEST_PASSWORD`, `VIEWER_TEST_PASSWORD`, `OWNER_EMAIL`, and `SERVER_NODE`.
 
 ### 6.4 Docker Production Build
 
@@ -492,41 +485,27 @@ docker compose -f docker-compose.prod.yml up -d
 ```
 
 The Dockerfile uses a **multi-stage build**:
-- **Stage 1 (builder):** `node:18-alpine` — installs deps, generates Prisma client, builds Next.js
-- **Stage 2 (production):** `node:18-alpine` — copies built assets only, runs as non-root user `nextjs`
+- **Stage 1 (builder):** `node:20.19-alpine` — bootstraps Bun, installs dependencies from `bun.lock`, generates the Prisma client, and builds Next.js
+- **Stage 2 (runner):** `node:20.19-alpine` — bootstraps Bun, copies the built application assets, runs as the non-root `node` user, and starts the app with `bun run start`
+
+`docker-compose.prod.yml` pulls `ghcr.io/taichi112/personal-profile-app:latest` and runs the app alongside Nginx and Certbot.
 
 ### 6.5 CI/CD Pipeline
 
 ```mermaid
 flowchart TD
-    A(["📦 Push to main / PR Opened"]) --> B
-
-    subgraph CI ["🔄 ci.yml — GitHub Actions"]
-        direction TB
-        B["1. Setup Bun"] --> C["2. bun install --frozen-lockfile"]
-        C --> D["3. prisma generate"]
-        D --> E["4. prisma migrate deploy\n(ephemeral PostgreSQL service)"]
-        E --> F["5. prisma seed"]
-        F --> G["6. integration:auth-db"]
-        G --> H["7. bun run build"]
-        H --> I["8. Start dev server\n→ wait for /api/auth/session"]
-        I --> J["9. integration:http-crud"]
-        J --> K["10. integration:http-admin-users"]
-    end
-
-    K --> L{"Push to\nmain / staging?"}
-    L -- "No" --> M(["✅ CI Complete"])
-    L -- "Yes" --> N
-
-    subgraph CD ["🚀 deploy-gcp.yml — GitHub Actions"]
-        direction TB
-        N["1. Authenticate to GCP\n(Workload Identity Federation)"] --> O["2. docker build\n→ tag with git SHA + latest"]
-        O --> P["3. docker push\n→ Google Container Registry (gcr.io)"]
-        P --> Q["4. gcloud run deploy\n→ Cloud Run (us-central1)\n--set-secrets from Secret Manager"]
-        Q --> R["5. gcloud run services describe\n→ output live URL"]
-    end
-
-    R --> S(["🌐 Live on Cloud Run"])
+    A(["Push to main"]) --> B["deploy.yml: check out repository"]
+    B --> C["Log in to GitHub Container Registry"]
+    C --> D["Build Docker image from Dockerfile"]
+    D --> E["Push ghcr.io/taichi112/personal-profile-app:latest"]
+    E --> F["deploy-gcp: SSH to GCP host"]
+    E --> G["deploy-azure: validate SSH key and connect to Azure host"]
+    F --> H["Reset checkout to origin/main"]
+    G --> I["Reset checkout to origin/main"]
+    H --> J["Pull app image and restart docker-compose.prod.yml"]
+    I --> K["Pull app image and restart docker-compose.prod.yml"]
+    J --> L(["GCP Docker Compose deployment running"])
+    K --> M(["Azure Docker Compose deployment running"])
 ```
 
 ### 6.6 Deployment Targets
@@ -534,8 +513,8 @@ flowchart TD
 | Environment | Platform | Trigger |
 |-------------|----------|---------|
 | **Development** | Local Docker Compose | Manual |
-| **Staging** | GCP Cloud Run (`staging` branch) | Push to `staging` |
-| **Production** | GCP Cloud Run (`prod`) | Push to `main` |
+| **Production — GCP host** | Docker Compose over SSH | Push to `main` |
+| **Production — Azure host** | Docker Compose over SSH | Push to `main` |
 
 ---
 
@@ -543,7 +522,7 @@ flowchart TD
 
 ### 7.1 Scalability
 
-- **Horizontal scaling:** GCP Cloud Run auto-scales container instances based on request load; stateless Next.js design supports this natively.
+- **Horizontal scaling:** The current SSH-based Docker Compose deployment runs on individual hosts. Horizontal scaling would require an orchestration or load-balancing layer.
 - **Database scaling:** Migrate from single PostgreSQL container to GCP Cloud SQL with read replicas as traffic grows.
 - **Content volume:** The Composite tree and Adapter pattern ensure new content types can be added without modifying existing rendering logic.
 
@@ -572,7 +551,7 @@ flowchart TD
 | **RTO** (Recovery Time Objective) | 4 hours |
 | **RPO** (Recovery Point Objective) | 1 hour |
 | **Backup Strategy** | Daily automated PostgreSQL snapshots; weekly offsite |
-| **Rollback** | Cloud Run revision rollback via `gcloud run services update-traffic` |
+| **Rollback** | Manual: deploy a known-good GHCR image tag and restart the production Docker Compose services |
 
 ### 7.5 Future Enhancements
 
