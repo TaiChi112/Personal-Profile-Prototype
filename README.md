@@ -315,7 +315,7 @@ personal-profile-prototype/
 ├── Dockerfile                  # Multi-stage production build
 ├── docker-compose.yml          # Dev: PostgreSQL + Next.js app
 ├── docker-compose.prod.yml     # Production compose configuration
-└── package.json                # Dependencies + npm scripts
+└── package.json                # Dependencies + Bun scripts
 ```
 
 ### 4.2 Core API Endpoints
@@ -345,7 +345,7 @@ personal-profile-prototype/
 
 - **React Context API** is used for global state (theme, language, admin role) rather than a third-party store — keeping the pattern surface visible without framework magic.
 - **Singleton services** are instantiated once at module load, ensuring pattern correctness is observable at runtime.
-- **Bun** is used as the script runner for seeding and integration tests in CI, while `npm`/Node.js remains the primary application runtime for Docker compatibility.
+- **Bun** is the canonical package manager and script runner for dependency installation, seeding, integration tests, image builds, and container runtime commands. Node.js remains the Docker base image for Next.js compatibility.
 - **Static mock data** (`app/data/`) drives the portfolio sections in the MVP; the REST API layer is designed to replace this data source as database models are added.
 
 ---
@@ -383,17 +383,17 @@ bun test src/patterns/
 
 ```bash
 # Prerequisites: database running and migrations applied
-npm run db:up
-npx prisma migrate deploy
+bun run db:up
+bunx prisma migrate deploy
 
 # Auth + database
-npm run integration:auth-db
+bun run integration:auth-db
 
 # HTTP CRUD endpoints
-npm run integration:http-crud
+bun run integration:http-crud
 
 # Admin user management
-npm run integration:http-admin-users
+bun run integration:http-admin-users
 ```
 
 ### 5.4 Recommended Future Testing Strategy
@@ -434,25 +434,24 @@ E2E Tests (Playwright)
 git clone <repository-url>
 cd personal-profile-prototype
 
-# 2. Install dependencies (Bun lock file present)
+# 2. Install dependencies
 bun install
-# or: npm install
 
 # 3. Configure environment
 cp .env.example .env
 
 # 4. Start PostgreSQL
-npm run db:up               # docker compose up -d
+bun run db:up               # docker compose up -d
 
 # 5. Apply database migrations
-npx prisma migrate dev
+bunx prisma migrate dev
 
 # 6. Seed the database
-npm run prisma:seed
+bun run prisma:seed
 
 # 7. Start development server
-npm run dev                 # Webpack dev server → http://localhost:3000
-# or: npm run dev:turbo     # Turbopack (faster, experimental)
+bun run dev                 # Webpack dev server → http://localhost:3000
+# or: bun run dev:turbo     # Turbopack (faster, experimental)
 ```
 
 ### 6.3 Required Environment Variables
@@ -563,7 +562,7 @@ flowchart TD
 | Cadence | Task |
 |---------|------|
 | **Weekly** | Review CI failures; check error logs for patterns |
-| **Monthly** | `npm audit` + dependency security patches; analyze failed API requests |
+| **Monthly** | `bun audit` + dependency security patches; analyze failed API requests |
 | **Quarterly** | Major framework version upgrades; security audit; load testing; DR drill |
 
 ### 7.4 Disaster Recovery
@@ -586,26 +585,26 @@ flowchart TD
 
 ---
 
-## Quick Reference: npm Scripts
+## Quick Reference: Bun Scripts
 
 ```bash
-npm run dev                         # Start Webpack dev server
-npm run dev:turbo                   # Start Turbopack dev server
-npm run build                       # Type-check + Next.js production build
-npm run start                       # Start production server
-npm run lint                        # ESLint
+bun run dev                         # Start Webpack dev server
+bun run dev:turbo                   # Start Turbopack dev server
+bun run build                       # Type-check + Next.js production build
+bun run start                       # Start production server
+bun run lint                        # ESLint
 
-npm run db:up                       # docker compose up -d (PostgreSQL)
-npm run db:down                     # docker compose down
-npm run db:logs                     # Follow PostgreSQL container logs
+bun run db:up                       # docker compose up -d (PostgreSQL)
+bun run db:down                     # docker compose down
+bun run db:logs                     # Follow PostgreSQL container logs
 
-npm run prisma:generate             # Generate Prisma client
-npm run prisma:migrate:dev          # Apply migrations (dev)
-npm run prisma:seed                 # Seed database via Bun
+bun run prisma:generate             # Generate Prisma client
+bun run prisma:migrate:dev          # Apply migrations (dev)
+bun run prisma:seed                 # Seed database via Bun
 
-npm run integration:auth-db         # Auth + database integration test
-npm run integration:http-crud       # HTTP CRUD integration test
-npm run integration:http-admin-users # Admin users integration test
+bun run integration:auth-db         # Auth + database integration test
+bun run integration:http-crud       # HTTP CRUD integration test
+bun run integration:http-admin-users # Admin users integration test
 ```
 
 ---
