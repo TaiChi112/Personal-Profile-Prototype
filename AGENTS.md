@@ -2,7 +2,7 @@
 
 **Repository**: personal-profile-prototype (v0.1.0)  
 **Purpose**: Canonical agent-oriented repository guidance  
-**Canonical source for all AI coding agents**
+**Intended canonical repository guidance for supported agent workflows**
 
 ---
 
@@ -43,7 +43,7 @@ Strategic direction:
 | Area | Content | Rules |
 |------|---------|-------|
 | `/app` | Next.js App Router application routes and UI | Inspect existing conventions before integrating code from other boundaries. |
-| `/docs` | Fumadocs-based MDX documentation source | Preview in dev server when making edits. See Documentation Changes section. |
+| `/docs` | Fumadocs-based Markdown and MDX documentation source | Preview in dev server when making edits. See Documentation Changes section. |
 | `/src` | Design-pattern and demo-related code | Treat as a separate boundary unless import/build relationships are verified for the task. |
 | `/lib` | Shared application utilities and service setup | Inspect lifecycle and initialization behavior before modifying shared utilities. |
 | `/prisma` | Database schema and migration files | Use approved `prisma migrate dev` workflow for schema changes. Do not edit or delete applied migrations. |
@@ -56,9 +56,13 @@ Strategic direction:
 
 - `.env*` files (secrets)
 - `auth.ts` (authentication logic)
-- `Dockerfile`, `docker-compose.yml` (deployment config)
+- `Dockerfile`, `docker-compose*.yml` (runtime and deployment configuration)
 - `.github/workflows/deploy.yml` (CI/CD pipeline)
 - `next.config.ts`, `source.config.ts` (framework config)
+
+An explicit user task targeting authentication, runtime/deployment, CI/CD, or framework configuration permits inspection and a proposed change in that area, but the agent must explain risks and run task-appropriate validation before finalizing changes.
+
+Never read, expose, or modify real secret values unless the user provides a specific, security-conscious instruction and the action is strictly necessary.
 
 ### Database Schema Changes
 
@@ -114,7 +118,7 @@ npm run integration:http-admin-users  # Admin users integration test
 | Change Type | Minimum Validation |
 |---|---|
 | Instruction files only (`AGENTS.md`, `CLAUDE.md`) | Review diff and confirm no unrelated files changed |
-| Prose-only `/docs/**/*.mdx` edits | Preview the affected page when practical |
+| Prose-only `/docs/**/*.{md,mdx}` edits | Preview the affected page when practical |
 | MDX imports, components, navigation metadata, or docs configuration | Preview affected routes and run `npm run build` |
 | Application TypeScript/React changes | Run `npm run lint` and `npm run build` |
 | Prisma schema or migration changes | Follow the approved migration workflow and run relevant build/database checks |
@@ -124,7 +128,7 @@ npm run integration:http-admin-users  # Admin users integration test
 
 ## Documentation Changes
 
-Documentation in `/docs/**/*.mdx`:
+Documentation in `/docs/**/*.{md,mdx}`:
 - **Prose-only edits**: Preview in dev server (low risk)
 - **Metadata/frontmatter changes**: Verify in browser after `npm run dev`
 - **Config changes** (`source.config.ts`, Fumadocs plugins): Run `npm run build` to validate
@@ -134,11 +138,13 @@ Documentation is rendered via Fumadocs in `/app/docs`; content changes do not re
 
 ---
 
-## Copilot Status
+## Agent Instruction Layers
 
-`AGENTS.md` is currently the canonical agent-oriented repository guidance.
-
-Whether `.github/copilot-instructions.md` is needed remains undecided until you verify the Copilot surfaces and workflows actually being used. Do not create Copilot-specific instructions during this task.
+- `AGENTS.md` is the detailed repository guidance for supported agent workflows.
+- `CLAUDE.md` is the thin Claude Code adapter that imports `@AGENTS.md`.
+- `.github/copilot-instructions.md` is the concise GitHub Copilot compatibility baseline for supported Copilot surfaces.
+- Keep detailed repository policy in `AGENTS.md`; do not duplicate it across adapter files.
+- Add path-specific instructions only after a concrete repository need is identified and explicitly approved.
 
 ---
 
@@ -153,7 +159,7 @@ Do not add the following without explicit approval:
 - **Custom agents**
 - **Dependencies**
 
-Propose them only after identifying a repeated pain point in actual agent usage.
+Evaluate or propose agent extensions when the user explicitly requests agent-environment setup or when a concrete repository-specific capability gap is identified. Do not install or configure extensions without explicit approval.
 
 ---
 
