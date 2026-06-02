@@ -85,7 +85,7 @@ gcloud run jobs create migrate-${ENVIRONMENT}-$(date +%s) \
   --set-env-vars DATABASE_URL=${DATABASE_URL} \
   --set-env-vars PRISMA_QUERY_ENGINE_LIBRARY=/app/.next/standalone/node_modules/@prisma/engines/libquery_engine-linux-arm64.so.node \
   --execute \
-  --command npm \
+  --command bun \
   --args run,prisma:migrate:prod || true
 
 echo -e "\n${GREEN}✓ All steps completed successfully!${NC}"
