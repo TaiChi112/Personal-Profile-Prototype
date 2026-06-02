@@ -43,7 +43,7 @@ Traditional developer portfolios are static, single-purpose pages that fail to d
 | **Runtime Scripting** | Bun | Canonical package management and script execution for seeding, integration tests, and container builds |
 | **ORM** | Prisma 7 | Type-safe database access; migration management for schema evolution |
 | **Database** | PostgreSQL 16 | ACID compliance; relational model suits User→Post ownership graph |
-| **Authentication** | NextAuth.js 4 | Pluggable OAuth providers; JWT session strategy with role augmentation |
+| **Authentication** | Auth.js / NextAuth v5 beta | Pluggable OAuth providers; JWT session strategy with role augmentation |
 | **Containerization** | Docker + Docker Compose | Environment parity; isolates PostgreSQL; supports SSH-based production deployment |
 | **CI/CD** | GitHub Actions | Builds a GHCR image and deploys it over SSH with production Docker Compose |
 
