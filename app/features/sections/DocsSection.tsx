@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MOCK_DOCS } from '../../data/content';
 import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
@@ -23,14 +23,9 @@ export function DocsSection({ currentStyle, labels, selectedDocParam }: Readonly
     [normalizedParam],
   );
 
-  const [activeDoc, setActiveDoc] = useState(docFromRoute ?? MOCK_DOCS[0]);
+  const [selectedDoc, setSelectedDoc] = useState(docFromRoute ?? MOCK_DOCS[0]);
+  const activeDoc = docFromRoute ?? selectedDoc;
   const sections = Array.from(new Set(MOCK_DOCS.map((doc) => doc.section)));
-
-  useEffect(() => {
-    if (docFromRoute && docFromRoute.id !== activeDoc.id) {
-      setActiveDoc(docFromRoute);
-    }
-  }, [activeDoc.id, docFromRoute]);
 
   const openDoc = (docId: string) => {
     const doc = MOCK_DOCS.find((item) => item.id === docId);
@@ -38,7 +33,7 @@ export function DocsSection({ currentStyle, labels, selectedDocParam }: Readonly
       return;
     }
 
-    setActiveDoc(doc);
+    setSelectedDoc(doc);
     router.push(`/docs/${encodeURIComponent(doc.title)}`);
   };
 
