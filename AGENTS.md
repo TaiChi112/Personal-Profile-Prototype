@@ -48,6 +48,12 @@ Strategic direction:
 | `/lib` | Shared application utilities and service setup | Inspect lifecycle and initialization behavior before modifying shared utilities. |
 | `/prisma` | Database schema and migration files | Use approved `prisma migrate dev` workflow for schema changes. Do not edit or delete applied migrations. |
 
+### Project Structure Reference
+
+- For broader repository-boundary questions, inspect `PROJECT_STRUCTURE.md` before editing unfamiliar areas.
+- Do not treat learning, sandbox, or archive folders as production runtime without verifying import and build relationships.
+- Do not move, delete, rename, or reorganize top-level folders without explicit approval.
+
 ---
 
 ## Critical Rules
