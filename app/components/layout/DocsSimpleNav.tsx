@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   User,
   Code,
@@ -48,12 +49,12 @@ export function DocsSimpleNav() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <a
+          <Link
             href="/"
             className="flex items-center cursor-pointer font-bold text-lg text-gray-900 dark:text-gray-100 hover:text-blue-500 transition-colors shrink-0"
           >
             TaiChi112
-          </a>
+          </Link>
 
           {/* ---------------- DESKTOP MENU ---------------- */}
           {/* เปลี่ยนมาใช้ flex เป็นหลัก แล้วซ่อนเฉพาะตอนจอเล็กด้วย max-md:hidden */}
