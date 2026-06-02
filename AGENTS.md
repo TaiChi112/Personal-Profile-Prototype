@@ -54,6 +54,12 @@ Strategic direction:
 - Do not treat learning, sandbox, or archive folders as production runtime without verifying import and build relationships.
 - Do not move, delete, rename, or reorganize top-level folders without explicit approval.
 
+### Agent Workflow Reference
+
+- For repeated Git and pull-request workflows, inspect `AGENT_WORKFLOWS.md`.
+- Keep repository policy in `AGENTS.md` and reusable procedures in `AGENT_WORKFLOWS.md`.
+- Do not create tool-specific skills, slash commands, hooks, MCP servers, or custom agents without explicit approval.
+
 ---
 
 ## Critical Rules
