@@ -19,19 +19,19 @@ export function TourHighlight({ isActive, step }: TourHighlightProps) {
   const [rect, setRect] = useState<HighlightRect | null>(null);
 
   useEffect(() => {
-    if (!isActive || !step?.highlightId) {
-      setRect(null);
-      return;
-    }
-
-    const selector = `[data-tour-highlight="${step.highlightId}"]`;
-    const element = document.querySelector<HTMLElement>(selector);
-    if (!element) {
-      setRect(null);
-      return;
-    }
-
     const updateRect = () => {
+      if (!isActive || !step?.highlightId) {
+        setRect(null);
+        return;
+      }
+
+      const selector = `[data-tour-highlight="${step.highlightId}"]`;
+      const element = document.querySelector<HTMLElement>(selector);
+      if (!element) {
+        setRect(null);
+        return;
+      }
+
       const nextRect = element.getBoundingClientRect();
       setRect({
         top: nextRect.top + window.scrollY,
@@ -41,12 +41,13 @@ export function TourHighlight({ isActive, step }: TourHighlightProps) {
       });
     };
 
-    updateRect();
+    const animationFrameId = window.requestAnimationFrame(updateRect);
 
     window.addEventListener('resize', updateRect);
     window.addEventListener('scroll', updateRect, true);
 
     return () => {
+      window.cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', updateRect);
       window.removeEventListener('scroll', updateRect, true);
     };
