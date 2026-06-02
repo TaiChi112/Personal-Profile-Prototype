@@ -26,7 +26,7 @@ Strategic direction:
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Next.js 16.1.7 + React 19.2.3 (App Router) |
+| Framework | Next.js 16.2.6 + React 19.2.3 (App Router) |
 | Language | TypeScript 5.9 (strict mode) |
 | Database | PostgreSQL 16 + Prisma 7 + PrismaPg adapter |
 | Auth | NextAuth.js v5 beta (Google OAuth + Credentials) |
@@ -47,6 +47,12 @@ Strategic direction:
 | `/src` | Design-pattern and demo-related code | Treat as a separate boundary unless import/build relationships are verified for the task. |
 | `/lib` | Shared application utilities and service setup | Inspect lifecycle and initialization behavior before modifying shared utilities. |
 | `/prisma` | Database schema and migration files | Use approved `prisma migrate dev` workflow for schema changes. Do not edit or delete applied migrations. |
+
+### Project Structure Reference
+
+- For broader repository-boundary questions, inspect `PROJECT_STRUCTURE.md` before editing unfamiliar areas.
+- Do not treat learning, sandbox, or archive folders as production runtime without verifying import and build relationships.
+- Do not move, delete, rename, or reorganize top-level folders without explicit approval.
 
 ---
 
