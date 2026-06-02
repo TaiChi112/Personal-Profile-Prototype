@@ -26,7 +26,7 @@ Strategic direction:
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Next.js 16.1.7 + React 19.2.3 (App Router) |
+| Framework | Next.js 16.2.6 + React 19.2.3 (App Router) |
 | Language | TypeScript 5.9 (strict mode) |
 | Database | PostgreSQL 16 + Prisma 7 + PrismaPg adapter |
 | Auth | NextAuth.js v5 beta (Google OAuth + Credentials) |
