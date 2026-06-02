@@ -59,7 +59,7 @@ container image.
 | `docker-compose.prod.yml` | Production app, Nginx, and Certbot composition | Treat as deployment-sensitive. |
 | `.github/workflows/` | GitHub Actions build and deployment automation | Treat as CI/CD-sensitive. |
 | `nginx/` | Tracked Nginx configuration mounted by production Compose | Treat as host-side production infrastructure. |
-| `certbot/` | Local host-side certificate state mounted by production Compose | Do not expose or modify certificate material without explicit approval. |
+| `certbot/` | Local-only host-side certificate state directory mounted by production Compose | Do not commit, expose, or modify certificate material without explicit approval. |
 | `.dockerignore`, `.gcloudignore` | Build-context exclusions | Review before changing image or deployment assumptions. |
 
 ## 7. Learning/Sandbox/Archive Areas
@@ -69,8 +69,8 @@ container image.
 | `src/` | Learning sandbox / experimental | Contains standalone design-pattern examples. It is tracked, but inspected runtime surfaces do not import it. Verify build relationships before editing. |
 | `demo/` | Learning sandbox / experimental | Contains pattern demos, refactors, diagrams, and tests. It is tracked and excluded from the Docker context. |
 | `plan/` | Archive/reference | Contains learning-plan material. It is tracked and excluded from the Docker context. |
-| `data/` | Archive/reference, local-only | Root `data/` contains local notes and archive material, is ignored by Git, and is excluded from the Docker context. Do not confuse it with `app/data/`. |
-| `Resume/` | Archive/reference, local-only | Contains local resume reference material and is ignored by Git. Verify before editing or publishing. |
+| `data/` | Archive/reference, local-only | Root `data/` is ignored by Git and excluded from the Docker context. Local checkouts may contain notes and archive material. Do not confuse it with `app/data/`. |
+| `Resume/` | Archive/reference, local-only | This Git-ignored path may contain local resume reference material. Verify before editing or publishing. |
 
 The root `.gitignore` also ignores newly added material under `src/`, `demo/`, and
 `plan/`, although existing files in those folders remain tracked. Do not move
@@ -82,7 +82,7 @@ production code into or out of these areas without explicit approval.
 |---|---|---|
 | `.env*` | Local environment configuration and secrets | Never read, expose, or modify real values without a specific security-conscious instruction. |
 | `secrets/` | Ignored local secret material | Never inspect contents, publish files, or include values in output. |
-| `certbot/` | Local certificate state | Treat as sensitive host-side infrastructure. |
+| `certbot/` | Local-only host-side certificate state | Do not commit this directory. Treat any local contents as sensitive host-side infrastructure. |
 
 ## 9. Generated/Ignored Areas
 
