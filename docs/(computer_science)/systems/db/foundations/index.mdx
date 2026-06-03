@@ -1,10 +1,41 @@
 ---
 title: "Foundations"
-description: "Planned introduction to database foundations."
+description: "Core concepts of the relational database model."
 ---
 
-# Foundations
+# Foundations of Relational Databases
 
-<Callout title="Work in progress" type="warning">
-  This planned section will be expanded later.
+Before building complex applications, it is essential to understand how data is actually structured and linked together.
+
+<Callout title="Work in Progress" type="warning">
+  This module covers relational basics. Concepts like ACID properties and the CAP theorem will be added in future updates.
 </Callout>
+
+## The Relational Model
+
+Most modern applications, including this project, rely on the **relational model**. In this model, data is organized into structured tables.
+
+### Key Concepts
+
+- **Table**: A collection of related data consisting of columns and rows. Think of it as a single spreadsheet (e.g., a `Users` table).
+- **Row (Record)**: A single, distinct data entry within a table (e.g., one specific user).
+- **Column (Attribute)**: A specific piece of information stored for every row in the table (e.g., an `email` column).
+
+### Connecting Data
+
+Data rarely exists in isolation. A user has posts, an order has products. We connect data using special columns:
+
+- **Primary Key**: A unique identifier for a specific row in a table. No two rows can have the same primary key (e.g., a `User ID`).
+- **Foreign Key**: A column in one table that refers to the primary key in another table. This creates a "relationship" or link between the two tables.
+
+### Enforcing Rules
+
+- **Constraints**: Rules applied to columns to enforce data integrity. For example, a `NOT NULL` constraint ensures a column must always have a value, and a `UNIQUE` constraint ensures no duplicates exist in a column (like an email address).
+
+## Why Schema Design Matters
+
+A schema is the blueprint of how your tables are structured and how they relate to each other. Good schema design prevents data duplication, makes queries faster, and ensures data remains accurate over time. Poor schema design leads to messy, difficult-to-maintain code and slow applications.
+
+---
+
+**Next Step**: See how these concepts translate into execution in the [Labs](../labs).

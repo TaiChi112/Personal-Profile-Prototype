@@ -1,10 +1,36 @@
 ---
-title: "Overview"
-description: "Planned overview of database systems."
+title: "Database Overview"
+description: "Introduction to database systems and why they matter."
 ---
 
-# Overview
+# Database Overview
 
-<Callout title="Work in progress" type="warning">
-  This planned section will be expanded later.
+Databases are the core memory of almost all software applications. Without them, applications would "forget" everything the moment they shut down.
+
+<Callout title="Work in Progress" type="warning">
+  This module is under active development. More advanced topics will be added soon.
 </Callout>
+
+## What is a Database System?
+
+In software engineering, we often use several terms interchangeably, but they mean different things:
+
+- **Data**: The raw facts or information (e.g., a user's name, their email address).
+- **Database**: The structured collection of that data, usually organized into tables or documents.
+- **Database Management System (DBMS)**: The software that interacts with end-users, applications, and the database itself to capture and analyze the data (e.g., PostgreSQL, MySQL, MongoDB).
+- **Database System**: The complete setup, which includes the data, the DBMS, and any associated applications.
+
+## Why Databases Matter
+
+When you build an application, you need a safe and reliable place to store user profiles, transactions, or application state. A robust database system ensures:
+- **Persistence**: Data survives system crashes or restarts.
+- **Integrity**: Data remains accurate and consistent (e.g., you can't have an order without a valid customer).
+- **Concurrency**: Multiple users can read and write data at the same time without interfering with each other.
+
+## Connecting to This Project
+
+In `taichi112.works`, we use **PostgreSQL** as our relational DBMS, and **Prisma** as our ORM (Object-Relational Mapper). PostgreSQL provides industry-standard reliability and speed, while Prisma gives us a type-safe way to interact with the database using TypeScript. This combination is highly effective for both standard web features and future AI-agent integrations.
+
+---
+
+**Next Step**: Learn the core theoretical concepts in [Foundations](../foundations).
