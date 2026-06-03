@@ -1,10 +1,46 @@
 ---
-title: "Reliability"
-description: "Planned introduction to database reliability."
+title: "Database Reliability"
+description: "Strategies for data integrity, backups, and preventing data loss."
 ---
 
-# Reliability
+# Database Reliability
 
-<Callout title="Work in progress" type="warning">
-  This planned section will be expanded later.
+A database must be reliable. If an application crashes, the UI can be reloaded. If a database loses data, the business or user trust is permanently broken.
+
+<Callout title="Work in Progress" type="warning">
+  This section introduces reliability principles. Specific DevOps backup strategies will be added soon.
 </Callout>
+
+## What is Reliability?
+
+In practical software terms, database reliability means:
+- The data you save is exactly the data you retrieve.
+- The system can survive unexpected failures (like a server crashing or power loss).
+- Invalid or corrupted data is strictly prevented from entering the system.
+
+## Core Reliability Tools
+
+### ACID Properties
+
+Reliable relational databases (like PostgreSQL) guarantee **ACID** properties:
+- **Atomicity**: An operation (transaction) is "all or nothing." If a user buys an item, money is deducted AND the inventory drops. If one fails, both fail.
+- **Consistency**: The database only moves from one valid state to another valid state, enforcing all constraints.
+- **Isolation**: Concurrent transactions don't interfere with each other.
+- **Durability**: Once data is saved, it remains saved, even if the power goes out immediately after.
+
+### Constraints & Data Integrity
+
+Constraints (like `NOT NULL`, `UNIQUE`, and Foreign Keys) are your first line of defense. They prevent bad data at the deepest level, ensuring your application code doesn't have to carry the entire burden of data validation.
+
+### Backups and Migrations
+
+- **Backups**: Regular snapshots of your database ensure you can recover from catastrophic events.
+- **Migrations**: Version control for your database schema. Instead of manually clicking around to add a column, you write a migration file. This ensures every environment (local, testing, production) is structured identically and safely.
+
+## Failure Thinking
+
+Building reliable systems requires "failure thinking"—assuming that eventually, something will break. When building features, always ask: *What happens if the database is unreachable right now? What happens if this query fails halfway through?*
+
+---
+
+**Next Step**: Explore how to keep your reliable database running fast in [Performance](../performance).
