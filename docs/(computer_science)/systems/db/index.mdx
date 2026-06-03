@@ -1,22 +1,46 @@
 ---
-title: "Database"
-description: "Learn about computer science concepts, their applications, and fundamental principles."
-# icon: "Science"
+title: "Database Systems"
+description: "Core concepts, architecture, and agentic applications of database systems."
 ---
 
-<Callout title="Warning" type="warning">
-  **Pardon our dust!** This section is currently a work in progress. I am
-  actively migrating and restructuring content from my previous project. Some
-  information may be incomplete or temporarily unavailable. Thank you for your
-  patience as I build this out—stay tuned for upcoming updates!
-</Callout>
-# Database
+# Database Systems
 
-<a
-  href="https://github.com/TaiChi112/FumadProff/blob/main/content/docs/Computer_Science/CS/CS.mdx"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="editLink_e1cfa"
->
-  📝 Edit this page on GitHub
-</a>
+Databases form the foundational persistence layer of nearly every software application. Understanding how they manage state, ensure data integrity, and scale under load is critical for building resilient systems.
+
+<Callout title="Work in Progress" type="warning">
+  This section is actively being developed. Some sub-pages may currently serve as placeholders as content is migrated and expanded.
+</Callout>
+
+## Why Database Systems Matter
+
+Whether serving a personal portfolio or a large-scale AI-agent-integrated software platform, the database is the ultimate source of truth. Robust database design dictates application performance, limits how safely concurrent operations (or autonomous agents) can act, and determines the overall reliability of the system.
+
+## The Learning Model
+
+This documentation adopts a **Theory + Execution** approach. We aim to bridge the gap between abstract computer science concepts and practical implementation.
+
+The learning progression for each topic follows a specific pattern:
+1. **Concept**: The core theoretical principle (e.g., ACID, replication).
+2. **Execution**: Practical SQL, Prisma patterns, or code examples.
+3. **System Design Implication**: How this concept scales and impacts architectural choices.
+4. **Agentic Application Implication**: How AI agents interact safely within this boundary and generate robust queries.
+
+## Section Map
+
+The database documentation is divided into seven core areas:
+
+- **Overview**: High-level introduction to database types (Relational vs. NoSQL) and architectures.
+- **Foundations**: The theoretical bedrock, including the CAP theorem, ACID properties, and indexing mechanics.
+- **Schema Design**: Practical data modeling, normalization, and defining relationships using Prisma.
+- **Reliability**: Strategies for data durability, backups, replication, and handling failures gracefully.
+- **Performance**: Query optimization, caching strategies, and connection pooling.
+- **Agentic Applications**: Forward-looking patterns for integrating AI workflows securely with persistence layers.
+- **Labs**: Interactive, code-driven sandbox examples demonstrating specific design patterns.
+
+## Recommended Path
+
+If you are new to this material, we recommend reading through **Foundations** before exploring **Schema Design**. Once comfortable with the basics, delve into **Performance** and **Reliability**. Finally, explore **Agentic Applications** to understand how these systems support AI-driven capabilities within `taichi112.works`.
+
+## Next Steps
+
+Select a topic from the sidebar to begin, starting with the [Overview](./overview).
