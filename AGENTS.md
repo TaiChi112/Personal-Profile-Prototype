@@ -60,6 +60,12 @@ Strategic direction:
 - Keep repository policy in `AGENTS.md` and reusable procedures in `AGENT_WORKFLOWS.md`.
 - Do not create tool-specific skills, slash commands, hooks, MCP servers, or custom agents without explicit approval.
 
+### Project Standard & Planning Reference
+
+- Inspect `AI_PROJECT_STANDARD.md` for the overarching AI-ready standard.
+- Inspect `PRODUCT_VISION.md`, `AGENTIC_ARCHITECTURE.md`, and `ROADMAP.md` for product and technical direction.
+- Inspect `DECISION_LOG.md` for historical architectural decisions.
+
 ---
 
 ## Critical Rules
