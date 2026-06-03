@@ -1,10 +1,46 @@
 ---
-title: "Performance"
-description: "Planned introduction to database performance."
+title: "Database Performance"
+description: "Query optimization, indexing, and measuring before optimizing."
 ---
 
-# Performance
+# Database Performance
 
-<Callout title="Work in progress" type="warning">
-  This planned section will be expanded later.
+A database can have the perfect schema and be completely reliable, but if retrieving data takes 10 seconds, the application is practically unusable.
+
+<Callout title="Work in Progress" type="warning">
+  This section covers performance concepts. Advanced caching and Prisma query optimization will be added later.
 </Callout>
+
+## Why Performance Matters
+
+As an application grows, tables get larger. A query that takes 10 milliseconds with 100 rows might take 10 seconds with 1,000,000 rows. Database performance directly impacts server costs, user experience, and the ability to scale.
+
+## Core Performance Concepts
+
+### Indexes
+
+An index is like the table of contents in a book. Instead of scanning every single row in a table to find a specific user, the database uses an index to jump directly to the correct record. Indexing commonly searched columns (like an `email` or `user_id`) is the fastest way to speed up a slow query.
+
+### Query Shape and N+1 Queries
+
+How you ask for data matters. A common beginner mistake is the **N+1 query problem**:
+- Querying a list of 100 users (1 query).
+- Looping through that list and querying the database again for each user's profile picture (100 queries).
+- *Result*: 101 queries for a single page load.
+Modern ORMs (like Prisma) help solve this by fetching related data efficiently using **Joins** or optimized batch queries.
+
+### Pagination
+
+Never load the entire database into memory. Whether showing a list of blog posts or an admin dashboard of users, always use pagination (e.g., "Load 20 items at a time") to keep queries fast and predictable.
+
+## The Golden Rule: Measure Before Optimizing
+
+Avoid **premature optimization**. Don't spend days architecting a complex caching layer for a database table that only holds 50 rows.
+1. Build the feature cleanly.
+2. Measure the query time under realistic conditions.
+3. If it is slow, add an index.
+4. If it is still slow, rewrite the query or add caching.
+
+---
+
+**Next Step**: See how these design, reliability, and performance concepts support autonomous systems in [Agentic Applications](../agentic-applications).

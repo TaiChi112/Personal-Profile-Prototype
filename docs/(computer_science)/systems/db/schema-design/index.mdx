@@ -1,10 +1,43 @@
 ---
 title: "Schema Design"
-description: "Planned introduction to database schema design."
+description: "Practical data modeling and normalization for relational databases."
 ---
 
 # Schema Design
 
-<Callout title="Work in progress" type="warning">
-  This planned section will be expanded later.
+Schema design is the process of planning how your data is structured, stored, and connected within a database. It acts as the blueprint for your entire application.
+
+<Callout title="Work in Progress" type="warning">
+  This module introduces foundational concepts. Deep dives into complex normalization and Prisma examples will be added later.
 </Callout>
+
+## Core Concepts
+
+Understanding schema design requires a firm grasp on how data points relate to each other:
+
+- **Entities**: Real-world objects or concepts you need to store (e.g., a `User`, a `Project`, a `Post`). In a database, these become your **Tables**.
+- **Relationships**: How entities connect to one another.
+  - *One-to-One*: A User has one Profile.
+  - *One-to-Many*: A User has many Projects.
+  - *Many-to-Many*: A Project has many Tags, and a Tag belongs to many Projects.
+- **Keys**: Tools to identify and link data. **Primary Keys** uniquely identify a single row, and **Foreign Keys** link a row to a primary key in another table.
+- **Constraints**: Rules that ensure data is valid (e.g., ensuring an email address is unique, or a required field is not empty).
+
+## Normalization
+
+Normalization is the practice of organizing your tables to reduce data redundancy (duplicate data) and improve data integrity. In simple terms, it means storing a piece of information in exactly one place. If a user changes their name, you should only have to update it in one table, not fifty.
+
+## Why Schema Design Matters
+
+A poorly designed schema can cripple an application as it grows:
+- **Maintainability**: Clear, well-structured data makes writing code easier and less prone to bugs.
+- **Correctness**: Good schema design prevents invalid states, such as orders existing for users who were deleted.
+- **Query Performance**: The way you structure your data directly impacts how fast the database can retrieve it.
+
+## Connecting to This Project
+
+In `taichi112.works`, we use **Prisma** to define our schema. Prisma allows us to map out entities and relationships in a highly readable format (`schema.prisma`), which then safely translates into **PostgreSQL** tables and constraints.
+
+---
+
+**Next Step**: Learn how a well-designed schema supports system resilience in [Reliability](../reliability).
