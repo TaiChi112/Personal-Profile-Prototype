@@ -8,30 +8,40 @@ description: "Interactive exercises bridging database theory and execution."
 Understanding database concepts is only the first step. To truly master them, you must bridge the gap between abstract theory and practical execution.
 
 <Callout title="Work in Progress" type="warning">
-  Lab exercises are currently being designed. A sandbox environment will be available soon.
+  Lab exercises are currently conceptual. A fully interactive sandbox environment will be available soon.
 </Callout>
 
 ## The Theory → Execution Loop
 
 In `taichi112.works`, we believe in a tight feedback loop:
-1. Learn the **Concept** (e.g., Foreign Keys).
-2. Write the **Execution** code (e.g., define the relation in a Prisma schema).
-3. Observe the **Result** (e.g., run a database migration and see the new tables).
+1. **Concept**: Learn the core principle.
+2. **Execution**: Write the code (or mental model).
+3. **Result**: Observe the structural or performance impact.
 
 ## Lab Roadmap
 
-We are planning a series of hands-on labs that will guide you through practical database engineering within this project's sandbox.
+These workshop-style tasks are designed to guide you through practical database engineering. No real database migrations are required yet—these are conceptual exercises.
 
-### Lab 1: Data Modeling Basics (Coming Soon)
+### Lab 1: Data Modeling Basics
 **Goal**: Design a simple relationship between Users and Projects.
 - **Mental Exercise**: Sketch out what tables and columns are needed to track which users own which projects.
-- **Execution**: Translate that mental model into a Prisma schema definition, utilizing Primary Keys and Foreign Keys.
+- **Execution**: Define the Primary Keys and Foreign Keys needed to make this relationship reliable.
 
-### Lab 2: Querying & Performance (Coming Soon)
-**Goal**: Retrieve nested data efficiently.
-- **Mental Exercise**: How do we get a user and all of their active projects in a single step without overwhelming the database?
-- **Execution**: Write the Prisma query and analyze the generated SQL.
+### Lab 2: Schema Design Review
+**Goal**: Identify flaws in an existing schema.
+- **Mental Exercise**: Look at a table that stores User data and Project data in the same row (violating normalization).
+- **Execution**: Redesign the table into two separate, related tables to prevent data duplication.
+
+### Lab 3: Query Performance Thinking
+**Goal**: Retrieve nested data efficiently without causing bottlenecks.
+- **Mental Exercise**: How do we get a user and all of their active projects in a single step without overwhelming the database (avoiding the N+1 problem)?
+- **Execution**: Understand the difference between querying in a loop versus using a proper database Join.
+
+### Lab 4: Agent-Safe Database Workflow
+**Goal**: Design a safe approval flow for an AI agent.
+- **Mental Exercise**: An AI agent proposes a dangerous query: `DELETE FROM Users WHERE last_login < 2020`. This query is strictly for review training and should not be executed directly.
+- **Execution**: Outline the conceptual human-in-the-loop review steps required to intercept, review, and reject this destructive query before it ever reaches the database.
 
 ---
 
-**Next Step**: Return to the [Database Systems Overview](../) to explore other advanced topics like Schema Design and Performance.
+**Next Step**: Return to the [Database Systems Overview](../) to review the core concepts.
