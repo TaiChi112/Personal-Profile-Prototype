@@ -49,3 +49,6 @@ secrets
 /src
 /plan
 /app/_docs
+
+# local editor settings
+.vscode/settings.json
