@@ -1,8 +1,8 @@
 export const profileData = {
     currectStatus: 'Seeking Software Engineering Internship (Spring 2027)',
     titlePrefix: 'Hi, I\'m Anothai (TaiChi)',
-    titleHighlight: 'Architecting Code. Documenting the Journey.',
-    description: 'Computer Science Student passionate about System Design and AI. Welcome to my digital garden where I showcase my portfolio and share deep dives into software architecture.',
+    titleHighlight: 'Building Agentic Software Systems.',
+    description: 'Computer Science student focused on building software systems where LLMs and AI agents connect human goals with tools, data, APIs, and services through reviewable workflows.',
 
     avatar: {
         type: 'image' as 'text' | 'image',

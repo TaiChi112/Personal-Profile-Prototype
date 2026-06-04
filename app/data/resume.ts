@@ -141,9 +141,7 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
   name: "Anothai Vichapaiboon",
   title: "Software Engineer Intern / Agentic Software Engineer Intern",
   summary:
-    "Computer Science student passionate about software engineering, AI- enabled software systems, and production-level web applications.Strong in TypeScript and Python, with hands - on experience building React / Next.js applications, backend APIs, database - driven systems, Docker - based development workflows, and AI - related software pipelines.Interested in contributing to reliable, testable, and impactful software products, especially in AI, healthcare technology, and real - world decision - support systems.",
-
-  // "Computer Science student passionate about combining AI technologies with systematic software development. Strong in TypeScript and Python, with a core strength in AI-assisted development that uses LLMs as tools to accelerate delivery under my own engineering judgment and control. Deeply interested in AI Agent Orchestration, System Design, and Software Architecture. Seeking internship opportunities to build practical software solutions that solve real-world problems.",
+    "Computer Science student focused on software engineering and agentic software systems. Strongest in TypeScript and Python, with hands-on experience building structured applications, APIs, database-driven systems, AI-assisted workflows, and human-in-the-loop software products. Interested in developing reliable, maintainable systems where LLMs and AI agents help connect human goals with tools, data, and services.",
   skillGroups: [
     {
       id: "languages",
@@ -219,31 +217,17 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
   ],
   keyProjects: [
     {
-      id: "personal-website",
-      title: "Personal Website (Design Pattern Playground)",
-      repoUrl: "https://github.com/TaiChi112/personal-profile-prototype",
+      id: "calendar-agent",
+      title: "Google Calendar AI Agent (MCP)",
+      repoUrl: "https://github.com/TaiChi112/SDLC_HUB_PROTOTYPE",
       description: [
-        "Problem/Motivation: Learning advanced Software Design Patterns often lacks practical, real-world frontend implementation examples.",
-        "Solution/Benefit: Developed a portfolio website using TypeScript and Next.js, explicitly implementing GoF patterns (Factory, Builder, Visitor) within the architecture. This resulted in a highly maintainable codebase and served as a tangible proof-of-concept for clean code engineering.",
-        "Tech Stack: TypeScript • Next.js 16 • React 19 • Prisma • PostgreSQL • Tailwind CSS • Docker • GitHub Actions (CI/CD) • Cloudflare • Vercel • GCP • Azure",
+        "Problem/Motivation: Manually managing schedules and checking for appointment overlaps is time-consuming and error-prone.",
+        "Solution/Benefit: Developed a Python-based AI agent utilizing the Model Context Protocol (MCP) to interpret natural language commands. Integrated with the Google Calendar API to automate scheduling and perform real-time overlap detection, significantly reducing manual calendar management.",
+        "Tech Stack: Python • FastAPI • Model Context Protocol (MCP) • Google Calendar API • Gemini AI • Next.js",
       ],
       timeline: {
-        start: "18/01/2026",
+        start: "27/01/2026",
         status: "refactor",
-      },
-    },
-    {
-      id: "ocr-pipeline",
-      title: "AI-Powered Manga OCR and Translation Pipeline (HITL)",
-      repoUrl: "https://github.com/TaiChi112/Converter-Mange-OCR",
-      description: [
-        "Problem/Motivation: Translating comics manually is highly inefficient due to the complexity of extracting text from images.",
-        "Solution/Benefit: Engineered an end-to-end Python pipeline leveraging digital image processing and Optical Character Recognition (OCR). Integrated a Human-in-the-Loop (HITL) workflow to ensure high contextual accuracy and quality control in English-to-Thai translations.",
-        "Tech Stack: Python • OpenCV • Tesseract OCR • Image Processing • CLI Interface",
-      ],
-      timeline: {
-        start: "24/02/2026",
-        status: "scale",
       },
     },
     {
@@ -261,17 +245,17 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
       },
     },
     {
-      id: "calendar-agent",
-      title: "Google Calendar AI Agent (MCP)",
-      repoUrl: "https://github.com/TaiChi112/SDLC_HUB_PROTOTYPE",
+      id: "ocr-pipeline",
+      title: "AI-Powered Manga OCR and Translation Pipeline (HITL)",
+      repoUrl: "https://github.com/TaiChi112/Converter-Mange-OCR",
       description: [
-        "Problem/Motivation: Manually managing schedules and checking for appointment overlaps is time-consuming and error-prone.",
-        "Solution/Benefit: Developed a Python-based AI agent utilizing the Model Context Protocol (MCP) to interpret natural language commands. Integrated with the Google Calendar API to automate scheduling and perform real-time overlap detection, significantly reducing manual calendar management.",
-        "Tech Stack: Python • FastAPI • Model Context Protocol (MCP) • Google Calendar API • Gemini AI • Next.js",
+        "Problem/Motivation: Translating comics manually is highly inefficient due to the complexity of extracting text from images.",
+        "Solution/Benefit: Engineered an end-to-end Python pipeline leveraging digital image processing and Optical Character Recognition (OCR). Integrated a Human-in-the-Loop (HITL) workflow to ensure high contextual accuracy and quality control in English-to-Thai translations.",
+        "Tech Stack: Python • OpenCV • Tesseract OCR • Image Processing • CLI Interface",
       ],
       timeline: {
-        start: "27/01/2026",
-        status: "refactor",
+        start: "24/02/2026",
+        status: "scale",
       },
     },
     {
@@ -300,6 +284,20 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
       ],
       timeline: {
         start: "23/03/2026",
+        status: "refactor",
+      },
+    },
+    {
+      id: "personal-website",
+      title: "Software Architecture & Design Pattern Playground",
+      repoUrl: "https://github.com/TaiChi112/personal-profile-prototype",
+      description: [
+        "Problem/Motivation: Learning advanced Software Design Patterns often lacks practical, real-world frontend implementation examples.",
+        "Solution/Benefit: Developed a portfolio website using TypeScript and Next.js, explicitly implementing GoF patterns (Factory, Builder, Visitor) within the architecture. This resulted in a highly maintainable codebase and served as a tangible proof-of-concept for clean code engineering.",
+        "Tech Stack: TypeScript • Next.js 16 • React 19 • Prisma • PostgreSQL • Tailwind CSS • Docker • GitHub Actions (CI/CD) • Cloudflare • Vercel • GCP • Azure",
+      ],
+      timeline: {
+        start: "18/01/2026",
         status: "refactor",
       },
     },
