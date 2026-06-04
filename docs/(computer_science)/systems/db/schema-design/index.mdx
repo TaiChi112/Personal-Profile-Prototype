@@ -15,13 +15,46 @@ Schema design is the process of planning how your data is structured, stored, an
 
 Understanding schema design requires a firm grasp on how data points relate to each other:
 
-- **Entities**: Real-world objects or concepts you need to store (e.g., a `User`, a `Project`, a `Post`). In a database, these become your **Tables**.
-- **Relationships**: How entities connect to one another.
-  - *One-to-One*: A User has one Profile.
-  - *One-to-Many*: A User has many Projects.
-  - *Many-to-Many*: A Project has many Tags, and a Tag belongs to many Projects.
-- **Keys**: Tools to identify and link data. **Primary Keys** uniquely identify a single row, and **Foreign Keys** link a row to a primary key in another table.
-- **Constraints**: Rules that ensure data is valid (e.g., ensuring an email address is unique, or a required field is not empty).
+| Concept | Description | Real-world Example |
+|---|---|---|
+| **Entity / Table** | A real-world object you need to store. | `User`, `Project` |
+| **Row** | A single distinct record. | "Alice's User Profile" |
+| **Column** | A specific piece of information. | `email`, `created_at` |
+| **Primary Key** | Uniquely identifies a single row. | `id: 1` |
+| **Foreign Key** | Links a row to another table's primary key. | `owner_id: 1` |
+| **Constraint** | Rule ensuring data is valid. | `email must be UNIQUE` |
+
+<Callout title="Knowledge Links" type="info">
+  **Used in the Project Tracker scenario ([Labs](../labs))**:
+  We identify real-world concepts as an **Entity**, and map how they connect via a **Relationship**. We use a **Primary Key** to uniquely identify each row, a **Foreign Key** to link rows together, and a **Constraint** to enforce data validity. Learn the bedrock of these rules in [Foundations](../foundations).
+</Callout>
+
+### Visualizing Relationships
+
+Here is a simplified Entity-Relationship Diagram (ERD). Note: This is a conceptual learning model, not the exact production schema.
+
+```mermaid
+erDiagram
+    USER ||--o{ PROJECT : "creates"
+    PROJECT ||--o{ TASK : "contains"
+
+    USER {
+        int id PK
+        string email
+        string name
+    }
+    PROJECT {
+        int id PK
+        string title
+        int owner_id FK
+    }
+    TASK {
+        int id PK
+        string description
+        boolean is_completed
+        int project_id FK
+    }
+```
 
 ## Normalization
 
