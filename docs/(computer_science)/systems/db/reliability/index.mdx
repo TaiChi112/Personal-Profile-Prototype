@@ -23,10 +23,34 @@ In practical software terms, database reliability means:
 ### ACID Properties
 
 Reliable relational databases (like PostgreSQL) guarantee **ACID** properties:
-- **Atomicity**: An operation (transaction) is "all or nothing." If a user buys an item, money is deducted AND the inventory drops. If one fails, both fail.
-- **Consistency**: The database only moves from one valid state to another valid state, enforcing all constraints.
-- **Isolation**: Concurrent transactions don't interfere with each other.
-- **Durability**: Once data is saved, it remains saved, even if the power goes out immediately after.
+This ensures that database transactions are processed reliably.
+
+| Property | Meaning | Practical Example |
+|---|---|---|
+| **Atomicity** | "All or nothing." | Money is deducted AND item ships. If one fails, both fail. |
+| **Consistency** | Data must always be valid. | You cannot save an order without a valid user ID. |
+| **Isolation** | Transactions don't mix. | Two users buying the last ticket won't break the system. |
+| **Durability** | Saved means saved forever. | If power goes out right after saving, data remains. |
+
+<Callout title="Knowledge Links" type="info">
+  **Used in the Project Tracker scenario ([Labs](../labs))**:
+  When a user creates a new project with multiple initial tasks, we use a **transaction** to ensure either everything saves or nothing does. If something fails, a **rollback** prevents partial data. This works alongside the **constraint** rules we defined in [Schema Design](../schema-design) to maintain absolute **data integrity**.
+</Callout>
+
+### Safe Transaction Flow
+
+When an application processes critical data, it uses a transaction to maintain ACID properties:
+
+```mermaid
+flowchart TD
+    Start([Start Transaction]) --> Val[Validate Data]
+    Val --> Write[Write to Database]
+    Write --> Check{Are there errors?}
+    Check -- Yes --> Rollback[Rollback / Undo]
+    Check -- No --> Commit[Commit / Save]
+    Rollback --> End([End Transaction])
+    Commit --> End
+```
 
 ### Constraints & Data Integrity
 

@@ -17,25 +17,35 @@ As an application grows, tables get larger. A query that takes 10 milliseconds w
 
 ## Core Performance Concepts
 
-### Indexes
+Here is a quick overview of performance strategies:
 
-An index is like the table of contents in a book. Instead of scanning every single row in a table to find a specific user, the database uses an index to jump directly to the correct record. Indexing commonly searched columns (like an `email` or `user_id`) is the fastest way to speed up a slow query.
+| Concept | What it is | When to use it |
+|---|---|---|
+| **Index** | A "table of contents" for fast lookups. | When searching a column frequently (e.g., `email`). |
+| **Query Shape** | Requesting only the data you need. | When a page loads too much hidden data. |
+| **N+1 Queries** | Looping database calls unnecessarily. | Use Joins or ORM batching instead. |
+| **Pagination** | Loading data in small chunks. | Lists with more than 50 items. |
+| **Join** | Combining related tables in one query. | When you need User and Profile data at once. |
+| **Cache** | Storing slow query results in fast memory. | When data is read constantly but changes rarely. |
 
-### Query Shape and N+1 Queries
-
-How you ask for data matters. A common beginner mistake is the **N+1 query problem**:
-- Querying a list of 100 users (1 query).
-- Looping through that list and querying the database again for each user's profile picture (100 queries).
-- *Result*: 101 queries for a single page load.
-Modern ORMs (like Prisma) help solve this by fetching related data efficiently using **Joins** or optimized batch queries.
-
-### Pagination
-
-Never load the entire database into memory. Whether showing a list of blog posts or an admin dashboard of users, always use pagination (e.g., "Load 20 items at a time") to keep queries fast and predictable.
+<Callout title="Knowledge Links" type="info">
+  **Used in the Project Tracker scenario ([Labs](../labs))**:
+  When displaying a user's dashboard, we use an **index** to find their projects instantly. We fetch the project and its related tasks in one step to avoid an **N+1 query** loop, keeping the **query shape** optimized. If they have hundreds of tasks, we use **pagination** to only load what's visible. Compare this structural thinking back to [Schema Design](../schema-design).
+</Callout>
 
 ## The Golden Rule: Measure Before Optimizing
 
 Avoid **premature optimization**. Don't spend days architecting a complex caching layer for a database table that only holds 50 rows.
+
+```mermaid
+flowchart LR
+    Measure([Measure Query Time]) --> Check{Is it slow?}
+    Check -- No --> Done([Done])
+    Check -- Yes --> Inspect[Inspect Query Shape]
+    Inspect --> Fix[Add Index / Rewrite Query]
+    Fix --> Measure
+```
+
 1. Build the feature cleanly.
 2. Measure the query time under realistic conditions.
 3. If it is slow, add an index.
