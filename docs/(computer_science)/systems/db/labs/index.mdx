@@ -22,6 +22,56 @@ In `taichi112.works`, we believe in a tight feedback loop:
 
 These workshop-style tasks are designed to guide you through practical database engineering. No real database migrations are required yet—these are conceptual exercises.
 
+```mermaid
+flowchart LR
+    L1[Data Modeling] --> L2[Schema Review]
+    L2 --> L3[Performance Thinking]
+    L3 --> L4[Agent-Safe Workflow]
+```
+
+### Workshop Overview
+
+| Lab | Theory Focus | Expected Output | Safety Note |
+|---|---|---|---|
+| **1. Data Modeling Basics** | Relationships & Keys | Sketch of tables and columns. | No code execution. |
+| **2. Schema Design Review** | Normalization | Redesigned multi-table layout. | No code execution. |
+| **3. Query Performance** | N+1 Problem & Joins | Mental map of batched queries. | Read-only concepts. |
+| **4. Agent-Safe Workflow** | Human-in-the-loop | Diagram of approval flow. | Prevent destructive queries. |
+
+### Scenario: Project Tracker
+
+To tie all these concepts together, consider a simple **Project Tracker** application.
+
+A user wants to track projects and the tasks within them. As we build this, we encounter every major database concept:
+- We identify the core objects we need to store (User, Project, Task).
+- We design how they connect (a User owns Projects, a Project contains Tasks).
+- We enforce rules (Tasks must have titles, Projects belong to a valid User).
+- We ensure the system doesn't lose data if the server crashes while saving.
+- We make sure the dashboard loads instantly even with thousands of tasks.
+- We design a workflow so an AI assistant can help manage projects without accidentally deleting everything.
+
+| Step | What we do | Knowledge used | Related page | Why it matters |
+|---|---|---|---|---|
+| **1. Ideation** | Identify Entities | Entity, Table, Column | [Overview](../overview) | Decides what data to store. |
+| **2. Design** | Connect Entities | Primary Key, Foreign Key | [Schema Design](../schema-design) | Defines structural relationships. |
+| **3. Validation** | Enforce Rules | Constraint, Normalization | [Foundations](../foundations) | Prevents invalid or duplicate data. |
+| **4. Safety** | Protect Operations | Transaction, Rollback | [Reliability](../reliability) | Ensures data integrity during failures. |
+| **5. Speed** | Optimize Queries | Index, Join, N+1 Query | [Performance](../performance) | Keeps the application fast at scale. |
+| **6. AI Agents** | Safe Automation | Human-in-the-loop | [Agentic Applications](../agentic-applications) | Prevents destructive AI actions. |
+
+### Knowledge Map
+
+This table summarizes the core vocabulary used throughout the database modules.
+
+| Keyword | Used when | Read more | Why it matters |
+|---|---|---|---|
+| **Entity** / **Relationship** | Ideation & Design | [Schema Design](../schema-design) | Defines what data exists and how it connects. |
+| **Primary Key** / **Foreign Key** | Connecting tables | [Schema Design](../schema-design) | Links data together securely. |
+| **Constraint** | Validating data | [Foundations](../foundations) | Enforces rules so bad data never saves. |
+| **Transaction** / **Rollback** | Handling failures | [Reliability](../reliability) | Ensures all-or-nothing data operations. |
+| **Index** / **N+1 Query** / **Pagination** | Speeding up queries | [Performance](../performance) | Keeps applications fast at scale. |
+| **Human Approval** / **Read-only Access** | AI workflows | [Agentic Applications](../agentic-applications) | Protects databases from autonomous destruction. |
+
 ### Lab 1: Data Modeling Basics
 **Goal**: Design a simple relationship between Users and Projects.
 - **Mental Exercise**: Sketch out what tables and columns are needed to track which users own which projects.
