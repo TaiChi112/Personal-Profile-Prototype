@@ -2,7 +2,8 @@ import { RootProvider } from "fumadocs-ui/provider/next";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { source } from "../lib/source";
 import "fumadocs-ui/style.css";
-import { DocsSimpleNav } from "../components/layout/DocsSimpleNav";
+import { SiteHeader } from "../components/layout/SiteHeader";
+import { ParticleBackground } from "../components/system/ParticleBackground";
 
 export default function DocsRootLayout({
   children,
@@ -11,26 +12,20 @@ export default function DocsRootLayout({
 }) {
   return (
     <RootProvider>
-      <DocsSimpleNav />
-      <DocsLayout
-        tree={source.pageTree}
-        sidebar={{ enabled: true }}
-        nav={
-          {
-            // ให้ Fumadocs วาดโลโก้ และเมื่อคลิกโลโก้จะพากลับไปหน้า Home (/)
-            // title: (
-            //   <span className="text-xl font-bold text-gray-900 dark:text-white">
-            //     TaiChi112
-            //   </span>
-            // ),
-            // url: "/",
-            // นำ Navigation เรียบง่ายของเราไปเสียบไว้ข้างๆ
-            // children: <DocsSimpleNav />,
-          }
-        }
-      >
-        {children}
-      </DocsLayout>
+      <div className="relative min-h-screen overflow-x-hidden">
+        <ParticleBackground isDark={true} styleName="Modern" />
+
+        <div className="relative z-10">
+          <SiteHeader />
+          <DocsLayout
+            tree={source.pageTree}
+            sidebar={{ enabled: true }}
+            nav={{ enabled: true }}
+          >
+            {children}
+          </DocsLayout>
+        </div>
+      </div>
     </RootProvider>
   );
 }
