@@ -21,7 +21,7 @@ import {
 } from '../../models/theme/ThemeConfig';
 import { AppSystemFacade } from '../../services/system/AppSystemFacade';
 import { notify, setNotificationChannel, subscribeToToasts } from '../../services/system/notification/NotificationBridge';
-import { NavigationShell } from './NavigationShell';
+import { SiteHeader } from '../../components/layout/SiteHeader';
 import { useContentTabMapper } from './useContentTabMapper';
 import { useProjectTreeState } from './useProjectTreeState';
 import { useTourCommandOrchestration } from './useTourCommandOrchestration';
@@ -162,15 +162,11 @@ export function PersonalWebsiteApp({
       <ParticleBackground isDark={isDark} styleName={currentStyle.name} />
       <div className="relative z-10 bg-transparent">
         <TourHighlight isActive={isTourActive} step={currentTourStep} />
-        <NavigationShell
+        <SiteHeader
           currentStyle={currentStyle}
           labels={labels}
           activeTab={activeTab}
           onNavigate={navigateToTab}
-          isAuthenticated={isAuthenticated}
-          userDisplayName={userDisplayName}
-          onSignIn={() => signIn('google')}
-          onSignOut={() => signOut({ callbackUrl: '/' })}
         />
         <main className="pt-8 min-h-screen">{content}</main>
         {/* Floating palette drawer (closed by default) - refined styling */}

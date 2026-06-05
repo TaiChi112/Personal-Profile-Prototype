@@ -18,7 +18,7 @@ const TAB_PATH_MAP: Record<TabId, string> = {
   feed: '/feed',
   projects: '/projects',
   articles: '/articles',
-  blog: '/blog',
+  blog: '/blogs',
   docs: '/docs',
   podcast: '/podcast',
   dashboard: '/analytics',
@@ -37,6 +37,10 @@ export function normalizeTabId(value?: string | null): TabId {
 
   if (value === 'analytics') {
     return 'dashboard';
+  }
+
+  if (value === 'blogs') {
+    return 'blog';
   }
 
   if (isTabId(value)) {

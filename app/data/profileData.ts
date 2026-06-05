@@ -2,17 +2,16 @@ export const profileData = {
     currectStatus: 'Seeking Software Engineering Internship (Spring 2027)',
     titlePrefix: 'Hi, I\'m Anothai (TaiChi)',
     titleHighlight: 'Building Agentic Software Systems.',
-    description: 'Computer Science student focused on building software systems where LLMs and AI agents connect human goals with tools, data, APIs, and services through reviewable workflows.',
+    description: 'Computer Science student building agentic software systems where LLMs and AI agents connect human goals with tools, data, APIs, and services through human-reviewable workflows.',
 
     avatar: {
         type: 'image' as 'text' | 'image',
         text: 'AD',
         imageUrl: '/TaiChi.JPG',
-        position: 'Software Engineer',
-        description: 'Building scalable systems & elegant interfaces',
+        position: 'Agentic Software Engineer',
+        description: 'Turning human intent into connected, reviewable software actions.',
     },
 
-    // 🎯 แก้ไขส่วน buttons เป็น Array เพื่อให้รองรับการสเกล
     buttons: [
         {
             id: 'resume-btn',
@@ -43,12 +42,11 @@ export const profileData = {
         title: 'Core Arsenal',
         data: [
             { name: 'TypeScript', iconName: 'terminal', colorClass: 'text-blue-500' },
-            { name: 'Next.js', iconName: 'layout', colorClass: 'text-cyan-500' },
+            { name: 'Python', iconName: 'layout', colorClass: 'text-cyan-500' },
             { name: 'PostgreSQL', iconName: 'database', colorClass: 'text-emerald-500' },
-            { name: 'Architecture', iconName: 'architecture', colorClass: 'text-indigo-500' },
+            { name: 'Agentic Workflows', iconName: 'architecture', colorClass: 'text-indigo-500' },
         ]
     },
-
     currentProject: {
         title: 'Universal Academic Portfolio System (UAPS)',
         description: 'An intelligent document processing and portfolio management platform.',
