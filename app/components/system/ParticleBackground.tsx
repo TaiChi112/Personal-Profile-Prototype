@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+"use client";
+import React, { useEffect, useRef } from "react";
 
 type ParticleBackgroundProps = {
   isDark: boolean;
@@ -13,7 +14,7 @@ class IconParticleFlyweight implements ParticleFlyweight {
   constructor(
     private readonly symbol: string,
     private readonly color: string,
-    private readonly font: string = 'monospace',
+    private readonly font: string = "monospace",
   ) {}
 
   draw(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
@@ -28,10 +29,18 @@ class IconParticleFlyweight implements ParticleFlyweight {
 class ParticleFactory {
   private flyweights: Map<string, ParticleFlyweight> = new Map();
 
-  getFlyweight(key: string, symbol: string, color: string, font: string = 'monospace'): ParticleFlyweight {
+  getFlyweight(
+    key: string,
+    symbol: string,
+    color: string,
+    font: string = "monospace",
+  ): ParticleFlyweight {
     const uniqueKey = `${key}-${color}-${font}`;
     if (!this.flyweights.has(uniqueKey)) {
-      this.flyweights.set(uniqueKey, new IconParticleFlyweight(symbol, color, font));
+      this.flyweights.set(
+        uniqueKey,
+        new IconParticleFlyweight(symbol, color, font),
+      );
     }
     return this.flyweights.get(uniqueKey)!;
   }
@@ -45,34 +54,49 @@ class ParticleContext {
   size: number;
   flyweight: ParticleFlyweight;
 
-  constructor(w: number, h: number, factory: ParticleFactory, styleName: string, isDark: boolean) {
+  constructor(
+    w: number,
+    h: number,
+    factory: ParticleFactory,
+    styleName: string,
+    isDark: boolean,
+  ) {
     this.x = Math.random() * w;
     this.y = Math.random() * h;
     this.vx = (Math.random() - 0.5) * 0.5;
     this.vy = (Math.random() - 0.5) * 0.5;
     this.size = Math.random() * 20 + 10;
 
-    let colors = ['#61dafb', '#facc15', '#3178c6', '#10b981', '#a8a29e'];
-    let symbols = ['⚛', '</>', 'TS', '⎔', '☁'];
-    let font = 'monospace';
+    let colors = ["#61dafb", "#facc15", "#3178c6", "#10b981", "#a8a29e"];
+    let symbols = ["⚛", "</>", "TS", "⎔", "☁"];
+    let font = "monospace";
 
-    if (styleName === 'Minimal') {
-      colors = isDark ? ['#ffffff', '#aaaaaa', '#888888'] : ['#000000', '#333333', '#555555'];
-      symbols = ['●', '■', '▲', '○', '□'];
-      font = 'sans-serif';
-    } else if (styleName === 'Future') {
-      colors = ['#00f3ff', '#bc13fe', '#00ff9d', '#ff0055', '#eab308'];
-      symbols = ['⚡', '⌬', '⏣', '◈', '⟁'];
-    } else if (styleName === 'Academic') {
-      colors = isDark ? ['#d4af37', '#c0c0c0', '#cd7f32'] : ['#8b1e3f', '#3c3c3c', '#555555'];
-      symbols = ['¶', '§', '†', '‡', '∞'];
-      font = 'serif';
+    if (styleName === "Minimal") {
+      colors = isDark
+        ? ["#ffffff", "#aaaaaa", "#888888"]
+        : ["#000000", "#333333", "#555555"];
+      symbols = ["●", "■", "▲", "○", "□"];
+      font = "sans-serif";
+    } else if (styleName === "Future") {
+      colors = ["#00f3ff", "#bc13fe", "#00ff9d", "#ff0055", "#eab308"];
+      symbols = ["⚡", "⌬", "⏣", "◈", "⟁"];
+    } else if (styleName === "Academic") {
+      colors = isDark
+        ? ["#d4af37", "#c0c0c0", "#cd7f32"]
+        : ["#8b1e3f", "#3c3c3c", "#555555"];
+      symbols = ["¶", "§", "†", "‡", "∞"];
+      font = "serif";
     }
 
     const type = Math.floor(Math.random() * symbols.length);
     const color = colors[type % colors.length];
     const symbol = symbols[type];
-    this.flyweight = factory.getFlyweight(`${styleName}-${type}`, symbol, color, font);
+    this.flyweight = factory.getFlyweight(
+      `${styleName}-${type}`,
+      symbol,
+      color,
+      font,
+    );
   }
 
   update(w: number, h: number) {
@@ -87,14 +111,17 @@ class ParticleContext {
   }
 }
 
-export function ParticleBackground({ isDark, styleName }: ParticleBackgroundProps) {
+export function ParticleBackground({
+  isDark,
+  styleName,
+}: ParticleBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const factory = new ParticleFactory();
@@ -106,11 +133,19 @@ export function ParticleBackground({ isDark, styleName }: ParticleBackgroundProp
       canvas.height = window.innerHeight;
     };
 
-    window.addEventListener('resize', resize);
+    window.addEventListener("resize", resize);
     resize();
 
     for (let i = 0; i < particleCount; i++) {
-      particles.push(new ParticleContext(canvas.width, canvas.height, factory, styleName, isDark));
+      particles.push(
+        new ParticleContext(
+          canvas.width,
+          canvas.height,
+          factory,
+          styleName,
+          isDark,
+        ),
+      );
     }
 
     let animationFrameId: number;
@@ -126,10 +161,15 @@ export function ParticleBackground({ isDark, styleName }: ParticleBackgroundProp
     animate();
 
     return () => {
-      window.removeEventListener('resize', resize);
+      window.removeEventListener("resize", resize);
       cancelAnimationFrame(animationFrameId);
     };
   }, [isDark, styleName]);
 
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-30" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-0 opacity-30"
+    />
+  );
 }
