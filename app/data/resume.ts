@@ -140,8 +140,18 @@ export function validateResumeLinks(resume: InternshipResumeData): string[] {
 export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
   name: "Anothai Vichapaiboon",
   title: "Software Engineer Intern / Agentic Software Engineer Intern",
+  // omise
+  // title: "Solution Architect Intern / Solutions Analyst Intern",
+  // title: "Software Engineer Intern / Backend & API Development",
   summary:
     "Computer Science student focused on software engineering and agentic software systems. Strongest in TypeScript and Python, with hands-on experience building structured applications, APIs, database-driven systems, AI-assisted workflows, and human-in-the-loop software products. Interested in developing reliable, maintainable systems where LLMs and AI agents help connect human goals with tools, data, and services.",
+
+  // omise
+  // summary:
+  //   "Computer Science student focused on software engineering, API-driven systems, and AI-assisted business workflows. Strongest in TypeScript and Python, with hands-on experience building structured applications, backend/API flows, database-driven systems, and human-in-the-loop software products. Interested in technical solutions, API integration, requirement analysis, and translating business problems into reliable software systems.",
+  // summary:
+  //   "Computer Science student focused on software engineering, backend/API development, and maintainable full-stack applications. Strongest in TypeScript and Python, with hands-on experience building structured applications, REST-style APIs, database-driven systems, and AI-assisted development workflows. Interested in learning professional engineering practices in fintech, including code review, testing, debugging, API reliability, and secure software development.",
+
   skillGroups: [
     {
       id: "languages",
@@ -151,13 +161,28 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
     {
       id: "frameworks-tools",
       title: "Frameworks & Tools",
-      items: ["React", "Next.js", "Express.js", "Elysia", "Prisma", "FastAPI", "Docker"],
+      items: ["React", "Next.js", "Express.js", "Elysia", "FastAPI", "Docker"],
+      // omise
+      // items: ["React", "Next.js", "Express.js", "Elysia", "FastAPI", "REST API", "API Integration"],
     },
     {
       id: "databases",
       title: "Databases",
-      items: ["PostgreSQL", "MySQL", "MongoDB"],
+      items: ["PostgreSQL", "MySQL", "MongoDB", "Prisma"],
     },
+    // omise
+    // {
+    //   id: "tools",
+    //   title: "Tools",
+    //   "items": ["Git", "GitHub", "Docker", "GitHub Actions", "Cloudflare", "Vercel"]
+    // },
+    // omise
+    // {
+    //   id: "ai-assisted workflow",
+    //   title: "AI- assisted Workflow",
+    //   items: ["LLM tools", "human -in -the - loop workflow", "OCR pipeline", "documentation support"]
+
+    // },
     {
       id: "other",
       title: "Other",
@@ -188,6 +213,12 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
         "Technical Communication",
       ],
     },
+    // omise
+    // {
+    //   id: "work-style",
+    //   title: "Working Style",
+    //   items: ["Technical Communication", "Requirement Analysis", "Design-First Approach", "Strategic Problem Solving"]
+    // }
   ],
   sectionVisibility: {
     summary: true,
@@ -239,6 +270,12 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
         "Solution/Benefit: Designed a normalized relational database to securely and flexibly manage skills and experiences. Built a Dynamic Resume generator that outputs tailored documents mapped to specific Job Descriptions, laying the architectural groundwork for future LLM-driven candidate-job matching.",
         "Tech Stack: TypeScript • Express.js • PostgreSQL • Prisma • React • PDF Generation",
       ],
+      // omise
+      // description: [
+      //   "Problem/Motivation: Using a single, static resume for different roles reduces the chance of matching company-specific requirements.",
+      //   "Solution/Benefit: Designed a normalized relational database and structured application flow to manage skills, projects, and experience data. Built a dynamic resume generator with backend/API-style data flow and PDF output, laying the groundwork for future LLM-driven candidate-job matching.",
+      //   "Tech Stack: TypeScript • Express.js • PostgreSQL • Prisma • React • PDF Generation",
+      // ],
       timeline: {
         start: "29/03/2026",
         status: "refactor",
@@ -246,7 +283,8 @@ export const INTERNSHIP_RESUME_EN: InternshipResumeData = {
     },
     {
       id: "ocr-pipeline",
-      title: "AI-Powered Manga OCR and Translation Pipeline (HITL)",
+      // title: "AI-Powered Manga OCR and Translation Pipeline (HITL)",
+      title: "AI-Powered OCR and Translation Pipeline (HITL)",
       repoUrl: "https://github.com/TaiChi112/Converter-Mange-OCR",
       description: [
         "Problem/Motivation: Translating comics manually is highly inefficient due to the complexity of extracting text from images.",
