@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { FeedItemCard } from '../../components/feed/FeedItemCard';
-import { UnifiedFeedSection } from '../../components/feed/UnifiedFeedSection';
 import {
   MOCK_BLOGS,
   MOCK_PODCASTS,
@@ -16,15 +15,18 @@ import {
   adaptVideoToUnified,
 } from '../../services/content/ContentTreeSetup';
 import { type EventType } from '../../services/system/notification/NotificationBridge';
-import { ArticlesSection } from '../sections/ArticlesSection';
-import { BlogSection } from '../sections/BlogSection';
-import { ContactSection } from '../sections/ContactSection';
-import { DashboardSection } from '../sections/DashboardSection';
-import { DocsSection } from '../sections/DocsSection';
-import { HeroSection } from '../sections/HeroSection';
-import { PodcastSection } from '../sections/PodcastSection';
-import { ProjectsSection } from '../sections/ProjectsSection';
-import { ResumeSection } from '../sections/ResumeSection';
+import dynamic from 'next/dynamic';
+
+const ArticlesSection = dynamic(() => import('../sections/ArticlesSection').then(mod => mod.ArticlesSection));
+const BlogSection = dynamic(() => import('../sections/BlogSection').then(mod => mod.BlogSection));
+const ContactSection = dynamic(() => import('../sections/ContactSection').then(mod => mod.ContactSection));
+const DashboardSection = dynamic(() => import('../sections/DashboardSection').then(mod => mod.DashboardSection));
+const DocsSection = dynamic(() => import('../sections/DocsSection').then(mod => mod.DocsSection));
+const HeroSection = dynamic(() => import('../sections/HeroSection').then(mod => mod.HeroSection));
+const PodcastSection = dynamic(() => import('../sections/PodcastSection').then(mod => mod.PodcastSection));
+const ProjectsSection = dynamic(() => import('../sections/ProjectsSection').then(mod => mod.ProjectsSection));
+const ResumeSection = dynamic(() => import('../sections/ResumeSection').then(mod => mod.ResumeSection));
+const UnifiedFeedSection = dynamic(() => import('../../components/feed/UnifiedFeedSection').then(mod => mod.UnifiedFeedSection)) as typeof import('../../components/feed/UnifiedFeedSection').UnifiedFeedSection;
 
 type UseContentTabMapperParams = {
   activeTab: string;
