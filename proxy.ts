@@ -1,11 +1,20 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-export function proxy(_request: NextRequest) {
-  // Future authorization seam:
-  // Route-level permission enforcement can be enabled here (e.g. /admin, /api/private)
-  // once roles and policies are finalized. Keep as pass-through for public access phase.
-  const response = NextResponse.next();
+import { NextFetchEvent } from 'next/server';
+import { createI18nMiddleware } from 'fumadocs-core/i18n/middleware';
+import { i18n } from './app/lib/i18n';
+
+const fumadocsMiddleware = createI18nMiddleware(i18n);
+
+export async function proxy(request: NextRequest, event: NextFetchEvent) {
+  // If the request is for docs, run Fumadocs middleware
+  const isDocsRoute = request.nextUrl.pathname.startsWith('/docs') || request.nextUrl.pathname.match(/^\/(en|th)\/docs/);
+  let response = isDocsRoute ? await fumadocsMiddleware(request, event) : null;
+  
+  if (!response) {
+    response = NextResponse.next();
+  }
 
   // ดึงค่าสดๆ จาก .env ของเครื่องที่รันอยู่ (ถ้าไม่มีให้ขึ้น Fallback)
   const serverNode = process.env.SERVER_NODE || 'Unknown-Node';
