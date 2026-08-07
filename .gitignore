@@ -43,11 +43,11 @@ next-env.d.ts
 secrets
 .source
 
-/demo
+/_sandbox/demo
 /data
 /Resume
-/src
-/plan
+/_sandbox/src
+/_sandbox/plan
 /app/_docs
 
 # local editor settings

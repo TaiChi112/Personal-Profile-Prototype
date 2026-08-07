@@ -43,12 +43,12 @@ certbot/
 nginx/
 
 # Local/auxiliary project content not needed for runtime image
-demo/
+_sandbox/demo/
 data/
-plan/
+_sandbox/plan/
 Resume/
 scripts/
-src/
+_sandbox/src/
 test/
 
 # Large local text/log artifacts
