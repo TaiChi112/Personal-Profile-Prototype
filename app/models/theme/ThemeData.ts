@@ -48,14 +48,14 @@ export type ThemeFontKey = keyof typeof THEME_FONT_DATA;
 export const THEME_STYLE_DATA = {
   modern: {
     name: 'Modern',
-    mainLayoutClass: 'bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300',
+    mainLayoutClass: 'bg-gray-50 dark:bg-background min-h-screen transition-colors duration-300',
     cardClass: 'bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden relative',
     buttonClasses: {
       primary: 'px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed',
       text: 'px-3 py-1 text-blue-600 dark:text-blue-400 font-medium hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all',
       secondary: 'px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all',
     },
-    navbarClass: 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50',
+    navbarClass: 'bg-white/80 dark:bg-background/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50',
     badgeClass: 'px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full',
     sectionTitleClass: 'text-3xl font-bold text-gray-900 dark:text-white',
     containerClass: 'rounded-2xl p-4 md:p-6 bg-gray-100/50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700 backdrop-blur-sm mt-4',
