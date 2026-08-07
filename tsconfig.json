@@ -21,7 +21,8 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@uaps/shared/resume-builder": ["./lib/resume-builder-models/index.ts"]
     }
   },
   "include": [
