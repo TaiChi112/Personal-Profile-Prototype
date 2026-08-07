@@ -50,21 +50,33 @@ Strategic direction:
 
 ### Project Structure Reference
 
-- For broader repository-boundary questions, inspect `PROJECT_STRUCTURE.md` before editing unfamiliar areas.
+- For broader repository-boundary questions, inspect `.docs/PROJECT_STRUCTURE.md` before editing unfamiliar areas.
 - Do not treat learning, sandbox, or archive folders as production runtime without verifying import and build relationships.
 - Do not move, delete, rename, or reorganize top-level folders without explicit approval.
 
 ### Agent Workflow Reference
 
-- For repeated Git and pull-request workflows, inspect `AGENT_WORKFLOWS.md`.
-- Keep repository policy in `AGENTS.md` and reusable procedures in `AGENT_WORKFLOWS.md`.
+- For repeated Git and pull-request workflows, inspect `.docs/AGENT_WORKFLOWS.md`.
+- Keep repository policy in `AGENTS.md` and reusable procedures in `.docs/AGENT_WORKFLOWS.md`.
 - Do not create tool-specific skills, slash commands, hooks, MCP servers, or custom agents without explicit approval.
 
 ### Project Standard & Planning Reference
 
-- Inspect `AI_PROJECT_STANDARD.md` for the overarching AI-ready standard.
-- Inspect `PRODUCT_VISION.md`, `AGENTIC_ARCHITECTURE.md`, and `ROADMAP.md` for product and technical direction.
-- Inspect `DECISION_LOG.md` for historical architectural decisions.
+- Inspect `.docs/AI_PROJECT_STANDARD.md` for the overarching AI-ready standard.
+- Inspect `.docs/PRODUCT_VISION.md`, `.docs/AGENTIC_ARCHITECTURE.md`, and `.docs/ROADMAP.md` for product and technical direction.
+- Inspect `.docs/DECISION_LOG.md` for historical architectural decisions.
+
+---
+
+## Coding Standards
+
+- **Strict TypeScript**: Do not use `any` or `unknown` types. All variables, parameters, and return types must be strongly typed.
+- Enforce strict typing in all new code and refactors.
+
+## UX/UI Guidelines
+
+- **Minimalist & Clean Design**: Avoid overly complex "AI-generated" aesthetics (e.g., excessive use of icons, over-the-top animations, or overly saturated themes).
+- **Standardized Components**: Use standard, accessible, and clean Tailwind CSS utilities. Keep the UI professional and consistent with a standard web application.
 
 ---
 
