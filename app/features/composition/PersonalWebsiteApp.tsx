@@ -26,6 +26,7 @@ import { useContentTabMapper } from './useContentTabMapper';
 import { useProjectTreeState } from './useProjectTreeState';
 import { useTourCommandOrchestration } from './useTourCommandOrchestration';
 import { getPathFromTab, normalizeTabId } from './tabRouting';
+import { useTheme } from '../../providers/ThemeProvider';
 
 type PersonalWebsiteAppProps = {
   initialTab?: string;
@@ -54,29 +55,12 @@ export function PersonalWebsiteApp({
     setActiveTab(normalizeTabId(initialTab));
   }
 
-  const [styleKey, setStyleKey] = useState<StyleKey>('modern');
-  const [langKey, setLangKey] = useState<LocaleKey>('en');
-  const [fontKey, setFontKey] = useState<FontKey>('sans');
-  const [isDark, setIsDark] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { isDark, styleKey, fontKey, langKey, isAdmin, setStyleKey, toggleDark, toggleRole } = useTheme();
   const { data: session, status } = useSession();
 
   useEffect(() => {
     setNotificationChannel('Toast');
-    void AppSystemFacade.initializeSystem(
-      { setDark: setIsDark, setStyle: setStyleKey, setFont: setFontKey, setAdmin: setIsAdmin, setLang: setLangKey },
-      (message, level) => notify.notify(message, level),
-      getInitialThemePreference,
-    );
   }, []);
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDark]);
 
 
   const setActiveTabWithoutNavigation = (tabId: string) => {
@@ -95,8 +79,7 @@ export function PersonalWebsiteApp({
   const labels = currentLang.getLabels();
   const isAuthenticated = status === 'authenticated';
   const userDisplayName = session?.user?.name ?? session?.user?.email ?? null;
-  const toggleDark = () => setIsDark((prev) => !prev);
-  const toggleRole = () => setIsAdmin((prev) => !prev);
+  
   const { projectTree, addProjectFromTemplate } = useProjectTreeState({ onNotify: notify.notify });
 
   // const [isPaletteOpen, setIsPaletteOpen] = useState(false);
@@ -163,8 +146,6 @@ export function PersonalWebsiteApp({
       <div className="relative z-10 bg-transparent">
         <TourHighlight isActive={isTourActive} step={currentTourStep} />
         <SiteHeader
-          currentStyle={currentStyle}
-          labels={labels}
           activeTab={activeTab}
           onNavigate={navigateToTab}
         />
