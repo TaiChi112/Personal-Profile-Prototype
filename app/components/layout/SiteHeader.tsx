@@ -12,33 +12,28 @@ import {
 import {
   STYLES,
   LOCALES,
-  type StyleFactory,
-  type UILabels,
 } from "../../models/theme/ThemeConfig";
+import { useTheme } from "../../providers/ThemeProvider";
 
 type SiteHeaderProps = {
-  readonly currentStyle?: StyleFactory;
-  readonly labels?: UILabels;
   readonly activeTab?: string;
   readonly onNavigate?: (tabId: string) => void;
 };
 
 export function SiteHeader({
-  currentStyle,
-  labels,
   activeTab,
   onNavigate,
 }: SiteHeaderProps) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { styleKey, langKey } = useTheme();
 
   const isAuthenticated = status === "authenticated";
   const userDisplayName = session?.user?.name ?? session?.user?.email ?? null;
 
-  // Use provided style/labels or fall back to default Modern (EN)
-  const resolvedStyle = currentStyle ?? STYLES.modern;
-  const resolvedLabels = labels ?? LOCALES.en.getLabels();
+  const resolvedStyle = STYLES[styleKey];
+  const resolvedLabels = LOCALES[langKey].getLabels();
 
   const navItems = useMemo(
     () => createNavItems(resolvedLabels),
@@ -117,6 +112,28 @@ export function SiteHeader({
             ))}
             {/* ---------------- DESKTOP AUTH ---------------- */}
             <div className="ml-3 pl-3 border-l border-gray-200 dark:border-gray-700 flex items-center gap-3">
+              {pathname.match(/^\/(en|th)\/docs/) && (
+                <div className="relative group flex items-center mr-2">
+                  <button className="flex items-center gap-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+                    <span className="text-sm font-medium">{pathname.startsWith('/th') ? 'TH' : 'EN'}</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  </button>
+                  <div className="absolute right-0 top-full mt-2 hidden group-hover:block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-md shadow-lg py-1 min-w-[120px] z-50">
+                    <Link 
+                      href={pathname.replace(/^\/(en|th)\/docs/, '/en/docs')}
+                      className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700/50 ${pathname.startsWith('/en') ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-gray-700 dark:text-gray-300'}`}
+                    >
+                      English
+                    </Link>
+                    <Link 
+                      href={pathname.replace(/^\/(en|th)\/docs/, '/th/docs')}
+                      className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700/50 ${pathname.startsWith('/th') ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-gray-700 dark:text-gray-300'}`}
+                    >
+                      ภาษาไทย
+                    </Link>
+                  </div>
+                </div>
+              )}
               <span
                 className="text-xs text-gray-500 dark:text-gray-400 max-w-36 truncate"
                 title={userDisplayName ?? "No session"}
