@@ -63,6 +63,7 @@ Strategic direction:
 ### Project Standard & Planning Reference
 
 - Inspect `.docs/AI_PROJECT_STANDARD.md` for the overarching AI-ready standard.
+- Inspect `.docs/CONTENT_STANDARD.md` for strict MDX/Markdown documentation writing rules, export features, and admonition usage.
 - Inspect `.docs/PRODUCT_VISION.md`, `.docs/AGENTIC_ARCHITECTURE.md`, and `.docs/ROADMAP.md` for product and technical direction.
 - Inspect `.docs/DECISION_LOG.md` for historical architectural decisions.
 
@@ -73,10 +74,14 @@ Strategic direction:
 - **Strict TypeScript**: Do not use `any` or `unknown` types. All variables, parameters, and return types must be strongly typed.
 - Enforce strict typing in all new code and refactors.
 
-## UX/UI Guidelines
+## UX/UI & Completeness Guidelines
 
 - **Minimalist & Clean Design**: Avoid overly complex "AI-generated" aesthetics (e.g., excessive use of icons, over-the-top animations, or overly saturated themes).
 - **Standardized Components**: Use standard, accessible, and clean Tailwind CSS utilities. Keep the UI professional and consistent with a standard web application.
+- **Completeness & SSOT Validation**: Whenever modifying a component or feature, you MUST check for linked dependencies. For example:
+  - If you edit a Desktop UI element, verify if its Mobile counterpart needs the same update.
+  - If you update a Dark mode style, verify the Light mode style.
+  - If content/logic has a Single Source of Truth (SSOT), ensure all places referencing it are updated accordingly. Do not fix just the immediate symptom; fix the whole connected system.
 
 ---
 
