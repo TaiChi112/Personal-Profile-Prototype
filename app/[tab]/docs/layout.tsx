@@ -20,9 +20,9 @@ export default async function DocsRootLayout({
       <div className="relative min-h-screen">
         <DocsClientBackground />
 
-        <div className="relative z-10 flex flex-col h-screen">
+        <div className="relative z-10 flex flex-col min-h-screen">
           <SiteHeader />
-          <div className="flex-1 overflow-hidden max-w-7xl mx-auto w-full">
+          <div className="flex-1 max-w-7xl mx-auto w-full">
             <DocsLayout
               tree={source.pageTree[tab as keyof typeof source.pageTree]}
               sidebar={{ enabled: true }}
