@@ -51,8 +51,6 @@ export function ThemeProvider({ children }: { readonly children: ReactNode }) {
     }
   }, [isDark]);
 
-  if (!isReady) return null; // Avoid hydration mismatch for theme-dependent UI
-
   return (
     <ThemeContext.Provider value={{
       isDark, styleKey, fontKey, langKey, isAdmin,
