@@ -2,6 +2,9 @@ import { source } from "@/app/lib/source";
 import { notFound } from "next/navigation";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import { Mermaid } from "@/app/components/Mermaid";
+import { DocsActionsDropdown } from "@/app/components/docs/DocsActionsDropdown";
+import path from "path";
+import fs from "fs/promises";
 import {
   DocsPage,
   DocsBody,
@@ -24,17 +27,34 @@ export default async function Page(props: Readonly<{
 
   const Mdx = page.data.body;
 
+  let rawMarkdown = "";
+  let githubEditUrl = "";
+  let githubRawUrl = "";
+  try {
+    // @ts-ignore - Fumadocs MDX returns absolutePath for the source file relative to the project root
+    const pageFilePath = page.absolutePath;
+    if (pageFilePath) {
+      const filePath = path.join(process.cwd(), pageFilePath);
+      rawMarkdown = await fs.readFile(filePath, "utf-8");
+      githubEditUrl = `https://github.com/taichi112/personal-profile-prototype/edit/main/${pageFilePath}`;
+      githubRawUrl = `https://raw.githubusercontent.com/taichi112/personal-profile-prototype/main/${pageFilePath}`;
+    }
+  } catch (e) {
+    console.error("Failed to read raw markdown", e);
+  }
+
   return (
     <DocsPage toc={page.data.toc} full={page.data.full}>
-      <main className="container mx-auto py-10 px-6 max-w-4xl">
-        {/* <div className="mb-8 border-b pb-4">
-          <h1 className="text-4xl font-bold">{page.data.title}</h1>
-          <p className="text-gray-500 mt-2">
-            กำลังแสดงผลในโหมดทดสอบ (Demo Route)
-          </p>
-        </div> */}
-        <DocsTitle>{page.data.title}</DocsTitle>
-        <DocsDescription>{page.data.description}</DocsDescription>
+      <main className="container mx-auto py-10 px-6 max-w-4xl relative">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1">
+            <DocsTitle>{page.data.title}</DocsTitle>
+            <DocsDescription>{page.data.description}</DocsDescription>
+          </div>
+          <div className="mt-1">
+            <DocsActionsDropdown markdownContent={rawMarkdown} githubEditUrl={githubEditUrl} githubRawUrl={githubRawUrl} title={page.data.title ?? "Documentation"} />
+          </div>
+        </div>
         {/* โซนแสดงผลเนื้อหา Markdown */}
         <DocsBody>
           <article className="prose prose-slate dark:prose-invert max-w-none">
