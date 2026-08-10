@@ -1,0 +1,15 @@
+{
+  "title": "Computer Science",
+  "description": "Documentation for Computer Science",
+  "root": true,
+  "pages": [
+        "---Introduction---",
+        "index",
+        "foundations",
+        "systems",
+        "software-engineering",
+        "artificial-intelligence",
+        "applied-cs",
+        "guides"
+  ]
+}
