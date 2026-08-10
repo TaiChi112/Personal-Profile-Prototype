@@ -1,0 +1,9 @@
+{
+  "title": "Overview",
+  "root": true,
+  "pages": [
+    "index",
+    "getting-started",
+    "contribution"
+  ]
+}
