@@ -1,9 +1,10 @@
 {
   "pages": [
-    "(computer_science)",
-    "food_science",
-    "finance",
+    "(overview)",
+    "computer_science",
     "business",
+    "finance",
+    "food_science",
     "wellness"
   ]
 }
