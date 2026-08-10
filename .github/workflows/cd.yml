@@ -1,5 +1,7 @@
-name: Deploy to Google Cloud and Azure
+name: Continuous Deployment (CD)
 
+# 🚀 ไฟล์นี้จะทำงานเฉพาะตอนที่คุณ Push หรือ Merge โค้ดเข้า branch 'main' เท่านั้น
+# ซึ่งหมายความว่าโค้ดชุดนี้ผ่านด่านตรวจ (ci.yml) มาเรียบร้อยแล้ว
 on:
   push:
     branches:
