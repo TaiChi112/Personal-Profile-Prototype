@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import { Mermaid } from "@/app/components/Mermaid";
 import { DocsActionsDropdown } from "@/app/components/docs/DocsActionsDropdown";
+import { Github } from "lucide-react";
 import path from "path";
 import fs from "fs/promises";
 import {
@@ -31,7 +32,7 @@ export default async function Page(props: Readonly<{
   let githubEditUrl = "";
   let githubRawUrl = "";
   try {
-    // @ts-ignore - Fumadocs MDX returns absolutePath for the source file relative to the project root
+    // @ts-expect-error - Fumadocs MDX returns absolutePath for the source file relative to the project root
     const pageFilePath = page.absolutePath;
     if (pageFilePath) {
       const filePath = path.join(process.cwd(), pageFilePath);
@@ -61,6 +62,20 @@ export default async function Page(props: Readonly<{
             <Mdx components={{ ...defaultMdxComponents, Mermaid }} />
           </article>
         </DocsBody>
+        
+        {githubEditUrl && (
+          <div className="mt-12 pt-6 border-t border-fd-border flex justify-between items-center text-sm text-fd-muted-foreground">
+            <a 
+              href={githubEditUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="hover:text-fd-foreground flex items-center gap-2 transition-colors"
+            >
+              <Github className="w-4 h-4" />
+              Propose an edit on GitHub
+            </a>
+          </div>
+        )}
       </main>
     </DocsPage>
   );
