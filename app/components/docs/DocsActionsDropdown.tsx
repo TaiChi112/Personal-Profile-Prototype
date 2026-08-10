@@ -63,8 +63,10 @@ export function DocsActionsDropdown({ markdownContent, githubEditUrl, githubRawU
   };
 
   const handlePrint = () => {
-    window.print();
     setIsOpen(false);
+    setTimeout(() => {
+      window.print();
+    }, 100);
   };
 
   return (

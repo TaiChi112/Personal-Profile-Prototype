@@ -32,15 +32,12 @@ export function ThemeProvider({ children }: { readonly children: ReactNode }) {
   const [fontKey, setFontKey] = useState<FontKey>('sans');
   const [isDark, setIsDark] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isReady, setIsReady] = useState(false);
-
   useEffect(() => {
     void AppSystemFacade.initializeSystem(
       { setDark: setIsDark, setStyle: setStyleKey, setFont: setFontKey, setAdmin: setIsAdmin, setLang: setLangKey },
       () => {}, // suppress duplicate toasts from facade since it might run on every page mount otherwise
       getInitialThemePreference,
     );
-    setIsReady(true);
   }, []);
 
   useEffect(() => {
