@@ -1,0 +1,37 @@
+---
+title: Data Mining Demo
+description: ภาพรวมของ Data Mining (DM) เทคนิคที่ใช้ การประยุกต์ใช้งาน และความท้าทาย
+---
+
+# Data Mining Demo
+
+<Callout type="warn">
+  คำเตือน: บทความนี้อยู่ระหว่างการจัดทำและอาจมีข้อมูลที่ไม่สมบูรณ์หรือคลาดเคลื่อน โปรดตรวจสอบรายละเอียดจากแหล่งข้อมูลที่เชื่อถือได้
+</Callout>
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+
+# นี่คือโค้ดตัวอย่างในภาษาไทยครับ!
+print("สวัสดี Data Mining!")
+```
+
+## คำอธิบายเพิ่มเติม
+1. **Data Preprocessing:** การเตรียมข้อมูล
+2. **Data Mining vs Algorithm:** ความแตกต่างระหว่างการทำเหมืองข้อมูลและอัลกอริทึม
+3. **Postprocessing:** การประมวลผลหลังจากการทำเหมืองข้อมูล
+
+ตัวอย่างหน้าตาของ Diagram ที่คุณจะได้:
+
+<Mermaid chart={`
+graph TD;
+    A[ข้อมูลดิบ] --> B(ทำความสะอาดข้อมูล);
+    B --> C{วิเคราะห์};
+    C -->|พบ Pattern| D[แสดงผล];
+    C -->|ไม่พบ| E[ปรับปรุงโมเดล];
+`} />
