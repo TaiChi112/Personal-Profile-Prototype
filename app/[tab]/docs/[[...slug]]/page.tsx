@@ -32,7 +32,6 @@ export default async function Page(props: Readonly<{
   let githubEditUrl = "";
   let githubRawUrl = "";
   try {
-    // @ts-expect-error - Fumadocs MDX returns absolutePath for the source file relative to the project root
     const pageFilePath = page.absolutePath;
     if (pageFilePath) {
       const filePath = path.join(process.cwd(), pageFilePath);
@@ -62,13 +61,13 @@ export default async function Page(props: Readonly<{
             <Mdx components={{ ...defaultMdxComponents, Mermaid }} />
           </article>
         </DocsBody>
-        
+
         {githubEditUrl && (
           <div className="mt-12 pt-6 border-t border-fd-border flex justify-between items-center text-sm text-fd-muted-foreground">
-            <a 
-              href={githubEditUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href={githubEditUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="hover:text-fd-foreground flex items-center gap-2 transition-colors"
             >
               <Github className="w-4 h-4" />
