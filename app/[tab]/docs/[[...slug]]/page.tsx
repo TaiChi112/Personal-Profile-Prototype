@@ -80,6 +80,8 @@ export default async function Page(props: Readonly<{
   );
 }
 
+export const dynamicParams = false;
+
 // ช่วย Build เป็น Static HTML ล่วงหน้าเพื่อความเร็ว
 export async function generateStaticParams() {
   const params = await source.generateParams();
