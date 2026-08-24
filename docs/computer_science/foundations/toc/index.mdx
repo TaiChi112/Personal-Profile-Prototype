@@ -1,22 +1,55 @@
 ---
 title: "Theory of Computation"
-description: "Learn about computer science concepts, their applications, and fundamental principles."
-# icon: "Science"
+description: "ทฤษฎีการคำนวณ (Theory of Computation) พื้นฐานสำคัญของวิทยาการคอมพิวเตอร์ที่ว่าด้วยขีดจำกัดและประสิทธิภาพของการคำนวณ"
 ---
 
-<Callout title="Warning" type="warning">
-  **Pardon our dust!** This section is currently a work in progress. I am
-  actively migrating and restructuring content from my previous project. Some
-  information may be incomplete or temporarily unavailable. Thank you for your
-  patience as I build this out—stay tuned for upcoming updates!
-</Callout>
-# Theory of Computation
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Cpu, Binary, Layers } from 'lucide-react';
 
-<a
-  href="https://github.com/TaiChi112/FumadProff/blob/main/content/docs/Computer_Science/CS/CS.mdx"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="editLink_e1cfa"
->
-  
-</a>
+<Callout title="Work in Progress" type="info">
+  เนื้อหาในหมวด **Theory of Computation** กำลังอยู่ระหว่างการเรียบเรียงและปรับปรุง อาจจะมีเนื้อหาเพิ่มเติมในอนาคตครับ
+</Callout>
+
+# Theory of Computation (ทฤษฎีการคำนวณ)
+
+**Theory of Computation (TOC)** หรือ ทฤษฎีการคำนวณ คือสาขาที่เป็นหัวใจหลักของ Computer Science โดยมุ่งเน้นไปที่การศึกษาว่า **ปัญหาใดบ้างที่คอมพิวเตอร์สามารถแก้ได้ (What can be computed?)** และ **ปัญหาเหล่านั้นต้องใช้ทรัพยากรมากแค่ไหนในการแก้ (How efficiently can it be computed?)**
+
+TOC จะไม่เน้นไปที่การเขียนโค้ด (Programming) หรือ Hardware แต่จะเน้นไปที่ **Mathematics** และ **Logic** เพื่อสร้างโมเดลจำลองการทำงานของคอมพิวเตอร์ เช่น Turing Machine
+
+---
+
+## 3 สาขาหลักของ Theory of Computation
+
+TOC แบ่งออกเป็น 3 สาขาย่อยหลักๆ ที่เกี่ยวข้องกัน ได้แก่:
+
+### 1. Automata Theory (ทฤษฎีออโตมาตา)
+ศึกษาเกี่ยวกับ **Abstract Machines** (เครื่องจักรนามธรรม) และปัญหาที่เครื่องจักรเหล่านี้สามารถแก้ได้ เป็นพื้นฐานสำคัญที่นำไปสู่การสร้าง Compiler และการออกแบบ Programming Languages
+- **หัวข้อสำคัญ:** Finite Automata (FA), Regular Expressions, Context-Free Grammars (CFG)
+- **การประยุกต์ใช้:** Text processing, Lexical analysis ใน Compiler
+
+### 2. Computability Theory (ทฤษฎีความสามารถในการคำนวณ)
+ศึกษาเพื่อตอบคำถามว่า **ปัญหาใดที่สามารถแก้ได้ด้วยคอมพิวเตอร์ และปัญหาใดที่แก้ไม่ได้ (Decidability)** โดยมี **Turing Machine** เป็นโมเดลหลักในการพิสูจน์
+- **หัวข้อสำคัญ:** Turing Machines, Halting Problem, Decidability
+- **การประยุกต์ใช้:** การทำความเข้าใจขีดจำกัดของ Algorithm ว่าไม่สามารถเขียนโปรแกรมเพื่อตรวจสอบทุกอย่างได้ (เช่น ไม่มีโปรแกรมใดที่สามารถตรวจสอบได้ 100% ว่าโปรแกรมอื่นจะรันจบหรือรันแบบ Infinite Loop)
+
+### 3. Complexity Theory (ทฤษฎีความซับซ้อน)
+เมื่อเรารู้แล้วว่าปัญหานั้น "แก้ได้" (Computable) สาขานี้จะศึกษาต่อว่า **เราต้องใช้เวลา (Time) หรือพื้นที่ (Space) มากแค่ไหนในการแก้ปัญหานั้น** และจัดกลุ่มปัญหาตามระดับความยาก
+- **หัวข้อสำคัญ:** Time Complexity (Big-O Notation), P vs NP classes, NP-Completeness
+- **การประยุกต์ใช้:** Cryptography, Algorithm Optimization, การเลือกว่าควรใช้วิธีแก้ปัญหาแบบใดเมื่อข้อมูลมีขนาดใหญ่มาก
+
+---
+
+## Why Learn TOC? (ทำไมถึงต้องเรียน?)
+
+<Cards>
+  <Card title="Foundation of Algorithms" icon={<Binary className="w-5 h-5" />}>
+    TOC ช่วยให้คุณเข้าใจว่า Algorithm ทำงานอย่างไรในระดับลึก และรู้ว่าอะไรคือความเป็นไปได้สูงสุดในการแก้ปัญหาหนึ่งๆ
+  </Card>
+  <Card title="Compiler Design" icon={<Layers className="w-5 h-5" />}>
+    ความรู้จาก Automata Theory เป็นสิ่งที่ขาดไม่ได้ในการสร้าง Compiler และ Parser ที่เราใช้งานกันอยู่ทุกวัน
+  </Card>
+  <Card title="Computational Limits" icon={<Cpu className="w-5 h-5" />}>
+    ช่วยให้นักพัฒนาซอฟต์แวร์ไม่เสียเวลาไปกับการพยายามเขียนโปรแกรมเพื่อแก้ปัญหาที่พิสูจน์แล้วว่า "ไม่มีทางแก้ได้" (Unsolvable Problems)
+  </Card>
+</Cards>
