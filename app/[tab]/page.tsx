@@ -1,12 +1,6 @@
-"use client";
-
-import { useParams } from 'next/navigation';
 import { PersonalWebsiteApp } from '../features/composition/PersonalWebsiteApp';
 import { i18n } from '../lib/i18n';
 
-export default function TabPage() {
-  const params = useParams<{ tab: string }>();
-  const tab = Array.isArray(params.tab) ? params.tab[0] : params.tab;
 export async function generateStaticParams() {
   return i18n.languages.map((tab) => ({ tab }));
 }
