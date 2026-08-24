@@ -1,4 +1,5 @@
 import { config, fields, collection } from '@keystatic/core';
+import { wrapper, block } from '@keystatic/core/content-components';
 
 export default config({
   storage: {
@@ -36,6 +37,38 @@ export default config({
               directory: 'public/images/docs',
               publicPath: '/images/docs',
             },
+          },
+          components: {
+            Callout: wrapper({
+              label: 'Callout',
+              schema: {
+                title: fields.text({ label: 'Title' }),
+                type: fields.select({
+                  label: 'Type',
+                  options: [
+                    { label: 'Info', value: 'info' },
+                    { label: 'Warning', value: 'warning' },
+                    { label: 'Warn', value: 'warn' },
+                    { label: 'Error', value: 'error' },
+                    { label: 'Success', value: 'success' },
+                  ],
+                  defaultValue: 'info',
+                }),
+              },
+            }),
+            Cards: wrapper({
+              label: 'Cards',
+              schema: {},
+            }),
+            Card: wrapper({
+              label: 'Card',
+              schema: {
+                title: fields.text({ label: 'Title' }),
+                description: fields.text({ label: 'Description' }),
+                href: fields.text({ label: 'Link URL' }),
+                icon: fields.text({ label: 'Icon (React Node/String)' }),
+              },
+            }),
           },
         }),
       },
