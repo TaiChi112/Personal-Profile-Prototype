@@ -23,6 +23,8 @@
     "integration:http-admin-users": "bun scripts/integration-http-admin-users.ts"
   },
   "dependencies": {
+    "@keystatic/core": "^0.6.8",
+    "@keystatic/next": "^5.0.5",
     "@prisma/client": "^7.6.0",
     "fumadocs-core": "^16.8.5",
     "fumadocs-mdx": "^14.3.2",
