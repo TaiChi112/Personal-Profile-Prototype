@@ -31,12 +31,14 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
+const missingDatabaseUrlErrorMessage = 'DATABASE_URL environment variable is required';
+
 const prisma = globalThis.prisma ?? createPrismaClient();
 
 function createPrismaClient() {
   const datasourceUrl = process.env.DATABASE_URL;
   if (!datasourceUrl) {
-    throw new Error('DATABASE_URL environment variable is required');
+    return createMissingDatabaseUrlPrismaClient();
   }
 
   const pool = new Pool({
@@ -48,6 +50,16 @@ function createPrismaClient() {
   return new PrismaClient({
     adapter,
   });
+}
+
+function createMissingDatabaseUrlPrismaClient(): PrismaClient {
+  const handler: ProxyHandler<PrismaClient> = {
+    get() {
+      throw new Error(missingDatabaseUrlErrorMessage);
+    },
+  };
+
+  return new Proxy({} as PrismaClient, handler);
 }
 
 if (process.env.NODE_ENV !== 'production') {

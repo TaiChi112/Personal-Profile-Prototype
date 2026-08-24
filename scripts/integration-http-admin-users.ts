@@ -1,3 +1,5 @@
+import { prisma } from '../lib/prisma';
+
 const baseUrl = process.env.APP_URL ?? 'http://localhost:3000';
 
 function assertStatus(name: string, actual: number, expected: number | number[]) {
@@ -78,6 +80,28 @@ async function loginAsAdmin() {
   return cookieHeader;
 }
 
+async function ensureAdminUser() {
+  const adminEmail = process.env.ADMIN_TEST_EMAIL ?? 'admin@example.com';
+  const adminName = process.env.ADMIN_TEST_NAME ?? 'Admin User';
+
+  await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {
+      role: 'admin',
+      provider: 'credentials',
+      providerAccountId: adminEmail,
+      name: adminName,
+    },
+    create: {
+      email: adminEmail,
+      name: adminName,
+      role: 'admin',
+      provider: 'credentials',
+      providerAccountId: adminEmail,
+    },
+  });
+}
+
 async function requestJson(path: string, cookieHeader: string, init?: RequestInit) {
   const res = await fetch(`${baseUrl}${path}`, {
     ...init,
@@ -102,6 +126,7 @@ async function requestJson(path: string, cookieHeader: string, init?: RequestIni
 }
 
 async function main() {
+  await ensureAdminUser();
   const cookieHeader = await loginAsAdmin();
 
   const userList = await requestJson('/api/users', cookieHeader);
@@ -148,7 +173,11 @@ async function main() {
   console.log('[integration-http-admin-users] authenticated admin users CRUD passed');
 }
 
-main().catch((error) => {
-  console.error('[integration-http-admin-users] failed', error);
-  process.exit(1);
-});
+main()
+  .catch((error) => {
+    console.error('[integration-http-admin-users] failed', error);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

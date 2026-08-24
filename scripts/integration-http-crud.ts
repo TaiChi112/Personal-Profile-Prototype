@@ -100,15 +100,33 @@ function assertStatus(name: string, actual: number, expected: number | number[])
   }
 }
 
-async function main() {
-  const admin = await prisma.user.findUnique({
-    where: { email: 'admin@example.com' },
+async function ensureAdminUser() {
+  const adminEmail = process.env.ADMIN_TEST_EMAIL ?? 'admin@example.com';
+  const adminName = process.env.ADMIN_TEST_NAME ?? 'Admin User';
+
+  const admin = await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {
+      role: 'admin',
+      provider: 'credentials',
+      providerAccountId: adminEmail,
+      name: adminName,
+    },
+    create: {
+      email: adminEmail,
+      name: adminName,
+      role: 'admin',
+      provider: 'credentials',
+      providerAccountId: adminEmail,
+    },
     select: { id: true },
   });
 
-  if (!admin) {
-    throw new Error('seed admin user not found; run bun run prisma:seed first');
-  }
+  return admin;
+}
+
+async function main() {
+  const admin = await ensureAdminUser();
 
   const sessionCheck = await requestJson('/api/auth/session');
   assertStatus('GET /api/auth/session', sessionCheck.res.status, 200);
