@@ -15,21 +15,17 @@ import {
   DocsTitle,
 } from "fumadocs-ui/page";
 
-type CustomCardProps = React.ComponentProps<typeof Card> & {
-  icon?: React.ReactNode | string;
-};
-
-const CustomCard = (props: CustomCardProps) => {
+const CustomCard = (props: any) => {
   let finalIcon = props.icon;
   
   if (typeof props.icon === 'string') {
-    const IconComponent = LucideIcons[props.icon as keyof typeof LucideIcons] as React.ElementType | undefined;
+    const IconComponent = (LucideIcons as any)[props.icon];
     if (IconComponent) {
       finalIcon = <IconComponent />;
     }
   }
 
-  return <Card {...props} icon={finalIcon as React.ReactNode} />;
+  return <Card {...props} icon={finalIcon} />;
 };
 
 export default async function Page(props: Readonly<{
@@ -77,6 +73,7 @@ export default async function Page(props: Readonly<{
         {/* โซนแสดงผลเนื้อหา Markdown */}
         <DocsBody>
           <article className="prose prose-slate dark:prose-invert max-w-none">
+            <Mdx components={{ ...defaultMdxComponents, Mermaid }} />
             <Mdx components={{ ...defaultMdxComponents, Card: CustomCard, Mermaid }} />
           </article>
         </DocsBody>

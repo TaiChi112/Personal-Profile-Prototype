@@ -3,10 +3,6 @@ title: "Theory of Computation"
 description: "ทฤษฎีการคำนวณ (Theory of Computation) พื้นฐานสำคัญของวิทยาการคอมพิวเตอร์ที่ว่าด้วยขีดจำกัดและประสิทธิภาพของการคำนวณ"
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Cards, Card } from 'fumadocs-ui/components/card';
-import { Cpu, Binary, Layers } from 'lucide-react';
-
 <Callout title="Work in Progress" type="info">
   เนื้อหาในหมวด **Theory of Computation** กำลังอยู่ระหว่างการเรียบเรียงและปรับปรุง อาจจะมีเนื้อหาเพิ่มเติมในอนาคตครับ
 </Callout>
@@ -43,13 +39,13 @@ TOC แบ่งออกเป็น 3 สาขาย่อยหลักๆ 
 ## Why Learn TOC? (ทำไมถึงต้องเรียน?)
 
 <Cards>
-  <Card title="Foundation of Algorithms" icon={<Binary className="w-5 h-5" />}>
+  <Card title="Foundation of Algorithms" icon="Binary">
     TOC ช่วยให้คุณเข้าใจว่า Algorithm ทำงานอย่างไรในระดับลึก และรู้ว่าอะไรคือความเป็นไปได้สูงสุดในการแก้ปัญหาหนึ่งๆ
   </Card>
-  <Card title="Compiler Design" icon={<Layers className="w-5 h-5" />}>
+  <Card title="Compiler Design" icon="Layers">
     ความรู้จาก Automata Theory เป็นสิ่งที่ขาดไม่ได้ในการสร้าง Compiler และ Parser ที่เราใช้งานกันอยู่ทุกวัน
   </Card>
-  <Card title="Computational Limits" icon={<Cpu className="w-5 h-5" />}>
+  <Card title="Computational Limits" icon="Cpu">
     ช่วยให้นักพัฒนาซอฟต์แวร์ไม่เสียเวลาไปกับการพยายามเขียนโปรแกรมเพื่อแก้ปัญหาที่พิสูจน์แล้วว่า "ไม่มีทางแก้ได้" (Unsolvable Problems)
   </Card>
 </Cards>

@@ -37,7 +37,6 @@ print("--- ข้อมูลดิบ (Raw Data) ---")
 print(df.head(3)) # ดูแค่ 3 แถวแรก
 print("\n")
 
-
 # ==========================================
 # 2. DATA PREPROCESSING
 # ==========================================
@@ -67,7 +66,6 @@ print("--- ข้อมูลหลัง Preprocessing (Normalized) ---")
 print(pd.DataFrame(X_train_scaled, columns=features.columns).head(3))
 print("\n")
 
-
 # ==========================================
 # 3. DATA MINING
 # ==========================================
@@ -81,7 +79,6 @@ clf.fit(X_train_scaled, y_train)
 
 # ลองทำนายข้อมูลชุดสอบ (Test Set)
 y_pred = clf.predict(X_test_scaled)
-
 
 # ==========================================
 # 4. POSTPROCESSING & INFORMATION
@@ -128,7 +125,6 @@ print(feature_importance)
   > "อ๋อ... สิ่งสำคัญที่สุดคือ จำนวนวันที่หายไป (Days_Since_Last_Buy) ถ้าหายไปนาน มีโอกาสเลิกสูง"
   
   **นี่แหละครับคือ Knowledge ที่ค้นพบ**
-
 
 Python Code: Visualizing Decision Tree
 
