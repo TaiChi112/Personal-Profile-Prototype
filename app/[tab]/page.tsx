@@ -1,14 +1,28 @@
-"use client";
-
-import { useParams } from 'next/navigation';
 import { PersonalWebsiteApp } from '../features/composition/PersonalWebsiteApp';
 import { i18n } from '../lib/i18n';
+import { TAB_IDS } from '../features/composition/tabRouting';
 
-export default function TabPage() {
-  const params = useParams<{ tab: string }>();
-  const tab = Array.isArray(params.tab) ? params.tab[0] : params.tab;
+// Include i18n locales AND the standard tabs
 export async function generateStaticParams() {
-  return i18n.languages.map((tab) => ({ tab }));
+  const params: { tab: string }[] = [];
+  
+  // 1. Language tabs
+  i18n.languages.forEach((lang) => {
+    params.push({ tab: lang });
+  });
+
+  TAB_IDS.forEach((tab) => {
+    const langTab = tab as unknown as typeof i18n.languages[number];
+    if (!i18n.languages.includes(langTab)) {
+      params.push({ tab });
+    }
+  });
+
+  // Also include the plural forms used in URL sometimes
+  params.push({ tab: 'blogs' });
+  params.push({ tab: 'analytics' });
+
+  return params;
 }
 
 export const dynamicParams = false;

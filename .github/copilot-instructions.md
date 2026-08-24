@@ -2,6 +2,12 @@
 
 This repository powers `taichi112.works`, a Next.js and TypeScript personal software platform with application code, Fumadocs documentation, Prisma/PostgreSQL data-backed functionality, and deployment configuration.
 
+# 🛑 CRITICAL RULE: STRICT TYPESCRIPT (NO `any`)
+- **NEVER use the `any` type.**
+- **NEVER use `as any`.**
+- The project's CI/CD has `@typescript-eslint/no-explicit-any` configured as an error. Your code will fail the build if you use `any`.
+- Always define precise interfaces/types, or use `unknown` if the runtime type is truly unverified.
+
 Use `AGENTS.md` as the detailed repository guidance when the active Copilot surface supports agent instructions.
 
 - Inspect nearby code and conventions before editing.

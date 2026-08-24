@@ -10,6 +10,13 @@
 
 This repository powers `taichi112.works`, a personal software platform built with Next.js and TypeScript.
 
+# 🛑 CRITICAL UNIVERSAL RULE: STRICT TYPESCRIPT (NO `any`)
+**All AI Agents (Claude, Copilot, Cursor, Grok, Gemini, etc.) MUST OBEY this rule without exception:**
+- **NO `any` TYPE:** You are strictly forbidden from using the `any` type.
+- **NO `as any` CASTING:** Never use `as any` to bypass type checks.
+- **ENFORCEMENT:** The CI/CD pipeline enforces `@typescript-eslint/no-explicit-any` as a fatal error. Code containing `any` will break the system.
+- **ALTERNATIVE:** Always define precise types/interfaces. If a value is genuinely unknown at runtime, type it as `unknown` and use Type Guards or Zod for validation.
+
 Current areas include:
 - portfolio-facing pages and content
 - Fumadocs-based technical documentation
