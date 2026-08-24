@@ -1,9 +1,11 @@
 import { source } from "@/app/lib/source";
 import { notFound } from "next/navigation";
 import defaultMdxComponents from "fumadocs-ui/mdx";
+import { Card } from "fumadocs-ui/components/card";
 import { Mermaid } from "@/app/components/Mermaid";
 import { DocsActionsDropdown } from "@/app/components/docs/DocsActionsDropdown";
 import { Github } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import path from "path";
 import fs from "fs/promises";
 import {
@@ -12,6 +14,23 @@ import {
   DocsDescription,
   DocsTitle,
 } from "fumadocs-ui/page";
+
+type CustomCardProps = React.ComponentProps<typeof Card> & {
+  icon?: React.ReactNode | string;
+};
+
+const CustomCard = (props: CustomCardProps) => {
+  let finalIcon = props.icon;
+  
+  if (typeof props.icon === 'string') {
+    const IconComponent = LucideIcons[props.icon as keyof typeof LucideIcons] as React.ElementType | undefined;
+    if (IconComponent) {
+      finalIcon = <IconComponent />;
+    }
+  }
+
+  return <Card {...props} icon={finalIcon as React.ReactNode} />;
+};
 
 export default async function Page(props: Readonly<{
   params: Promise<{ slug?: string[], tab: string }>;
@@ -58,7 +77,7 @@ export default async function Page(props: Readonly<{
         {/* โซนแสดงผลเนื้อหา Markdown */}
         <DocsBody>
           <article className="prose prose-slate dark:prose-invert max-w-none">
-            <Mdx components={{ ...defaultMdxComponents, Mermaid }} />
+            <Mdx components={{ ...defaultMdxComponents, Card: CustomCard, Mermaid }} />
           </article>
         </DocsBody>
 
