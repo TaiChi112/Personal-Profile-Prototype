@@ -87,6 +87,23 @@ jobs:
       - name: Run Database Migrations
         run: bun run prisma migrate dev --name init
 
+      - name: Start Next.js app
+        run: |
+          bun run dev:webpack > /tmp/next-dev.log 2>&1 &
+          echo "NEXT_DEV_PID=$!" >> "$GITHUB_ENV"
+
+      - name: Wait for app readiness
+        run: |
+          for attempt in {1..60}; do
+            if curl -fsS http://localhost:3000/api/auth/csrf > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Next.js app failed to become ready in time"
+          cat /tmp/next-dev.log
+          exit 1
+
       - name: Run HTTP CRUD Tests
         run: bun run integration:http-crud
 
@@ -95,3 +112,10 @@ jobs:
 
       - name: Run Auth Database Tests
         run: bun run integration:auth-db
+
+      - name: Stop Next.js app
+        if: always()
+        run: |
+          if [ -n "${NEXT_DEV_PID:-}" ]; then
+            kill "$NEXT_DEV_PID" || true
+          fi
