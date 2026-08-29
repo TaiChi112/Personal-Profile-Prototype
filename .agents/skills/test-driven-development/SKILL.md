@@ -12,10 +12,14 @@ This project embraces Test-Driven Development (TDD). When implementing new logic
 2. **Green:** Write the minimum amount of code required to make the test pass.
 3. **Refactor:** Clean up the code while ensuring the test continues to pass.
 
-## 2. Testing Framework
+## 2. Testing Framework & Directory Architecture
 - This project uses **Bun's native test runner** (`bun test`). 
 - Do not introduce Jest, Vitest, or other testing libraries unless explicitly instructed.
-- Place test files alongside the implementation files (e.g., `utils.ts` -> `utils.test.ts`) or in dedicated `__tests__` folders.
+- **Centralized Testing Architecture**: All tests MUST be placed in the root `/tests` directory, categorized to support scaling and sub-projects (mini-apps).
+  - `/tests/core/...`: For the main portfolio/web OS application.
+  - `/tests/mini-apps/[app-name]/...`: For isolated mini-apps (e.g., `todo`).
+  - Inside these, categorize by test type: `/unit/`, `/integration/`, `/e2e/`.
+  - Example: `app/services/content/ContentTreeAnalysis.ts` -> `/tests/core/unit/services/content/ContentTreeAnalysis.test.ts`
 
 ## 3. Test Coverage and Quality
 - Tests must be deterministic. Avoid relying on external live services unless writing specific integration tests.
