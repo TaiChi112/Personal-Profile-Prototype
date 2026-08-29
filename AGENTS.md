@@ -57,22 +57,23 @@ Strategic direction:
 
 ### Project Structure Reference
 
-- For broader repository-boundary questions, inspect `.docs/PROJECT_STRUCTURE.md` before editing unfamiliar areas.
+- For broader repository-boundary questions, inspect `.docs/architecture/PROJECT_STRUCTURE.md` before editing unfamiliar areas.
 - Do not treat learning, sandbox, or archive folders as production runtime without verifying import and build relationships.
+- For large architectural refactoring, outline a new plan in your workspace and consult the PM.
 - Do not move, delete, rename, or reorganize top-level folders without explicit approval.
 
-### Agent Workflow Reference
+### Workflows
 
-- For repeated Git and pull-request workflows, inspect `.docs/AGENT_WORKFLOWS.md`.
-- Keep repository policy in `AGENTS.md` and reusable procedures in `.docs/AGENT_WORKFLOWS.md`.
+- For repeated Git and pull-request workflows, inspect `.docs/workflows/AGENT_WORKFLOWS.md`.
+- Keep repository policy in `AGENTS.md` and reusable procedures in `.docs/workflows/AGENT_WORKFLOWS.md`.
 - Do not create tool-specific skills, slash commands, hooks, MCP servers, or custom agents without explicit approval.
 
-### Project Standard & Planning Reference
+### Core Standards
 
-- Inspect `.docs/AI_PROJECT_STANDARD.md` for the overarching AI-ready standard.
-- Inspect `.docs/CONTENT_STANDARD.md` for strict MDX/Markdown documentation writing rules, export features, and admonition usage.
-- Inspect `.docs/PRODUCT_VISION.md`, `.docs/AGENTIC_ARCHITECTURE.md`, and `.docs/ROADMAP.md` for product and technical direction.
-- Inspect `.docs/DECISION_LOG.md` for historical architectural decisions.
+- Inspect `.docs/standards/AI_PROJECT_STANDARD.md` for the overarching AI-ready standard.
+- Inspect `.docs/standards/CONTENT_STANDARD.md` for strict MDX/Markdown documentation writing rules, export features, and admonition usage.
+- Inspect `.docs/management/PRODUCT_VISION.md`, `.docs/architecture/AGENTIC_ARCHITECTURE.md`, and `.docs/management/ROADMAP.md` for product and technical direction.
+- Inspect `.docs/management/DECISION_LOG.md` for historical architectural decisions.
 
 ---
 
