@@ -6,6 +6,73 @@ A full-stack TypeScript/Next.js web application that serves as both an **interac
 
 ---
 
+---
+
+## 🎯 For Readers & Recruiters
+
+Welcome! This repository powers the live portfolio and interactive pattern playground. 
+- **Live Demo**: [Will be added soon]
+- **Core Features**:
+  - Interactive portfolio showcasing Projects, Blog, Resume, and Podcasts.
+  - Command palette (Ctrl+K) for navigation and theme switching.
+  - 23 GoF Design Patterns implemented and observable in the UI.
+  - Multi-theme support (Dark/Light, Modern/Minimal/Future/Academic).
+
+---
+
+## 💻 For Contributors & Students
+
+If you want to run this project locally, experiment with the design patterns, or contribute to the codebase, follow these quick steps:
+
+### Quick Start (Local Development)
+
+```bash
+# 1. Clone the repository & install dependencies
+git clone <repository-url> && cd personal-profile-prototype
+bun install
+
+# 2. Configure environment & start Database
+cp .env.example .env
+bun run db:up
+
+# 3. Apply migrations & seed data
+bunx prisma migrate dev
+bun run prisma:seed
+
+# 4. Start development server
+bun run dev
+```
+
+### Essential Commands
+```bash
+bun run dev                         # Start Webpack dev server
+bun run dev:turbo                   # Start Turbopack dev server
+bun run build                       # Type-check + Next.js production build
+bun run start                       # Start production server
+bun run lint                        # ESLint
+
+bun run db:up                       # docker compose up -d (PostgreSQL)
+bun run db:down                     # docker compose down
+bun run db:logs                     # Follow PostgreSQL container logs
+
+bun run prisma:generate             # Generate Prisma client
+bun run prisma:migrate:dev          # Apply migrations (dev)
+bun run prisma:seed                 # Seed database via Bun
+
+bun run integration:auth-db         # Auth + database integration test
+bun run integration:http-crud       # HTTP CRUD integration test
+bun run integration:http-admin-users # Admin users integration test
+```
+
+For full deployment instructions, see the **SDLC Documentation** below.
+
+---
+
+<details>
+<summary><h2>📚 Software Development Life Cycle (SDLC) Documentation</h2></summary>
+
+This project was built following a strict SDLC process to serve as an educational reference. Below is the full engineering documentation.
+
 ## Table of Contents
 
 1. [Planning](#1-planning)
@@ -563,28 +630,7 @@ flowchart TD
 - **Kubernetes manifests:** Add Helm chart for multi-region, production-scale deployment
 
 ---
-
-## Quick Reference: Bun Scripts
-
-```bash
-bun run dev                         # Start Webpack dev server
-bun run dev:turbo                   # Start Turbopack dev server
-bun run build                       # Type-check + Next.js production build
-bun run start                       # Start production server
-bun run lint                        # ESLint
-
-bun run db:up                       # docker compose up -d (PostgreSQL)
-bun run db:down                     # docker compose down
-bun run db:logs                     # Follow PostgreSQL container logs
-
-bun run prisma:generate             # Generate Prisma client
-bun run prisma:migrate:dev          # Apply migrations (dev)
-bun run prisma:seed                 # Seed database via Bun
-
-bun run integration:auth-db         # Auth + database integration test
-bun run integration:http-crud       # HTTP CRUD integration test
-bun run integration:http-admin-users # Admin users integration test
-```
+</details>
 
 ---
 
