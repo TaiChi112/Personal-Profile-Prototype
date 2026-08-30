@@ -48,14 +48,14 @@ export function PodcastSection({ currentStyle, labels, onNotify }: PodcastSectio
                   className={`p-4 rounded-full ${
                     currentTrack?.id === episode.id && playerStateName === 'PLAYING'
                       ? 'bg-green-100 text-green-600 animate-pulse'
-                      : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                      : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
                   }`}
                 >
                   {currentTrack?.id === episode.id && playerStateName === 'PLAYING' ? <Volume2 size={24} /> : <Mic size={24} />}
                 </div>
                 <div>
                   <h3 className="font-bold text-lg dark:text-white group-hover:text-blue-600 transition-colors">{episode.title}</h3>
-                  <div className="flex gap-2 text-xs text-gray-500 mt-1">
+                  <div className="flex gap-2 text-xs text-gray-700 dark:text-gray-300 mt-1">
                     <span className="flex items-center gap-1">
                       <Clock size={12} /> {episode.duration}
                     </span>
@@ -84,7 +84,7 @@ export function PodcastSection({ currentStyle, labels, onNotify }: PodcastSectio
               <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Now Playing</h3>
               <span
                 className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
-                  playerStateName === 'PLAYING' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                  playerStateName === 'PLAYING' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
                 }`}
               >
                 Status: {playerStateName}
@@ -98,7 +98,7 @@ export function PodcastSection({ currentStyle, labels, onNotify }: PodcastSectio
                 <h4 className="font-bold text-xl mb-1 dark:text-white line-clamp-1" title={currentTrack.title}>
                   {currentTrack.title}
                 </h4>
-                <p className="text-sm text-gray-500 mb-6">{currentTrack.description}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-6">{currentTrack.description}</p>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mb-2 overflow-hidden">
                   <div
                     className={`h-full bg-blue-600 ${playerStateName === 'PLAYING' ? 'animate-[width_20s_linear]' : ''}`}
