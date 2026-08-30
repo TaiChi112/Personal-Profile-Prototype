@@ -26,15 +26,15 @@ export function ContactSection({ currentStyle, labels, onNotify }: ContactSectio
             <h3 className="text-2xl font-bold dark:text-white flex items-center gap-2">
               <MessageSquare className="text-blue-500" /> Let`s Connect
             </h3>
-            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">I`m always open to discussing new projects, creative ideas or opportunities to be part of your visions.</p>
+            <p className="text-gray-700 dark:text-gray-200 leading-relaxed">I`m always open to discussing new projects, creative ideas or opportunities to be part of your visions.</p>
             <div className="space-y-4 pt-4">
-              <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-4 text-gray-700 dark:text-gray-300">
                 <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-blue-500">
                   <Mail size={18} />
                 </div>
                 <span>{MOCK_RESUME.contact.email}</span>
               </div>
-              <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-4 text-gray-700 dark:text-gray-300">
                 <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-green-500">
                   <MapPin size={18} />
                 </div>
