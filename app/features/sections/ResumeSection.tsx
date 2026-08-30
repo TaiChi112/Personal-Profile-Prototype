@@ -5,6 +5,7 @@ import { getInternshipResume, normalizeExternalUrl, validateResumeLinks } from '
 import type { ResumeLanguage } from '../../data/resume';
 import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
 import { createResumeExporters } from '../../services/content/ResumeExporters';
+import { ResumeLeadModal } from './ResumeLeadModal';
 import type { ExportLanguage } from '../../services/content/ResumeExporters';
 import type { EventType } from '../../services/system/notification/NotificationBridge';
 
@@ -14,7 +15,7 @@ type ResumeSectionProps = {
   onNotify: (message: string, level: EventType) => void;
 };
 
-type ExportFormat = 'md' | 'json' | 'png' | 'jpg' | 'pdf' | 'ats-pdf' | 'print';
+type ExportFormat = 'md' | 'json' | 'png' | 'jpg' | 'pdf' | 'print';
 
 type ExportMenuOption = {
   key: ExportFormat;
@@ -43,8 +44,7 @@ const EXPORT_GROUPS: Array<{ title: string; options: ExportMenuOption[] }> = [
     title: 'Document',
     options: [
       { key: 'pdf', label: 'Export PDF (clickable links)', icon: FileText },
-      { key: 'ats-pdf', label: 'Export ATS PDF (one-page friendly)', icon: FileText },
-      { key: 'print', label: 'Print Resume (browser native)', icon: Printer },
+      { key: 'print', label: 'Print / Save as ATS PDF', icon: Printer },
     ],
   },
 ];
@@ -179,6 +179,8 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
   const exportMenuRef = useRef<HTMLDivElement | null>(null);
   const { data: session, status } = useSession();
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
+  const [pendingExportFormat, setPendingExportFormat] = useState<ExportFormat | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [viewLanguage, setViewLanguage] = useState<ResumeLanguage>('en');
   const [exportLanguage, setExportLanguage] = useState<ExportLanguage>('en');
@@ -267,27 +269,11 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             isOwnerGoogleSession ? { selectedProjectIds } : undefined,
           );
         },
-        'ats-pdf': async () => {
-          if (!resumeDocumentRef.current) {
-            onNotify('Cannot export ATS PDF. Resume element not found.', 'ERROR');
-            return;
-          }
-
-          if (isOwnerGoogleSession && selectedProjectIds.length === 0) {
-            onNotify('Select at least one project before exporting ATS PDF.', 'WARNING');
-            return;
-          }
-
-          await exporters.atsPdf.export(
-            exportResume,
-            exportFilename,
-            exportResume.atsExportProfile,
-            exportLanguage,
-            resumeDocumentRef.current,
-            isOwnerGoogleSession ? { selectedProjectIds } : undefined,
-          );
-        },
         print: () => {
+          if (isOwnerGoogleSession && selectedProjectIds.length === 0) {
+            onNotify('Select at least one project before printing.', 'WARNING');
+            return;
+          }
           window.print();
         },
       };
@@ -306,8 +292,31 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
   };
 
   const handleExportOptionClick = async (format: ExportFormat) => {
-    await runExport(format);
     setIsExportMenuOpen(false);
+    if (!isOwnerGoogleSession && (format === 'pdf' || format === 'print')) {
+      setPendingExportFormat(format);
+      setIsLeadModalOpen(true);
+    } else {
+      await runExport(format);
+    }
+  };
+
+  const handleLeadSubmit = async (data: { name: string; company: string; email: string }) => {
+    try {
+      await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    } catch (err) {
+      console.error('Failed to submit lead', err);
+    }
+    
+    setIsLeadModalOpen(false);
+    if (pendingExportFormat) {
+      await runExport(pendingExportFormat);
+      setPendingExportFormat(null);
+    }
   };
 
   useEffect(() => {
@@ -349,51 +358,55 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
   return (
     <div className="bg-white text-black py-10 px-4 md:px-8">
       <div ref={resumeDocumentRef} className="max-w-4xl mx-auto">
-        <div className="pb-6 mb-6 flex flex-col md:flex-row justify-between items-start gap-4">
-          <div>
-            <h1 className="text-4xl font-bold mb-2 tracking-tight">{resume.name}</h1>
-            <h2 className="text-lg font-medium mb-4">{resume.title}</h2>
-            <div className="flex flex-col gap-2 text-sm">
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-                <span className="font-semibold">{resume.contact.location}</span>
+        <div className="pb-6 mb-8 border-b-2 border-[#e5e5e5] flex flex-col md:flex-row justify-between items-start gap-4">
+          <div className="flex-1">
+            <h1 className="text-4xl font-extrabold mb-1 tracking-tight uppercase text-black">{resume.name}</h1>
+            <h2 className="text-base font-semibold mb-4 tracking-wide text-[#666666] uppercase">{resume.title}</h2>
+            <div className="flex flex-col gap-1.5 text-sm text-[#333333]">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span>{resume.contact.location}</span>
+                <span className="text-[#b3b3b3]">•</span>
                 {contactLinks.email ? (
-                  <a href={contactLinks.email} target="_blank" rel="noreferrer noopener" className="font-semibold underline underline-offset-2">{resume.contact.email}</a>
+                  <a href={contactLinks.email} target="_blank" rel="noreferrer noopener" className="underline underline-offset-2 hover:text-black">{resume.contact.email}</a>
                 ) : (
-                  <span className="font-semibold">{resume.contact.email}</span>
+                  <span>{resume.contact.email}</span>
                 )}
-                <span className="font-semibold">{resume.contact.phone}</span>
+                <span className="text-[#b3b3b3]">•</span>
+                <span>{resume.contact.phone}</span>
               </div>
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 {contactLinks.linkedin ? (
-                  <a href={contactLinks.linkedin} target="_blank" rel="noreferrer noopener" className="font-semibold underline underline-offset-2">{resume.contact.linkedin}</a>
+                  <a href={contactLinks.linkedin} target="_blank" rel="noreferrer noopener" className="underline underline-offset-2 hover:text-black">{resume.contact.linkedin}</a>
                 ) : (
-                  <span className="font-semibold">{resume.contact.linkedin}</span>
+                  <span>{resume.contact.linkedin}</span>
                 )}
+                <span className="text-[#b3b3b3]">•</span>
                 {contactLinks.github ? (
-                  <a href={contactLinks.github} target="_blank" rel="noreferrer noopener" className="font-semibold underline underline-offset-2">{resume.contact.github}</a>
+                  <a href={contactLinks.github} target="_blank" rel="noreferrer noopener" className="underline underline-offset-2 hover:text-black">{resume.contact.github}</a>
                 ) : (
-                  <span className="font-semibold">{resume.contact.github}</span>
+                  <span>{resume.contact.github}</span>
                 )}
+                <span className="text-[#b3b3b3]">•</span>
                 {contactLinks.portfolio ? (
-                  <a href={contactLinks.portfolio} target="_blank" rel="noreferrer noopener" className="font-semibold underline underline-offset-2">{resume.contact.portfolio}</a>
+                  <a href={contactLinks.portfolio} target="_blank" rel="noreferrer noopener" className="underline underline-offset-2 hover:text-black">{resume.contact.portfolio}</a>
                 ) : (
-                  <span className="font-semibold">{resume.contact.portfolio}</span>
+                  <span>{resume.contact.portfolio}</span>
                 )}
               </div>
             </div>
           </div>
           <div ref={exportControlsRef} className="flex items-start gap-3">
-            <div className="rounded-lg border border-black/10 px-2 py-2">
+            <div className="rounded-lg border border-[#e5e5e5] px-2 py-2">
               <div className="text-[11px] uppercase tracking-wider text-black/50 mb-1">{viewLabels.viewLanguage}</div>
               <div className="flex items-center gap-2">
                 <button
-                  className={`px-2.5 py-1 rounded-md text-xs border ${viewLanguage === 'en' ? 'bg-black text-white border-black' : 'border-black/30 text-black/80 hover:bg-black/5'}`}
+                  className={`px-2.5 py-1 rounded-md text-xs border ${viewLanguage === 'en' ? 'bg-black text-white border-black' : 'border-black/30 text-[#333333] hover:bg-black/5'}`}
                   onClick={() => setViewLanguage('en')}
                 >
                   EN
                 </button>
                 <button
-                  className={`px-2.5 py-1 rounded-md text-xs border ${viewLanguage === 'th' ? 'bg-black text-white border-black' : 'border-black/30 text-black/80 hover:bg-black/5'}`}
+                  className={`px-2.5 py-1 rounded-md text-xs border ${viewLanguage === 'th' ? 'bg-black text-white border-black' : 'border-black/30 text-[#333333] hover:bg-black/5'}`}
                   onClick={() => setViewLanguage('th')}
                 >
                   TH
@@ -402,7 +415,7 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
             </div>
             <div ref={exportMenuRef} className="relative">
               <button
-                className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-black/80 hover:text-black transition-colors"
+                className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#333333] hover:text-black transition-colors"
                 onClick={() => setIsExportMenuOpen((prev) => !prev)}
                 disabled={isExporting}
                 aria-haspopup="menu"
@@ -503,30 +516,30 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
         </div>
         {visibility.summary && <section className="mb-7">
           <h3
-            className="text-[16px] font-bold uppercase mb-1.5"
+            className="text-sm font-bold uppercase tracking-widest text-black border-b border-[#cccccc] pb-1.5 mb-4"
           >
             {viewLanguage === 'en' ? labels.sections.summary : viewLabels.summary}
           </h3>
-          <p className="leading-relaxed text-sm text-black/65">{resume.summary}</p>
+          <p className="leading-snug text-[13.5px] text-[#333333]">{resume.summary}</p>
         </section>}
 
         {visibility.experience && hasExperience && <section className="mb-7">
           <h3
-            className="text-[16px] font-bold uppercase mb-3"
+            className="text-sm font-bold uppercase tracking-widest text-black border-b border-[#cccccc] pb-1.5 mb-4"
           >
             {viewLanguage === 'en' ? labels.sections.experience : viewLabels.experience}
           </h3>
           <div className="space-y-6">
             {resume.experience?.map((experience) => (
               <div key={experience.id}>
-                <div className="flex justify-between items-baseline mb-1 gap-2">
-                  <h4 className="text-base font-semibold">{experience.role}</h4>
-                  <span className="text-sm">{experience.period}</span>
+                <div className="flex justify-between items-baseline gap-2">
+                  <h4 className="text-[15px] font-bold text-black">{experience.role}</h4>
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#666666]">{experience.period}</span>
                 </div>
-                <div className="font-medium mb-2">
+                <div className="font-semibold italic text-sm text-[#333333] mb-2">
                   {experience.company}
                 </div>
-                <ul className="list-disc list-outside ml-5 space-y-1 text-[14px]">
+                <ul className="list-disc list-outside ml-5 space-y-1.5 text-[13.5px] text-[#333333] leading-snug">
                   {experience.description.map((description) => (
                     <li key={`${experience.id}-${description}`}>{description}</li>
                   ))}
@@ -538,28 +551,30 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
 
         {visibility.projects && <section className="mb-7">
           <h3
-            className="text-[16px] font-bold uppercase mb-1.5"
+            className="text-sm font-bold uppercase tracking-widest text-black border-b border-[#cccccc] pb-1.5 mb-4"
           >
             {viewLabels.projects}
           </h3>
           <div className="space-y-4">
-            {resume.keyProjects.map((project) => (
+            {resume.keyProjects
+              .filter((project) => !isOwnerGoogleSession || selectedProjectIds.includes(project.id))
+              .map((project) => (
               <div key={project.id} data-project-id={project.id}>
-                <div className="flex items-baseline justify-between gap-3">
-                  <div className="font-semibold">
+                <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                  <div className="text-[15px] font-bold text-black">
                     {project.repoUrl && normalizeExternalUrl(project.repoUrl) ? (
-                      <a href={normalizeExternalUrl(project.repoUrl) ?? undefined} target="_blank" rel="noreferrer noopener" className="underline underline-offset-2">
+                      <a href={normalizeExternalUrl(project.repoUrl) ?? undefined} target="_blank" rel="noreferrer noopener" className="underline underline-offset-2 hover:text-[#4d4d4d] transition-colors">
                         {project.title}
                       </a>
                     ) : (
                       project.title
                     )}
                   </div>
-                  <div className="text-xs font-semibold uppercase tracking-wide text-black/85 whitespace-nowrap">
+                  <div className="text-xs font-bold uppercase tracking-wider text-[#666666] whitespace-nowrap">
                     {getProjectTimelineSummary(project.timeline)}
                   </div>
                 </div>
-                <ul className="mt-2 list-disc list-outside text-black/75 ml-5 space-y-1 text-[14px]">
+                <ul className="list-disc list-outside ml-5 space-y-1.5 text-[13.5px] text-[#333333] leading-snug">
                   {project.description.map((item) => (
                     <li key={item}>{renderProjectDescriptionWithBoldKey(item)}</li>
                   ))}
@@ -570,19 +585,15 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
         </section>}
         {visibility.skills && <section className="mb-7">
           <h3
-            className="text-[16px] font-bold uppercase mb-1.5"
+            className="text-sm font-bold uppercase tracking-widest text-black border-b border-[#cccccc] pb-1.5 mb-4"
           >
             {viewLanguage === 'en' ? labels.sections.skills : viewLabels.skills}
           </h3>
-          <div className="grid gap-x-6 gap-y-3 lg:grid-cols-3 text-[14px]">
+          <div className="space-y-2 text-[13.5px] leading-snug">
             {resume.skillGroups.map((group) => (
               <div key={group.id} className="break-inside-avoid">
-                <h4 className="font-bold mb-0.5">{group.title}</h4>
-                <ul className="list-disc list-outside text-black/80 ml-5 space-y-1 text-[14px]">
-                  {group.items.map((item) => (
-                    <li key={`${group.id}-${item}`}>{item}</li>
-                  ))}
-                </ul>
+                <span className="font-bold text-black mr-2">{group.title}:</span>
+                <span className="text-[#333333]">{group.items.join(', ')}</span>
               </div>
             ))}
           </div>
@@ -590,17 +601,19 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
 
         {visibility.education && <section className="mb-7">
           <h3
-            className="text-[16px] font-bold uppercase mb-1.5"
+            className="text-sm font-bold uppercase tracking-widest text-black border-b border-[#cccccc] pb-1.5 mb-4"
           >
             {viewLabels.education}
           </h3>
           <div className="space-y-4">
             {resume.education.map((education) => (
-              <div key={education.id} className="p-1">
-                <div className="font-semibold">{education.degree}</div>
-                <div className="text-black/75">{education.institution}</div>
-                <div className="text-sm text-black/75">{education.year}</div>
-                <ul className="mt-2 list-disc list-outside text-black/75 ml-5 space-y-1 text-[14px]">
+              <div key={education.id}>
+                <div className="flex items-baseline justify-between gap-3">
+                  <div className="text-[15px] font-bold text-black">{education.degree}</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-[#666666] whitespace-nowrap">{education.year}</div>
+                </div>
+                <div className="font-semibold italic text-sm text-[#333333] mb-1.5">{education.institution}</div>
+                <ul className="list-disc list-outside ml-5 space-y-1.5 text-[13.5px] text-[#333333] leading-snug">
                   {education.details.map((detail) => (
                     <li key={detail}>{detail}</li>
                   ))}
@@ -612,7 +625,7 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
 
         {/* {visibility.additionalInformation && <section>
           <h3
-            className="text-[16px] font-bold uppercase mb-3"
+            className="text-sm font-bold uppercase tracking-widest text-black border-b border-[#cccccc] pb-1.5 mb-4"
           >
             {viewLabels.additionalInformation}
           </h3>
@@ -624,6 +637,11 @@ export function ResumeSection({ labels, onNotify }: Readonly<ResumeSectionProps>
         </section>} */}
 
       </div>
+      <ResumeLeadModal 
+        isOpen={isLeadModalOpen} 
+        onClose={() => setIsLeadModalOpen(false)} 
+        onSubmit={handleLeadSubmit} 
+      />
     </div>
   );
 }
