@@ -1,6 +1,7 @@
 import { PersonalWebsiteApp } from '../features/composition/PersonalWebsiteApp';
 import { i18n } from '../lib/i18n';
 import { TAB_IDS } from '../features/composition/tabRouting';
+import { fetchAllKeystaticData } from '../lib/content-fetcher';
 
 // Include i18n locales AND the standard tabs
 export async function generateStaticParams() {
@@ -31,5 +32,15 @@ export default async function TabPage({ params }: { params: Promise<{ tab: strin
   const resolvedParams = await params;
   const tab = Array.isArray(resolvedParams.tab) ? resolvedParams.tab[0] : resolvedParams.tab;
 
-  return <PersonalWebsiteApp initialTab={tab} />;
+  const { projectsList, blogsTree, articlesTree, blogsList } = await fetchAllKeystaticData();
+
+  return (
+    <PersonalWebsiteApp 
+      initialTab={tab} 
+      initialProjectsList={projectsList}
+      initialBlogsTree={blogsTree}
+      initialArticlesTree={articlesTree}
+      blogsList={blogsList}
+    />
+  );
 }
