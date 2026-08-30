@@ -6,7 +6,6 @@ import { InteractiveContentNode } from '../../components/content/InteractiveCont
 import { ContentSectionShell } from '../../components/section/SectionPrimitives';
 import type { CompositeNode, LayoutNode, UnifiedContentItem } from '../../interfaces/content-tree';
 import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
-import { ARTICLES_TREE } from '../../services/content/ContentTreeSetup';
 import type { EventType } from '../../services/system/notification/NotificationBridge';
 
 type ArticlesSectionProps = {
@@ -14,6 +13,7 @@ type ArticlesSectionProps = {
   labels: UILabels;
   activeNodeId: string | null;
   selectedArticleParam?: string;
+  articlesTree: CompositeNode;
   isAdmin: boolean;
   onNotify: (message: string, level: EventType) => void;
 };
@@ -39,7 +39,7 @@ const findNodeByParam = (node: LayoutNode | CompositeNode, normalizedParam: stri
   return null;
 };
 
-export function ArticlesSection({ currentStyle, labels, activeNodeId, selectedArticleParam, isAdmin, onNotify }: Readonly<ArticlesSectionProps>) {
+export function ArticlesSection({ currentStyle, labels, activeNodeId, selectedArticleParam, articlesTree, isAdmin, onNotify }: Readonly<ArticlesSectionProps>) {
   const router = useRouter();
   const normalizedParam = useMemo(() => decodeURIComponent(selectedArticleParam ?? '').trim().toLowerCase(), [selectedArticleParam]);
 
@@ -48,8 +48,8 @@ export function ArticlesSection({ currentStyle, labels, activeNodeId, selectedAr
       return null;
     }
 
-    return findNodeByParam(ARTICLES_TREE, normalizedParam);
-  }, [normalizedParam]);
+    return findNodeByParam(articlesTree, normalizedParam);
+  }, [normalizedParam, articlesTree]);
 
   const effectiveActiveNodeId = selectedNodeId ?? activeNodeId;
 
@@ -60,7 +60,7 @@ export function ArticlesSection({ currentStyle, labels, activeNodeId, selectedAr
 
   return (
     <ContentSectionShell title={labels.sections.articles} description={labels.sections.articlesDesc} currentStyle={currentStyle}>
-      {ARTICLES_TREE.children.map((node) => (
+      {articlesTree.children?.map((node) => (
         <InteractiveContentNode
           key={node.id}
           node={node}
