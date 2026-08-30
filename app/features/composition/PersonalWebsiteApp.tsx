@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn, signOut, useSession } from 'next-auth/react';
-import { CommandPalette } from '../../components/system/CommandPalette';
+import dynamic from 'next/dynamic';
+
+const CommandPalette = dynamic(() => import('../../components/system/CommandPalette').then(mod => mod.CommandPalette), { ssr: false });
 import { TourControls } from '../../components/system/TourControls';
-import { ToastContainer } from '../../components/system/ToastContainer';
-import { ParticleBackground } from '../../components/system/ParticleBackground';
-import { TourHighlight } from '../../components/system/TourHighlight';
-import { FloatingThemeControls } from '../../components/system/FloatingThemeControls';
+const ToastContainer = dynamic(() => import('../../components/system/ToastContainer').then(mod => mod.ToastContainer), { ssr: false });
+const ParticleBackground = dynamic(() => import('../../components/system/ParticleBackground').then(mod => mod.ParticleBackground), { ssr: false });
+const TourHighlight = dynamic(() => import('../../components/system/TourHighlight').then(mod => mod.TourHighlight), { ssr: false });
+const FloatingThemeControls = dynamic(() => import('../../components/system/FloatingThemeControls').then(mod => mod.FloatingThemeControls), { ssr: false });
 
 import {
   FONTS,
@@ -19,14 +21,16 @@ import {
   type StyleKey,
   getInitialThemePreference,
 } from '../../models/theme/ThemeConfig';
-import { AppSystemFacade } from '../../services/system/AppSystemFacade';
 import { notify, setNotificationChannel, subscribeToToasts } from '../../services/system/notification/NotificationBridge';
 import { SiteHeader } from '../../components/layout/SiteHeader';
 import { useContentTabMapper } from './useContentTabMapper';
-import { useProjectTreeState } from './useProjectTreeState';
+
 import { useTourCommandOrchestration } from './useTourCommandOrchestration';
 import { getPathFromTab, normalizeTabId } from './tabRouting';
-import { useTheme } from '../../providers/ThemeProvider';
+import { useThemeStore } from '../../store/useThemeStore';
+import { useSessionStore } from '../../store/useSessionStore';
+import type { CompositeNode } from '../../interfaces/content-tree';
+import type { Blog, Project } from '../../data/content';
 
 type PersonalWebsiteAppProps = {
   initialTab?: string;
@@ -34,6 +38,10 @@ type PersonalWebsiteAppProps = {
   initialProjectParam?: string;
   initialBlogParam?: string;
   initialArticleParam?: string;
+  initialProjectsList: Project[];
+  initialBlogsTree: CompositeNode;
+  initialArticlesTree: CompositeNode;
+  blogsList: Blog[];
 };
 
 export function PersonalWebsiteApp({
@@ -42,6 +50,10 @@ export function PersonalWebsiteApp({
   initialProjectParam,
   initialBlogParam,
   initialArticleParam,
+  initialProjectsList,
+  initialBlogsTree,
+  initialArticlesTree,
+  blogsList,
 }: Readonly<PersonalWebsiteAppProps>) {
   const router = useRouter();
   const normalizedInitialTab = normalizeTabId(initialTab);
@@ -55,13 +67,20 @@ export function PersonalWebsiteApp({
     setActiveTab(normalizeTabId(initialTab));
   }
 
-  const { isDark, styleKey, fontKey, langKey, isAdmin, setStyleKey, toggleDark, toggleRole } = useTheme();
+  const isDark = useThemeStore((s) => s.isDark);
+  const styleKey = useThemeStore((s) => s.styleKey);
+  const fontKey = useThemeStore((s) => s.fontKey);
+  const langKey = useThemeStore((s) => s.langKey);
+  const setStyleKey = useThemeStore((s) => s.setStyleKey);
+  const toggleDark = useThemeStore((s) => s.toggleDark);
+  
+  const isAdmin = useSessionStore((s) => s.isAdmin);
+  const toggleRole = useSessionStore((s) => s.toggleRole);
   const { data: session, status } = useSession();
 
   useEffect(() => {
     setNotificationChannel('Toast');
   }, []);
-
 
   const setActiveTabWithoutNavigation = (tabId: string) => {
     setActiveTab(normalizeTabId(tabId));
@@ -80,25 +99,7 @@ export function PersonalWebsiteApp({
   const isAuthenticated = status === 'authenticated';
   const userDisplayName = session?.user?.name ?? session?.user?.email ?? null;
   
-  const { projectTree, addProjectFromTemplate } = useProjectTreeState({ onNotify: notify.notify });
-
-  // const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-  // const paletteRef = useRef<HTMLDivElement | null>(null);
-  // const buttonRef = useRef<HTMLButtonElement | null>(null);
-
-  // useEffect(() => {
-  //   if (!isPaletteOpen) return;
-  //   function handleClickOutside(e: MouseEvent) {
-  //     const target = e.target as Node;
-  //     const isClickedInside = paletteRef.current?.contains(target) || buttonRef.current?.contains(target);
-
-  //     if (!isClickedInside) {
-  //       setIsPaletteOpen(false);
-  //     }
-  //   }
-  //   document.addEventListener('mousedown', handleClickOutside);
-  //   return () => document.removeEventListener('mousedown', handleClickOutside);
-  // }, [isPaletteOpen]);
+  
 
   const {
     activeNodeId,
@@ -131,8 +132,11 @@ export function PersonalWebsiteApp({
     selectedArticleParam: initialArticleParam,
     currentStyle,
     labels,
-    projectTree,
-    onCloneProject: addProjectFromTemplate,
+    projectsList: initialProjectsList,
+    blogsTree: initialBlogsTree,
+    articlesTree: initialArticlesTree,
+    blogsList,
+    // removed onCloneProject
     isAdmin,
     activeNodeId,
     onNotify: notify.notify,
