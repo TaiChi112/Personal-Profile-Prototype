@@ -100,10 +100,10 @@ export function HeroSection({
           >
             {profileData.titlePrefix}
           </h1>
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-500 dark:text-gray-400 mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-700 dark:text-gray-300 mb-6">
             {profileData.titleHighlight}
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl mb-8">
+          <p className="text-lg text-gray-700 dark:text-gray-300 max-w-xl mb-8">
             {profileData.description}
           </p>
 
@@ -147,6 +147,7 @@ export function HeroSection({
                 width={512}
                 height={512}
                 className="w-full h-full object-cover object-[100%_80%] scale-200"
+                sizes="(max-width: 768px) 150px, 250px"
                 priority
               />
             ) : (
@@ -170,7 +171,7 @@ export function HeroSection({
             {profileData.skills.data.map((skill, index) => (
               <div
                 key={index}
-                className="flex items-center gap-3 text-gray-600 dark:text-gray-300"
+                className="flex items-center gap-3 text-gray-700 dark:text-gray-200"
               >
                 <div className={skill.colorClass}>
                   {renderIcon(skill.iconName, false)}
@@ -187,13 +188,13 @@ export function HeroSection({
           onClick={() => handleNavigation(profileData.currentProject.link)}
         >
           <div>
-            <div className="text-sm font-bold tracking-wider text-gray-500 dark:text-gray-400 mb-2 uppercase">
+            <div className="text-sm font-bold tracking-wider text-gray-700 dark:text-gray-300 mb-2 uppercase">
               {profileData.currentProject.status}
             </div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
               {profileData.currentProject.title}
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-700 dark:text-gray-300">
               {profileData.currentProject.description}
             </p>
           </div>
