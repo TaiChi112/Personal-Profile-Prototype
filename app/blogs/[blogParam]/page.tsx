@@ -1,11 +1,20 @@
-"use client";
-
-import { useParams } from 'next/navigation';
 import { PersonalWebsiteApp } from '../../features/composition/PersonalWebsiteApp';
+import { fetchAllKeystaticData } from '../../lib/content-fetcher';
 
-export default function BlogDetailPage() {
-  const params = useParams<{ blogParam: string }>();
-  const blogParam = Array.isArray(params.blogParam) ? params.blogParam[0] : params.blogParam;
+export default async function BlogDetailPage({ params }: { params: Promise<{ blogParam: string }> }) {
+  const resolvedParams = await params;
+  const blogParam = Array.isArray(resolvedParams.blogParam) ? resolvedParams.blogParam[0] : resolvedParams.blogParam;
+  
+  const { projectsList, blogsTree, articlesTree, blogsList } = await fetchAllKeystaticData();
 
-  return <PersonalWebsiteApp initialTab="blog" initialBlogParam={blogParam} />;
+  return (
+    <PersonalWebsiteApp 
+      initialTab="blog" 
+      initialBlogParam={blogParam} 
+      initialProjectsList={projectsList}
+      initialBlogsTree={blogsTree}
+      initialArticlesTree={articlesTree}
+      blogsList={blogsList}
+    />
+  );
 }
