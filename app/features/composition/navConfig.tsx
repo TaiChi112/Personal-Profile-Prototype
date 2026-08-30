@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import {
   BookOpen,
   Briefcase,
+  Code,
   FileText,
   User,
 } from "lucide-react";
@@ -20,7 +21,7 @@ export function createNavItems(labels: UILabels): NavItem[] {
   return [
     { name: labels.nav.home, id: "home", icon: <User size={18} />, href: "/" },
     // { name: labels.nav.feed, id: 'feed', icon: <Rss size={18} />, href: '/feed' },
-    // { name: labels.nav.projects, id: 'projects', icon: <Code size={18} />, href: '/projects' },
+    { name: labels.nav.projects, id: 'projects', icon: <Code size={18} />, href: '/projects' },
     { name: labels.nav.docs, id: "docs", icon: <FileText size={18} />, href: "/docs" },
     { name: labels.nav.articles, id: "articles", icon: <BookOpen size={18} />, href: "/articles" },
     { name: labels.nav.blog, id: "blog", icon: <FileText size={18} />, href: "/blogs" },
