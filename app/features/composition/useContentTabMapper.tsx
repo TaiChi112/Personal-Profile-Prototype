@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { FeedItemCard } from '../../components/feed/FeedItemCard';
 import {
-  MOCK_BLOGS,
   MOCK_PODCASTS,
   MOCK_PROJECTS,
   MOCK_VIDEOS,
+  type Blog, type Project,
 } from '../../data/content';
 import type { CompositeNode, UnifiedContentItem } from '../../interfaces/content-tree';
 import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
@@ -21,7 +21,6 @@ const ArticlesSection = dynamic(() => import('../sections/ArticlesSection').then
 const BlogSection = dynamic(() => import('../sections/BlogSection').then(mod => mod.BlogSection));
 const ContactSection = dynamic(() => import('../sections/ContactSection').then(mod => mod.ContactSection));
 const DashboardSection = dynamic(() => import('../sections/DashboardSection').then(mod => mod.DashboardSection));
-const DocsSection = dynamic(() => import('../sections/DocsSection').then(mod => mod.DocsSection));
 const HeroSection = dynamic(() => import('../sections/HeroSection').then(mod => mod.HeroSection));
 const PodcastSection = dynamic(() => import('../sections/PodcastSection').then(mod => mod.PodcastSection));
 const ProjectsSection = dynamic(() => import('../sections/ProjectsSection').then(mod => mod.ProjectsSection));
@@ -36,8 +35,10 @@ type UseContentTabMapperParams = {
   selectedArticleParam?: string;
   currentStyle: StyleFactory;
   labels: UILabels;
-  projectTree: CompositeNode;
-  onCloneProject: (item: UnifiedContentItem) => void;
+  projectsList: Project[];
+  blogsTree: CompositeNode;
+  articlesTree: CompositeNode;
+  blogsList: Blog[];
   isAdmin: boolean;
   activeNodeId: string | null;
   onNotify: (message: string, level: EventType) => void;
@@ -51,8 +52,10 @@ export function useContentTabMapper({
   selectedArticleParam,
   currentStyle,
   labels,
-  projectTree,
-  onCloneProject,
+  projectsList,
+  blogsTree,
+  articlesTree,
+  blogsList,
   isAdmin,
   activeNodeId,
   onNotify,
@@ -66,8 +69,9 @@ export function useContentTabMapper({
           <DashboardSection
             currentStyle={currentStyle}
             labels={labels}
-            projectTree={projectTree}
-            onCloneProject={onCloneProject}
+            projectsList={projectsList}
+            blogsTree={blogsTree}
+            articlesTree={articlesTree}
             isAdmin={isAdmin}
             onNotify={onNotify}
           />
@@ -78,7 +82,7 @@ export function useContentTabMapper({
             currentStyle={currentStyle}
             labels={labels}
             projects={MOCK_PROJECTS}
-            blogs={MOCK_BLOGS}
+            blogs={blogsList}
             videos={MOCK_VIDEOS}
             podcasts={MOCK_PODCASTS}
             adaptProject={adaptProjectToUnified}
@@ -104,7 +108,7 @@ export function useContentTabMapper({
           <ProjectsSection
             currentStyle={currentStyle}
             labels={labels}
-            projectTree={projectTree}
+            projectsList={projectsList}
             activeNodeId={activeNodeId}
             selectedProjectParam={selectedProjectParam}
             isAdmin={isAdmin}
@@ -120,6 +124,7 @@ export function useContentTabMapper({
             labels={labels}
             activeNodeId={activeNodeId}
             selectedArticleParam={selectedArticleParam}
+            articlesTree={articlesTree}
             isAdmin={isAdmin}
             onNotify={onNotify}
           />
@@ -131,12 +136,11 @@ export function useContentTabMapper({
             labels={labels}
             activeNodeId={activeNodeId}
             selectedBlogParam={selectedBlogParam}
+            blogsTree={blogsTree}
             isAdmin={isAdmin}
             onNotify={onNotify}
           />
         );
-      case 'docs':
-        return <DocsSection currentStyle={currentStyle} labels={labels} selectedDocParam={selectedDocParam} />;
       case 'resume':
         return <ResumeSection currentStyle={currentStyle} labels={labels} onNotify={onNotify} />;
       case 'contact':
@@ -150,9 +154,11 @@ export function useContentTabMapper({
     currentStyle,
     isAdmin,
     labels,
-    onCloneProject,
     onNotify,
-    projectTree,
+    projectsList,
+    blogsTree,
+    articlesTree,
+    blogsList,
     selectedArticleParam,
     selectedBlogParam,
     selectedDocParam,
