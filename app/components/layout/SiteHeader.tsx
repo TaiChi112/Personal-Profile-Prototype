@@ -13,7 +13,7 @@ import {
   STYLES,
   LOCALES,
 } from "../../models/theme/ThemeConfig";
-import { useTheme } from "../../providers/ThemeProvider";
+import { useThemeStore } from "../../store/useThemeStore";
 
 type SiteHeaderProps = {
   readonly activeTab?: string;
@@ -28,7 +28,8 @@ export function SiteHeader({
   const { data: session, status } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
-  const { styleKey, langKey } = useTheme();
+  const styleKey = useThemeStore((s) => s.styleKey);
+  const langKey = useThemeStore((s) => s.langKey);
 
   const isAuthenticated = status === "authenticated";
   const userDisplayName = session?.user?.name ?? session?.user?.email ?? null;
