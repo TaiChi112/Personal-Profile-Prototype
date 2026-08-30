@@ -10,6 +10,7 @@ import { useResumeBuilder } from "@/features/resume-builder/state/use-resume-bui
 
 import { Calendar, Eye, FileText, User as UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 // We create a sophisticated card component for public resumes
 function PublicResumeCard({
@@ -31,7 +32,7 @@ function PublicResumeCard({
           </div>
           <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
             {resume.authorAvatarUrl ? (
-              <img src={resume.authorAvatarUrl} alt={resume.authorName || "Author"} className="w-5 h-5 rounded-full" />
+              <Image src={resume.authorAvatarUrl} alt={resume.authorName || "Author"} className="w-5 h-5 rounded-full" width={20} height={20} />
             ) : (
               <UserIcon className="w-4 h-4 text-slate-400" />
             )}
