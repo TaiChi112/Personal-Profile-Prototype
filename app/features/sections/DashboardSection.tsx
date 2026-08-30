@@ -1,26 +1,40 @@
 import { useMemo } from 'react';
 import { BarChart3, PieChart } from 'lucide-react';
-import { AdminTemplatePanel } from '../../components/dashboard/AdminTemplatePanel';
 import { MetricCard } from '../../components/dashboard/MetricCard';
 import { TopicCloud } from '../../components/dashboard/TopicCloud';
 import { SectionHeader } from '../../components/section/SectionPrimitives';
-import type { CompositeNode, UnifiedContentItem } from '../../interfaces/content-tree';
+import type { CompositeNode } from '../../interfaces/content-tree';
 import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
 import { analyzeContentTrees } from '../../services/content/ContentTreeAnalysis';
-import { ARTICLES_TREE, BLOGS_TREE } from '../../services/content/ContentTreeSetup';
 import type { EventType } from '../../services/system/notification/NotificationBridge';
+import type { Project } from '../../data/content';
 
 type DashboardSectionProps = {
   currentStyle: StyleFactory;
   labels: UILabels;
-  projectTree: CompositeNode;
-  onCloneProject: (item: UnifiedContentItem) => void;
+  projectsList: Project[];
+  blogsTree: CompositeNode;
+  articlesTree: CompositeNode;
   isAdmin: boolean;
   onNotify: (message: string, level: EventType) => void;
 };
 
-export function DashboardSection({ currentStyle, labels, projectTree, onCloneProject, isAdmin, onNotify }: DashboardSectionProps) {
-  const { stats, tags } = useMemo(() => analyzeContentTrees([projectTree, BLOGS_TREE, ARTICLES_TREE]), [projectTree]);
+export function DashboardSection({ currentStyle, labels, projectsList, blogsTree, articlesTree, isAdmin, onNotify }: DashboardSectionProps) {
+  const { stats, tags } = useMemo(() => {
+    const analysis = analyzeContentTrees([blogsTree, articlesTree]);
+    
+    // Add projects to tags and stats
+    const updatedStats = { ...analysis.stats, project: projectsList.length, total: analysis.stats.total + projectsList.length };
+    
+    const tagSet = new Set<string>(analysis.tags);
+    projectsList.forEach(p => {
+      p.techStack.forEach(t => {
+        tagSet.add(t);
+      });
+    });
+
+    return { stats: updatedStats, tags: Array.from(tagSet) };
+  }, [projectsList, blogsTree, articlesTree]);
 
   const overviewMetrics = [
     { label: 'Total Items', value: stats.total, valueClassName: 'text-gray-900 dark:text-white' },
@@ -59,7 +73,7 @@ export function DashboardSection({ currentStyle, labels, projectTree, onClonePro
         </div>
       </div>
 
-      {isAdmin ? <AdminTemplatePanel currentStyle={currentStyle} labels={labels} onCloneProject={onCloneProject} /> : null}
+      
     </div>
   );
 }
