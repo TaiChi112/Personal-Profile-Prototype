@@ -6,7 +6,6 @@ import { InteractiveContentNode } from '../../components/content/InteractiveCont
 import { ContentSectionShell } from '../../components/section/SectionPrimitives';
 import type { CompositeNode, LayoutNode, UnifiedContentItem } from '../../interfaces/content-tree';
 import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
-import { BLOGS_TREE } from '../../services/content/ContentTreeSetup';
 import type { EventType } from '../../services/system/notification/NotificationBridge';
 
 type BlogSectionProps = {
@@ -14,6 +13,7 @@ type BlogSectionProps = {
   labels: UILabels;
   activeNodeId: string | null;
   selectedBlogParam?: string;
+  blogsTree: CompositeNode;
   isAdmin: boolean;
   onNotify: (message: string, level: EventType) => void;
 };
@@ -39,7 +39,7 @@ const findNodeByParam = (node: LayoutNode | CompositeNode, normalizedParam: stri
   return null;
 };
 
-export function BlogSection({ currentStyle, labels, activeNodeId, selectedBlogParam, isAdmin, onNotify }: Readonly<BlogSectionProps>) {
+export function BlogSection({ currentStyle, labels, activeNodeId, selectedBlogParam, blogsTree, isAdmin, onNotify }: Readonly<BlogSectionProps>) {
   const router = useRouter();
   const normalizedParam = useMemo(() => decodeURIComponent(selectedBlogParam ?? '').trim().toLowerCase(), [selectedBlogParam]);
 
@@ -48,8 +48,8 @@ export function BlogSection({ currentStyle, labels, activeNodeId, selectedBlogPa
       return null;
     }
 
-    return findNodeByParam(BLOGS_TREE, normalizedParam);
-  }, [normalizedParam]);
+    return findNodeByParam(blogsTree, normalizedParam);
+  }, [normalizedParam, blogsTree]);
 
   const effectiveActiveNodeId = selectedNodeId ?? activeNodeId;
 
@@ -60,7 +60,7 @@ export function BlogSection({ currentStyle, labels, activeNodeId, selectedBlogPa
 
   return (
     <ContentSectionShell title={labels.sections.blog} description={labels.sections.blogDesc} currentStyle={currentStyle}>
-      {BLOGS_TREE.children.map((node) => (
+      {blogsTree.children?.map((node) => (
         <InteractiveContentNode
           key={node.id}
           node={node}
