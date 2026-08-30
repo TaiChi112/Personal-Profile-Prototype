@@ -84,7 +84,7 @@ export function normalizeExternalUrl(value: string): string | null {
   }
 
   try {
-    if (/^(https?:|mailto:|tel:|#)/i.test(trimmed)) {
+    if (/^(https?:|mailto:|tel:|#|\/)/i.test(trimmed)) {
       return trimmed;
     }
 

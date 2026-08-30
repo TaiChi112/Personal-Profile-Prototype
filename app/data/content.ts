@@ -35,9 +35,12 @@ export interface Doc {
 export interface Project {
   id: string;
   title: string;
+  slug?: string;
+  category?: string;
   description: string;
   techStack: string[];
   githubUrl?: string;
+  repoUrl?: string;
   liveUrl?: string;
   thumbnail: string;
   featured: boolean;
@@ -133,6 +136,7 @@ export const MOCK_PROJECTS: Project[] = [
   { id: '6', title: "AI-Powered Phygital Icebreaker Platform", description: "Problem/Motivation: Networking events often suffer from low engagement and awkward initial interactions. Solution/Benefit: Developed a `Phygital` platform merging physical and online participation. Applied AI to dynamically generate and randomize domain-specific questions (e.g., Computer Science, Data Science), effectively breaking the ice and fostering meaningful professional connections.", techStack: ['Nextjs'], githubUrl: 'https://github.com/TaiChi112/CS-ICEbreaker-HUB', featured: true, date: '2023-10-01', thumbnail: '' },
   { id: '7', title: 'E-Commerce Super App', description: 'A massive e-commerce ecosystem. Includes user authentication, product management, shopping cart, and payment gateway integration.', techStack: ['Next.js', 'Supabase', 'Stripe'], githubUrl: '#', featured: true, date: '2023-08-15', thumbnail: '' },
   { id: '7-1', title: 'Merchant Dashboard', description: 'Admin panel for sellers.', techStack: ['React', 'Tailwind'], githubUrl: '#', featured: true, date: '2023-09-01', thumbnail: '' },
+  { id: 'mini-app-todo', title: 'Todo App', slug: 'todo', category: 'Applications', description: 'A local-first interactive Todo mini-app built into the portfolio.', techStack: ['React', 'Zustand', 'Mini-App'], repoUrl: '/projects/todo', featured: true, date: '2023-11-20', thumbnail: '' },
 ];
 
 export const MOCK_VIDEOS: ExternalVideoData[] = [
