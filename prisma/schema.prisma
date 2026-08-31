@@ -27,6 +27,7 @@ model User {
   awards       Award[]
   resumes      Resume[]
   userSkills   UserSkill[]
+  todos        Todo[]
 
   @@unique([provider, providerAccountId])
   @@map("users")
@@ -252,4 +253,26 @@ model ResumeAward {
 
   @@id([resumeId, awardId])
   @@map("resume_awards")
+}
+
+model Todo {
+  id        String   @id @default(cuid())
+  userId    String
+  text      String
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("todos")
+}
+
+model ResumeDownloadLead {
+  id           String   @id @default(cuid())
+  name         String   @db.VarChar(255)
+  company      String   @db.VarChar(255)
+  email        String?  @db.VarChar(255)
+  downloadedAt DateTime @default(now()) @map("downloaded_at") @db.Timestamp(6)
+
+  @@map("resume_download_leads")
 }
