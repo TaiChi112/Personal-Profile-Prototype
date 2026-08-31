@@ -51,6 +51,10 @@ const getProjectRepositoryLink = (project: Project) => {
   ) {
     return project.githubUrl;
   }
+  
+  if (typeof project.repoUrl === "string") {
+    return project.repoUrl;
+  }
 
   return undefined;
 };
@@ -192,119 +196,156 @@ class ContentBuilder {
 // .addItem(adaptProjectToUnified(MOCK_PROJECTS[4]))
 // .addItem(adaptProjectToUnified(MOCK_PROJECTS[1]))
 // .up()
-export const INITIAL_PROJECTS_TREE = new ContentBuilder(
-  "proj-root",
-  "column",
-  "All Projects",
-)
-  .addContainer(
-    "personal-website",
-    "grid",
-    "Personal Website (Design Pattern Playground)",
-    { ...adaptProjectToUnified(MOCK_PROJECTS[0]), decorations: ["popular"] },
+export async function getProjectsTree(articles: Article[], blogs: Blog[]): Promise<CompositeNode> {
+  const root = new ContentBuilder(
+    "proj-root",
+    "column",
+    "All Projects",
   )
-  .addItem(adaptProjectToUnified(MOCK_PROJECTS[0]))
-  .addItem({ ...adaptArticleToUnified(MOCK_ARTICLES_FLAT[0]), isLocked: true })
-  .up()
-  .addContainer(
-    "ai-manga-ocr",
-    "list",
-    "AI-Powered Manga OCR and Translation Pipeline (HITL)",
-    { ...adaptProjectToUnified(MOCK_PROJECTS[1]), decorations: ["sponsor"] },
-  )
-  .addItem(adaptProjectToUnified(MOCK_PROJECTS[1]))
-  .up()
-  .addContainer("uaps", "list", "Universal Academic Portfolio System (UAPs)", {
-    ...adaptProjectToUnified(MOCK_PROJECTS[2]),
-    decorations: ["featured"],
-  })
-  .addItem(adaptProjectToUnified(MOCK_PROJECTS[2]))
-  .up()
-  .addContainer(
-    "google-calendar-ai",
-    "list",
-    "Google Calendar AI Agent (MCP)",
-    { ...adaptProjectToUnified(MOCK_PROJECTS[3]), decorations: ["hot"] },
-  )
-  .addItem(adaptProjectToUnified(MOCK_PROJECTS[3]))
-  .up()
-  .addContainer(
-    "project-scaffolding",
-    "list",
-    "Project Scaffolding CLI Tool (MVP)",
-    { ...adaptProjectToUnified(MOCK_PROJECTS[4]), decorations: ["new"] },
-  )
-  .addItem(adaptProjectToUnified(MOCK_PROJECTS[4]))
-  .up()
-  .addContainer(
-    "ai-powered-icebreaker",
-    "list",
-    "AI-Powered Phygital Icebreaker Platform",
-    { ...adaptProjectToUnified(MOCK_PROJECTS[5]), decorations: ["new"] },
-  )
-  .addItem(adaptProjectToUnified(MOCK_PROJECTS[5]))
-  .up()
-  .addContainer("super-app", "grid", "E-Commerce Super App", {
-    ...adaptProjectToUnified(MOCK_PROJECTS[6]),
-    decorations: ["featured"],
-    isLocked: false,
-  })
-  .build();
+    .addContainer(
+      "personal-website",
+      "grid",
+      "Personal Website (Design Pattern Playground)",
+      { ...adaptProjectToUnified(MOCK_PROJECTS[0]), decorations: ["popular"] },
+    )
+    .addItem(adaptProjectToUnified(MOCK_PROJECTS[0]))
+    .addItem({ ...adaptArticleToUnified(articles[0] || MOCK_ARTICLES_FLAT[0]), isLocked: true })
+    .up()
+    .addContainer(
+      "ai-manga-ocr",
+      "list",
+      "AI-Powered Manga OCR and Translation Pipeline (HITL)",
+      { ...adaptProjectToUnified(MOCK_PROJECTS[1]), decorations: ["sponsor"] },
+    )
+    .addItem(adaptProjectToUnified(MOCK_PROJECTS[1]))
+    .up()
+    .addContainer("uaps", "list", "Universal Academic Portfolio System (UAPs)", {
+      ...adaptProjectToUnified(MOCK_PROJECTS[2]),
+      decorations: ["featured"],
+    })
+    .addItem(adaptProjectToUnified(MOCK_PROJECTS[2]))
+    .up()
+    .addContainer(
+      "google-calendar-ai",
+      "list",
+      "Google Calendar AI Agent (MCP)",
+      { ...adaptProjectToUnified(MOCK_PROJECTS[3]), decorations: ["hot"] },
+    )
+    .addItem(adaptProjectToUnified(MOCK_PROJECTS[3]))
+    .up()
+    .addContainer(
+      "project-scaffolding",
+      "list",
+      "Project Scaffolding CLI Tool (MVP)",
+      { ...adaptProjectToUnified(MOCK_PROJECTS[4]), decorations: ["new"] },
+    )
+    .addItem(adaptProjectToUnified(MOCK_PROJECTS[4]))
+    .up()
+    .addContainer(
+      "ai-powered-icebreaker",
+      "list",
+      "AI-Powered Phygital Icebreaker Platform",
+      { ...adaptProjectToUnified(MOCK_PROJECTS[5]), decorations: ["new"] },
+    )
+    .addItem(adaptProjectToUnified(MOCK_PROJECTS[5]))
+    .up()
+    .addContainer("super-app", "grid", "E-Commerce Super App", {
+      ...adaptProjectToUnified(MOCK_PROJECTS[6]),
+      decorations: ["featured"],
+      isLocked: false,
+    })
+    .addItem(adaptProjectToUnified(MOCK_PROJECTS[6]))
+    .up()
+    .addContainer("todo-app", "grid", "Todo Mini-App", {
+      ...adaptProjectToUnified(MOCK_PROJECTS[8]),
+      decorations: ["new"],
+      isLocked: false,
+    })
+    .addItem(adaptProjectToUnified(MOCK_PROJECTS[8]));
+    
+  return root.build();
+}
 
-export const BLOGS_TREE = new ContentBuilder(
-  "blog-root",
-  "column",
-  "My Writings",
-)
-  .addContainer("journey", "timeline", "Tech Journey", {
-    ...adaptBlogToUnified(MOCK_BLOGS[0]),
+export async function getBlogsTree(articles: Article[], blogs: Blog[]): Promise<CompositeNode> {
+  const builder = new ContentBuilder(
+    "blog-root",
+    "column",
+    "My Writings",
+  );
+
+  const personalBlogs = blogs.filter(b => b.category === 'Personal');
+  const lifestyleBlogs = blogs.filter(b => b.category === 'Lifestyle');
+
+  builder.addContainer("journey", "timeline", "Tech Journey", {
+    ...(personalBlogs.length > 0 ? adaptBlogToUnified(personalBlogs[0]) : adaptBlogToUnified(MOCK_BLOGS[0])),
     decorations: ["featured"],
-  })
-  .addItem({
-    ...adaptArticleToUnified(MOCK_ARTICLES_FLAT[0]),
-    title: "First Framework I Learned",
-  })
-  .addItem({
+  });
+
+  if (articles.length > 0) {
+    builder.addItem({
+      ...adaptArticleToUnified(articles[0]),
+      title: "First Framework I Learned",
+    });
+  } else {
+    builder.addItem({
+      ...adaptArticleToUnified(MOCK_ARTICLES_FLAT[0]),
+      title: "First Framework I Learned",
+    });
+  }
+
+  builder.addItem({
     ...adaptProjectToUnified(MOCK_PROJECTS[0]),
     title: "My First Big Failure",
-  })
-  .up()
-  .addContainer(
+  }).up();
+
+  builder.addContainer(
     "lifestyle",
     "list",
     "Lifestyle",
-    adaptBlogToUnified(MOCK_BLOGS[1]),
+    lifestyleBlogs.length > 0 ? adaptBlogToUnified(lifestyleBlogs[0]) : adaptBlogToUnified(MOCK_BLOGS[1])
   )
   .addItem({
     ...adaptVideoToUnified(MOCK_VIDEOS[0]),
     title: "Vlog: A Day in Life",
     decorations: ["new"],
-  })
-  .build();
+  });
+  
+  // Add remaining blogs dynamically
+  blogs.forEach((blog, index) => {
+      if (index === 0 && blog.category === 'Personal') return; // already added as container data maybe
+      if (index === 0 && blog.category === 'Lifestyle') return;
+      builder.addItem(adaptBlogToUnified(blog));
+  });
 
-export const ARTICLES_TREE = new ContentBuilder(
-  "art-root",
-  "grid",
-  "Knowledge Base",
-)
-  .addContainer("rsc-master", "grid", "RSC Mastery", {
-    ...adaptArticleToUnified(MOCK_ARTICLES_FLAT[0]),
-    decorations: ["hot"],
-  })
-  .addItem({
-    ...adaptBlogToUnified(MOCK_BLOGS[0]),
-    title: "Why I moved to RSC",
-  })
-  .addItem({ ...adaptVideoToUnified(MOCK_VIDEOS[0]), title: "Video Demo" })
-  .up()
-  .addContainer(
-    "ts-master",
-    "list",
-    "TypeScript Zone",
-    adaptArticleToUnified(MOCK_ARTICLES_FLAT[1]),
+  return builder.build();
+}
+
+export async function getArticlesTree(articles: Article[], blogs: Blog[]): Promise<CompositeNode> {
+  const builder = new ContentBuilder(
+    "art-root",
+    "grid",
+    "Knowledge Base",
   )
-  .addItem({
-    ...adaptProjectToUnified(MOCK_PROJECTS[1]),
-    title: "Utility Types",
-  })
-  .build();
+    .addContainer("rsc-master", "grid", "RSC Mastery", {
+      ...adaptArticleToUnified(articles.find(a => a.tags.includes('React')) || MOCK_ARTICLES_FLAT[0]),
+      decorations: ["hot"],
+    })
+    .addItem({
+      ...adaptBlogToUnified(blogs[0] || MOCK_BLOGS[0]),
+      title: "Why I moved to RSC",
+    })
+    .addItem({ ...adaptVideoToUnified(MOCK_VIDEOS[0]), title: "Video Demo" })
+    .up()
+    .addContainer(
+      "ts-master",
+      "list",
+      "TypeScript Zone",
+      adaptArticleToUnified(articles.find(a => a.tags.includes('TypeScript')) || MOCK_ARTICLES_FLAT[1]),
+    )
+    .addItem({
+      ...adaptProjectToUnified(MOCK_PROJECTS[1]),
+      title: "Utility Types",
+    });
+    
+  return builder.build();
+}
