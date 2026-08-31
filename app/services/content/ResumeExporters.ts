@@ -798,34 +798,5 @@ export function createResumeExporters(notify: NotifyFn) {
         }
       },
     },
-    atsPdf: {
-      export: async (
-        data: unknown,
-        filename: string,
-        _profile: AtsExportProfile,
-        _language: ExportLanguage = 'en',
-        element?: HTMLElement,
-        options?: PdfExportOptions,
-      ) => {
-        try {
-          const resume = asExportableResume(data);
-          if (!resume) {
-            safeNotify('ATS PDF export failed. Invalid resume data.', 'ERROR');
-            return;
-          }
-
-          if (!element) {
-            safeNotify('ATS PDF export failed. Resume element not found.', 'ERROR');
-            return;
-          }
-
-          await exportElementAsPdf(element, `${filename}-ats-internship`, options);
-          safeNotify(`Exporting ${filename}-ats-internship.pdf...`, 'SUCCESS');
-        } catch (error) {
-          console.error('ATS PDF export failed:', error);
-          safeNotify('ATS PDF export failed. Check console.', 'ERROR');
-        }
-      },
-    },
   };
 }
