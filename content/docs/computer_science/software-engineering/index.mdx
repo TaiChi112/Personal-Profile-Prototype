@@ -1,11 +1,13 @@
 ---
-title: "Software Engineering"
-description: "Learn about computer science concepts, their applications, and fundamental principles."
-# icon: "Science"
+title: Software Engineering
+description: Overview of Software Engineering paradigms and principles
 ---
-<Callout title="Warning" type="warning">
-  **Pardon our dust!** This section is currently a work in progress. I am actively migrating and restructuring content from my previous project. Some information may be incomplete or temporarily unavailable. 
-  
-  Thank you for your patience as I build this out—stay tuned for upcoming updates!
-</Callout>
-# Computer Science
+
+import { Terminal, Box, FunctionSquare, Blocks } from 'lucide-react';
+
+<Cards>
+  <Card href="/docs/computer_science/software-engineering/se" title="Software Engineering (SE)" icon={<Terminal />} />
+  <Card href="/docs/computer_science/software-engineering/oop" title="Object-Oriented Programming (OOP)" icon={<Box />} />
+  <Card href="/docs/computer_science/software-engineering/fp" title="Functional Programming (FP)" icon={<FunctionSquare />} />
+  <Card href="/docs/computer_science/software-engineering/design-pattern" title="Design Patterns" icon={<Blocks />} />
+</Cards>
