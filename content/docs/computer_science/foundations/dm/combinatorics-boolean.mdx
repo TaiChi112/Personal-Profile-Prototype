@@ -1,0 +1,22 @@
+---
+title: "Combinatorics & Boolean Algebra"
+description: "สรุปคณิตศาสตร์เชิงการจัดและพีชคณิตบูลีน"
+---
+
+# 🎲 Combinatorics & Boolean (สรุปด่วน)
+
+## 1. Combinatorics (คณิตศาสตร์เชิงการจัด)
+การนับและจัดเรียงรูปแบบต่างๆ เพื่อหาความน่าจะเป็น
+- **Permutation (การเรียงสับเปลี่ยน):** ลำดับ **มีผล** (เช่น รหัสผ่าน, รางวัลที่ 1 2 3) `P(n, r) = n! / (n-r)!`
+- **Combination (การจัดหมู่):** ลำดับ **ไม่มีผล** (เช่น สุ่มหยิบลูกบอล, เลือกทีม 3 คน) `C(n, r) = n! / (r! * (n-r)!)`
+- **Pigeonhole Principle:** ถ้านกพิราบมี $N+1$ ตัว แต่มีรัง $N$ รัง จะต้องมีอย่างน้อย 1 รังที่มีนก 2 ตัว (ใช้พิสูจน์เรื่อง Hash Collision)
+
+## 2. Boolean Algebra (พีชคณิตบูลีน)
+คณิตศาสตร์ของ `0` (False) และ `1` (True) ใช้มากใน Digital Logic
+- **กฎสำคัญ (Laws):**
+  - **De Morgan's Laws:** 
+    - `NOT (A AND B) = (NOT A) OR (NOT B)`
+    - `NOT (A OR B) = (NOT A) AND (NOT B)`
+    - *(ทริค: ดัน NOT เข้าไป แล้วสลับเครื่องหมาย AND/OR)*
+  - **Distributive Law:** กระจายตัวแปรเข้าไปในวงเล็บได้
+- **ประยุกต์ใช้:** การออกแบบ Hardware Logic Gate และการย่อ Code `if-else` ที่ซ้อนกันหลายชั้นให้สั้นลง

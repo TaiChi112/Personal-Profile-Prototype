@@ -1,0 +1,28 @@
+---
+title: "Graph Theory"
+description: "สรุปทฤษฎีกราฟเบื้องต้น"
+---
+
+# 🕸️ Graph Theory (สรุปด่วน)
+
+โครงสร้างข้อมูลที่แสดงความสัมพันธ์ระหว่างจุด (Nodes) และเส้น (Edges)
+
+## 1. ประเภทของกราฟ
+- **Directed Graph (Digraph):** กราฟมีทิศทาง (เช่น Follower ใน Twitter)
+- **Undirected Graph:** กราฟไม่มีทิศทาง (เช่น Friends ใน Facebook)
+- **Weighted Graph:** กราฟมีน้ำหนักที่เส้น (เช่น แผนที่ Google Maps มีระยะทาง)
+
+## 2. คำศัพท์สำคัญ
+- **Degree:** จำนวนเส้นที่เชื่อมต่อกับโหนดนั้น
+- **Path:** ลำดับของโหนดที่เดินต่อเนื่องกันได้
+- **Cycle:** Path ที่เริ่มต้นและจบที่โหนดเดียวกัน
+- **Connected Graph:** สามารถเดินจากโหนดใดก็ได้ไปหาโหนดอื่นได้หมด
+
+## 3. ต้นไม้ (Trees)
+- ต้นไม้คือ Undirected Graph ที่เชื่อมต่อกันหมดและ **ไม่มี Cycle**
+- แตกแขนงออกไปเรื่อยๆ มี Root Node (ใช้ทำ Directory structure, DOM tree)
+
+## 4. ประยุกต์ใช้ (Applications)
+- การหาเส้นทางสั้นสุด (Shortest Path)
+- เครือข่ายอินเทอร์เน็ต (Network Topology)
+- ระบบแนะนำเพื่อนหรือสินค้า (Recommendation Systems)

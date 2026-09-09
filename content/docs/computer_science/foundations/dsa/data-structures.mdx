@@ -1,0 +1,39 @@
+---
+title: "Data Structures"
+description: "สรุปโครงสร้างข้อมูลพื้นฐาน ข้อดี ข้อเสีย และ Time Complexity"
+---
+
+# 🧱 Data Structures (สรุปด่วน)
+
+โครงสร้างข้อมูลคือวิธีจัดเก็บและจัดการข้อมูลในคอมพิวเตอร์ให้มีประสิทธิภาพเหมาะสมกับงาน
+
+## 1. Array & String
+- **คืออะไร:** จัดเก็บข้อมูลแบบต่อเนื่องใน Memory
+- **จุดเด่น:** อ่านข้อมูลผ่าน Index ได้เร็ว `O(1)`
+- **จุดด้อย:** แทรก/ลบ ตรงกลางช้า `O(n)`, ขนาดคงที่ (ยกเว้น Dynamic Array)
+
+## 2. Linked List
+- **คืออะไร:** โหนดเชื่อมต่อกันด้วย Pointer (`[Data|Next] -> [Data|Next]`)
+- **จุดเด่น:** แทรก/ลบ ตรงหัวหรือท้าย (ถ้ามี pointer) ได้เร็ว `O(1)`, ไม่ต้องใช้ Memory ติดเนื่องกัน
+- **จุดด้อย:** ค้นหาช้า ต้องไล่จากหัวเสมอ `O(n)`, เปลือง Memory เก็บ Pointer
+
+## 3. Stack & Queue
+- **Stack (LIFO):** เข้าหลัง ออกก่อน (เช่น Undo, Back button, Call Stack). 
+  - `Push/Pop` = `O(1)`
+- **Queue (FIFO):** เข้าก่อน ออกก่อน (เช่น คิวพิมพ์งาน, คิวส่งข้อความ). 
+  - `Enqueue/Dequeue` = `O(1)`
+
+## 4. Hash Table (Hash Map)
+- **คืออะไร:** เก็บข้อมูลแบบ Key-Value คู่กัน โดยใช้ Hash Function แปลง Key เป็น Index
+- **จุดเด่น:** ค้นหา, แทรก, ลบ ได้เฉลี่ย `O(1)`
+- **จุดด้อย:** หากเกิด Collision บ่อย (Hash ชนกัน) อาจแย่ถึง `O(n)`
+
+## 5. Tree
+- **คืออะไร:** โครงสร้างแบบลำดับชั้น (Root, Node, Leaf)
+- **Binary Search Tree (BST):** ซ้าย < ตัวเอง < ขวา ค้นหาได้เร็ว `O(log n)` (ถ้า Tree สมดุล)
+- **Heap:** (Min/Max) ตัวบนสุดมีค่าน้อยสุด/มากสุด ใช้ทำ Priority Queue ได้ดี `O(log n)` ตอนแทรก/ดึงออก
+
+## 6. Graph
+- **คืออะไร:** โหนด (Vertex) เชื่อมด้วยเส้น (Edge)
+- **เก็บข้อมูลด้วย:** Adjacency Matrix (`O(V^2)` space) หรือ Adjacency List (`O(V + E)` space)
+- **การใช้:** Social network, แผนที่ GPS, Computer network
