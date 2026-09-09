@@ -1,29 +1,33 @@
 ---
-title: "Business Overview"
-description: "Learn about business concepts, their applications, and fundamental principles."
+title: Business
+description: ศูนย์รวมความรู้และกลยุทธ์ทางธุรกิจสำหรับองค์กรยุคใหม่ (Business strategies and knowledge hub)
 ---
 
-<Callout title="A Note from the Author" type="info">
-  **Welcome to the Business Domain!** 
-  
-  This is a subject I am deeply passionate about and intend to explore further. However, I currently do not have the time to author comprehensive content for this section. These pages serve as a placeholder for my future learning journey, which I hope to eventually share with you all. Stay tuned!
-</Callout>
-
-# Business
-
-Explore the fundamental principles of commerce, organizational structures, and strategic decision-making.
+import { Users, TrendingUp, Briefcase, Building } from 'lucide-react';
 
 <Cards>
-  <Card title="Management & Leadership" href="#" icon="Users">
-    Placeholder: Discover strategies for effective team management and leadership.
-  </Card>
-  <Card title="Marketing Strategies" href="#" icon="TrendingUp">
-    Placeholder: Learn how to analyze markets, understand consumer behavior, and build brands.
-  </Card>
-  <Card title="Entrepreneurship" href="#" icon="Briefcase">
-    Placeholder: Dive into the process of designing, launching, and running a new business.
-  </Card>
-  <Card title="Corporate Operations" href="#" icon="Building">
-    Placeholder: Understand the inner workings of corporate structures and operational efficiency.
-  </Card>
+  <Card
+    title="Management"
+    description="หลักการบริหารจัดการองค์กร และการเป็นผู้นำ (Leadership and organizational management)"
+    href="/docs/business/management"
+    icon={<Users />}
+  />
+  <Card
+    title="Marketing"
+    description="กลยุทธ์การตลาด การวิเคราะห์ตลาด และการสร้างแบรนด์ (Marketing strategies and branding)"
+    href="/docs/business/marketing"
+    icon={<TrendingUp />}
+  />
+  <Card
+    title="Entrepreneurship"
+    description="แนวคิดการเป็นผู้ประกอบการ และการสร้างธุรกิจใหม่ (Startup methodologies and venture creation)"
+    href="/docs/business/entrepreneurship"
+    icon={<Briefcase />}
+  />
+  <Card
+    title="Operations"
+    description="การจัดการการดำเนินงาน และการเพิ่มประสิทธิภาพกระบวนการทำงาน (Process optimization and operations management)"
+    href="/docs/business/operations"
+    icon={<Building />}
+  />
 </Cards>
