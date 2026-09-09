@@ -1,0 +1,9 @@
+{
+  "title": "Engineering Standards",
+  "description": "Standards and Guidelines for Engineering",
+  "root": true,
+  "pages": [
+    "AI_PROJECT_STANDARD",
+    "CONTENT_STANDARD"
+  ]
+}
