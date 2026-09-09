@@ -1,15 +1,29 @@
 ---
-title: "Deep Learning"
-description: "Learn about computer science concepts, their applications, and fundamental principles."
-# icon: "Science"
+title: Deep Learning Cheat Sheet
+description: สรุปเนื้อหาสำคัญสำหรับ Deep Learning
 ---
 
-<Callout title="Warning" type="warning">
-  **Pardon our dust!** This section is currently a work in progress. I am
-  actively migrating and restructuring content from my previous project. Some
-  information may be incomplete or temporarily unavailable. Thank you for your
-  patience as I build this out—stay tuned for upcoming updates!
-</Callout>
-# Deep Learning
+## Neural Networks
 
+Neural Networks คือโมเดลพื้นฐานของ Deep Learning ประกอบด้วยเลเยอร์ของโหนดหรือนิวรอน การทำงานแบ่งเป็น Forward Propagation สำหรับการทำนายผล และ Backpropagation สำหรับการปรับปรุงน้ำหนัก (Weights) และอคติ (Biases) เพื่อลดค่า Loss Function
 
+## Activation Functions
+
+ฟังก์ชันกระตุ้นใช้เพิ่มคุณสมบัติ Non-linearity ให้กับโมเดล ทำให้ Neural Networks สามารถเรียนรู้แพทเทิร์นที่ซับซ้อนได้
+- Sigmoid: ให้ค่าลัพธ์ระหว่าง 0 ถึง 1 มักใช้ใน Output Layer สำหรับ Binary Classification
+- Tanh: ให้ผลลัพธ์ระหว่าง -1 ถึง 1
+- ReLU (Rectified Linear Unit): คืนค่า 0 หากค่าน้อยกว่าศูนย์ และคืนค่าเดิมหากค่ามากกว่าศูนย์ นิยมใช้ใน Hidden Layers ส่วนใหญ่
+- Softmax: ใช้ใน Output Layer สำหรับ Multi-class Classification เพื่อแปลงค่าเป็นความน่าจะเป็น
+
+## Convolutional Neural Networks (CNN)
+
+CNN ถูกออกแบบมาสำหรับงาน Computer Vision มีองค์ประกอบหลักดังนี้
+- Convolutional Layers: ใช้ Filters หรือ Kernels ในการสกัดฟีเจอร์จากภาพ
+- Pooling Layers: ลดขนาดของข้อมูลและพารามิเตอร์ มักใช้ Max Pooling
+- Fully Connected Layers: นำฟีเจอร์ที่สกัดได้มาทำการจำแนกประเภท
+
+## Recurrent Neural Networks (RNN)
+
+RNN เหมาะสำหรับ Sequential Data เช่น ข้อมูลอนุกรมเวลาหรือ Natural Language Processing (NLP)
+- Hidden State: อนุญาตให้ข้อมูลก่อนหน้าส่งผลต่อการประมวลผลข้อมูลปัจจุบัน
+- ปัญหา Vanishing Gradient: RNN แบบพื้นฐานมักมีปัญหาในการจำข้อมูลระยะยาว จึงมีการพัฒนา LSTM (Long Short-Term Memory) และ GRU (Gated Recurrent Unit) เพื่อแก้ปัญหานี้

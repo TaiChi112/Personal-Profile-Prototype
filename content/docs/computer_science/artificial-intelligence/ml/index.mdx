@@ -1,15 +1,38 @@
 ---
-title: "Machine Learning"
-description: "Learn about computer science concepts, their applications, and fundamental principles."
-# icon: "Science"
+title: Machine Learning (ML) Cheat Sheet
+description: สรุปหลักการของ Machine Learning
 ---
 
-<Callout title="Warning" type="warning">
-  **Pardon our dust!** This section is currently a work in progress. I am
-  actively migrating and restructuring content from my previous project. Some
-  information may be incomplete or temporarily unavailable. Thank you for your
-  patience as I build this out—stay tuned for upcoming updates!
-</Callout>
-# Machine Learning
+# Machine Learning (ML) Cheat Sheet
 
+เอกสารนี้สรุปประเด็นหลักใน Machine Learning สำหรับใช้เป็นแหล่งอ้างอิง
 
+## 1. Learning Paradigms
+
+Machine Learning สามารถแบ่งออกเป็นประเภทหลักๆ ตามวิธีการเรียนรู้ดังนี้
+
+### Supervised Learning
+โมเดลเรียนรู้จาก Labeled Data โดย Algorithm พยายามหา Mapping Function จาก Input ไปยัง Output
+*   **Classification:** การทำนาย Categorical Labels (เช่น Spam Detection)
+*   **Regression:** การทำนาย Continuous Values (เช่น House Price Prediction)
+
+### Unsupervised Learning
+โมเดลเรียนรู้จาก Unlabeled Data โดย Algorithm พยายามค้นหา Hidden Structure หรือรูปแบบในข้อมูล
+*   **Clustering:** การจัดกลุ่ม Data Points ที่มีลักษณะคล้ายกัน (เช่น K-Means)
+*   **Dimensionality Reduction:** การลดจำนวน Features โดยรักษา Information ให้มากที่สุด (เช่น PCA)
+
+### Reinforcement Learning
+Agent เรียนรู้การตัดสินใจผ่านการกระทำใน Environment โดยรับ Feedback ในรูปของ Rewards หรือ Penalties เพื่อหา Optimal Policy
+
+## 2. Bias-Variance Tradeoff
+
+*   **Bias:** Error ที่เกิดจากการใช้โมเดลที่เรียบง่ายเกินไป ทำให้ไม่สามารถจับความซับซ้อนของข้อมูลได้ นำไปสู่ปัญหา Underfitting
+*   **Variance:** Error ที่เกิดจากการที่โมเดลมีความไวต่อ Fluctuation ใน Training Data มากเกินไป ทำให้จับ Noise ในข้อมูล นำไปสู่ปัญหา Overfitting
+*   **Tradeoff:** การสร้างโมเดลที่มีประสิทธิภาพจำเป็นต้องหาจุดสมดุล (Sweet Spot) ระหว่าง Bias และ Variance เพื่อให้ได้ Minimum Total Error บน Unseen Data
+
+## 3. Evaluation Metrics
+
+*   **Accuracy:** อัตราส่วนของการทำนายที่ถูกต้องทั้งหมด
+*   **Precision:** สัดส่วนของ True Positives จาก Positive Predictions ทั้งหมด
+*   **Recall (Sensitivity):** สัดส่วนของ True Positives จาก Actual Positives ทั้งหมด
+*   **F1 Score:** ค่า Harmonic Mean ระหว่าง Precision และ Recall
