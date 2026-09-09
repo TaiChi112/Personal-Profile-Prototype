@@ -1,0 +1,25 @@
+---
+title: "Automata Theory"
+description: "สรุป Automata Theory และ Abstract Machines"
+---
+
+# Automata Theory (สรุปด่วน)
+
+Automata Theory เป็นการศึกษาเกี่ยวกับ **Abstract Machines** และปัญหาที่ Machine เหล่านี้สามารถแก้ได้ ซึ่งเป็นพื้นฐานสำคัญของการสร้าง **Compiler** และ **Programming Languages**
+
+## 1. Finite Automata (FA)
+เป็น Abstract Machine ที่มี **State** จำนวนจำกัด ไม่มี Memory ฝังตัว (ทำงานโดยการเปลี่ยน State ตาม Input)
+- **Deterministic Finite Automaton (DFA):** สำหรับแต่ละ State และแต่ละ Input จะมีทางไปสู่ State ถัดไปเพียง **ทางเดียว** เท่านั้น
+- **Nondeterministic Finite Automaton (NFA):** สามารถไปยัง State ถัดไปได้ **หลายทาง** (หรือไม่มีเลย) ด้วย Input เดียวกัน รวมถึงข้าม State ได้โดยไม่ต้องรับ Input (Epsilon transition)
+- **Fact:** DFA และ NFA มีความสามารถในการประมวลผล (Computational Power) เท่ากัน
+
+## 2. Regular Expressions (RegEx)
+ใช้สำหรับอธิบายรูปแบบของ String (Pattern Matching)
+- มีความสามารถเทียบเท่ากับ Finite Automata (ปัญหาใดที่ FA แก้ได้ RegEx ก็สามารถอธิบายได้ เรียกว่า Regular Languages)
+- **Applications:** Text processing, การหา Pattern ใน Code, Lexical analysis ใน Compiler
+
+## 3. Context-Free Grammars (CFG)
+เป็นระบบในการสร้าง String โดยมีชุดของ Rules (Productions) เพื่ออธิบายภาษาที่มีโครงสร้างซับซ้อนขึ้น
+- มีความสามารถมากกว่า FA (เช่น สามารถเช็ควงเล็บเปิด/ปิดว่าจับคู่กันครบหรือไม่)
+- เครื่องจักรที่เทียบเท่ากับ CFG คือ **Pushdown Automata (PDA)** ซึ่งก็คือ FA ที่มี Memory แบบ Stack เพิ่มเข้ามา
+- **Applications:** การสร้าง Syntax Parser ใน Compiler (การเช็คว่าเขียน Code ถูกหลัก Syntax หรือไม่)

@@ -1,0 +1,24 @@
+---
+title: "Computability Theory"
+description: "สรุป Computability Theory, Turing Machines และ Halting Problem"
+---
+
+# Computability Theory (สรุปด่วน)
+
+Computability Theory มุ่งศึกษาว่า **ปัญหาใดที่สามารถแก้ได้ด้วย Computer และปัญหาใดที่ไม่มีทางแก้ได้ (Decidability)**
+
+## 1. Turing Machine
+Turing Machine คือ Model จำลองของ Computer ที่ออกแบบโดย Alan Turing
+- ประกอบด้วย **Infinite Tape** (Memory ที่ไม่มีวันเต็ม) และ **Read/Write Head** ที่สามารถเดินหน้าถอยหลังได้
+- ถือเป็นโมเดลมาตรฐานที่ใช้นิยามคำว่า "Algorithm" (ปัญหาใดที่ Turing Machine แก้ได้ Computer ทุกเครื่องในโลกนี้ก็แก้ได้)
+
+## 2. Decidability
+ปัญหาใน Computer Science ถูกแบ่งออกเป็นกลุ่มตามความสามารถในการแก้ปัญหา:
+- **Decidable Problem:** ปัญหาที่มี Algorithm ที่สามารถหาคำตอบได้ (Yes หรือ No) และ **หยุดทำงานเสมอ (Halt)** ภายในเวลาที่จำกัด
+- **Undecidable Problem:** ปัญหาที่ไม่มีวันสร้าง Algorithm ที่ครอบคลุมทุกกรณีแล้วการันตีว่าจะหาคำตอบ (Yes/No) และ Halt ได้ 100%
+
+## 3. Halting Problem
+เป็นหนึ่งใน Undecidable Problem ที่โด่งดังที่สุดใน Computer Science
+- **คำถาม:** "เราสามารถสร้าง Program A ที่สามารถตรวจสอบ Program B ใดๆ ว่าถ้ารันด้วย Input C แล้ว Program B จะหยุดทำงาน (Halt) หรือจะติด Infinite Loop ได้หรือไม่?"
+- **การพิสูจน์:** Alan Turing พิสูจน์ด้วยวิธี Contradiction ว่า **ไม่มีทางสร้าง Program A นี้ได้**
+- **บทสรุป:** สิ่งนี้ตอกย้ำให้ Programmer รู้ว่า **Computer ไม่สามารถแก้ได้ทุกปัญหาบนโลก** (Computational Limit)
