@@ -1,15 +1,37 @@
 ---
-title: "Computer Organization & Architecture"
-description: "Learn about computer science concepts, their applications, and fundamental principles."
-# icon: "Science"
+title: "Computer Architecture (COA)"
+description: "ทบทวนสถาปัตยกรรมคอมพิวเตอร์ กลไกของ CPU และ Memory Hierarchy"
 ---
 
-<Callout title="Warning" type="warning">
-  **Pardon our dust!** This section is currently a work in progress. I am
-  actively migrating and restructuring content from my previous project. Some
-  information may be incomplete or temporarily unavailable. Thank you for your
-  patience as I build this out—stay tuned for upcoming updates!
+import { Cpu, Microchip, Layers } from 'lucide-react';
+
+<Callout title="Quick Review" type="info">
+  สรุปหลักการทำงานระดับ Hardware ที่ Engineer ควรรู้ เพื่อให้สามารถเขียน Software ที่ Optimize ประสิทธิภาพได้สูงสุด
 </Callout>
-# Data Structure & Algorithms
 
+# Computer Organization & Architecture
 
+ศาสตร์ที่ว่าด้วยโครงสร้างภายในของระบบคอมพิวเตอร์ การทำงานร่วมกันระหว่าง CPU, Memory และ I/O Devices
+
+เลือกหัวข้อที่ต้องการทบทวน:
+
+<Cards>
+  <Card 
+    href="/docs/computer_science/systems/coa/cpu-architecture" 
+    title="CPU Architecture" 
+    icon={<Cpu />}
+    description="ส่วนประกอบของ CPU, Instruction Cycle และวงจร ALU" 
+  />
+  <Card 
+    href="/docs/computer_science/systems/coa/memory-hierarchy" 
+    title="Memory Hierarchy" 
+    icon={<Layers />}
+    description="ลำดับชั้นหน่วยความจำ Cache L1/L2/L3 และ RAM" 
+  />
+  <Card 
+    href="/docs/computer_science/systems/coa/pipelining" 
+    title="Pipelining & Hazards" 
+    icon={<Microchip />}
+    description="การประมวลผลคำสั่งแบบขนาน และปัญหา Hazards ที่เกิดขึ้น" 
+  />
+</Cards>
