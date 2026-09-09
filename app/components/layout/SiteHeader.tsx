@@ -130,7 +130,7 @@ export function SiteHeader({
                         className="fixed inset-0 z-40" 
                         onClick={() => setIsLangMenuOpen(false)}
                       />
-                      <div className="absolute right-0 top-full mt-2 bg-fd-popover border border-fd-border rounded-lg shadow-lg py-1 min-w-[120px] z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="absolute right-0 top-full mt-2 bg-fd-popover border border-fd-border rounded-lg shadow-lg py-1 min-w-30 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                         <Link 
                           href={pathname.replace(/^\/(en|th)\/docs/, '/en/docs')}
                           onClick={() => setIsLangMenuOpen(false)}
