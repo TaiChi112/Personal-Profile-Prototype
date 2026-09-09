@@ -1,0 +1,9 @@
+{
+  "title": "Computer Networks",
+  "pages": [
+    "index",
+    "osi-model",
+    "tcp-udp",
+    "http-dns"
+  ]
+}

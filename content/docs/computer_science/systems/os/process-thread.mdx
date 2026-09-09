@@ -1,0 +1,23 @@
+---
+title: "Process & Thread"
+description: "สรุปความแตกต่างของ Process, Thread และ Context Switching"
+---
+
+# Process & Thread (สรุปด่วน)
+
+## 1. Process
+Process คือ Program ที่กำลังทำงานอยู่ (Executing) ใน Memory
+- **Resource Allocation:** แต่ละ Process จะได้รับ Memory Space ของตัวเอง (Isolated) ถ้าระบบล่ม จะไม่กระทบ Process อื่น
+- **Process Control Block (PCB):** Data Structure ที่ OS ใช้เก็บสถานะของ Process (เช่น State, Program Counter, CPU Registers, Memory Limits)
+- **States:** `New` -> `Ready` -> `Running` -> `Waiting/Blocked` -> `Terminated`
+
+## 2. Thread
+Thread คือหน่วยการประมวลผลย่อยที่อยู่ภายใน Process
+- **Shared Resources:** Thread ที่อยู่ภายใน Process เดียวกันจะใช้ Memory Space (Code, Data, Heap) ร่วมกัน แต่จะมี Stack และ Register เป็นของตัวเอง
+- **ข้อดี:** การสร้าง (Creation) และการสลับ (Switching) ใช้ Resource น้อยกว่า Process มาก
+- **ข้อควรระวัง:** เนื่องจากการแชร์ Memory ทำให้เสี่ยงต่อการเกิด Race Condition หากไม่จัดการ Synchronization ให้ดี
+
+## 3. Context Switching
+กระบวนการที่ CPU หยุดการทำงานของ Process/Thread หนึ่ง เพื่อเปลี่ยนไปทำงานอีกตัวหนึ่ง
+- **กลไก:** OS จะทำการบันทึกสถานะปัจจุบันลงใน PCB (หรือ TCB สำหรับ Thread) และโหลดสถานะของคิวถัดไปขึ้นมา
+- **Overhead:** เป็น Operation ที่มีค่าใช้จ่าย (Cost) สูง เพราะ CPU ไม่ได้ทำ Computation จริงๆ ระหว่างการสลับ Context (Thread จะมี Overhead น้อยกว่า Process)

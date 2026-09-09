@@ -1,0 +1,24 @@
+---
+title: "Memory Management"
+description: "สรุปเรื่อง Virtual Memory, Paging และ Fragmentation"
+---
+
+# Memory Management (สรุปด่วน)
+
+OS ทำหน้าที่จัดการหน่วยความจำหลัก (RAM) เพื่อให้ Process หลายตัวรันพร้อมกันได้อย่างปลอดภัยและมีประสิทธิภาพ
+
+## 1. Virtual Memory
+เทคนิคที่ทำให้ Process คิดว่าตัวเองมี Memory ต่อเนื่องขนาดใหญ่ (Illusion) โดยที่ในความเป็นจริง Memory นั้นอาจกระจายอยู่บน RAM หรือถูกโยกไปเก็บบน Hard Drive ชั่วคราว (Swap Space)
+- **ข้อดี:** Process ใช้ Memory เกินความจุจริงของ RAM ได้, ป้องกันไม่ให้ Process ก้าวก่าย Memory ของกันและกัน (Security Isolation)
+
+## 2. Paging & Segmentation
+กลไกการแบ่ง Memory เพื่อป้องกันการเกิดช่องโหว่ (Fragmentation)
+- **Paging:** แบ่ง Logical Memory ของ Process เป็นบล็อกขนาดเท่าๆ กันเรียกว่า `Pages` และแบ่ง RAM เป็น `Frames` ทำให้ OS สามารถยัด Page ลงใน Frame ไหนก็ได้ที่ว่างอยู่ 
+  - *แก้ปัญหา:* External Fragmentation
+- **Segmentation:** แบ่ง Memory ตามขนาดจริงของ Logical Unit (เช่น Text, Data, Stack)
+  - *ปัญหาที่เกิด:* External Fragmentation (มีช่องว่างระหว่าง Segment)
+
+## 3. Page Fault
+เหตุการณ์ที่เกิดขึ้นเมื่อ CPU พยายามเข้าถึง Data บน Virtual Memory แต่ Data นั้นยังไม่ได้ถูกโหลดลง RAM จริงๆ
+- **กลไก:** OS จะหยุดการทำงาน (Trap) ไปดึง Data จาก Disk (Swap) มาใส่ RAM และอัปเดต Page Table ก่อนที่จะให้ CPU รันต่อ
+- **Thrashing:** ภาวะที่ระบบมี Page Fault มากเกินไป จน OS เสียเวลาไปกับการสลับ Page เข้าออก Disk มากกว่าการให้ CPU ประมวลผลจริง ทำให้ระบบค้างหรือช้ามาก

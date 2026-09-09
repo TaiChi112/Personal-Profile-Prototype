@@ -1,15 +1,37 @@
 ---
-title: "Computer Network"
-description: "Learn about computer science concepts, their applications, and fundamental principles."
-# icon: "Science"
+title: "Computer Networks (CN)"
+description: "ทบทวนพื้นฐานระบบเครือข่าย OSI Model และ Protocols"
 ---
 
-<Callout title="Warning" type="warning">
-  **Pardon our dust!** This section is currently a work in progress. I am
-  actively migrating and restructuring content from my previous project. Some
-  information may be incomplete or temporarily unavailable. Thank you for your
-  patience as I build this out—stay tuned for upcoming updates!
+import { Globe, ShieldAlert, ArrowRightLeft } from 'lucide-react';
+
+<Callout title="Quick Review" type="info">
+  สรุปหลักการเชื่อมต่อและส่งข้อมูลข้ามเครือข่ายที่เป็นรากฐานของ Internet และ Web Architecture
 </Callout>
-# Computer Network
 
+# Computer Networks
 
+Computer Networks คือศาสตร์ที่ว่าด้วยการเชื่อมโยงระบบ Computer เข้าด้วยกันเพื่อสื่อสารและแลกเปลี่ยนข้อมูล
+
+เลือกหัวข้อที่ต้องการทบทวน (Bento Grid):
+
+<Cards>
+  <Card 
+    href="/docs/computer_science/systems/cn/osi-model" 
+    title="OSI Model" 
+    icon={<Layers />}
+    description="โมเดล 7 เลเยอร์มาตรฐานที่ใช้แบ่งหน้าที่การทำงานของระบบ Network" 
+  />
+  <Card 
+    href="/docs/computer_science/systems/cn/tcp-udp" 
+    title="TCP & UDP" 
+    icon={<ArrowRightLeft />}
+    description="ความแตกต่างของ Transport Layer, Three-way Handshake และ Reliability" 
+  />
+  <Card 
+    href="/docs/computer_science/systems/cn/http-dns" 
+    title="HTTP & DNS" 
+    icon={<Globe />}
+    description="กลไกของ Web Application, Domain Name System และ HTTP Status Codes" 
+  />
+</Cards>

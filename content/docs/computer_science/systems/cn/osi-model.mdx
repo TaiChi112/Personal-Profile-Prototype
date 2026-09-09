@@ -1,0 +1,18 @@
+---
+title: "OSI Model"
+description: "สรุป 7 Layers ของ OSI Model"
+---
+
+# OSI Model (สรุปด่วน)
+
+**OSI Model (Open Systems Interconnection)** เป็นแบบจำลองแนวคิด (Conceptual Model) ที่แบ่งการทำงานของ Network ออกเป็น 7 ชั้น (Layers) เพื่อให้ Hardware และ Software จากต่างผู้ผลิตสามารถคุยกันรู้เรื่อง
+
+## The 7 Layers (จากบนลงล่าง)
+
+1. **L7 - Application Layer:** ชั้นที่ติดต่อกับผู้ใช้งานตรงๆ ผ่าน Application (Protocols: `HTTP`, `HTTPS`, `FTP`, `SMTP`, `DNS`)
+2. **L6 - Presentation Layer:** หน้าที่แปล (Translate), เข้ารหัส (Encrypt), และบีบอัดข้อมูล (Compress) ให้ระบบอื่นอ่านเข้าใจ (Formats: `JSON`, `JPEG`, `SSL/TLS`)
+3. **L5 - Session Layer:** สร้าง, จัดการ, และปิดการเชื่อมต่อ (Session) ระหว่างสอง Application
+4. **L4 - Transport Layer:** รับประกันการส่งมอบข้อมูล (End-to-End Communication) โดยแบ่งข้อมูลเป็นชิ้นเล็กๆ เรียกว่า `Segments` (Protocols: `TCP`, `UDP`)
+5. **L3 - Network Layer:** ทำหน้าที่หาเส้นทางที่เหมาะสมที่สุด (Routing) ในการส่งข้อมูลข้าม Network ด้วย `Packets` (Protocols: `IPv4`, `IPv6`, `ICMP` / อุปกรณ์: Router)
+6. **L2 - Data Link Layer:** ส่งข้อมูลระหว่าง Node ที่เชื่อมต่อกันโดยตรง (Node-to-Node) ด้วย `Frames` และจัดการข้อผิดพลาดระดับ Physical (Addressing: `MAC Address` / อุปกรณ์: Switch)
+7. **L1 - Physical Layer:** ส่งข้อมูลดิบแบบกระแสไฟฟ้า หรือคลื่นแม่เหล็กไฟฟ้า (Bits `0` และ `1`) ผ่านสายเคเบิล หรือคลื่น Wi-Fi

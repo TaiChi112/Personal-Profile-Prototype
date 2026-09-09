@@ -1,0 +1,26 @@
+---
+title: "TCP & UDP"
+description: "เปรียบเทียบ Transport Protocols TCP และ UDP"
+---
+
+# TCP & UDP (สรุปด่วน)
+
+ทั้งคู่ทำงานอยู่บน **L4 (Transport Layer)** แต่มีจุดประสงค์การใช้งานที่ต่างกันอย่างสิ้นเชิง
+
+## 1. TCP (Transmission Control Protocol)
+เป็น Protocol แบบ **Connection-Oriented** เน้นความน่าเชื่อถือ (Reliability) ของข้อมูลสูงสุด
+- **คุณสมบัติ:**
+  - การันตีว่า Data ถึงปลายทางครบถ้วนและเรียงลำดับอย่างถูกต้อง
+  - มีระบบ Error Recovery (ส่งใหม่เมื่อหาย) และ Flow Control / Congestion Control (ลดความเร็วเมื่อเครือข่ายติดขัด)
+- **Three-way Handshake:** ต้องสร้าง Connection ก่อนส่งข้อมูล
+  1. `SYN` (Client ขอเชื่อมต่อ)
+  2. `SYN-ACK` (Server ตอบรับ)
+  3. `ACK` (Client ยืนยัน)
+- **Use Cases:** Web Browsing (`HTTP/HTTPS`), File Transfer (`FTP`), Email (`SMTP`), SSH
+
+## 2. UDP (User Datagram Protocol)
+เป็น Protocol แบบ **Connectionless** เน้นความเร็ว (Speed) และประหยัด Bandwidth
+- **คุณสมบัติ:**
+  - ส่งข้อมูลทันทีโดยไม่สนใจว่าปลายทางจะพร้อมรับหรือไม่
+  - ไม่มีการันตีว่า Data จะถึงครบ หรือเรียงลำดับถูก (No Acknowledgement)
+- **Use Cases:** Video Streaming, Online Gaming, VoIP, DNS Resolution (เพราะถ้ารอ TCP Handshake จะช้าเกินไป)

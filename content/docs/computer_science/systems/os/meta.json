@@ -1,0 +1,9 @@
+{
+  "title": "Operating Systems",
+  "pages": [
+    "index",
+    "process-thread",
+    "concurrency",
+    "memory-management"
+  ]
+}
