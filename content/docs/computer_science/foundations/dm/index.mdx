@@ -1,57 +1,35 @@
 ---
 title: "Discrete Mathematics (คณิตศาสตร์ไม่ต่อเนื่อง)"
-description: "พื้นฐานคณิตศาสตร์ที่สำคัญที่สุดสำหรับวิทยาการคอมพิวเตอร์"
+description: "หน้าเริ่มต้นสำหรับทบทวนพื้นฐานคณิตศาสตร์สำหรับวิทยาการคอมพิวเตอร์"
 ---
 
-<Callout title="บทนำ" type="info">
-  เนื้อหาในหน้านี้สรุปหลักการสำคัญของ **Discrete Mathematics** ซึ่งเป็นรากฐานของการเขียนโปรแกรม การออกแบบอัลกอริทึม และทฤษฎีการคำนวณ (Theory of Computation)
+<Callout title="Quick Review" type="info">
+  หมวดหมู่นี้ออกแบบมาเพื่อการอ่านทบทวนแบบรวดเร็ว (Cheat Sheet) สรุปทฤษฎีและคอนเซปต์หลักของ Discrete Mathematics ที่ใช้บ่อยในการเขียนโปรแกรมและออกแบบอัลกอริทึม
 </Callout>
 
-# Discrete Mathematics คืออะไร?
+# 🔢 Discrete Mathematics
 
-**Discrete Mathematics (คณิตศาสตร์ไม่ต่อเนื่อง)** คือแขนงหนึ่งของคณิตศาสตร์ที่ศึกษาเกี่ยวกับโครงสร้างข้อมูลที่มีลักษณะ "แยกส่วนกันอย่างชัดเจน" (Distinct and Separated) หรือสามารถนับได้ (Countable) แตกต่างจากคณิตศาสตร์ต่อเนื่อง (Continuous Mathematics) เช่น แคลคูลัส (Calculus) ที่ศึกษาเกี่ยวกับสิ่งที่ต่อเนื่องกัน
+เลือกหัวข้อที่ต้องการทบทวน (Bento Grid):
 
-ในทางวิทยาการคอมพิวเตอร์ (Computer Science) คอมพิวเตอร์ทำงานในรูปแบบของสถานะดิจิทัลที่เป็น `0` และ `1` (Discrete State) ดังนั้นทุกสิ่งทุกอย่างตั้งแต่ สถาปัตยกรรมคอมพิวเตอร์, การวิเคราะห์อัลกอริทึม, ฐานข้อมูล, ไปจนถึงปัญญาประดิษฐ์ (AI) ล้วนมีรากฐานมาจากคณิตศาสตร์แขนงนี้
-
----
-
-## หัวข้อหลักในคณิตศาสตร์ไม่ต่อเนื่อง (Core Topics)
-
-### 1. Logic & Propositional Calculus (ตรรกศาสตร์และการให้เหตุผล)
-ตรรกศาสตร์คือรากฐานของการตัดสินใจในโปรแกรม 
-- **Propositions (ประพจน์):** ประโยคที่สามารถบอกค่าความจริงได้ว่าเป็นจริง (True) หรือเท็จ (False)
-- **Logical Operators:** `AND (∧)`, `OR (∨)`, `NOT (¬)`, `XOR (⊕)`, `Implies (→)`
-- **Applications:** การเขียนเงื่อนไข `if-else`, การสืบค้นข้อมูลในฐานข้อมูล (SQL), และการสร้างวงจรตรรกะใน CPU (Logic Gates)
-
-### 2. Set Theory (ทฤษฎีเซต)
-การจัดกลุ่มของสิ่งต่างๆ ที่มีคุณสมบัติเหมือนกัน
-- **Operations:** `Union (∪)`, `Intersection (∩)`, `Difference (\)`, `Complement`
-- **Applications:** รากฐานของโครงสร้างฐานข้อมูลเชิงสัมพันธ์ (Relational Database) และการทำ Data Filtering
-
-### 3. Relations & Functions (ความสัมพันธ์และฟังก์ชัน)
-การจับคู่ข้อมูลจากเซตหนึ่งไปยังอีกเซตหนึ่ง
-- **Properties:** Reflexive, Symmetric, Transitive
-- **Functions:** Injective (One-to-One), Surjective (Onto), Bijective
-- **Applications:** การสร้างฟังก์ชันในโปรแกรม, Cryptography (การเข้ารหัสข้อมูลด้วย Hash Functions)
-
-### 4. Graph Theory (ทฤษฎีกราฟ)
-การศึกษาเรื่องโครงสร้างการเชื่อมโยง (Nodes and Edges)
-- **Concepts:** Directed/Undirected Graphs, Trees, Paths, Cycles
-- **Applications:** ระบบ GPS ค้นหาเส้นทางที่สั้นที่สุด (Dijkstra's Algorithm), โครงข่ายประสาทเทียม (Neural Networks), Social Networks, และอัลกอริทึมในการทำ Recommendation Systems
-
-### 5. Combinatorics (คณิตศาสตร์เชิงการจัด)
-การศึกษาวิธีการนับและการจัดเรียงรูปแบบต่างๆ
-- **Concepts:** Permutations (การเรียงสับเปลี่ยน), Combinations (การจัดหมู่), Pigeonhole Principle
-- **Applications:** การคำนวณความน่าจะเป็น, การวิเคราะห์ความซับซ้อนของอัลกอริทึม (Time Complexity / Big-O Notation), และการสุ่ม (Randomness)
-
-### 6. Boolean Algebra (พีชคณิตบูลีน)
-ระบบพีชคณิตที่ทำงานกับค่าความจริง `0` และ `1`
-- **Applications:** การออกแบบวงจรดิจิทัลในระดับฮาร์ดแวร์, การย่อรูปสมการตรรกะให้สั้นที่สุดเพื่อลดทรัพยากรการประมวลผล
-
----
-
-## ทำไม Developer ถึงต้องเรียน Discrete Math?
-
-1. **เขียนโค้ดได้มีประสิทธิภาพขึ้น:** เข้าใจการใช้ `if-else` และ `loop` อย่างแม่นยำ รวมถึงวิเคราะห์ Big O Complexity ของโค้ดตัวเองได้อย่างเป็นระบบ
-2. **แก้ปัญหาซับซ้อนได้:** อัลกอริทึมระดับสูง (เช่น การค้นหาเส้นทาง, AI, Machine Learning) ล้วนต้องใช้ทฤษฎีกราฟและความน่าจะเป็น
-3. **ออกแบบระบบฐานข้อมูลที่แข็งแกร่ง:** เข้าใจ Relational Algebra ซึ่งเป็นเบื้องหลังของคำสั่ง SQL ทำให้สามารถทำ Query Optimization ให้ฐานข้อมูลทำงานไวขึ้นได้
+<Cards>
+  <Card 
+    href="/docs/computer_science/foundations/dm/logic-sets" 
+    title="🧠 Logic & Sets" 
+    description="ตรรกศาสตร์ ประพจน์ ทฤษฎีเซต และฐานข้อมูล" 
+  />
+  <Card 
+    href="/docs/computer_science/foundations/dm/relations-functions" 
+    title="🔗 Relations & Functions" 
+    description="ความสัมพันธ์ ฟังก์ชันโดเมน เรนจ์ และการเข้ารหัส" 
+  />
+  <Card 
+    href="/docs/computer_science/foundations/dm/graph-theory" 
+    title="🕸️ Graph Theory" 
+    description="ทฤษฎีกราฟ โหนด เส้นทางต้นไม้ และเน็ตเวิร์ค" 
+  />
+  <Card 
+    href="/docs/computer_science/foundations/dm/combinatorics-boolean" 
+    title="🎲 Combinatorics & Boolean" 
+    description="การเรียงสับเปลี่ยน การจัดหมู่ ความน่าจะเป็น และพีชคณิตบูลีน" 
+  />
+</Cards>

@@ -1,0 +1,28 @@
+---
+title: "Algorithms"
+description: "สรุปอัลกอริทึมพื้นฐาน Sorting, Searching, Graph, Dynamic Programming"
+---
+
+# ⚙️ Algorithms (สรุปด่วน)
+
+## 1. Searching (การค้นหา)
+- **Linear Search:** ไล่หาทีละตัว `O(n)`
+- **Binary Search:** ข้อมูลต้องเรียงแล้ว หารครึ่งไปเรื่อยๆ `O(log n)`
+
+## 2. Sorting (การจัดเรียง)
+- **Bubble / Insertion / Selection Sort:** เรียงแบบง่ายๆ วนลูปซ้อน `O(n^2)` (ใช้จริงเมื่อข้อมูลน้อยมาก)
+- **Merge Sort:** แบ่งครึ่งแล้วรวม (Divide & Conquer) `O(n log n)` เสมอ แต่กินพื้นที่ `O(n)`
+- **Quick Sort:** สุ่ม Pivot แล้วแบ่งฝั่ง เฉลี่ย `O(n log n)` พื้นที่ `O(log n)` แต่อาจแย่สุด `O(n^2)`
+
+## 3. Graph Traversal (การท่องกราฟ/ต้นไม้)
+- **BFS (Breadth-First Search):** ค้นหาแนวกว้าง กระจายออกเป็นชั้นๆ ใช้ Queue เหมาะสำหรับหา Shortest Path บนกราฟน้ำหนักเท่ากัน
+- **DFS (Depth-First Search):** ค้นหาแนวลึก พุ่งไปจนสุดทางแล้วถอยกลับ ใช้ Stack หรือ Recursion เหมาะสำหรับลุยเขาวงกต หรือเช็ค Cycle
+
+## 4. Shortest Path (เส้นทางสั้นสุด)
+- **Dijkstra:** หาระยะสั้นสุดแบบมีน้ำหนักบวก `O(E log V)` (เมื่อใช้ Priority Queue)
+- **Bellman-Ford:** รองรับกราฟที่มีน้ำหนักติดลบ `O(VE)`
+- **Floyd-Warshall:** หาระยะสั้นสุดทุกคู่โหนด `O(V^3)`
+
+## 5. Algorithmic Paradigms
+- **Greedy:** เลือกทางที่ดูดีที่สุดในปัจจุบัน (Local Optimum) หวังว่าจะได้ดีที่สุดในตอนจบ (เช่น Coin Change บางสกุล, Dijkstra, Huffman Coding)
+- **Dynamic Programming (DP):** จำผลลัพธ์ของปัญหาย่อย (Memoization/Tabulation) เพื่อไม่ให้ต้องคำนวณซ้ำ ใช้แก้ปัญหาที่มี Overlapping Subproblems (เช่น Fibonacci, Knapsack)
