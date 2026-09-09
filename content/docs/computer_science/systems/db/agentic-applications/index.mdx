@@ -5,50 +5,44 @@ description: "Safe workflows for AI agents interacting with databases."
 
 # Agentic Database Applications
 
-As AI agents become more capable, the desire to let them interact with databases grows. While agents can be excellent at analyzing data, they should rarely be allowed to modify data autonomously. Instead, agentic database applications must rely on controlled workflows and proposed operations. Giving an AI unrestricted access to your database is extremely dangerous.
+As AI agents grow more capable, integrating them with databases introduces both immense utility and significant risk. This guide serves as a cheat sheet for securing agentic workflows and provides practical examples of safe database integrations.
 
 <Callout title="Work in Progress" type="warning">
   This section outlines the theoretical boundaries for safe agent-database interaction. The actual runtime integrations for `taichi112.works` are still in development.
 </Callout>
 
-## The Risks of Unrestricted AI Access
+## Cheat Sheet: Core Principles of Agentic Security
 
-If an AI agent can execute any SQL command, you expose the system to several severe risks:
-- **Destructive Writes**: Accidentally dropping a table or deleting production user data.
-- **Data Leaks**: Querying and exposing sensitive information (like passwords or PII) that the agent shouldn't have access to.
-- **Hallucinated Schemas**: The AI making up table names or columns that don't exist, leading to crashed applications.
-- **Performance Degradation**: Generating wildly inefficient queries that lock up the database.
+When connecting AI to your database, adhere to the following principles to prevent destructive operations:
 
-## Minimum Safety Checklist
+- **Default to Read-Only**: Enforce strictly read-only permissions for agents exploring or querying data.
+- **Schema Allowlists**: Restrict the agent's visibility exclusively to required tables and columns. Do not expose sensitive data (e.g., PII, passwords).
+- **Human-in-the-Loop (HITL) for Writes**: All modifying operations (INSERT, UPDATE, DELETE) must require explicit human approval before execution.
+- **Scoped API Endpoints**: Force agents to write data via predefined API endpoints rather than executing direct SQL commands.
+- **Audit Logging**: Maintain immutable logs of every action proposed and executed by the agent.
 
-When designing an agentic database workflow, ensure you implement the following safety measures:
-- **Default to read-only access**: Agents should only have read permissions by default.
-- **Use schema allowlists**: Restrict the agent's visibility to only the tables and columns it needs to see.
-- **Require approval for writes**: All destructive or modifying operations must go through a human-in-the-loop review.
-- **Log every proposed and executed action**: Maintain an audit trail of what the agent tried to do and what was approved.
-- **Prepare rollback or recovery steps**: Always have a plan for how to undo an action if something goes wrong.
-- **Route writes through scoped APIs**: Agents should trigger predefined API endpoints for writes, rather than composing direct SQL `INSERT` or `UPDATE` statements.
+## Practical Examples: Securing Workflows
 
-## Safe Agent-Database Interaction
+### Example 1: The Read-Only Query Pattern
 
-To build safe agentic applications, we must implement strict boundaries and approval flows.
+**Scenario**: A user asks an agent, "How many active projects do we have?"
 
-### 1. Read-Only vs. Write Actions
-Agents should almost always operate with **read-only** permissions when exploring data. If an agent needs to write data (like updating a record), it should do so through carefully scoped API endpoints rather than direct database writes.
+**Implementation**:
+1. The agent translates the natural language query into a SQL `SELECT` statement.
+2. The agent executes the query using a restricted, read-only database user profile.
+3. The result is safely summarized and returned to the user.
 
-### 2. The Human-in-the-Loop Model
-The safest way to allow an agent to perform complex database operations is the **Human-in-the-Loop (HITL)** model:
-1. **Natural Language**: The user asks a question ("How many active projects do we have?").
-2. **Query Generation**: The agent translates this into a database query.
-3. **Review**: The system pauses and presents the proposed query to a human for approval.
-4. **Execution**: Only after human approval does the system execute the query against the database.
+**Why it works**: Even if the agent hallucinates a destructive `DROP TABLE` command, the read-only database permissions will reject the operation at the infrastructure level.
 
-### 3. Audit Logs and Rollback Thinking
-Every action an agent takes must be logged. If an agent modifies data, there must be a clear audit trail of *why* the decision was made, and a fast way to rollback those changes if necessary.
+### Example 2: The HITL Approval Flow
 
-## The Safe Agent Workflow
+**Scenario**: A user instructs an agent, "Update the status of project X to completed."
 
-Below is a conceptual workflow for how an AI agent safely interacts with a database:
+**Implementation**:
+1. The agent formulates a proposed API call to update the project status.
+2. The system intercepts the proposal and suspends execution.
+3. The system presents the proposed action to the user for review.
+4. If approved, the scoped API endpoint executes the change. If rejected, the action is discarded.
 
 ```mermaid
 sequenceDiagram
@@ -72,6 +66,15 @@ sequenceDiagram
         Agent-->>User: "Action cancelled."
     end
 ```
+
+### Example 3: Mitigating Hallucinated Schemas
+
+**Scenario**: An agent invents a non-existent table column when attempting to fulfill a complex request.
+
+**Implementation**:
+1. Provide the agent with a rigid, predefined schema allowlist via system prompts or metadata injection.
+2. Validate all generated queries against this allowlist before execution.
+3. If a hallucinated column is detected, the system immediately returns a structured error to the agent, prompting it to correct the query based on the approved schema.
 
 ---
 

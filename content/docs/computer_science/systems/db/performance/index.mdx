@@ -5,52 +5,56 @@ description: "Query optimization, indexing, and measuring before optimizing."
 
 # Database Performance
 
-A database can have the perfect schema and be completely reliable, but if retrieving data takes 10 seconds, the application is practically unusable.
+Database Performance คือการบริหารจัดการทรัพยากรเพื่อให้ระบบสามารถดึงและบันทึกข้อมูลได้อย่างรวดเร็ว รองรับปริมาณการใช้งานที่เพิ่มขึ้น โดยไม่ส่งผลกระทบต่อ User experience
 
-<Callout title="Work in Progress" type="warning">
-  This section covers performance concepts. Advanced caching and Prisma query optimization will be added later.
-</Callout>
+## Cheat Sheet: Core Performance Concepts
 
-## Why Performance Matters
+| Concept | Description |
+|---|---|
+| **Query Optimization** | การปรับปรุงคำสั่ง SQL (หรือ ORM query) เพื่อให้ Database ทำงานน้อยที่สุดในการค้นหาผลลัพธ์ที่ต้องการ |
+| **Caching** | การจัดเก็บผลลัพธ์ของ Query ที่ใช้บ่อยหรือข้อมูลที่เปลี่ยนแปลงน้อย ไว้ในระบบที่มีความเร็วสูง (เช่น In-memory database) |
+| **Connection Pooling** | การสร้างและจัดการกลุ่มของ Database connections ไว้ล่วงหน้า เพื่อลด Overhead ในการสร้าง Connection ใหม่ทุกครั้งที่มี Request |
 
-As an application grows, tables get larger. A query that takes 10 milliseconds with 100 rows might take 10 seconds with 1,000,000 rows. Database performance directly impacts server costs, user experience, and the ability to scale.
+## Practical Examples
 
-## Core Performance Concepts
-
-Here is a quick overview of performance strategies:
-
-| Concept | What it is | When to use it |
-|---|---|---|
-| **Index** | A "table of contents" for fast lookups. | When searching a column frequently (e.g., `email`). |
-| **Query Shape** | Requesting only the data you need. | When a page loads too much hidden data. |
-| **N+1 Queries** | Looping database calls unnecessarily. | Use Joins or ORM batching instead. |
-| **Pagination** | Loading data in small chunks. | Lists with more than 50 items. |
-| **Join** | Combining related tables in one query. | When you need User and Profile data at once. |
-| **Cache** | Storing slow query results in fast memory. | When data is read constantly but changes rarely. |
-
-<Callout title="Knowledge Links" type="info">
-  **Used in the Project Tracker scenario ([Labs](../labs))**:
-  When displaying a user's dashboard, we use an **index** to find their projects instantly. We fetch the project and its related tasks in one step to avoid an **N+1 query** loop, keeping the **query shape** optimized. If they have hundreds of tasks, we use **pagination** to only load what's visible. Compare this structural thinking back to [Schema Design](../schema-design).
-</Callout>
-
-## The Golden Rule: Measure Before Optimizing
-
-Avoid **premature optimization**. Don't spend days architecting a complex caching layer for a database table that only holds 50 rows.
-
-```mermaid
-flowchart LR
-    Measure([Measure Query Time]) --> Check{Is it slow?}
-    Check -- No --> Done([Done])
-    Check -- Yes --> Inspect[Inspect Query Shape]
-    Inspect --> Fix[Add Index / Rewrite Query]
-    Fix --> Measure
+### 1. Query Optimization with Indexing
+**Scenario**: ตาราง `users` มีข้อมูล 10 ล้านเรคคอร์ด การค้นหาผู้ใช้ด้วยอีเมลใช้เวลามากกว่า 3 วินาที
+**Practice**: การใช้คำสั่ง `EXPLAIN` หรือ `EXPLAIN ANALYZE` จะพบว่า Database กำลังทำ Sequential Scan (สแกนทุกแถว)
+*Solution*: สร้าง Index บนคอลัมน์ `email`
+```sql
+CREATE INDEX idx_users_email ON users(email);
 ```
+หลังจากสร้าง Index Database จะสามารถค้นหาข้อมูลผ่าน B-Tree structure ลดเวลาการค้นหาจากระดับวินาทีเหลือเพียงเสี้ยวของมิลลิวินาที (Index Scan)
 
-1. Build the feature cleanly.
-2. Measure the query time under realistic conditions.
-3. If it is slow, add an index.
-4. If it is still slow, rewrite the query or add caching.
+### 2. Caching Expensive Queries
+**Scenario**: Dashboard ของระบบต้องแสดงผลสรุปยอดขายรายวัน ซึ่งเป็น Query ที่มีการคำนวณซับซ้อน (Aggregations) และใช้เวลาทำงาน 5 วินาที
+**Practice**: แทนที่จะให้ Database คำนวณใหม่ทุกครั้งที่มีผู้ใช้เปิด Dashboard เราสามารถนำ Redis มาประยุกต์ใช้เพื่อทำ Caching
+*Workflow*:
+1. Application ตรวจสอบว่ามีข้อมูลยอดขายใน Redis หรือไม่
+2. หากมี (Cache Hit): ส่งข้อมูลให้ผู้ใช้ทันที
+3. หากไม่มี (Cache Miss): ส่ง Query ไปยัง Database, นำผลลัพธ์ที่ได้ไปจัดเก็บใน Redis (กำหนด Time-To-Live หรือ TTL เช่น 10 นาที), และส่งข้อมูลให้ผู้ใช้
+*Result*: ระบบสามารถรองรับผู้ใช้งานพร้อมกันได้จำนวนมากโดยไม่สร้างโหลดให้ Database
 
----
+### 3. Connection Pooling for High Concurrency
+**Scenario**: แอปพลิเคชันมี Traffic สูงขึ้นอย่างฉับพลัน (Spike) ทำให้ระบบแสดงข้อความ Error "Too many connections"
+**Practice**: Database ส่วนใหญ่มีข้อจำกัดในการรองรับ Concurrent connections การสร้าง Connection ใหม่มี Overhead สูงในระดับ Network และ Authentication
+*Solution*: นำ Connection Pooler (เช่น PgBouncer สำหรับ PostgreSQL) มาคั่นกลางระหว่าง Application และ Database
+- Application จะทำการเชื่อมต่อไปยัง Connection Pool
+- Connection Pool จะบริหารจัดการและหมุนเวียน (Reuse) Connection จริงที่มีต่อ Database
+- เมื่อมีการส่ง Request จำนวนมากเกินกว่าที่ตั้งไว้ Request เหล่านั้นจะถูกจัดคิวรอ (Queue) แทนที่จะทำให้ Database ทำงานหนักจนล่ม
 
-**Next Step**: See how these design, reliability, and performance concepts support autonomous systems in [Agentic Applications](../agentic-applications).
+### 4. Avoiding N+1 Query Problem
+**Scenario**: การแสดงรายการบทความพร้อมชื่อผู้เขียนผ่าน ORM
+**Practice**: การดึงข้อมูลผิดวิธีอาจทำให้เกิดคำสั่ง SQL จำนวนมาก
+*Bad Practice (N+1)*:
+```javascript
+const posts = await Post.find(); // 1 Query
+for (let post of posts) {
+  const author = await User.findById(post.authorId); // N Queries
+}
+```
+*Good Practice (Eager Loading / Joins)*:
+```javascript
+const posts = await Post.find().populate('author'); // 1 Optimized Query
+```
+การปรับ Query Shape ด้วย Join หรือ Eager loading ช่วยลดระยะเวลาที่ระบบต้องติดต่อกับ Database ได้อย่างมีนัยสำคัญ
