@@ -51,4 +51,8 @@ secrets
 /app/_docs
 
 # local editor settings
-.vscode/settings.json
+.vscode/settings.json
+
+# generated reports and logs
+/reports/
+/logs/
