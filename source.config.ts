@@ -5,7 +5,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
 export const { docs, meta } = defineDocs({
-  dir: 'docs',
+  dir: 'content/docs',
   docs: {
     schema: z
       .object({
