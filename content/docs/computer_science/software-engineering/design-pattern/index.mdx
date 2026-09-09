@@ -1,15 +1,34 @@
 ---
-title: "Design Pattern"
-description: "Learn about computer science concepts, their applications, and fundamental principles."
-# icon: "Science"
+title: Design Patterns
+description: Software Design Patterns
 ---
 
-<Callout title="Warning" type="warning">
-  **Pardon our dust!** This section is currently a work in progress. I am
-  actively migrating and restructuring content from my previous project. Some
-  information may be incomplete or temporarily unavailable. Thank you for your
-  patience as I build this out—stay tuned for upcoming updates!
-</Callout>
-# Design Pattern
+import { Cuboid, Component, Activity } from 'lucide-react';
 
+# Design Patterns
 
+Design Patterns คือรูปแบบการแก้ปัญหาที่เกิดขึ้นซ้ำๆ ในการทำ Software Design ซึ่งสามารถนำมาประยุกต์ใช้เพื่อปรับปรุง Code Architecture ให้มีความยืดหยุ่นและง่ายต่อการดูแลรักษา
+
+<Cards>
+  <Card 
+    href="/docs/computer_science/software-engineering/design-pattern/Creational" 
+    title="Creational Patterns" 
+    icon={<Cuboid />} 
+  >
+    รูปแบบที่เกี่ยวข้องกับ Object Creation Mechanism เพื่อเพิ่มความยืดหยุ่นในการสร้าง Object
+  </Card>
+  <Card 
+    href="/docs/computer_science/software-engineering/design-pattern/Structural" 
+    title="Structural Patterns" 
+    icon={<Component />} 
+  >
+    รูปแบบที่จัดการเรื่อง Object Composition โดยจัดโครงสร้าง Class หรือ Object ให้ทำงานร่วมกันได้อย่างมีประสิทธิภาพ
+  </Card>
+  <Card 
+    href="/docs/computer_science/software-engineering/design-pattern/Behavioral" 
+    title="Behavioral Patterns" 
+    icon={<Activity />} 
+  >
+    รูปแบบที่มุ่งเน้นเรื่อง Object Communication และการกำหนดความรับผิดชอบระหว่าง Object ต่างๆ
+  </Card>
+</Cards>

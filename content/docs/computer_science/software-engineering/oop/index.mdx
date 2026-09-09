@@ -1,15 +1,27 @@
 ---
-title: "Object-Oriented Programming"
-description: "Learn about computer science concepts, their applications, and fundamental principles."
-# icon: "Science"
+title: Object-Oriented Programming (OOP)
+description: Cheat sheet for 4 Pillars of OOP and SOLID Principles
 ---
 
-<Callout title="Warning" type="warning">
-  **Pardon our dust!** This section is currently a work in progress. I am
-  actively migrating and restructuring content from my previous project. Some
-  information may be incomplete or temporarily unavailable. Thank you for your
-  patience as I build this out—stay tuned for upcoming updates!
-</Callout>
-# Object-Oriented Programming
+# Object-Oriented Programming (OOP) Cheat Sheet
 
+การเขียนโปรแกรมเชิงวัตถุ หรือ Object-Oriented Programming (OOP) อาศัยหลักการสำคัญและ practice ที่ช่วยให้ code จัดการได้ง่ายและยืดหยุ่น
 
+## 4 Pillars of OOP
+
+หลักการ 4 เสาหลักของ OOP ประกอบด้วย:
+
+1. **Encapsulation**: การซ่อน internal state ของ object และบังคับให้การเข้าถึงข้อมูลผ่าน method (เช่น getter, setter) เท่านั้น เพื่อป้องกันการแก้ไขข้อมูลโดยไม่ตั้งใจ
+2. **Abstraction**: การซ่อน implementation detail ที่ซับซ้อน และเปิดเผยเฉพาะ interface หรือ function ที่จำเป็นต่อการใช้งาน
+3. **Inheritance**: การสร้าง class ใหม่ที่สืบทอด property และ method จาก existing class ช่วยให้สามารถ reuse code ได้
+4. **Polymorphism**: ความสามารถของ object ในการถูกปฏิบัติเสมือน object ของ parent class ทำให้สามารถใช้ interface เดียวกันสำหรับ data type ต่างๆ
+
+## SOLID Principles
+
+SOLID คือ 5 design principle สำหรับ OOP เพื่อสร้าง software ที่ maintain และ scale ได้ง่าย:
+
+- **Single Responsibility Principle (SRP)**: หนึ่ง class ควรมี responsibility หรือเหตุผลในการเปลี่ยนแปลงเพียงข้อเดียว
+- **Open-Closed Principle (OCP)**: Class ควร open for extension แต่ closed for modification
+- **Liskov Substitution Principle (LSP)**: Object ของ subclass ควรสามารถทดแทน object ของ superclass ได้โดยไม่ทำให้โปรแกรมทำงานผิดพลาด
+- **Interface Segregation Principle (ISP)**: Client ไม่ควรถูกบังคับให้พึ่งพา interface ที่ไม่ได้ใช้งาน ควรแยก interface ใหญ่ให้เป็น interface เล็กและเฉพาะเจาะจง
+- **Dependency Inversion Principle (DIP)**: High-level module ไม่ควร depend on low-level module ทั้งคู่ควร depend on abstraction

@@ -1,15 +1,39 @@
 ---
-title: "Software Engineering"
-description: "Learn about computer science concepts, their applications, and fundamental principles."
-# icon: "Science"
+title: Software Engineering (SE)
+description: Cheat sheet for SDLC, Agile, Scrum, and CI/CD
 ---
 
-<Callout title="Warning" type="warning">
-  **Pardon our dust!** This section is currently a work in progress. I am
-  actively migrating and restructuring content from my previous project. Some
-  information may be incomplete or temporarily unavailable. Thank you for your
-  patience as I build this out—stay tuned for upcoming updates!
-</Callout>
-# Software Engineering
+# Software Engineering (SE) Cheat Sheet
 
+เอกสารนี้รวบรวม concept สำคัญใน Software Engineering รวมถึง SDLC, Agile, Scrum, และ CI/CD
 
+## Software Development Life Cycle (SDLC)
+
+SDLC คือ process สำหรับการสร้าง software ที่มีคุณภาพสูง ประกอบด้วย phase หลัก:
+- **Requirement Analysis**: การรวบรวมและวิเคราะห์ requirement จาก stakeholder
+- **Design**: การออกแบบ system architecture และ software design
+- **Implementation (Coding)**: การเขียน code ตาม design specification
+- **Testing**: การทดสอบ software เพื่อหา bug และตรวจสอบว่าตรงตาม requirement
+- **Deployment**: การนำ software ไปติดตั้งใน production environment
+- **Maintenance**: การดูแลและแก้ไข bug รวมถึงการอัปเดต feature ใหม่
+
+## Agile Methodology
+
+Agile คือแนวทางการพัฒนา software ที่เน้นการทำงานแบบ iterative และ incremental
+- เน้นความร่วมมือใน team และกับ stakeholder
+- ตอบสนองต่อการเปลี่ยนแปลง requirement ได้อย่างรวดเร็ว
+- ส่งมอบ working software บ่อยครั้ง
+
+## Scrum Framework
+
+Scrum คือ framework ภายใต้ Agile สำหรับจัดการ complex project
+- **Roles**: Product Owner, Scrum Master, Developers
+- **Artifacts**: Product Backlog, Sprint Backlog, Increment
+- **Events**: Sprint, Sprint Planning, Daily Scrum, Sprint Review, Sprint Retrospective
+
+## Continuous Integration / Continuous Deployment (CI/CD)
+
+CI/CD คือ practice สำหรับการทำ automation ใน software release process
+- **Continuous Integration (CI)**: การรวม code จาก developer หลายคนเข้า shared repository บ่อยครั้ง พร้อมการรัน automated test
+- **Continuous Delivery (CD)**: การเตรียม code ให้อยู่ในสถานะที่พร้อม deploy สู่ production เสมอ
+- **Continuous Deployment (CD)**: การ deploy code สู่ production environment โดยอัตโนมัติเมื่อผ่าน test ทั้งหมด
