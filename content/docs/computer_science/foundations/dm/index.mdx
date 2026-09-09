@@ -3,33 +3,39 @@ title: "Discrete Mathematics (คณิตศาสตร์ไม่ต่อ�
 description: "หน้าเริ่มต้นสำหรับทบทวนพื้นฐานคณิตศาสตร์สำหรับวิทยาการคอมพิวเตอร์"
 ---
 
+import { Binary, Link, Network, Shuffle } from 'lucide-react';
+
 <Callout title="Quick Review" type="info">
   หมวดหมู่นี้ออกแบบมาเพื่อการอ่านทบทวนแบบรวดเร็ว (Cheat Sheet) สรุปทฤษฎีและคอนเซปต์หลักของ Discrete Mathematics ที่ใช้บ่อยในการเขียนโปรแกรมและออกแบบอัลกอริทึม
 </Callout>
 
-# 🔢 Discrete Mathematics
+# Discrete Mathematics
 
 เลือกหัวข้อที่ต้องการทบทวน (Bento Grid):
 
 <Cards>
   <Card 
     href="/docs/computer_science/foundations/dm/logic-sets" 
-    title="🧠 Logic & Sets" 
+    title="Logic & Sets" 
+    icon={<Binary />}
     description="ตรรกศาสตร์ ประพจน์ ทฤษฎีเซต และฐานข้อมูล" 
   />
   <Card 
     href="/docs/computer_science/foundations/dm/relations-functions" 
-    title="🔗 Relations & Functions" 
+    title="Relations & Functions" 
+    icon={<Link />}
     description="ความสัมพันธ์ ฟังก์ชันโดเมน เรนจ์ และการเข้ารหัส" 
   />
   <Card 
     href="/docs/computer_science/foundations/dm/graph-theory" 
-    title="🕸️ Graph Theory" 
+    title="Graph Theory" 
+    icon={<Network />}
     description="ทฤษฎีกราฟ โหนด เส้นทางต้นไม้ และเน็ตเวิร์ค" 
   />
   <Card 
     href="/docs/computer_science/foundations/dm/combinatorics-boolean" 
-    title="🎲 Combinatorics & Boolean" 
+    title="Combinatorics & Boolean" 
+    icon={<Shuffle />}
     description="การเรียงสับเปลี่ยน การจัดหมู่ ความน่าจะเป็น และพีชคณิตบูลีน" 
   />
 </Cards>
