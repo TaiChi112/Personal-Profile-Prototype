@@ -27,7 +27,7 @@ function PublicResumeCard({
     >
       <div className="p-6 pb-4 flex-1">
         <div className="flex justify-between items-start mb-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100 group-hover:scale-105 transition-transform">
+          <div className="w-12 h-12 rounded-xl bg-linear-to-br from-blue-50 to-indigo-50 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100 group-hover:scale-105 transition-transform">
             <FileText className="w-6 h-6" />
           </div>
           <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
