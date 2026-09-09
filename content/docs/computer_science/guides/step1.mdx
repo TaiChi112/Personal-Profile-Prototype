@@ -1,6 +1,28 @@
 ---
-title: step 1
-description: This is the first step in the process of creating a personal profile. It involves gathering
+title: Contribution Guide
+description: คู่มือการ Contribute สู่ Documentation
 ---
-# Step 1: Gather Information
-[Learn more about Personal Profiles on Wikipedia](https://en.wikipedia.org/wiki/Personal_profile)
+
+คู่มือนี้สรุปขั้นตอนและ Best Practices สำหรับการ Contribute เข้าสู่ระบบ Documentation
+
+## Best Practices
+
+ในการเขียน Documentation กรุณาปฏิบัติตามแนวทางต่อไปนี้:
+- ใช้ภาษา TH Core Hybrid EN (โครงสร้างประโยคภาษาไทยร่วมกับ Technical terms ภาษาอังกฤษ)
+- รักษา Professional tone อย่างสม่ำเสมอ
+- ห้ามใช้ Emojis ในเนื้อหาและ Headings โดยเด็ดขาด
+
+## Markdown Standards
+
+การจัดรูปแบบเอกสารต้องเป็นไปตาม Markdown standards:
+- ใช้ Headings ตามลำดับชั้นอย่างถูกต้อง (H2, H3, H4)
+- ใช้ Code blocks พร้อมระบุ Programming language สำหรับ Code snippets
+- หลีกเลี่ยงการใช้ HTML tags โดยไม่จำเป็น แนะนำให้ใช้ MDX components ที่ระบบเตรียมไว้ให้
+
+## Git Workflow
+
+ขั้นตอนการทำงานกับ Version control:
+1. สร้าง Branch ใหม่จาก Main branch สำหรับแต่ละ Feature หรือ Fix
+2. ทำการ Commit changes พร้อมระบุ Commit message ที่ชัดเจนและสื่อความหมาย
+3. ตรวจสอบการแสดงผล Locally เพื่อยืนยันความถูกต้อง
+4. สร้าง Pull Request (PR) เพื่อรับการ Review ก่อน Merge เข้าสู่ Main branch
