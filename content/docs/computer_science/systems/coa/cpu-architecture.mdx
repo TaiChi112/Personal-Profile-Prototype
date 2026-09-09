@@ -1,0 +1,23 @@
+---
+title: "CPU Architecture"
+description: "ส่วนประกอบหลักของ CPU และ Instruction Cycle"
+---
+
+# CPU Architecture (สรุปด่วน)
+
+CPU (Central Processing Unit) คือสมองของคอมพิวเตอร์ ทำหน้าที่ประมวลผลคำสั่งทางตรรกะและคณิตศาสตร์
+
+## 1. Core Components (ส่วนประกอบหลัก)
+- **ALU (Arithmetic Logic Unit):** วงจรที่ทำหน้าที่คำนวณทางคณิตศาสตร์ (บวก, ลบ) และตรรกศาสตร์ (AND, OR, NOT)
+- **CU (Control Unit):** วงจรควบคุมที่คอยสั่งการและดึงคำสั่ง (Fetch) จาก Memory มาถอดรหัส (Decode)
+- **Registers:** หน่วยความจำขนาดเล็กมากๆ แต่อยู่ติดกับ CPU โดยตรง (ทำงานเร็วที่สุดในระบบ)
+  - `PC (Program Counter)`: เก็บ Address ของคำสั่งถัดไปที่ต้องทำ
+  - `IR (Instruction Register)`: เก็บคำสั่งที่กำลังถูกประมวลผลอยู่
+  - `ACC (Accumulator)`: เก็บผลลัพธ์จากการคำนวณของ ALU ชั่วคราว
+
+## 2. Instruction Cycle (รอบการทำงาน)
+วงจรพื้นฐาน (Machine Cycle) ที่ CPU ทำซ้ำไปเรื่อยๆ:
+1. **Fetch:** ดึงคำสั่งจาก Memory (RAM หรือ Cache) มาไว้ที่ `IR`
+2. **Decode:** CU ถอดรหัสคำสั่งว่าเป็นคำสั่งอะไร (บวก, ย้ายข้อมูล, กระโดด)
+3. **Execute:** ส่งให้ ALU หรือส่วนอื่นๆ คำนวณตามคำสั่ง
+4. **Store (Write Back):** เก็บผลลัพธ์กลับลงไปที่ Register หรือ Memory
