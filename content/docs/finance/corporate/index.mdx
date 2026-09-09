@@ -3,6 +3,37 @@ title: Corporate Finance
 description: ข้อมูลอ้างอิงและหลักการด้านการเงินองค์กร (Corporate Finance Cheat Sheet)
 ---
 
-## Overview
+## 1. Financial Statements
 
-เอกสารนี้รวบรวมข้อมูลสำคัญเกี่ยวกับการเงินองค์กรและการวิเคราะห์โครงการ
+*   **Balance Sheet**: งบดุลที่แสดงถึงฐานะการเงินของบริษัท ณ เวลาใดเวลาหนึ่ง ประกอบด้วย Assets = Liabilities + Equity
+*   **Income Statement**: งบกำไรขาดทุนที่สรุปผลการดำเนินงานในช่วงเวลาที่กำหนด แสดง Revenue, Expenses, และ Net Income
+*   **Cash Flow Statement**: งบกระแสเงินสดที่ติดตามการไหลเวียนของเงินสดเข้าและออก แบ่งเป็น Operating, Investing, และ Financing Activities
+
+### Practical Example: Cash Flow Analysis
+ในกรณีศึกษาของบริษัทค้าปลีกขนาดใหญ่ การวิเคราะห์ Cash Flow Statement เป็นสิ่งสำคัญแม้ว่า Income Statement จะแสดง Net Income เชิงบวก หาก Operating Cash Flow ติดลบอย่างต่อเนื่อง อาจบ่งชี้ถึงปัญหาด้าน Working Capital Management เช่น การเก็บ Accounts Receivable ล่าช้า หรือมี Inventory ค้างสต็อกจำนวนมาก
+
+## 2. Cost of Capital (WACC)
+
+*   **WACC (Weighted Average Cost of Capital)**: ต้นทุนเงินทุนถัวเฉลี่ยถ่วงน้ำหนัก เป็นอัตราผลตอบแทนขั้นต่ำที่บริษัทต้องทำได้เพื่อให้ครอบคลุมต้นทุนการจัดหาเงินทุน ทั้งจาก Debt และ Equity
+*   **Formula**: WACC = (E/V x Re) + (D/V x Rd x (1 - T))
+    *   E = Market value of equity, D = Market value of debt, V = E + D
+    *   Re = Cost of equity, Rd = Cost of debt, T = Corporate tax rate
+
+### Practical Example: WACC Application
+เมื่อบริษัทเทคโนโลยีต้องการประเมินโครงการพัฒนา Software ใหม่ จะใช้ WACC เป็น Discount Rate ในการคำนวณ NPV หากโครงการมีความเสี่ยงสูงกว่าค่าเฉลี่ยของบริษัท อาจพิจารณาปรับ WACC ให้สูงขึ้น (Risk-adjusted Discount Rate) เพื่อสะท้อนความเสี่ยงที่เพิ่มขึ้น
+
+## 3. Capital Budgeting (NPV & IRR)
+
+*   **NPV (Net Present Value)**: มูลค่าปัจจุบันสุทธิของกระแสเงินสดในอนาคตที่คิดลดด้วย WACC โครงการที่คุ้มค่าควรมี NPV มากกว่าศูนย์ (NPV > 0)
+*   **IRR (Internal Rate of Return)**: อัตราผลตอบแทนภายในที่ทำให้ NPV ของโครงการเท่ากับศูนย์ โครงการที่น่าสนใจควรมี IRR สูงกว่า WACC
+
+### Practical Example: NPV vs IRR
+บริษัทผู้ผลิตรถยนต์กำลังตัดสินใจเลือกระหว่างโครงการ A และ B โครงการ A มี IRR 15% แต่ NPV 10 ล้านบาท ส่วนโครงการ B มี IRR 12% แต่ NPV 25 ล้านบาท ในกรณีนี้ หลักการ Corporate Finance แนะนำให้เลือกโครงการ B เนื่องจากเป็นการตัดสินใจที่สร้าง Value ให้แก่ Shareholder ได้มากกว่า (Maximize Shareholder Wealth)
+
+## 4. Capital Allocation
+
+*   **Capital Allocation**: การตัดสินใจจัดสรรเงินทุนของบริษัทเพื่อสร้าง Value สูงสุด ทางเลือกได้แก่ การลงทุนใน Organic Growth, Mergers and Acquisitions (M&A), การจ่าย Dividend, หรือ Share Repurchase
+*   **ROIC (Return on Invested Capital)**: ตัวชี้วัดประสิทธิภาพในการนำเงินทุนไปสร้างผลตอบแทน ควรเปรียบเทียบ ROIC กับ WACC หาก ROIC > WACC ถือเป็นการสร้างมูลค่าเพิ่ม (Value Creation)
+
+### Practical Example: Capital Allocation Strategy
+ในสภาวะเศรษฐกิจถดถอย บริษัทที่มีเงินสดส่วนเกินจำนวนมากอาจลดการลงทุนใน M&A และเลือกที่จะทำการ Share Repurchase แทน หากประเมินว่าราคาหุ้นในตลาดต่ำกว่า Intrinsic Value สิ่งนี้เป็นการบริหาร Capital Allocation ที่ส่งเสริม Shareholder Value ได้อย่างมีประสิทธิภาพ
