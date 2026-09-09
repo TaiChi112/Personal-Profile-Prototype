@@ -5,92 +5,69 @@ description: "Interactive exercises bridging database theory and execution."
 
 # Database Labs
 
-Understanding database concepts is only the first step. To truly master them, you must bridge the gap between abstract theory and practical execution.
+Understanding database concepts requires bridging the gap between abstract theory and practical execution. This document provides a cheat sheet of core database concepts alongside practical, interactive scenarios designed to reinforce your engineering mental models.
 
 <Callout title="Work in Progress" type="warning">
   Lab exercises are currently conceptual. A fully interactive sandbox environment will be available soon.
 </Callout>
 
-## The Theory → Execution Loop
+## Cheat Sheet: Core Database Concepts
 
-In `taichi112.works`, we believe in a tight feedback loop:
-1. **Concept**: Learn the core principle.
-2. **Execution**: Write the code (or mental model).
-3. **Result**: Observe the structural or performance impact.
+Use this reference guide to quickly recall the fundamental mechanics of database engineering:
 
-## Lab Roadmap
+- **Entity & Relationship**: Defines what data exists (Tables) and how it connects (Primary/Foreign Keys).
+- **Constraints**: Database-level rules that enforce data validity and prevent corruption (e.g., NOT NULL, UNIQUE).
+- **Transactions**: Atomic operations that guarantee all steps succeed together, or all fail together (Rollback).
+- **Indexes**: Data structures that drastically improve data retrieval speeds at the cost of slower writes.
+- **N+1 Query Problem**: A performance anti-pattern where a system executes one query to retrieve a list, followed by N separate queries to retrieve related data. Solved via Joins or batching.
 
-These workshop-style tasks are designed to guide you through practical database engineering. No real database migrations are required yet—these are conceptual exercises.
+## Practical Examples: Interactive Scenarios
 
-```mermaid
-flowchart LR
-    L1[Data Modeling] --> L2[Schema Review]
-    L2 --> L3[Performance Thinking]
-    L3 --> L4[Agent-Safe Workflow]
-```
+The following workshop-style tasks guide you through practical database engineering using a hypothetical **Project Tracker** application.
 
-### Workshop Overview
+### Lab 1: Data Modeling and Relationships
 
-| Lab | Theory Focus | Expected Output | Safety Note |
-|---|---|---|---|
-| **1. Data Modeling Basics** | Relationships & Keys | Sketch of tables and columns. | No code execution. |
-| **2. Schema Design Review** | Normalization | Redesigned multi-table layout. | No code execution. |
-| **3. Query Performance** | N+1 Problem & Joins | Mental map of batched queries. | Read-only concepts. |
-| **4. Agent-Safe Workflow** | Human-in-the-loop | Diagram of approval flow. | Prevent destructive queries. |
+**Scenario**: You need to track which users own which projects.
 
-### Scenario: Project Tracker
+**Practical Exercise**:
+1. Identify the entities: `User` and `Project`.
+2. Define the schema layout.
+3. Establish the relationship: Create a `user_id` Foreign Key in the `Project` table that references the `id` Primary Key in the `User` table.
 
-To tie all these concepts together, consider a simple **Project Tracker** application.
+**Outcome**: A reliable mapping where a single user can own multiple distinct projects without data duplication.
 
-A user wants to track projects and the tasks within them. As we build this, we encounter every major database concept:
-- We identify the core objects we need to store (User, Project, Task).
-- We design how they connect (a User owns Projects, a Project contains Tasks).
-- We enforce rules (Tasks must have titles, Projects belong to a valid User).
-- We ensure the system doesn't lose data if the server crashes while saving.
-- We make sure the dashboard loads instantly even with thousands of tasks.
-- We design a workflow so an AI assistant can help manage projects without accidentally deleting everything.
+### Lab 2: Schema Normalization
 
-| Step | What we do | Knowledge used | Related page | Why it matters |
-|---|---|---|---|---|
-| **1. Ideation** | Identify Entities | Entity, Table, Column | [Overview](../overview) | Decides what data to store. |
-| **2. Design** | Connect Entities | Primary Key, Foreign Key | [Schema Design](../schema-design) | Defines structural relationships. |
-| **3. Validation** | Enforce Rules | Constraint, Normalization | [Foundations](../foundations) | Prevents invalid or duplicate data. |
-| **4. Safety** | Protect Operations | Transaction, Rollback | [Reliability](../reliability) | Ensures data integrity during failures. |
-| **5. Speed** | Optimize Queries | Index, Join, N+1 Query | [Performance](../performance) | Keeps the application fast at scale. |
-| **6. AI Agents** | Safe Automation | Human-in-the-loop | [Agentic Applications](../agentic-applications) | Prevents destructive AI actions. |
+**Scenario**: You discover a table that stores both user details and project details in the same row, leading to redundant data whenever a user creates multiple projects.
 
-### Knowledge Map
+**Practical Exercise**:
+1. Identify the duplicated data fields (e.g., user email, user name).
+2. Split the monolithic table into two separate tables: `Users` and `Projects`.
+3. Reconnect the data using Foreign Keys.
 
-This table summarizes the core vocabulary used throughout the database modules.
+**Outcome**: A normalized schema that prevents data anomalies during updates and reduces storage overhead.
 
-| Keyword | Used when | Read more | Why it matters |
-|---|---|---|---|
-| **Entity** / **Relationship** | Ideation & Design | [Schema Design](../schema-design) | Defines what data exists and how it connects. |
-| **Primary Key** / **Foreign Key** | Connecting tables | [Schema Design](../schema-design) | Links data together securely. |
-| **Constraint** | Validating data | [Foundations](../foundations) | Enforces rules so bad data never saves. |
-| **Transaction** / **Rollback** | Handling failures | [Reliability](../reliability) | Ensures all-or-nothing data operations. |
-| **Index** / **N+1 Query** / **Pagination** | Speeding up queries | [Performance](../performance) | Keeps applications fast at scale. |
-| **Human Approval** / **Read-only Access** | AI workflows | [Agentic Applications](../agentic-applications) | Protects databases from autonomous destruction. |
+### Lab 3: Mitigating Performance Bottlenecks
 
-### Lab 1: Data Modeling Basics
-**Goal**: Design a simple relationship between Users and Projects.
-- **Mental Exercise**: Sketch out what tables and columns are needed to track which users own which projects.
-- **Execution**: Define the Primary Keys and Foreign Keys needed to make this relationship reliable.
+**Scenario**: Your dashboard is loading slowly because it executes a separate query to fetch the author details for every single project in a list of 100 projects (The N+1 Problem).
 
-### Lab 2: Schema Design Review
-**Goal**: Identify flaws in an existing schema.
-- **Mental Exercise**: Look at a table that stores User data and Project data in the same row (violating normalization).
-- **Execution**: Redesign the table into two separate, related tables to prevent data duplication.
+**Practical Exercise**:
+1. Analyze the current iterative query loop.
+2. Refactor the data retrieval process to use a `JOIN` statement or batch the queries (e.g., using a data loader).
+3. Execute a single query to retrieve all 100 projects alongside their associated author details simultaneously.
 
-### Lab 3: Query Performance Thinking
-**Goal**: Retrieve nested data efficiently without causing bottlenecks.
-- **Mental Exercise**: How do we get a user and all of their active projects in a single step without overwhelming the database (avoiding the N+1 problem)?
-- **Execution**: Understand the difference between querying in a loop versus using a proper database Join.
+**Outcome**: Drastically reduced database load and faster application response times.
 
-### Lab 4: Agent-Safe Database Workflow
-**Goal**: Design a safe approval flow for an AI agent.
-- **Mental Exercise**: An AI agent proposes a dangerous query: `DELETE FROM Users WHERE last_login < 2020`. This query is strictly for review training and should not be executed directly.
-- **Execution**: Outline the conceptual human-in-the-loop review steps required to intercept, review, and reject this destructive query before it ever reaches the database.
+### Lab 4: Securing Agent Workflows
+
+**Scenario**: An AI assistant is tasked with managing outdated projects but proposes a destructive query: `DELETE FROM Projects WHERE last_updated < '2023-01-01'`.
+
+**Practical Exercise**:
+1. Implement a Human-in-the-loop (HITL) interception layer.
+2. Review the proposed query without executing it.
+3. Reject the raw SQL deletion and instead route the agent to use a predefined API endpoint: `POST /api/projects/archive`.
+
+**Outcome**: Complete protection against autonomous, destructive database modifications while retaining AI-driven automation capabilities.
 
 ---
 

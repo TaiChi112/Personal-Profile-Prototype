@@ -5,32 +5,83 @@ description: "Introduction to database systems and why they matter."
 
 # Database Overview
 
-Databases are the core memory of almost all software applications. Without them, applications would "forget" everything the moment they shut down.
+Databases operate as the core memory of almost all software applications. Without them, applications lose state upon shutdown. This overview highlights the core paradigms and architectures that define modern data persistence.
 
-<Callout title="Work in Progress" type="warning">
-  This module is under active development. More advanced topics will be added soon.
-</Callout>
+## Cheat Sheet: Relational vs. NoSQL
 
-## What is a Database System?
+Choosing the correct database paradigm is a critical architectural decision. Below is a concise comparison to guide technical evaluation.
 
-In software engineering, we often use several terms interchangeably, but they mean different things:
+### Relational Databases (SQL)
+- **Structure**: Tabular data with predefined schemas.
+- **Relationships**: Enforced via foreign keys and joins.
+- **Transactions**: Strict ACID compliance (Atomicity, Consistency, Isolation, Durability).
+- **Scaling**: Typically scales vertically (adding more CPU/RAM to a single server).
+- **Use Cases**: Financial systems, complex business logic, scenarios requiring strict data integrity.
+- **Examples**: PostgreSQL, MySQL, Oracle.
 
-- **Data**: The raw facts or information (e.g., a user's name, their email address).
-- **Database**: The structured collection of that data, usually organized into tables or documents.
-- **Database Management System (DBMS)**: The software that interacts with end-users, applications, and the database itself to capture and analyze the data (e.g., PostgreSQL, MySQL, MongoDB).
-- **Database System**: The complete setup, which includes the data, the DBMS, and any associated applications.
+### NoSQL Databases
+- **Structure**: Flexible schemas (document, key-value, graph, column-family).
+- **Relationships**: Denormalized data, nested documents, or application-level joins.
+- **Transactions**: Often sacrifices strict ACID for eventual consistency (BASE semantics).
+- **Scaling**: Designed to scale horizontally (adding more servers to a cluster).
+- **Use Cases**: Rapid prototyping, unstructured data, high-velocity data ingestion.
+- **Examples**: MongoDB, Redis, Cassandra, Neo4j.
 
-## Why Databases Matter
+## Architectures in Practice
 
-When you build an application, you need a safe and reliable place to store user profiles, transactions, or application state. A robust database system ensures:
-- **Persistence**: Data survives system crashes or restarts.
-- **Integrity**: Data remains accurate and consistent (e.g., you can't have an order without a valid customer).
-- **Concurrency**: Multiple users can read and write data at the same time without interfering with each other.
+Understanding database paradigms requires analyzing how they are deployed within application architectures.
 
-## Connecting to This Project
+### Practical Example: The Relational Approach
 
-In `taichi112.works`, we use **PostgreSQL** as our relational DBMS, and **Prisma** as our ORM (Object-Relational Mapper). PostgreSQL provides industry-standard reliability and speed, while Prisma gives us a type-safe way to interact with the database using TypeScript. This combination is highly effective for both standard web features and future AI-agent integrations.
+Consider an application managing user orders. A relational architecture strictly separates entities.
 
----
+```sql
+-- Users Table
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL
+);
 
-**Next Step**: Learn the core theoretical concepts in [Foundations](../foundations).
+-- Orders Table
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id),
+    total DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**Implementation Context**: This schema ensures that an order cannot exist without a valid user. Data duplication is minimized, but retrieving a user's full order history requires a `JOIN` operation.
+
+### Practical Example: The Document Approach
+
+The same application logic implemented in a document-based NoSQL architecture optimizes for read operations by embedding data.
+
+```json
+// User Document Collection
+{
+  "_id": "user_123",
+  "email": "user@example.com",
+  "orders": [
+    {
+      "order_id": "ord_456",
+      "total": 150.50,
+      "created_at": "2026-09-09T10:00:00Z"
+    },
+    {
+      "order_id": "ord_789",
+      "total": 85.00,
+      "created_at": "2026-09-09T14:30:00Z"
+    }
+  ]
+}
+```
+
+**Implementation Context**: This structure allows retrieving a user and all their orders in a single database request. However, updating global order schemas or querying across all orders becomes more complex.
+
+## Architectural Trade-offs
+
+System design requires evaluating trade-offs rather than searching for absolute solutions. 
+
+- Use **SQL** when data integrity, complex reporting, and structured relationships are paramount.
+- Use **NoSQL** when flexibility, massive horizontal scaling, and rapid iteration are prioritized.

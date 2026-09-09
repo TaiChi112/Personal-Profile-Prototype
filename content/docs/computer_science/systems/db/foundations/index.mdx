@@ -3,39 +3,54 @@ title: "Foundations"
 description: "Core concepts of the relational database model."
 ---
 
-# Foundations of Relational Databases
+# Foundations: ACID, CAP Theorem, and Indexing
 
-Before building complex applications, it is essential to understand how data is actually structured and linked together.
+## Brief Cheat Sheet
 
-<Callout title="Work in Progress" type="warning">
-  This module covers relational basics. Concepts like ACID properties and the CAP theorem will be added in future updates.
-</Callout>
+### ACID Properties
+- **Atomicity**: Transactions are all-or-nothing. If one part fails, the entire transaction fails.
+- **Consistency**: Transactions bring the database from one valid state to another, maintaining defined constraints.
+- **Isolation**: Concurrent execution of transactions leaves the database in the same state as if transactions were executed sequentially.
+- **Durability**: Once a transaction is committed, it remains persistent, even in the event of a system failure.
 
-## The Relational Model
+### CAP Theorem
+In a distributed data store, you can only guarantee two out of the following three properties:
+- **Consistency**: Every read receives the most recent write or an error.
+- **Availability**: Every request receives a non-error response, without the guarantee that it contains the most recent write.
+- **Partition Tolerance**: The system continues to operate despite an arbitrary number of messages being dropped or delayed by the network.
 
-Most modern applications, including this project, rely on the **relational model**. In this model, data is organized into structured tables.
+### Indexing Mechanics
+- **Indexes**: Data structures (often B-Trees or Hash tables) that improve the speed of data retrieval operations on a database table.
+- **Clustered Index**: Sorts and stores the data rows in the table based on their key values. There can be only one per table.
+- **Non-Clustered Index**: Contains the non-clustered index key values, and each key value entry has a pointer to the data row that contains the actual data.
 
-### Key Concepts
+## Practical Examples
 
-- **Table**: A collection of related data consisting of columns and rows. Think of it as a single spreadsheet (e.g., a `Users` table).
-- **Row (Record)**: A single, distinct data entry within a table (e.g., one specific user).
-- **Column (Attribute)**: A specific piece of information stored for every row in the table (e.g., an `email` column).
+### Implementing ACID in Financial Systems
+Consider a bank transfer between two accounts:
 
-### Connecting Data
+```sql
+BEGIN TRANSACTION;
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+COMMIT;
+```
 
-Data rarely exists in isolation. A user has posts, an order has products. We connect data using special columns:
+If the system crashes after the first update, Atomicity ensures the transaction is rolled back, preventing lost funds. Consistency ensures account balances do not drop below a defined minimum constraint. Isolation prevents other concurrent transactions from seeing the intermediate unbalanced state. Durability guarantees the transfer is permanently saved once committed to disk.
 
-- **Primary Key**: A unique identifier for a specific row in a table. No two rows can have the same primary key (e.g., a `User ID`).
-- **Foreign Key**: A column in one table that refers to the primary key in another table. This creates a "relationship" or link between the two tables.
+### CAP Theorem in Action
+- **CP (Consistency + Partition Tolerance)**: Systems like MongoDB (in its default strict configuration) prioritize data consistency. If a network partition occurs, the system might reject requests rather than return stale or conflicting data.
+- **AP (Availability + Partition Tolerance)**: Systems like Cassandra prioritize availability. During a network partition, they will always accept writes and serve reads, but the data might be temporarily inconsistent across nodes.
 
-### Enforcing Rules
+### Using Indexes for Query Performance
+If an application frequently queries users by email, searching a large database without an index results in a slow, full table scan.
 
-- **Constraints**: Rules applied to columns to enforce data integrity. For example, a `NOT NULL` constraint ensures a column must always have a value, and a `UNIQUE` constraint ensures no duplicates exist in a column (like an email address).
+```sql
+-- Creating an index on the email column
+CREATE INDEX idx_users_email ON users(email);
 
-## Why Schema Design Matters
+-- This query now utilizes the index for rapid retrieval
+SELECT * FROM users WHERE email = 'test@company.com';
+```
 
-A schema is the blueprint of how your tables are structured and how they relate to each other. Good schema design prevents data duplication, makes queries faster, and ensures data remains accurate over time. Poor schema design leads to messy, difficult-to-maintain code and slow applications.
-
----
-
-**Next Step**: See how these concepts translate into execution in the [Labs](../labs).
+The index creates a fast-lookup data structure mapping emails to their respective row locations on disk, drastically reducing query execution time from linear to logarithmic complexity.

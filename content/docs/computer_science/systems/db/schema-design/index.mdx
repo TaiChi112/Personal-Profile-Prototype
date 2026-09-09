@@ -3,74 +3,62 @@ title: "Schema Design"
 description: "Practical data modeling and normalization for relational databases."
 ---
 
-# Schema Design
+# Schema Design: Normalization, Modeling, and Prisma
 
-Schema design is the process of planning how your data is structured, stored, and connected within a database. It acts as the blueprint for your entire application.
+## Brief Cheat Sheet
 
-<Callout title="Work in Progress" type="warning">
-  This module introduces foundational concepts. Deep dives into complex normalization and Prisma examples will be added later.
-</Callout>
+### Normalization Forms
+- **First Normal Form (1NF)**: Eliminate repeating groups. Ensure each column contains atomic (indivisible) values, and each row is uniquely identifiable.
+- **Second Normal Form (2NF)**: Must be in 1NF. Remove partial dependencies; every non-primary-key attribute must depend on the entire primary key.
+- **Third Normal Form (3NF)**: Must be in 2NF. Remove transitive dependencies; every non-primary-key attribute must depend directly on the primary key, not on other non-key attributes.
 
-## Core Concepts
+### Data Modeling Concepts
+- **One-to-One (1:1)**: A record in Table A is related to one specific record in Table B.
+- **One-to-Many (1:N)**: A record in Table A can be related to multiple records in Table B.
+- **Many-to-Many (M:N)**: Multiple records in Table A can relate to multiple records in Table B. This requires an intermediate junction table in relational databases.
 
-Understanding schema design requires a firm grasp on how data points relate to each other:
+### Prisma Integration
+- **Schema File (`schema.prisma`)**: The declarative source of truth for your database structure.
+- **Models**: Map directly to underlying database tables.
+- **Fields**: Map to table columns with specific scalar types and constraints.
+- **Relations**: Define the connections between models using the `@relation` attribute.
 
-| Concept | Description | Real-world Example |
-|---|---|---|
-| **Entity / Table** | A real-world object you need to store. | `User`, `Project` |
-| **Row** | A single distinct record. | "Alice's User Profile" |
-| **Column** | A specific piece of information. | `email`, `created_at` |
-| **Primary Key** | Uniquely identifies a single row. | `id: 1` |
-| **Foreign Key** | Links a row to another table's primary key. | `owner_id: 1` |
-| **Constraint** | Rule ensuring data is valid. | `email must be UNIQUE` |
+## Practical Examples
 
-<Callout title="Knowledge Links" type="info">
-  **Used in the Project Tracker scenario ([Labs](../labs))**:
-  We identify real-world concepts as an **Entity**, and map how they connect via a **Relationship**. We use a **Primary Key** to uniquely identify each row, a **Foreign Key** to link rows together, and a **Constraint** to enforce data validity. Learn the bedrock of these rules in [Foundations](../foundations).
-</Callout>
+### Normalizing a Database Structure
+Imagine a single flat table containing `OrderID`, `CustomerName`, `CustomerAddress`, `ProductID`, and `ProductName`. This violates normalization principles because customer details are repeated for every order they make, and product names are repeated for every product instance sold.
 
-### Visualizing Relationships
+**Solution (Achieving 3NF):**
+Separate the data into distinct entities: `Customers`, `Products`, `Orders`, and `OrderItems`. The `OrderItems` table acts as a junction linking specific `Orders` to specific `Products`, eliminating data redundancy and ensuring updates (like a customer address change) only need to happen in one location.
 
-Here is a simplified Entity-Relationship Diagram (ERD). Note: This is a conceptual learning model, not the exact production schema.
+### Data Modeling with Prisma
+Here is an example of modeling a One-to-Many relationship (User to Posts) and a Many-to-Many relationship (Posts to Tags) utilizing Prisma's schema definition language.
 
-```mermaid
-erDiagram
-    USER ||--o{ PROJECT : "creates"
-    PROJECT ||--o{ TASK : "contains"
+```prisma
+model User {
+  id    Int    @id @default(autoincrement())
+  email String @unique
+  name  String
+  posts Post[] // One-to-Many relationship
+}
 
-    USER {
-        int id PK
-        string email
-        string name
-    }
-    PROJECT {
-        int id PK
-        string title
-        int owner_id FK
-    }
-    TASK {
-        int id PK
-        string description
-        boolean is_completed
-        int project_id FK
-    }
+model Post {
+  id       Int    @id @default(autoincrement())
+  title    String
+  authorId Int
+  author   User   @relation(fields: [authorId], references: [id])
+  tags     Tag[]  // Many-to-Many relationship
+}
+
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  posts Post[] // Many-to-Many relationship
+}
 ```
 
-## Normalization
-
-Normalization is the practice of organizing your tables to reduce data redundancy (duplicate data) and improve data integrity. In simple terms, it means storing a piece of information in exactly one place. If a user changes their name, you should only have to update it in one table, not fifty.
-
-## Why Schema Design Matters
-
-A poorly designed schema can cripple an application as it grows:
-- **Maintainability**: Clear, well-structured data makes writing code easier and less prone to bugs.
-- **Correctness**: Good schema design prevents invalid states, such as orders existing for users who were deleted.
-- **Query Performance**: The way you structure your data directly impacts how fast the database can retrieve it.
-
-## Connecting to This Project
-
-In `taichi112.works`, we use **Prisma** to define our schema. Prisma allows us to map out entities and relationships in a highly readable format (`schema.prisma`), which then safely translates into **PostgreSQL** tables and constraints.
-
----
-
-**Next Step**: Learn how a well-designed schema supports system resilience in [Reliability](../reliability).
+### Applying Schema Design Principles
+When designing the Prisma schema above, the following principles were applied:
+1. **Identify Entities**: We determined `User`, `Post`, and `Tag` were the core independent entities.
+2. **Determine Relationships**: A User has many Posts (1:N), and Posts have many Tags (M:N). Prisma automatically abstracts and handles the underlying junction table for implicit Many-to-Many relations.
+3. **Apply Constraints**: We use the `@unique` constraint on the User `email` and Tag `name` fields to enforce data integrity directly at the schema level, preventing duplicate entries.
