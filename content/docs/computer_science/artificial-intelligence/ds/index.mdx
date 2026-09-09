@@ -1,15 +1,29 @@
 ---
-title: "Data Science"
-description: "Learn about computer science concepts, their applications, and fundamental principles."
-# icon: "Science"
+title: Data Science Cheat Sheet
+description: สรุปเนื้อหาสำคัญสำหรับ Data Science
 ---
 
-<Callout title="Warning" type="warning">
-  **Pardon our dust!** This section is currently a work in progress. I am
-  actively migrating and restructuring content from my previous project. Some
-  information may be incomplete or temporarily unavailable. Thank you for your
-  patience as I build this out—stay tuned for upcoming updates!
-</Callout>
-# Data Science
+## Data Science Pipeline
 
+กระบวนการพื้นฐานสำหรับการทำโปรเจกต์ Data Science ประกอบด้วยขั้นตอนต่อไปนี้
+1. Data Collection: การรวบรวมข้อมูลดิบจากแหล่งต่างๆ
+2. Data Preprocessing: การทำความสะอาดข้อมูล (Data Cleaning) จัดการ Missing Values และกำจัด Outliers
+3. Exploratory Data Analysis (EDA): การวิเคราะห์ข้อมูลเบื้องต้นเพื่อทำความเข้าใจลักษณะของข้อมูล
+4. Feature Engineering: การสร้างหรือแปลงตัวแปรเพื่อให้เหมาะสมกับการทำ Machine Learning
+5. Modeling: การฝึกสอนโมเดลด้วยอัลกอริทึมที่เหมาะสม
+6. Evaluation: การประเมินประสิทธิภาพของโมเดล
+7. Deployment: การนำโมเดลไปใช้งานจริงบนระบบ Production
 
+## Exploratory Data Analysis (EDA)
+
+การทำ EDA เป็นขั้นตอนสำคัญในการค้นหา Insights และแพทเทิร์นในข้อมูล
+- Descriptive Statistics: การใช้ค่าทางสถิติเช่น Mean, Median, Mode, Variance และ Standard Deviation
+- Data Visualization: การสร้างกราฟเช่น Histograms, Scatter Plots, Box Plots และ Correlation Matrices เพื่อดูความสัมพันธ์ระหว่างตัวแปร
+
+## Feature Engineering
+
+กระบวนการปรับปรุงฟีเจอร์เพื่อเพิ่มประสิทธิภาพของโมเดล
+- Imputation: การเติมค่าที่หายไป (Missing Values) ด้วยค่า Mean, Median หรือวิธีอื่นๆ
+- Encoding: การแปลง Categorical Data เป็น Numerical Data ผ่านเทคนิคเช่น One-Hot Encoding หรือ Label Encoding
+- Scaling: การปรับสเกลข้อมูลเช่น Standardization (Z-score) และ Normalization (Min-Max Scaling)
+- Feature Selection: การเลือกเฉพาะฟีเจอร์ที่มีความสำคัญต่อการทำนาย เพื่อลด Dimensionality

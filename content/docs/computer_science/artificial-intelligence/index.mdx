@@ -1,11 +1,46 @@
 ---
-title: "Artificial Intelligence"
-description: "Learn about computer science concepts, their applications, and fundamental principles."
-# icon: "Science"
+title: Artificial Intelligence
+description: Master Overview of Artificial Intelligence, Machine Learning, and related fields.
 ---
-<Callout title="Warning" type="warning">
-  **Pardon our dust!** This section is currently a work in progress. I am actively migrating and restructuring content from my previous project. Some information may be incomplete or temporarily unavailable. 
-  
-  Thank you for your patience as I build this out—stay tuned for upcoming updates!
-</Callout>
-# Computer Science
+
+import { Brain, Cpu, Network, Database, Search } from "lucide-react";
+
+นี่คือ Master Bento Grid สำหรับเนื้อหาในกลุ่ม Artificial Intelligence และสาขาที่เกี่ยวข้อง ท่านสามารถเลือกเข้าถึงแต่ละหมวดหมู่ย่อยได้จาก Cards ด้านล่าง
+
+<Cards>
+  <Card
+    href="/docs/computer_science/artificial-intelligence/ai"
+    title="Artificial Intelligence"
+    icon={<Brain />}
+  >
+    แนวคิดพื้นฐานของ AI, Intelligent Agents และ Search Algorithms
+  </Card>
+  <Card
+    href="/docs/computer_science/artificial-intelligence/ml"
+    title="Machine Learning"
+    icon={<Cpu />}
+  >
+    หลักการของ Machine Learning, Supervised, Unsupervised และ Reinforcement Learning
+  </Card>
+  <Card
+    href="/docs/computer_science/artificial-intelligence/dl"
+    title="Deep Learning"
+    icon={<Network />}
+  >
+    โครงสร้าง Neural Networks และเทคนิคขั้นสูงใน Deep Learning
+  </Card>
+  <Card
+    href="/docs/computer_science/artificial-intelligence/ds"
+    title="Data Science"
+    icon={<Database />}
+  >
+    กระบวนการจัดการ Data Science และขั้นตอนการสกัด Insights จากข้อมูล
+  </Card>
+  <Card
+    href="/docs/computer_science/artificial-intelligence/dm"
+    title="Data Mining"
+    icon={<Search />}
+  >
+    เทคนิค Data Mining สำหรับการค้นหารูปแบบและความสัมพันธ์ที่ซ่อนอยู่ในชุดข้อมูล
+  </Card>
+</Cards>

@@ -1,15 +1,35 @@
 ---
-title: "Artificial Intelligence"
-description: "Learn about computer science concepts, their applications, and fundamental principles."
-# icon: "Science"
+title: Artificial Intelligence (AI) Cheat Sheet
+description: สรุปแนวคิดพื้นฐานของ Artificial Intelligence
 ---
 
-<Callout title="Warning" type="warning">
-  **Pardon our dust!** This section is currently a work in progress. I am
-  actively migrating and restructuring content from my previous project. Some
-  information may be incomplete or temporarily unavailable. Thank you for your
-  patience as I build this out—stay tuned for upcoming updates!
-</Callout>
-# Artificial Intelligence
+# Artificial Intelligence (AI) Cheat Sheet
 
+เอกสารนี้สรุปเนื้อหาสำคัญเกี่ยวกับ Artificial Intelligence เพื่อการทบทวนอย่างรวดเร็ว
 
+## 1. Weak AI vs Strong AI
+
+*   **Weak AI (Narrow AI):** ระบบ AI ที่ถูกออกแบบและฝึกสอนมาสำหรับงานเฉพาะทาง เช่น Virtual Assistants, Recommendation Systems และ Image Recognition ระบบเหล่านี้ไม่มี Consciousness หรือ General Intelligence
+*   **Strong AI (Artificial General Intelligence - AGI):** ระบบ AI ในทฤษฎีที่มีความสามารถในการทำความเข้าใจ เรียนรู้ และประยุกต์ใช้ Intelligence ในระดับเทียบเท่ามนุษย์ในทุกๆ ด้าน
+
+## 2. Intelligent Agents
+
+Intelligent Agent คือระบบที่รับรู้ Environment ผ่าน Sensors และกระทำต่อ Environment นั้นผ่าน Actuators เพื่อให้บรรลุ Goals ที่ตั้งไว้
+
+*   **Simple Reflex Agents:** ตัดสินใจกระทำโดยอิงจาก Percept ในปัจจุบันเท่านั้น ข้าม History ของ Percept
+*   **Model-Based Reflex Agents:** รักษา Internal State ที่สอดคล้องกับ History เพื่อจัดการกับ Environment ที่สังเกตได้บางส่วน
+*   **Goal-Based Agents:** ตัดสินใจโดยพิจารณา Goals ควบคู่กับ State ปัจจุบัน
+*   **Utility-Based Agents:** ประเมินความพึงพอใจหรือ Utility Function ในแต่ละ State เพื่อเลือกการกระทำที่ดีที่สุด
+*   **Learning Agents:** สามารถเรียนรู้จากประสบการณ์เพื่อปรับปรุง Performance Element
+
+## 3. Search Algorithms
+
+Search Algorithms เป็นเทคนิคสำคัญในการแก้ปัญหาใน AI
+
+### Uninformed Search (Blind Search)
+*   **Breadth-First Search (BFS):** กระจายการค้นหาในระดับความลึกเดียวกันก่อน
+*   **Depth-First Search (DFS):** ค้นหาลึกลงไปในแต่ละ Branch ให้สุดก่อนเปลี่ยน Branch
+
+### Informed Search (Heuristic Search)
+*   **Greedy Best-First Search:** เลือก Node ที่ดูเหมือนจะเข้าใกล้ Goal มากที่สุดโดยประเมินจาก Heuristic Function
+*   **A* Search:** Algorithm ที่หา Path ที่ดีที่สุดโดยรวม Cost ที่เกิดขึ้นแล้ว $g(n)$ กับ Heuristic Cost ที่คาดว่าจะเกิดขึ้น $h(n)$ เข้าด้วยกันเป็น $f(n) = g(n) + h(n)$ ซึ่งรับประกันการเจอ Optimal Solution หาก Heuristic เป็น Admissible
