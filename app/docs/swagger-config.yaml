@@ -1,0 +1,21 @@
+openapi: 3.0.0
+info:
+  title: Tenants API
+  version: 1.0.0
+  description: API for managing tenants
+paths:
+  /api/tenants:
+    get:
+      summary: Get a list of tenants
+      description: Retrieve a list of all tenants in the system.
+      responses:
+        '200':
+          description: Successful response containing a list of tenants.
+    post:
+      summary: Create a new tenant
+      description: Add a new tenant to the system.
+      responses:
+        '201':
+          description: Tenant successfully created.
+        '400':
+          description: Bad request, invalid input.
