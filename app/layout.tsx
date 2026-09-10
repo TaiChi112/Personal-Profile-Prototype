@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { Providers } from "./providers";
+import { defaultMetadata } from "./seo.config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,13 +15,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Anothai(TaiChi) Portfolio",
-  description: "Personal Website Portfolio of TaiChi",
-  icons: {
-    icon: "/favicon.ico",
-  },
-};
+export const metadata: Metadata = defaultMetadata;
 
 export default function RootLayout({
   children,
