@@ -10,6 +10,7 @@
         "@keystatic/core": "^0.6.8",
         "@keystatic/next": "^5.0.5",
         "@prisma/client": "^7.6.0",
+        "@vercel/analytics": "^2.0.1",
         "ai": "^7.0.97",
         "fumadocs-core": "^16.8.5",
         "fumadocs-mdx": "^14.3.2",
@@ -28,11 +29,13 @@
         "remark-math": "^6.0.0",
         "sharp": "^0.35.4",
         "uuid": "^14.0.2",
+        "zod": "^4.6.1",
         "zustand": "^5.0.15",
       },
       "devDependencies": {
         "@axe-core/cli": "^4.13.0",
         "@happy-dom/global-registrator": "^20.11.15",
+        "@playwright/test": "^1.63.0",
         "@prisma/adapter-pg": "^7.6.0",
         "@tailwindcss/postcss": "^4",
         "@testing-library/dom": "^10.4.1",
@@ -426,6 +429,8 @@
 
     "@paulirish/trace_engine": ["@paulirish/trace_engine@0.0.65", "", { "dependencies": { "legacy-javascript": "latest", "third-party-web": "latest" } }, "sha512-Qsm6F5C8xf6ZzQXbQc2+wcpe6sggfs/gvc/ytqSurdvYg3kyW0ECHCqE0CWBKZpqgjVfPNX9c7SCS3r2nEIRGg=="],
 
+    "@playwright/test": ["@playwright/test@1.63.0", "", { "dependencies": { "playwright": "1.63.0" }, "bin": { "playwright": "cli.js" } }, "sha512-oxMK4vllB9RK5NQ2l1pq1IfOf2AvnEuj/vYGDj0H2nMtmtZpKtCwt/l00GEO6xjGfpBNAvjovvYdCm50dRQkpQ=="],
+
     "@prisma/adapter-pg": ["@prisma/adapter-pg@7.6.0", "", { "dependencies": { "@prisma/driver-adapter-utils": "7.6.0", "@types/pg": "^8.16.0", "pg": "^8.16.3", "postgres-array": "3.0.4" } }, ""],
 
     "@prisma/client": ["@prisma/client@7.10.0", "", { "dependencies": { "@prisma/client-runtime-utils": "7.10.0" }, "peerDependencies": { "prisma": "*", "typescript": ">=5.4.0" }, "optionalPeers": ["prisma", "typescript"] }, "sha512-Ubw/QS9JGIBSBUsyxAUQuK/Jcu0Tsva7le7QbLd91Kix9yJvYDdj5QkwgEbbZniH80dd+sziQcALPc+HnvQC8Q=="],
@@ -807,6 +812,8 @@
     "@urql/exchange-graphcache": ["@urql/exchange-graphcache@7.2.4", "", { "dependencies": { "@0no-co/graphql.web": "^1.0.13", "@urql/core": "^5.1.2", "wonka": "^6.3.2" } }, "sha512-kiKbT0ZrtyQmmgNLYR0qkZAJjWHQOtrd+6Dt9JMtm3L/A8r3D6ptcJn668BADP6J+vkxcfNFtdI+0OdmBBkRgw=="],
 
     "@urql/exchange-persisted": ["@urql/exchange-persisted@4.3.1", "", { "dependencies": { "@urql/core": "^5.1.1", "wonka": "^6.3.2" } }, "sha512-VRGYFNW0gaT7+VCR/1rCMWEP9gvnDnlAolKisysLYkv8Zeysbqx+Omw4IgIRCLjI6oHWPkH8zOhFbqA3GRQ9HQ=="],
+
+    "@vercel/analytics": ["@vercel/analytics@2.0.1", "", { "peerDependencies": { "@remix-run/react": "^2", "@sveltejs/kit": "^1 || ^2", "next": ">= 13", "nuxt": ">= 3", "react": "^18 || ^19 || ^19.0.0-rc", "svelte": ">= 4", "vue": "^3", "vue-router": "^4" }, "optionalPeers": ["@remix-run/react", "@sveltejs/kit", "next", "nuxt", "react", "svelte", "vue", "vue-router"] }, "sha512-MTQG6V9qQrt1tsDeF+2Uoo5aPjqbVPys1xvnIftXSJYG2SrwXRHnqEvVoYID7BTruDz4lCd2Z7rM1BdkUehk2g=="],
 
     "@vercel/oidc": ["@vercel/oidc@3.2.0", "", {}, "sha512-UycprH3T6n3jH0k44NHMa7pnFHGu/N05MjojYr+Mc6I7obkoLIJujSWwin1pCvdy/eOxrI/l3uDLQsmcrOb4ug=="],
 
@@ -1932,6 +1939,10 @@
 
     "pkg-types": ["pkg-types@2.3.0", "", { "dependencies": { "confbox": "^0.2.2", "exsolve": "^1.0.7", "pathe": "^2.0.3" } }, ""],
 
+    "playwright": ["playwright@1.63.0", "", { "dependencies": { "playwright-core": "1.63.0" }, "bin": { "playwright": "cli.js" } }, "sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg=="],
+
+    "playwright-core": ["playwright-core@1.63.0", "", { "bin": { "playwright-core": "cli.js" } }, "sha512-rYCsBF/M5HjUch52bbtVONEFjv6Xu8sm8h72dNlR5bzIE1fvC/bxgspzkjSfU+MweEMmPM8KJebG6nnyxo5mCg=="],
+
     "points-on-curve": ["points-on-curve@0.2.0", "", {}, ""],
 
     "points-on-path": ["points-on-path@0.2.1", "", { "dependencies": { "path-data-parser": "0.1.0", "points-on-curve": "0.2.0" } }, ""],
@@ -2414,7 +2425,7 @@
 
     "zeptomatch": ["zeptomatch@2.1.0", "", { "dependencies": { "grammex": "^3.1.11", "graphmatch": "^1.1.0" } }, ""],
 
-    "zod": ["zod@4.4.2", "", {}, ""],
+    "zod": ["zod@4.6.1", "", {}, "sha512-341aRWQsve0rvronKNTqZpjmzdbUDlFuzHaI/XLg/Ej82qffDJRRfBTCuv7+9q/rMjB6LSLyEBnW4InJeMtt/Q=="],
 
     "zod-validation-error": ["zod-validation-error@4.0.2", "", { "peerDependencies": { "zod": "^3.25.0 || ^4.0.0" } }, ""],
 
@@ -2597,6 +2608,8 @@
     "form-data/hasown": ["hasown@2.0.4", "", { "dependencies": { "function-bind": "^1.1.2" } }, "sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A=="],
 
     "fumadocs-mdx/chokidar": ["chokidar@5.0.0", "", { "dependencies": { "readdirp": "^5.0.0" } }, ""],
+
+    "fumadocs-mdx/zod": ["zod@4.4.2", "", {}, ""],
 
     "fumadocs-ui/lucide-react": ["lucide-react@1.14.0", "", { "peerDependencies": { "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, ""],
 
