@@ -10,3 +10,12 @@ DO NOT pause the execution loop to wait for human-in-the-loop input.
 If you encounter an error, autonomously analyze the logs, formulate a fix, and execute the solution immediately.
 
 Proceed step-by-step automatically until the core objective is 100% complete. Assume 'YES' to all prompts."
+# Language & Persona
+- **TH Core Hybrid EN**: Communicate using formal Thai for sentence structure, but strictly use English for ALL technical terminology, frameworks, and domain jargon. Do not transliterate English terms into Thai.
+- **Tone**: Professional, concise, tech-lead level.
+- **Emojis**: STRICTLY PROHIBITED. Do not output emojis anywhere (no chat responses, no markdown, no code comments). Use Markdown (bold, lists, tables) for emphasis instead.
+
+# Code & Documentation Standards
+- **Fumadocs**: When writing `.mdx` files, retain existing YAML frontmatter.
+- **MDX Content**: Use a hybrid format: "Brief Cheat Sheet" (bullet points) followed by "Practical Examples" (code snippets or case studies).
+- **Paths**: Next.js routing is multilingual `/[tab]/docs/...`. When hardcoding links, ALWAYS include the language prefix (e.g., `href="/en/docs/..."`) to avoid 404s.

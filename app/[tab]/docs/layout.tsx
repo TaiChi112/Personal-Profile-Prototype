@@ -6,6 +6,7 @@ import { DocsClientBackground } from "@/app/components/system/DocsClientBackgrou
 import { i18n } from "@/app/lib/i18n";
 import { SiteHeader } from "@/app/components/layout/SiteHeader";
 import { Book, Code2, Briefcase, Landmark, Apple, HeartPulse } from "lucide-react";
+import { ChatBot } from "@/app/components/ai/ChatBot";
 
 export default async function DocsRootLayout({
   children,
@@ -67,6 +68,7 @@ export default async function DocsRootLayout({
             </DocsLayout>
           </div>
         </div>
+        <ChatBot />
       </div>
     </RootProvider>
   );
