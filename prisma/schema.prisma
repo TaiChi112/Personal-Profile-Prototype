@@ -276,3 +276,16 @@ model ResumeDownloadLead {
 
   @@map("resume_download_leads")
 }
+
+model QuizScore {
+  id        String   @id @default(cuid())
+  question  String   @db.Text
+  isCorrect Boolean  @map("is_correct")
+  userId    String?  @map("user_id") // Optional, for logged-in users
+  sessionId String?  @map("session_id") // For anonymous users
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@index([question])
+  @@index([sessionId])
+  @@map("quiz_scores")
+}

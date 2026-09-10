@@ -22,9 +22,23 @@ export function Quiz({ question, options, answer }: QuizProps) {
     }
   };
 
-  const handleSubmit = () => {
-    if (selected !== null) {
+  const handleSubmit = async () => {
+    if (selected !== null && !hasSubmitted) {
       setHasSubmitted(true);
+      const isCorrect = selected === correctAnswerIndex;
+      
+      try {
+        await fetch('/api/quiz', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question,
+            isCorrect
+          }),
+        });
+      } catch (err) {
+        console.error("Failed to save score", err);
+      }
     }
   };
 
