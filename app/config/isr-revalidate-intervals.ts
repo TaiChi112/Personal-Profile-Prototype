@@ -1,0 +1,10 @@
+export const REVALIDATE_INTERVALS = {
+  MINUTE: 60,
+  FIVE_MINUTES: 5 * 60,
+  TEN_MINUTES: 10 * 60,
+  FIFTEEN_MINUTES: 15 * 60,
+  THIRTY_MINUTES: 30 * 60,
+  HOUR: 60 * 60,
+  DAY: 24 * 60 * 60,
+  WEEK: 7 * 24 * 60 * 60,
+} as const;
