@@ -6,8 +6,21 @@ import { MessageSquare, X, Send } from 'lucide-react';
 
 export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } = useChat({
     api: '/api/chat',
+    onError: (error) => {
+      const errorMsg = error.message.toLowerCase();
+      if (errorMsg.includes('500') || errorMsg.includes('timeout') || errorMsg.includes('failed to fetch')) {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            id: `error-${Date.now()}`,
+            role: 'assistant',
+            content: 'Connection lost. Please check your internet or try again.',
+          },
+        ]);
+      }
+    },
   });
 
   return (
