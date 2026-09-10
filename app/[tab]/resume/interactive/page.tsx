@@ -1,5 +1,6 @@
 import { ResumeViewer } from "@/app/components/resume/ResumeViewer";
 import { SiteHeader } from "@/app/components/layout/SiteHeader";
+import { LiveGitActivity } from "@/app/components/ui/LiveGitActivity";
 
 export default async function InteractiveResumePage(props: {
   params: Promise<{ tab: string }>;
@@ -20,6 +21,7 @@ export default async function InteractiveResumePage(props: {
         </div>
         
         <ResumeViewer lang={lang} />
+        <LiveGitActivity />
       </main>
     </div>
   );
