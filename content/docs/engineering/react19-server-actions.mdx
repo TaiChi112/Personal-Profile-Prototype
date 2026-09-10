@@ -1,0 +1,46 @@
+---
+title: "React 19 Server Actions"
+description: "Best practices scraped from the web"
+---
+
+# React 19 Server Actions: 2026 Best Practices
+
+As of 2026, React Server Actions have matured into a standard, production-ready pattern for handling data mutations and form submissions. With the React 19 ecosystem firmly established, the focus has shifted toward more secure, type-safe, and robust implementations. This document synthesizes the latest real-world guidelines for building modern applications.
+
+## 1. Security First (Critical)
+
+Following the security challenges of the past year, security remains the top priority for Server Actions. Treat every Server Action as a public API endpoint.
+
+* **Keep Dependencies Updated:** Ensure you are running **React 19.2.7 or later** to include critical patches for vulnerabilities like "React2Shell" (CVE-2025-55182) and other server-side execution risks.
+* **Strict Validation:** Never trust input from the client. Always validate the arguments of your Server Actions using schema validation libraries like **Zod**.
+* **Authentication & Authorization:** Do not assume a function is secure just because it runs on the server. Explicitly check user roles and permissions within every Server Action.
+
+## 2. Leverage Specialized Libraries
+
+While raw Server Actions are powerful, production applications heavily favor abstraction libraries to handle common cross-cutting concerns:
+
+* **`next-safe-action` or `zsa`:** These libraries have become the industry standard for wrapping Server Actions. They provide built-in validation, type-safe error handling, and middleware composition (e.g., for authentication or rate-limiting).
+* **Conform:** Frequently paired with action wrappers to manage complex form states and enable progressive enhancement seamlessly.
+
+## 3. Architectural Best Practices
+
+* **Server Actions for Mutations:** Reserve Server Actions strictly for **mutations** (POST/PUT/DELETE operations). For data fetching, prefer standard React Server Components (RSC) and `async/await` patterns directly in the component tree.
+* **Leverage `useActionState`:** Use the stable `useActionState` hook to manage the pending, error, and success states of your form submissions.
+* **Progressive Enhancement:** Design forms to work even if JavaScript fails to load. By using the standard HTML `<form action={...}>` prop, your Server Actions can function as traditional form submissions, providing better accessibility and resilience.
+* **Optimistic UI:** Utilize `useOptimistic` for instant user feedback. This ensures the UI feels responsive even while the server-side mutation is processing.
+
+## 4. Modern React Integration
+
+* **React Compiler:** In 2026, the **React Compiler** is the standard. You no longer need to manually memoize components or functions. Focus on clear, declarative code, and let the compiler handle performance optimizations like `useMemo` and `useCallback`.
+* **Zero Client-Bundle Weight:** Keep your Server Actions in separate files (e.g., `actions.ts`) or ensure they are properly identified with `"use server"` to avoid leaking sensitive logic or heavy dependencies into the client bundle.
+* **Separation of Concerns:** Keep business logic out of your UI components. Move data processing and mutation logic into dedicated service layers or action modules.
+
+## Summary Checklist
+
+| Feature | Best Practice |
+| :--- | :--- |
+| **Validation** | Use Zod schemas within every action. |
+| **Middleware** | Use `next-safe-action` or `zsa` for auth/rate-limiting. |
+| **State Management** | Use `useActionState` for form feedback. |
+| **UI Updates** | Use `useOptimistic` for perceived performance. |
+| **Security** | Keep React updated to 19.2.7+; treat actions as API endpoints. |
