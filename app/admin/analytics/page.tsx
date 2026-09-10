@@ -1,6 +1,6 @@
-import prisma from '@/lib/prisma';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
+import { AnalyticsRepository } from '@/lib/repositories/analytics.repository';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,15 +10,23 @@ export default async function AnalyticsPage() {
     redirect('/api/auth/signin');
   }
 
-  const scores = await prisma.quizScore.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
+  let metrics;
+  try {
+    metrics = await AnalyticsRepository.getDashboardMetrics();
+  } catch (error) {
+    console.error('Failed to fetch dashboard metrics:', error);
+    return (
+      <div className="p-8">
+        <h1 className="text-3xl font-bold mb-8 text-gray-900">Analytics Dashboard</h1>
+        <div className="bg-white p-6 rounded-lg shadow border border-red-200">
+          <h2 className="text-lg font-medium text-red-600 mb-2">Service Unavailable</h2>
+          <p className="text-gray-600">Database is temporarily unavailable. Please try again later.</p>
+        </div>
+      </div>
+    );
+  }
 
-  const totalAttempts = scores.length;
-  const correctAttempts = scores.filter(score => score.isCorrect).length;
-  const overallAccuracy = totalAttempts > 0 
-    ? Math.round((correctAttempts / totalAttempts) * 100) 
-    : 0;
+  const { scores, totalAttempts, overallAccuracy } = metrics;
 
   return (
     <div className="p-8">
