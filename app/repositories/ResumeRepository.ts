@@ -1,9 +1,34 @@
 import redis from '../lib/redis';
 import { getTracer } from '../lib/telemetry';
+import prisma from '../lib/prisma';
 
 const tracer = getTracer('ResumeRepository');
 
 export class ResumeRepository {
+  public async updateResumeData(payload: any): Promise<void> {
+    return tracer.startActiveSpan('updateResumeData', async (span) => {
+      try {
+        const cacheKey = 'resume_data';
+        
+        await prisma.eventStore.create({
+          data: {
+            aggregateId: 'global',
+            aggregateType: 'RESUME',
+            eventType: 'RESUME_UPDATED',
+            payload,
+          },
+        });
+
+        await redis.set(cacheKey, JSON.stringify(payload));
+      } catch (error) {
+        console.error('Error updating resume data:', error);
+        throw error;
+      } finally {
+        span.end();
+      }
+    });
+  }
+
   public async getResumeData(): Promise<any> {
     return tracer.startActiveSpan('getResumeData', async (span) => {
       try {
