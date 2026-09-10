@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { getInternshipResume } from "@/app/data/resume";
 import { Briefcase, Code, GraduationCap, ChevronRight, Download } from "lucide-react";
+import LiveViewers from "@/app/components/ui/LiveViewers";
 
 export function ResumeViewer({ lang }: { lang: 'en' | 'th' }) {
   const resume = getInternshipResume(lang);
@@ -24,6 +25,10 @@ export function ResumeViewer({ lang }: { lang: 'en' | 'th' }) {
           <Download className="w-4 h-4" />
           <span>Download PDF</span>
         </button>
+      </div>
+
+      <div className="mb-6 print:hidden">
+        <LiveViewers />
       </div>
 
       {/* Tabs */}
