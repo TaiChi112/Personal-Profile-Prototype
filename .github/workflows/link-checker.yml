@@ -1,0 +1,55 @@
+name: Link Checker
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'workspaces/Personal-Profile-Prototype/content/docs/**/*.md'
+      - 'workspaces/Personal-Profile-Prototype/content/docs/**/*.mdx'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'workspaces/Personal-Profile-Prototype/content/docs/**/*.md'
+      - 'workspaces/Personal-Profile-Prototype/content/docs/**/*.mdx'
+  workflow_dispatch:
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for missing i18n prefixes in internal links
+        run: |
+          echo "Scanning MDX files for hardcoded absolute paths that skip the /[tab]/ router..."
+          # Find any href="/docs/..." or [text](/docs/...) that isn't prefixed with /en/ or /th/
+          # Using grep to search recursively.
+          # We search for strings that explicitly start with "/docs/" instead of "/en/docs/"
+          
+          FAILS=0
+          
+          # Check Markdown links: [text](/docs/...)
+          if grep -rInE '\]\(/docs/' workspaces/Personal-Profile-Prototype/content/docs/; then
+            echo "::error::Found Markdown links pointing to /docs/ without a language prefix (/en/ or /th/). This causes 404s!"
+            FAILS=1
+          fi
+
+          # Check HTML/MDX hrefs: href="/docs/..."
+          if grep -rInE 'href="/docs/' workspaces/Personal-Profile-Prototype/content/docs/; then
+            echo "::error::Found HTML hrefs pointing to /docs/ without a language prefix (/en/ or /th/). This causes 404s!"
+            FAILS=1
+          fi
+
+          if [ $FAILS -eq 1 ]; then
+            echo "Please update these links to use /en/docs/... or /th/docs/... to satisfy the i18n router."
+            exit 1
+          else
+            echo "All internal absolute links have proper language prefixes! 🚀"
+          fi
+
+      - name: Verify External Links (Lychee)
+        uses: lycheeverse/lychee-action@v1.9.3
+        with:
+          # Check all markdown files in the docs directory
+          args: --accept 200,204,429 --exclude-path 'node_modules' --exclude-loopback 'workspaces/Personal-Profile-Prototype/content/docs/**/*.md' 'workspaces/Personal-Profile-Prototype/content/docs/**/*.mdx'
+          fail: true
