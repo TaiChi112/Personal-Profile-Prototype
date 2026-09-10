@@ -161,7 +161,7 @@ export function SiteHeader({
                 onClick={() =>
                   isAuthenticated
                     ? signOut({ callbackUrl: "/" })
-                    : signIn("google")
+                    : signIn()
                 }
                 className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${
                   isAuthenticated
@@ -169,7 +169,7 @@ export function SiteHeader({
                     : "bg-blue-600 text-white hover:bg-blue-700"
                 }`}
               >
-                {isAuthenticated ? "Sign Out" : "Sign In"}
+                {isAuthenticated ? "Logout" : "Login"}
               </button>
             </div>
           </div>
@@ -205,7 +205,7 @@ export function SiteHeader({
                   if (isAuthenticated) {
                     signOut({ callbackUrl: "/" });
                   } else {
-                    signIn("google");
+                    signIn();
                   }
                 }}
                 className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${
@@ -214,7 +214,7 @@ export function SiteHeader({
                     : "bg-blue-600 text-white hover:bg-blue-700"
                 }`}
               >
-                {isAuthenticated ? "Sign Out" : "Sign In"}
+                {isAuthenticated ? "Logout" : "Login"}
               </button>
             </div>
             {navItems.map((item) => (

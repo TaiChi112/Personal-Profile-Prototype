@@ -6,6 +6,7 @@ import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 import { Callout } from "fumadocs-ui/components/callout";
 import { Mermaid } from "@/app/components/Mermaid";
 import { Quiz } from "@/app/components/mdx/Quiz";
+import { Playground } from "@/app/components/mdx/Playground";
 import { DocsActionsDropdown } from "@/app/components/docs/DocsActionsDropdown";
 import { Github } from "lucide-react";
 import * as LucideIcons from "lucide-react";
@@ -80,7 +81,7 @@ export default async function Page(props: Readonly<{
         {/* โซนแสดงผลเนื้อหา Markdown */}
         <DocsBody>
           <article className="prose prose-slate dark:prose-invert max-w-none">
-            <Mdx components={{ ...defaultMdxComponents, Card: CustomCard, Mermaid, Quiz, Tabs, Tab, Callout }} />
+            <Mdx components={{ ...defaultMdxComponents, Card: CustomCard, Mermaid, Quiz, Playground, Tabs, Tab, Callout }} />
           </article>
         </DocsBody>
 
