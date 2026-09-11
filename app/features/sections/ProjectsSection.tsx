@@ -22,6 +22,7 @@ type ProjectsSectionProps = {
 export function ProjectsSection({ currentStyle, labels, projectsList, selectedProjectParam, onNotify }: Readonly<ProjectsSectionProps>) {
   const router = useRouter();
   const [currentLayout, setCurrentLayout] = useState<'grid' | 'list'>('grid');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   const handleLaunch = (project: Project) => {
     if (project.repoUrl) {
@@ -44,12 +45,22 @@ export function ProjectsSection({ currentStyle, labels, projectsList, selectedPr
     ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
     : 'flex flex-col space-y-4';
 
+  const filteredProjects = projectsList.filter(p => selectedCategory === 'All' || p.category === selectedCategory);
+
   return (
     <ContentSectionShell title={labels.sections.projects} description={labels.sections.projectsDesc} currentStyle={currentStyle}>
       <div className="flex justify-between items-center mb-6">
         <div className="flex gap-2">
           {['All', 'Web', 'AI/ML', 'CLI'].map(cat => (
-            <button key={cat} className="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-blue-100 hover:text-blue-600 transition-colors">
+            <button 
+              key={cat} 
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${
+                selectedCategory === cat 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-blue-100 hover:text-blue-600'
+              }`}
+            >
               {cat}
             </button>
           ))}
@@ -75,7 +86,7 @@ export function ProjectsSection({ currentStyle, labels, projectsList, selectedPr
       </div>
 
       <div className={`${gridClass} animate-in fade-in duration-300`}>
-        {projectsList.map((project) => (
+        {filteredProjects.map((project) => (
           <div key={project.id} className={`flex ${currentLayout === 'grid' ? 'flex-col' : 'flex-row items-center'} gap-4 p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow group`}>
             
             <div className={`flex-1 flex flex-col h-full ${currentLayout === 'list' ? 'w-full' : ''}`}>
