@@ -27,29 +27,29 @@ export default function ApiCapabilitiesFooter() {
           <ul className="space-y-4 text-sm text-gray-600 dark:text-gray-300">
             <li className="flex flex-col gap-1">
               <span><strong>Profile Foundation</strong> (Avatar, Bio, Company)</span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-blue-600 w-fit select-all cursor-pointer hover:bg-blue-50 transition-colors">https://api.github.com/users/&#123;user&#125;</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-blue-600 dark:text-blue-400 w-full break-all select-all cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors">https://api.github.com/users/&#123;user&#125;</code>
             </li>
             <li className="flex flex-col gap-1">
               <span><strong>Top Languages & Repos</strong></span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-blue-600 w-fit select-all cursor-pointer hover:bg-blue-50 transition-colors">https://api.github.com/users/&#123;user&#125;/repos</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-blue-600 dark:text-blue-400 w-full break-all select-all cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors">https://api.github.com/users/&#123;user&#125;/repos</code>
             </li>
             <li className="flex flex-col gap-1">
               <span><strong>Starred Repositories</strong></span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-blue-600 w-fit select-all cursor-pointer hover:bg-blue-50 transition-colors">https://api.github.com/users/&#123;user&#125;/starred</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-blue-600 dark:text-blue-400 w-full break-all select-all cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors">https://api.github.com/users/&#123;user&#125;/starred</code>
             </li>
             <li className="flex flex-col gap-1">
               <span><strong>Organizations</strong></span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-blue-600 w-fit select-all cursor-pointer hover:bg-blue-50 transition-colors">https://api.github.com/users/&#123;user&#125;/orgs</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-blue-600 dark:text-blue-400 w-full break-all select-all cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors">https://api.github.com/users/&#123;user&#125;/orgs</code>
             </li>
             <li className="flex flex-col gap-1">
               <span><strong>Activity Feed</strong> (90-day timeline)</span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-blue-600 w-fit select-all cursor-pointer hover:bg-blue-50 transition-colors">https://api.github.com/users/&#123;user&#125;/events</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-blue-600 dark:text-blue-400 w-full break-all select-all cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors">https://api.github.com/users/&#123;user&#125;/events</code>
             </li>
           </ul>
         </div>
 
         {/* Category 2: Repository-Level Data */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
           <div className="flex items-center gap-3 mb-4">
             <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -61,29 +61,29 @@ export default function ApiCapabilitiesFooter() {
           <ul className="space-y-4 text-sm text-gray-600 dark:text-gray-300">
             <li className="flex flex-col gap-1">
               <span><strong>Core Info</strong> (Stars, Forks, License)</span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-green-600 w-fit select-all cursor-pointer hover:bg-green-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-green-600 dark:text-green-400 w-full break-all select-all cursor-pointer hover:bg-green-50 dark:hover:bg-gray-700 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;</code>
             </li>
             <li className="flex flex-col gap-1">
               <span><strong>Languages Breakdown</strong> (Byte count)</span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-green-600 w-fit select-all cursor-pointer hover:bg-green-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/languages</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-green-600 dark:text-green-400 w-full break-all select-all cursor-pointer hover:bg-green-50 dark:hover:bg-gray-700 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/languages</code>
             </li>
             <li className="flex flex-col gap-1">
               <span><strong>Contributors</strong> (Sorted by commits)</span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-green-600 w-fit select-all cursor-pointer hover:bg-green-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/contributors</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-green-600 dark:text-green-400 w-full break-all select-all cursor-pointer hover:bg-green-50 dark:hover:bg-gray-700 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/contributors</code>
             </li>
             <li className="flex flex-col gap-1">
               <span><strong>Commits History</strong> (Git log)</span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-green-600 w-fit select-all cursor-pointer hover:bg-green-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/commits</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-green-600 dark:text-green-400 w-full break-all select-all cursor-pointer hover:bg-green-50 dark:hover:bg-gray-700 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/commits</code>
             </li>
             <li className="flex flex-col gap-1">
               <span><strong>Issues & PRs</strong></span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-green-600 w-fit select-all cursor-pointer hover:bg-green-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/issues</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-green-600 dark:text-green-400 w-full break-all select-all cursor-pointer hover:bg-green-50 dark:hover:bg-gray-700 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/issues</code>
             </li>
           </ul>
         </div>
 
         {/* Category 3: Specialized Data */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
           <div className="flex items-center gap-3 mb-4">
             <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -95,23 +95,23 @@ export default function ApiCapabilitiesFooter() {
           <ul className="space-y-4 text-sm text-gray-600 dark:text-gray-300">
             <li className="flex flex-col gap-1">
               <span><strong>Contribution Graph</strong> (External SVG Generator)</span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-purple-600 w-fit select-all cursor-pointer hover:bg-purple-50 transition-colors">https://ghchart.rshah.org/&#123;user&#125;</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-purple-600 dark:text-purple-400 w-full break-all select-all cursor-pointer hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors">https://ghchart.rshah.org/&#123;user&#125;</code>
             </li>
             <li className="flex flex-col gap-1">
               <span><strong>Releases & Tags</strong></span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-purple-600 w-fit select-all cursor-pointer hover:bg-purple-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/releases</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-purple-600 dark:text-purple-400 w-full break-all select-all cursor-pointer hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/releases</code>
             </li>
             <li className="flex flex-col gap-1">
               <span><strong>Forks</strong></span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-purple-600 w-fit select-all cursor-pointer hover:bg-purple-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/forks</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-purple-600 dark:text-purple-400 w-full break-all select-all cursor-pointer hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/forks</code>
             </li>
             <li className="flex flex-col gap-1">
               <span><strong>GitHub Actions Workflows</strong></span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-purple-600 w-fit select-all cursor-pointer hover:bg-purple-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/actions/runs</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-purple-600 dark:text-purple-400 w-full break-all select-all cursor-pointer hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/actions/runs</code>
             </li>
             <li className="flex flex-col gap-1">
               <span><strong>Directory Contents</strong> (Source Code)</span>
-              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-purple-600 w-fit select-all cursor-pointer hover:bg-purple-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/contents/&#123;path&#125;</code>
+              <code className="text-xs bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded text-purple-600 dark:text-purple-400 w-full break-all select-all cursor-pointer hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/contents/&#123;path&#125;</code>
             </li>
           </ul>
         </div>
