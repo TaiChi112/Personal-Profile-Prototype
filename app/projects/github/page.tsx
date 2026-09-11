@@ -23,32 +23,52 @@ export default function GithubExplorer() {
     setEventsData,
   } = useGithubStore();
 
-  const handleSearch = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!searchQuery.trim()) return;
-
+  const fetchProfile = async (username: string) => {
     try {
       const headers = userPat ? { Authorization: `Bearer ${userPat}` } : {};
       
       const [userRes, reposRes, eventsRes] = await Promise.all([
-        fetch(`/api/github/proxy?url=/users/${searchQuery}`, { headers }),
-        fetch(`/api/github/proxy?url=/users/${searchQuery}/repos?per_page=100&sort=updated`, { headers }),
-        fetch(`/api/github/proxy?url=/users/${searchQuery}/events?per_page=30`, { headers })
+        fetch(`/api/github/proxy?url=/users/${username}`, { headers }),
+        fetch(`/api/github/proxy?url=/users/${username}/repos?per_page=100&sort=updated`, { headers }),
+        fetch(`/api/github/proxy?url=/users/${username}/events?per_page=30`, { headers })
       ]);
 
-      const [userData, reposData, eventsData] = await Promise.all([
+      const [newUserData, newReposData, newEventsData] = await Promise.all([
         userRes.json(),
         reposRes.json(),
         eventsRes.json()
       ]);
 
-      setUserData(userData);
-      setReposData(Array.isArray(reposData) ? reposData : []);
-      setEventsData(Array.isArray(eventsData) ? eventsData : []);
+      // If user not found (e.g. 404 message)
+      if (newUserData.message === 'Not Found') {
+        alert('GitHub user not found!');
+        return;
+      }
+
+      setUserData(newUserData);
+      setReposData(Array.isArray(newReposData) ? newReposData : []);
+      setEventsData(Array.isArray(newEventsData) ? newEventsData : []);
     } catch (error) {
       console.error('Error fetching github data:', error);
     }
   };
+
+  const handleSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!searchQuery.trim()) return;
+    await fetchProfile(searchQuery);
+  };
+
+  React.useEffect(() => {
+    // If no user is loaded yet, pick a random top profile!
+    if (!userData) {
+      const TOP_PROFILES = ['torvalds', 'gaearon', 'yyx990803', 'sindresorhus', 'antfu', 'Rich-Harris', 'mrdoob'];
+      const randomProfile = TOP_PROFILES[Math.floor(Math.random() * TOP_PROFILES.length)];
+      setSearchQuery(randomProfile);
+      fetchProfile(randomProfile);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
