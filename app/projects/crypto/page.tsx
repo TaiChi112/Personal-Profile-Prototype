@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import CryptoCard, { Coin } from './components/CryptoCard';
-import PortfolioPanel from './components/PortfolioPanel';
-import TransactionLedger from './components/TransactionLedger';
+import CryptoMarketChart from './components/CryptoMarketChart';
 
 export default function CryptoDashboard() {
   const [data, setData] = useState<Coin[]>([]);
@@ -56,31 +55,22 @@ export default function CryptoDashboard() {
           </div>
         )}
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          <div className="lg:w-2/3 flex flex-col gap-8">
-            {loading && (
-              <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-              </div>
-            )}
-            {!loading && !error && (
+        <div>
+          {loading && (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+          )}
+          {!loading && !error && (
+            <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {data.map((coin) => (
                   <CryptoCard key={coin.id} coin={coin} />
                 ))}
               </div>
-            )}
-            
-            <div>
-              <TransactionLedger />
-            </div>
-          </div>
-
-          <div className="lg:w-1/3">
-            <div className="sticky top-8">
-              <PortfolioPanel />
-            </div>
-          </div>
+              <CryptoMarketChart />
+            </>
+          )}
         </div>
       </div>
     </div>
