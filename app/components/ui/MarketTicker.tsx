@@ -13,7 +13,12 @@ export default function MarketTicker() {
         const res = await fetch('/api/market-data');
         if (!res.ok) throw new Error('Network response was not ok');
         const data = await res.json();
-        const currentPrice = data.bpi.USD.rate_float;
+        
+        // Find Bitcoin from the formatted array
+        const btcData = data.find((c: any) => c.id === 'bitcoin');
+        if (!btcData) throw new Error('Invalid data format');
+        
+        const currentPrice = btcData.price;
         
         setPrice((prev) => {
           setPrevPrice(prev);
@@ -30,8 +35,8 @@ export default function MarketTicker() {
     return () => clearInterval(interval);
   }, []);
 
-  if (error) return <div className="text-red-500 text-sm p-2">{error}</div>;
-  if (price === null) return <div className="text-gray-500 text-sm p-2 animate-pulse">Loading BTC...</div>;
+  if (error) return <div className="text-red-500 text-sm p-2 w-full text-center bg-gray-900 border-b border-gray-800">{error}</div>;
+  if (price === null) return <div className="text-gray-500 text-sm p-2 w-full text-center bg-gray-900 border-b border-gray-800 animate-pulse">Loading BTC...</div>;
 
   const isUp = prevPrice === null || price >= prevPrice;
 
