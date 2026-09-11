@@ -13,12 +13,9 @@ export async function GET(request: Request) {
 
   let authHeader = request.headers.get('authorization');
 
-  if (!authHeader) {
-    const fallbackToken =
-      process.env.KEYSTATIC_GITHUB_CLIENT_SECRET || process.env.GITHUB_TOKEN;
-    if (fallbackToken) {
-      authHeader = `Bearer ${fallbackToken}`;
-    }
+  // ONLY use a true token, NOT a client secret.
+  if (!authHeader && process.env.GITHUB_TOKEN) {
+    authHeader = `Bearer ${process.env.GITHUB_TOKEN}`;
   }
 
   const headers = new Headers();

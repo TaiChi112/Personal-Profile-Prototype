@@ -4,7 +4,7 @@ export default function TabLayout({ userData }: { userData: any }) {
   const [activeTab, setActiveTab] = useState('profile');
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
+    <div className="w-full">
       <div className="flex border-b border-gray-200 mb-4">
         <button
           className={`px-4 py-2 font-medium text-sm focus:outline-none ${
