@@ -8,7 +8,7 @@ export default function TimelineLayout({ userData }: { userData: any }) {
   ];
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6">
+    <div className="w-full">
       <div className="flex items-center space-x-4 mb-8">
         <div className="w-16 h-16 rounded-full bg-gray-200 border-2 border-gray-300 overflow-hidden flex-shrink-0">
           {userData?.avatar_url ? (

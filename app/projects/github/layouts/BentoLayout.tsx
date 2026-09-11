@@ -9,7 +9,7 @@ const data = [
 
 export default function BentoLayout({ userData }: { userData: any }) {
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-gray-50/50 min-h-screen">
+    <div className="w-full">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
         {/* Box 1: Profile Info */}
