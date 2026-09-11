@@ -225,6 +225,14 @@ export const MOCK_PROJECTS: Project[] = [
   { id: 'mini-app-park-pin', title: 'ParkPin', slug: 'park-pin', category: 'Applications', description: 'Never forget where you parked your car in a mall.', techStack: ['Next.js'], repoUrl: '/projects/park-pin', featured: true, date: '2024-09-10', thumbnail: '' },
 
 
+
+  { id: 'mini-app-body-metrics', title: 'BodyMetrics', slug: 'body-metrics', category: 'Applications', description: 'Calculate your BMI and BMR easily.', techStack: ['Next.js'], repoUrl: '/projects/body-metrics', featured: true, date: '2024-10-01', thumbnail: '' },
+  { id: 'mini-app-tabata-timer', title: 'Tabata Timer', slug: 'tabata-timer', category: 'Applications', description: 'Interval timer for HIIT workouts.', techStack: ['Next.js'], repoUrl: '/projects/tabata-timer', featured: true, date: '2024-10-02', thumbnail: '' },
+  { id: 'mini-app-macro-calc', title: 'MacroCalc', slug: 'macro-calc', category: 'Applications', description: 'Calculate calories from Protein, Carbs, and Fat.', techStack: ['Next.js'], repoUrl: '/projects/macro-calc', featured: true, date: '2024-10-03', thumbnail: '' },
+  { id: 'mini-app-hydrate', title: 'Hydrate Tracker', slug: 'hydrate', category: 'Applications', description: 'Visually track your daily water intake.', techStack: ['Next.js'], repoUrl: '/projects/hydrate', featured: true, date: '2024-10-04', thumbnail: '' },
+  { id: 'mini-app-zen-mood', title: 'ZenMood', slug: 'zen-mood', category: 'Applications', description: 'Simple daily mood and energy tracker.', techStack: ['Next.js'], repoUrl: '/projects/zen-mood', featured: true, date: '2024-10-05', thumbnail: '' },
+
+
 ];
 
 export const MOCK_VIDEOS: ExternalVideoData[] = [
