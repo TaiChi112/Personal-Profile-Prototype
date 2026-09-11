@@ -59,13 +59,19 @@ export default function GithubExplorer() {
     await fetchProfile(searchQuery);
   };
 
+  const loadRandomProfile = () => {
+    const TOP_PROFILES = ['torvalds', 'gaearon', 'yyx990803', 'sindresorhus', 'antfu', 'Rich-Harris', 'mrdoob'];
+    // Filter out the current one so we always get a new one when clicking random
+    const available = TOP_PROFILES.filter(p => p !== searchQuery);
+    const randomProfile = available[Math.floor(Math.random() * available.length)];
+    setSearchQuery(randomProfile);
+    fetchProfile(randomProfile);
+  };
+
   React.useEffect(() => {
     // If no user is loaded yet, pick a random top profile!
     if (!userData) {
-      const TOP_PROFILES = ['torvalds', 'gaearon', 'yyx990803', 'sindresorhus', 'antfu', 'Rich-Harris', 'mrdoob'];
-      const randomProfile = TOP_PROFILES[Math.floor(Math.random() * TOP_PROFILES.length)];
-      setSearchQuery(randomProfile);
-      fetchProfile(randomProfile);
+      loadRandomProfile();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -110,6 +116,16 @@ export default function GithubExplorer() {
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
               >
                 Search
+              </button>
+              <button
+                type="button"
+                onClick={loadRandomProfile}
+                title="Load Random Top Developer"
+                className="px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-medium rounded-lg transition-colors border border-gray-200 dark:border-gray-600 flex items-center justify-center min-w-[3rem]"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
               </button>
             </div>
             

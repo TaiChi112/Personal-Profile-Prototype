@@ -8,7 +8,7 @@ export default function ApiCapabilitiesFooter() {
           Explore the GitHub Public API Menu
         </h2>
         <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-          The GitHub Explorer above is just a glimpse of what's possible. Below is a comprehensive list of all data points and features available through the GitHub REST v3 API that we could potentially implement.
+          The GitHub Explorer above is just a glimpse of what's possible. Below is a comprehensive list of all data points and features available through the GitHub REST v3 API. You can copy the endpoints and test them in your browser!
         </p>
       </div>
 
@@ -24,26 +24,26 @@ export default function ApiCapabilitiesFooter() {
             </span>
             <h3 className="font-bold text-lg text-gray-900 dark:text-white">User Analytics</h3>
           </div>
-          <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-            <li className="flex items-start gap-2">
-              <span className="text-blue-500 mt-0.5">•</span>
-              <span><strong>Profile Foundation:</strong> Avatar, Bio, Company, Location, Admin status.</span>
+          <ul className="space-y-4 text-sm text-gray-600 dark:text-gray-300">
+            <li className="flex flex-col gap-1">
+              <span><strong>Profile Foundation</strong> (Avatar, Bio, Company)</span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-blue-600 w-fit select-all cursor-pointer hover:bg-blue-50 transition-colors">https://api.github.com/users/&#123;user&#125;</code>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-500 mt-0.5">•</span>
-              <span><strong>Top Languages:</strong> Extracted from analyzing all public repositories.</span>
+            <li className="flex flex-col gap-1">
+              <span><strong>Top Languages & Repos</strong></span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-blue-600 w-fit select-all cursor-pointer hover:bg-blue-50 transition-colors">https://api.github.com/users/&#123;user&#125;/repos</code>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-500 mt-0.5">•</span>
-              <span><strong>Starred Repos:</strong> Tech interests and bookmarks.</span>
+            <li className="flex flex-col gap-1">
+              <span><strong>Starred Repositories</strong></span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-blue-600 w-fit select-all cursor-pointer hover:bg-blue-50 transition-colors">https://api.github.com/users/&#123;user&#125;/starred</code>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-500 mt-0.5">•</span>
-              <span><strong>Organizations:</strong> Open-source orgs or companies they belong to.</span>
+            <li className="flex flex-col gap-1">
+              <span><strong>Organizations</strong></span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-blue-600 w-fit select-all cursor-pointer hover:bg-blue-50 transition-colors">https://api.github.com/users/&#123;user&#125;/orgs</code>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-500 mt-0.5">•</span>
-              <span><strong>Activity Feed:</strong> 90-day real-time events (Push, Pull Request, Issue Comments).</span>
+            <li className="flex flex-col gap-1">
+              <span><strong>Activity Feed</strong> (90-day timeline)</span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-blue-600 w-fit select-all cursor-pointer hover:bg-blue-50 transition-colors">https://api.github.com/users/&#123;user&#125;/events</code>
             </li>
           </ul>
         </div>
@@ -58,26 +58,26 @@ export default function ApiCapabilitiesFooter() {
             </span>
             <h3 className="font-bold text-lg text-gray-900 dark:text-white">Repository Deep Dive</h3>
           </div>
-          <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">•</span>
-              <span><strong>Core Info:</strong> Description, License, Default branch, Watchers.</span>
+          <ul className="space-y-4 text-sm text-gray-600 dark:text-gray-300">
+            <li className="flex flex-col gap-1">
+              <span><strong>Core Info</strong> (Stars, Forks, License)</span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-green-600 w-fit select-all cursor-pointer hover:bg-green-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;</code>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">•</span>
-              <span><strong>Languages Breakdown:</strong> Exact byte count of every language used.</span>
+            <li className="flex flex-col gap-1">
+              <span><strong>Languages Breakdown</strong> (Byte count)</span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-green-600 w-fit select-all cursor-pointer hover:bg-green-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/languages</code>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">•</span>
-              <span><strong>Contributors:</strong> List of developers sorted by commit count.</span>
+            <li className="flex flex-col gap-1">
+              <span><strong>Contributors</strong> (Sorted by commits)</span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-green-600 w-fit select-all cursor-pointer hover:bg-green-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/contributors</code>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">•</span>
-              <span><strong>Commits History:</strong> The entire git log (Author, Date, Message, SHA).</span>
+            <li className="flex flex-col gap-1">
+              <span><strong>Commits History</strong> (Git log)</span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-green-600 w-fit select-all cursor-pointer hover:bg-green-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/commits</code>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">•</span>
-              <span><strong>Issues & PRs:</strong> Bug reports, labels, open/closed status, assignees.</span>
+            <li className="flex flex-col gap-1">
+              <span><strong>Issues & PRs</strong></span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-green-600 w-fit select-all cursor-pointer hover:bg-green-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/issues</code>
             </li>
           </ul>
         </div>
@@ -92,34 +92,30 @@ export default function ApiCapabilitiesFooter() {
             </span>
             <h3 className="font-bold text-lg text-gray-900 dark:text-white">Specialized Metadata</h3>
           </div>
-          <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-            <li className="flex items-start gap-2">
-              <span className="text-purple-500 mt-0.5">•</span>
-              <span><strong>Contribution Graph:</strong> (Requires GraphQL or SVG generation).</span>
+          <ul className="space-y-4 text-sm text-gray-600 dark:text-gray-300">
+            <li className="flex flex-col gap-1">
+              <span><strong>Contribution Graph</strong> (External SVG Generator)</span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-purple-600 w-fit select-all cursor-pointer hover:bg-purple-50 transition-colors">https://ghchart.rshah.org/&#123;user&#125;</code>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-purple-500 mt-0.5">•</span>
-              <span><strong>Releases & Tags:</strong> Version history and download links for assets.</span>
+            <li className="flex flex-col gap-1">
+              <span><strong>Releases & Tags</strong></span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-purple-600 w-fit select-all cursor-pointer hover:bg-purple-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/releases</code>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-purple-500 mt-0.5">•</span>
-              <span><strong>Forks & Clones:</strong> Who forked the project and when (Clones require push access).</span>
+            <li className="flex flex-col gap-1">
+              <span><strong>Forks</strong></span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-purple-600 w-fit select-all cursor-pointer hover:bg-purple-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/forks</code>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-purple-500 mt-0.5">•</span>
-              <span><strong>Workflows:</strong> GitHub Actions run history and status.</span>
+            <li className="flex flex-col gap-1">
+              <span><strong>GitHub Actions Workflows</strong></span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-purple-600 w-fit select-all cursor-pointer hover:bg-purple-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/actions/runs</code>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-purple-500 mt-0.5">•</span>
-              <span><strong>Pinned Repos:</strong> Approximated by sorting repos by stars, or via GraphQL.</span>
+            <li className="flex flex-col gap-1">
+              <span><strong>Directory Contents</strong> (Source Code)</span>
+              <code className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded text-purple-600 w-fit select-all cursor-pointer hover:bg-purple-50 transition-colors">https://api.github.com/repos/&#123;owner&#125;/&#123;repo&#125;/contents/&#123;path&#125;</code>
             </li>
           </ul>
         </div>
         
-      </div>
-      
-      <div className="mt-12 text-center text-sm text-gray-400">
-        <p>This menu represents the architectural capabilities mapped out for future expansion.</p>
       </div>
     </div>
   );
