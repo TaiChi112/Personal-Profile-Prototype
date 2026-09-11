@@ -5,8 +5,9 @@ import { useGithubStore } from './store/useGithubStore';
 import BentoLayout from './layouts/BentoLayout';
 import TabLayout from './layouts/TabLayout';
 import TimelineLayout from './layouts/TimelineLayout';
+import ApiCapabilitiesFooter from './components/ApiCapabilitiesFooter';
 
-export default function GithubExplorerPage() {
+export default function GithubExplorer() {
   const {
     searchQuery,
     layoutMode,
@@ -111,6 +112,8 @@ export default function GithubExplorerPage() {
           {layoutMode === 'TIMELINE' && <TimelineLayout userData={userData} eventsData={eventsData} />}
         </div>
         
+        {/* API Capabilities Footer Menu */}
+        <ApiCapabilitiesFooter />
       </div>
     </div>
   );
