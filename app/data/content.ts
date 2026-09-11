@@ -193,6 +193,13 @@ export const MOCK_PROJECTS: Project[] = [
   { id: 'mini-app-glass-dash', title: 'Glassmorphism Dash', slug: 'glass-dash', category: 'Applications', description: 'A beautiful glassmorphism dashboard.', techStack: ['Next.js', 'Tailwind'], repoUrl: '/projects/glass-dash', featured: true, date: '2024-06-05', thumbnail: '' },
 
 
+
+  { id: 'mini-app-type-trainer', title: 'Typing Trainer', slug: 'type-trainer', category: 'Applications', description: 'Developer typing speed and accuracy trainer.', techStack: ['Next.js'], repoUrl: '/projects/type-trainer', featured: true, date: '2024-07-01', thumbnail: '' },
+  { id: 'mini-app-habit-rpg', title: 'Habit RPG', slug: 'habit-rpg', category: 'Applications', description: 'Level up your life with this gamified habit tracker.', techStack: ['Next.js'], repoUrl: '/projects/habit-rpg', featured: true, date: '2024-07-02', thumbnail: '' },
+  { id: 'mini-app-flashcards', title: 'Dev Flashcards', slug: 'flashcards', category: 'Applications', description: 'Spaced repetition memory cards for developers.', techStack: ['Next.js'], repoUrl: '/projects/flashcards', featured: true, date: '2024-07-03', thumbnail: '' },
+  { id: 'mini-app-focus-idle', title: 'Focus Idle', slug: 'focus-idle', category: 'Applications', description: 'Pomodoro timer meets idle building game.', techStack: ['Next.js'], repoUrl: '/projects/focus-idle', featured: true, date: '2024-07-04', thumbnail: '' },
+
+
 ];
 
 export const MOCK_VIDEOS: ExternalVideoData[] = [
