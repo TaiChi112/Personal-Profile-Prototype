@@ -200,6 +200,15 @@ export const MOCK_PROJECTS: Project[] = [
   { id: 'mini-app-focus-idle', title: 'Focus Idle', slug: 'focus-idle', category: 'Applications', description: 'Pomodoro timer meets idle building game.', techStack: ['Next.js'], repoUrl: '/projects/focus-idle', featured: true, date: '2024-07-04', thumbnail: '' },
 
 
+
+  { id: 'mini-app-smart-deal', title: 'SmartDeal Calculator', slug: 'smart-deal', category: 'Applications', description: 'Compare prices and find the best value for money.', techStack: ['Next.js'], repoUrl: '/projects/smart-deal', featured: true, date: '2024-08-01', thumbnail: '' },
+  { id: 'mini-app-thai-tax', title: 'ThaiTax Planner', slug: 'thai-tax', category: 'Applications', description: 'Step-by-step Thai income tax calculator.', techStack: ['Next.js'], repoUrl: '/projects/thai-tax', featured: true, date: '2024-08-02', thumbnail: '' },
+  { id: 'mini-app-trip-planner', title: 'Trip Planner & Risk', slug: 'trip-planner', category: 'Applications', description: 'Calculate fuel, resting points, and trip risks.', techStack: ['Next.js'], repoUrl: '/projects/trip-planner', featured: true, date: '2024-08-03', thumbnail: '' },
+  { id: 'mini-app-finance-flow', title: 'FinanceFlow', slug: 'finance-flow', category: 'Applications', description: 'Minimalist income and expense tracker.', techStack: ['Next.js'], repoUrl: '/projects/finance-flow', featured: true, date: '2024-08-04', thumbnail: '' },
+  { id: 'mini-app-bill-splitter', title: 'BillSplitter', slug: 'bill-splitter', category: 'Applications', description: 'Split bills and generate PromptPay QR codes.', techStack: ['Next.js'], repoUrl: '/projects/bill-splitter', featured: true, date: '2024-08-05', thumbnail: '' },
+  { id: 'mini-app-sub-auditor', title: 'Subscription Auditor', slug: 'sub-auditor', category: 'Applications', description: 'Manage your monthly subscriptions and find hidden costs.', techStack: ['Next.js'], repoUrl: '/projects/sub-auditor', featured: true, date: '2024-08-06', thumbnail: '' },
+
+
 ];
 
 export const MOCK_VIDEOS: ExternalVideoData[] = [
