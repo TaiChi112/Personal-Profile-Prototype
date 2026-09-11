@@ -4,7 +4,6 @@ import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { Providers } from "./providers";
 import { defaultMetadata } from "./seo.config";
-import MarketTicker from "@/app/components/ui/MarketTicker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +27,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <MarketTicker />
         <Providers>
           {children}
           <Analytics />
