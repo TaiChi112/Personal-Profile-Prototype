@@ -172,6 +172,18 @@ export const MOCK_PROJECTS: Project[] = [
     featured: true,
     date: '2023-12-01',
     thumbnail: ''
+  },
+  {
+    id: 'mini-app-focus-flow',
+    title: 'FocusFlow',
+    slug: 'focus-flow',
+    category: 'Applications',
+    description: 'A productivity application designed for deep work.',
+    techStack: ['Next.js', 'React', 'Tailwind'],
+    repoUrl: '/projects/focus-flow',
+    featured: true,
+    date: '2024-05-01',
+    thumbnail: ''
   }
 ];
 
