@@ -217,6 +217,14 @@ export const MOCK_PROJECTS: Project[] = [
   { id: 'mini-app-chore-divider', title: 'Chore Divider', slug: 'chore-divider', category: 'Applications', description: 'Fairly distribute household chores among roommates.', techStack: ['Next.js'], repoUrl: '/projects/chore-divider', featured: true, date: '2024-09-05', thumbnail: '' },
 
 
+
+  { id: 'mini-app-sleep-sync', title: 'SleepSync', slug: 'sleep-sync', category: 'Applications', description: 'Calculate optimal sleep cycles to wake up refreshed.', techStack: ['Next.js'], repoUrl: '/projects/sleep-sync', featured: true, date: '2024-09-06', thumbnail: '' },
+  { id: 'mini-app-lend-ledger', title: 'LendLedger', slug: 'lend-ledger', category: 'Applications', description: 'Keep track of items and money you lent to friends.', techStack: ['Next.js'], repoUrl: '/projects/lend-ledger', featured: true, date: '2024-09-07', thumbnail: '' },
+  { id: 'mini-app-pack-mate', title: 'PackMate', slug: 'pack-mate', category: 'Applications', description: 'Smart travel checklist generator based on trip type.', techStack: ['Next.js'], repoUrl: '/projects/pack-mate', featured: true, date: '2024-09-08', thumbnail: '' },
+  { id: 'mini-app-recipe-scaler', title: 'RecipeScaler', slug: 'recipe-scaler', category: 'Applications', description: 'Easily scale recipe ingredients up or down.', techStack: ['Next.js'], repoUrl: '/projects/recipe-scaler', featured: true, date: '2024-09-09', thumbnail: '' },
+  { id: 'mini-app-park-pin', title: 'ParkPin', slug: 'park-pin', category: 'Applications', description: 'Never forget where you parked your car in a mall.', techStack: ['Next.js'], repoUrl: '/projects/park-pin', featured: true, date: '2024-09-10', thumbnail: '' },
+
+
 ];
 
 export const MOCK_VIDEOS: ExternalVideoData[] = [
