@@ -184,7 +184,15 @@ export const MOCK_PROJECTS: Project[] = [
     featured: true,
     date: '2024-05-01',
     thumbnail: ''
-  }
+  },
+
+  { id: 'mini-app-kanban', title: 'Kanban Task Board', slug: 'kanban', category: 'Applications', description: 'A drag-and-drop Kanban board for task management.', techStack: ['Next.js', 'Zustand'], repoUrl: '/projects/kanban', featured: true, date: '2024-06-01', thumbnail: '' },
+  { id: 'mini-app-sort-viz', title: 'Sorting Visualizer', slug: 'sort-viz', category: 'Applications', description: 'Interactive visualizations of sorting algorithms.', techStack: ['Next.js', 'Tailwind'], repoUrl: '/projects/sort-viz', featured: true, date: '2024-06-02', thumbnail: '' },
+  { id: 'mini-app-noteflow', title: 'NoteFlow Markdown', slug: 'noteflow', category: 'Applications', description: 'A dual-pane markdown editor with local persistence.', techStack: ['Next.js', 'Zustand'], repoUrl: '/projects/noteflow', featured: true, date: '2024-06-03', thumbnail: '' },
+  { id: 'mini-app-regex-lab', title: 'Regex Lab', slug: 'regex-lab', category: 'Applications', description: 'A real-time Regular Expression tester and visualizer.', techStack: ['Next.js', 'Regex'], repoUrl: '/projects/regex-lab', featured: true, date: '2024-06-04', thumbnail: '' },
+  { id: 'mini-app-glass-dash', title: 'Glassmorphism Dash', slug: 'glass-dash', category: 'Applications', description: 'A beautiful glassmorphism dashboard.', techStack: ['Next.js', 'Tailwind'], repoUrl: '/projects/glass-dash', featured: true, date: '2024-06-05', thumbnail: '' },
+
+
 ];
 
 export const MOCK_VIDEOS: ExternalVideoData[] = [
