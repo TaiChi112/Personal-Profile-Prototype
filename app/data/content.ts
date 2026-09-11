@@ -233,6 +233,14 @@ export const MOCK_PROJECTS: Project[] = [
   { id: 'mini-app-zen-mood', title: 'ZenMood', slug: 'zen-mood', category: 'Applications', description: 'Simple daily mood and energy tracker.', techStack: ['Next.js'], repoUrl: '/projects/zen-mood', featured: true, date: '2024-10-05', thumbnail: '' },
 
 
+
+  { id: 'mini-app-wealth-viz', title: 'WealthViz', slug: 'wealth-viz', category: 'Applications', description: 'Visual Net Worth and Asset Dashboard.', techStack: ['Next.js'], repoUrl: '/projects/wealth-viz', featured: true, date: '2024-11-01', thumbnail: '' },
+  { id: 'mini-app-cash-flow', title: 'CashFlow Diagram', slug: 'cash-flow', category: 'Applications', description: 'Visualize where your money goes.', techStack: ['Next.js'], repoUrl: '/projects/cash-flow', featured: true, date: '2024-11-02', thumbnail: '' },
+  { id: 'mini-app-time-block', title: 'TimeBlock 24h', slug: 'time-block', category: 'Applications', description: 'Visualize your 24-hour time allocation.', techStack: ['Next.js'], repoUrl: '/projects/time-block', featured: true, date: '2024-11-03', thumbnail: '' },
+  { id: 'mini-app-skill-radar', title: 'Skill Radar', slug: 'skill-radar', category: 'Applications', description: 'Spider chart for analyzing personal skills.', techStack: ['Next.js'], repoUrl: '/projects/skill-radar', featured: true, date: '2024-11-04', thumbnail: '' },
+  { id: 'mini-app-life-heatmap', title: 'Life Heatmap', slug: 'life-heatmap', category: 'Applications', description: 'GitHub-style 365 days activity tracker.', techStack: ['Next.js'], repoUrl: '/projects/life-heatmap', featured: true, date: '2024-11-05', thumbnail: '' },
+
+
 ];
 
 export const MOCK_VIDEOS: ExternalVideoData[] = [
