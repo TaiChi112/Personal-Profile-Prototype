@@ -12,10 +12,14 @@ export default function GithubExplorerPage() {
     layoutMode,
     userPat,
     userData,
+    reposData,
+    eventsData,
     setSearchQuery,
     setLayoutMode,
     setUserPat,
     setUserData,
+    setReposData,
+    setEventsData,
   } = useGithubStore();
 
   const handleSearch = async (e?: React.FormEvent) => {
@@ -23,13 +27,23 @@ export default function GithubExplorerPage() {
     if (!searchQuery.trim()) return;
 
     try {
-      const response = await fetch(`/api/github/proxy?url=/users/${searchQuery}`, {
-        headers: userPat ? {
-          Authorization: `Bearer ${userPat}`
-        } : {}
-      });
-      const data = await response.json();
-      setUserData(data);
+      const headers = userPat ? { Authorization: `Bearer ${userPat}` } : {};
+      
+      const [userRes, reposRes, eventsRes] = await Promise.all([
+        fetch(`/api/github/proxy?url=/users/${searchQuery}`, { headers }),
+        fetch(`/api/github/proxy?url=/users/${searchQuery}/repos?per_page=100&sort=updated`, { headers }),
+        fetch(`/api/github/proxy?url=/users/${searchQuery}/events?per_page=30`, { headers })
+      ]);
+
+      const [userData, reposData, eventsData] = await Promise.all([
+        userRes.json(),
+        reposRes.json(),
+        eventsRes.json()
+      ]);
+
+      setUserData(userData);
+      setReposData(Array.isArray(reposData) ? reposData : []);
+      setEventsData(Array.isArray(eventsData) ? eventsData : []);
     } catch (error) {
       console.error('Error fetching github data:', error);
     }
@@ -92,9 +106,9 @@ export default function GithubExplorerPage() {
 
         {/* Layout Area */}
         <div className="layout-container">
-          {layoutMode === 'BENTO' && <BentoLayout userData={userData} />}
-          {layoutMode === 'TABS' && <TabLayout userData={userData} />}
-          {layoutMode === 'TIMELINE' && <TimelineLayout userData={userData} />}
+          {layoutMode === 'BENTO' && <BentoLayout userData={userData} reposData={reposData} />}
+          {layoutMode === 'TABS' && <TabLayout userData={userData} reposData={reposData} eventsData={eventsData} />}
+          {layoutMode === 'TIMELINE' && <TimelineLayout userData={userData} eventsData={eventsData} />}
         </div>
         
       </div>
