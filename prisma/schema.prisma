@@ -65,3 +65,30 @@ model DocumentEmbedding {
   embedding   Unsupported("vector(384)")? // Store vector embeddings directly in Postgres
   createdAt   DateTime               @default(now())
 }
+
+// ==========================================
+// 4. Todo, CryptoTransaction, PageView Models
+// ==========================================
+model Todo {
+  id        String   @id @default(cuid())
+  userId    String
+  text      String
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model CryptoTransaction {
+  id        String   @id @default(cuid())
+  userId    String
+  coinId    String
+  amount    Float
+  price     Float
+  type      String
+  createdAt DateTime @default(now())
+}
+
+model PageView {
+  id    String @id @default(cuid())
+  slug  String @unique
+  count Int    @default(0)
+}

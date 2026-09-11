@@ -17,36 +17,29 @@ export default function CryptoDashboard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Attempting to fetch from local API, or mock data if it fails/doesn't exist
-    const fetchData = async () => {
-      try {
-        // Fallback mock data in case API doesn't exist
-        const mockData: CryptoData[] = [
-          { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', price: 65000, change24h: 2.5 },
-          { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', price: 3500, change24h: -1.2 },
-          { id: 'solana', name: 'Solana', symbol: 'SOL', price: 150, change24h: 5.6 },
-          { id: 'cardano', name: 'Cardano', symbol: 'ADA', price: 0.5, change24h: 0.8 },
-        ];
+    const eventSource = new EventSource('/api/crypto/stream');
 
-        try {
-          const response = await fetch('/api/market-data');
-          if (response.ok) {
-             const result = await response.json();
-             setData(result);
-          } else {
-             setData(mockData);
-          }
-        } catch (apiError) {
-          setData(mockData);
-        }
+    eventSource.onmessage = (event) => {
+      try {
+        const parsedData = JSON.parse(event.data);
+        setData(parsedData);
+        setError(null);
+        setLoading(false);
       } catch (err) {
-        setError('Failed to fetch data');
-      } finally {
+        setError('Failed to parse data');
         setLoading(false);
       }
     };
 
-    fetchData();
+    eventSource.onerror = (err) => {
+      console.error('EventSource error:', err);
+      setError('Failed to fetch real-time data');
+      setLoading(false);
+    };
+
+    return () => {
+      eventSource.close();
+    };
   }, []);
 
   return (
