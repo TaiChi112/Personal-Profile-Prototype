@@ -209,6 +209,14 @@ export const MOCK_PROJECTS: Project[] = [
   { id: 'mini-app-sub-auditor', title: 'Subscription Auditor', slug: 'sub-auditor', category: 'Applications', description: 'Manage your monthly subscriptions and find hidden costs.', techStack: ['Next.js'], repoUrl: '/projects/sub-auditor', featured: true, date: '2024-08-06', thumbnail: '' },
 
 
+
+  { id: 'mini-app-smart-timetable', title: 'Smart Timetable', slug: 'smart-timetable', category: 'Applications', description: 'Visual weekly schedule planner.', techStack: ['Next.js'], repoUrl: '/projects/smart-timetable', featured: true, date: '2024-09-01', thumbnail: '' },
+  { id: 'mini-app-fridge-tracker', title: 'Fridge Expiry Tracker', slug: 'fridge-tracker', category: 'Applications', description: 'Track grocery expiry dates to reduce food waste.', techStack: ['Next.js'], repoUrl: '/projects/fridge-tracker', featured: true, date: '2024-09-02', thumbnail: '' },
+  { id: 'mini-app-med-tracker', title: 'Med & Vitamin Tracker', slug: 'med-tracker', category: 'Applications', description: 'Daily checklist for medications and supplements.', techStack: ['Next.js'], repoUrl: '/projects/med-tracker', featured: true, date: '2024-09-03', thumbnail: '' },
+  { id: 'mini-app-decision-wheel', title: 'Decision Spinner', slug: 'decision-wheel', category: 'Applications', description: 'Random choice generator for daily decisions.', techStack: ['Next.js'], repoUrl: '/projects/decision-wheel', featured: true, date: '2024-09-04', thumbnail: '' },
+  { id: 'mini-app-chore-divider', title: 'Chore Divider', slug: 'chore-divider', category: 'Applications', description: 'Fairly distribute household chores among roommates.', techStack: ['Next.js'], repoUrl: '/projects/chore-divider', featured: true, date: '2024-09-05', thumbnail: '' },
+
+
 ];
 
 export const MOCK_VIDEOS: ExternalVideoData[] = [
