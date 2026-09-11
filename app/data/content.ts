@@ -136,8 +136,43 @@ export const MOCK_PROJECTS: Project[] = [
   { id: '6', title: "AI-Powered Phygital Icebreaker Platform", description: "Problem/Motivation: Networking events often suffer from low engagement and awkward initial interactions. Solution/Benefit: Developed a `Phygital` platform merging physical and online participation. Applied AI to dynamically generate and randomize domain-specific questions (e.g., Computer Science, Data Science), effectively breaking the ice and fostering meaningful professional connections.", techStack: ['Nextjs'], githubUrl: 'https://github.com/TaiChi112/CS-ICEbreaker-HUB', featured: true, date: '2023-10-01', thumbnail: '' },
   { id: '7', title: 'E-Commerce Super App', description: 'A massive e-commerce ecosystem. Includes user authentication, product management, shopping cart, and payment gateway integration.', techStack: ['Next.js', 'Supabase', 'Stripe'], githubUrl: '#', featured: true, date: '2023-08-15', thumbnail: '' },
   { id: '7-1', title: 'Merchant Dashboard', description: 'Admin panel for sellers.', techStack: ['React', 'Tailwind'], githubUrl: '#', featured: true, date: '2023-09-01', thumbnail: '' },
+  {
+    id: 'mini-app-google-books',
+    title: 'Google Books Explorer',
+    slug: 'google-books',
+    category: 'Web',
+    description: 'A hybrid-layout library explorer powered by Google Books API.',
+    techStack: ['Next.js', 'API', 'Tailwind', 'Zustand'],
+    repoUrl: '/projects/google-books',
+    featured: true,
+    date: '2024-03-05',
+    thumbnail: ''
+  },
+  {
+    id: 'mini-app-github',
+    title: 'GitHub Explorer',
+    slug: 'github',
+    category: 'Web',
+    description: 'A multi-layout dashboard for exploring GitHub profiles and repositories.',
+    techStack: ['Next.js', 'API', 'Tailwind', 'Recharts'],
+    repoUrl: '/projects/github',
+    featured: true,
+    date: '2024-02-15',
+    thumbnail: ''
+  },
   { id: 'mini-app-todo', title: 'Todo App', slug: 'todo', category: 'Applications', description: 'A local-first interactive Todo mini-app built into the portfolio.', techStack: ['React', 'Zustand', 'Mini-App'], repoUrl: '/projects/todo', featured: true, date: '2023-11-20', thumbnail: '' },
-  { id: 'mini-app-crypto', title: 'Live Crypto Dashboard', slug: 'crypto', category: 'Web', description: 'A real-time cryptocurrency dashboard tracking live prices.', techStack: ['Next.js', 'API', 'Tailwind'], repoUrl: '/projects/crypto', featured: true, date: '2023-12-01', thumbnail: '' }
+  {
+    id: 'mini-app-crypto',
+    title: 'Live Crypto Dashboard',
+    slug: 'crypto',
+    category: 'Web',
+    description: 'A real-time cryptocurrency dashboard tracking live prices.',
+    techStack: ['Next.js', 'API', 'Tailwind'],
+    repoUrl: '/projects/crypto',
+    featured: true,
+    date: '2023-12-01',
+    thumbnail: ''
+  }
 ];
 
 export const MOCK_VIDEOS: ExternalVideoData[] = [
