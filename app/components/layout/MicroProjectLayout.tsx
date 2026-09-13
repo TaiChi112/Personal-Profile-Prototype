@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import Link from "next/link";
 
-export default async function ProjectsLayout({ children }: { children: React.ReactNode }) {
+export async function MicroProjectLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
 
   return (
