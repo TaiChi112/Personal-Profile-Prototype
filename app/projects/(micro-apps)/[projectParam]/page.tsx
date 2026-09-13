@@ -1,5 +1,5 @@
-import { PersonalWebsiteApp } from '../../features/composition/PersonalWebsiteApp';
-import { fetchAllKeystaticData } from '../../lib/content-fetcher';
+import { PersonalWebsiteApp } from '@/app/features/composition/PersonalWebsiteApp';
+import { fetchAllKeystaticData } from '@/app/lib/content-fetcher';
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ projectParam: string }> }) {
   const resolvedParams = await params;
