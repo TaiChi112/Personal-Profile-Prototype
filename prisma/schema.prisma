@@ -1,94 +1,16 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider   = "postgresql"
-  extensions = [vector]
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
-// ==========================================
-// 1. Multi-Tenant SaaS Concept
-// ==========================================
-model Tenant {
-  id        String   @id @default(cuid())
-  name      String
-  domain    String?  @unique
-  createdAt DateTime @default(now())
-  users     User[]
-}
-
-// ==========================================
-// Existing User & Quiz Models (Updated for Multi-Tenant)
-// ==========================================
-model User {
-  id                String      @id @default(uuid())
-  email             String      @unique
-  name              String?
-  provider          String
-  providerAccountId String      @unique
-  tenantId          String?
-  tenant            Tenant?     @relation(fields: [tenantId], references: [id])
-  quizScores        QuizScore[]
-}
-
-model QuizScore {
+model FinanceTransaction {
   id        String   @id @default(uuid())
-  userId    String?
-  score     Int
-  total     Int
-  createdAt DateTime @default(now())
-  user      User?    @relation(fields: [userId], references: [id])
-}
-
-// ==========================================
-// 2. Event Sourcing Concept (CQRS)
-// ==========================================
-model EventStore {
-  id            String   @id @default(uuid())
-  aggregateId   String   // The ID of the Resume or Entity being modified
-  aggregateType String   // e.g., 'RESUME'
-  eventType     String   // e.g., 'RESUME_UPDATED', 'SKILL_ADDED'
-  payload       Json     // The event data payload
-  createdAt     DateTime @default(now())
-}
-
-// ==========================================
-// 3. Vector DB Concept (Semantic RAG)
-// ==========================================
-model DocumentEmbedding {
-  id          String                 @id @default(uuid())
-  title       String
-  content     String
-  metadata    Json?
-  embedding   Unsupported("vector(384)")? // Store vector embeddings directly in Postgres
-  createdAt   DateTime               @default(now())
-}
-
-// ==========================================
-// 4. Todo, CryptoTransaction, PageView Models
-// ==========================================
-model Todo {
-  id        String   @id @default(cuid())
-  userId    String
-  text      String
-  completed Boolean  @default(false)
-  createdAt DateTime @default(now())
-}
-
-model CryptoTransaction {
-  id        String   @id @default(cuid())
-  userId    String
-  coinId    String
+  type      String   // "income" or "expense"
   amount    Float
-  price     Float
-  type      String
+  label     String
   createdAt DateTime @default(now())
-}
-
-model PageView {
-  id    String @id @default(cuid())
-  slug  String @unique
-  count Int    @default(0)
 }

@@ -1,27 +1,38 @@
 "use client";
 import React, { useState } from 'react';
-import { useFinanceStore } from '../store/useFinanceStore';
+import { addTransaction, deleteTransaction } from '../actions';
 
-export default function FinanceCalc() {
-  const { transactions, addTx, delTx } = useFinanceStore() as any;
+export default function FinanceCalc({ initialTransactions }: { initialTransactions: any[] }) {
   const [amount, setAmount] = useState('');
   const [label, setLabel] = useState('');
   const [type, setType] = useState('expense');
+  const [loading, setLoading] = useState(false);
 
-  const handleAdd = () => {
-    if (amount && label) {
-      addTx({ amount: Number(amount), label, type });
+  const handleAdd = async () => {
+    if (amount && label && !loading) {
+      setLoading(true);
+      await addTransaction(Number(amount), label, type);
       setAmount(''); setLabel('');
+      setLoading(false);
     }
   };
 
-  const income = transactions.filter((t: any) => t.type === 'income').reduce((sum: number, t: any) => sum + t.amount, 0);
-  const expense = transactions.filter((t: any) => t.type === 'expense').reduce((sum: number, t: any) => sum + t.amount, 0);
+  const handleDel = async (id: string) => {
+    if(!loading) {
+      setLoading(true);
+      await deleteTransaction(id);
+      setLoading(false);
+    }
+  };
+
+  const income = initialTransactions.filter((t: any) => t.type === 'income').reduce((sum: number, t: any) => sum + t.amount, 0);
+  const expense = initialTransactions.filter((t: any) => t.type === 'expense').reduce((sum: number, t: any) => sum + t.amount, 0);
   const balance = income - expense;
 
   return (
     <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden">
-      <div className="bg-emerald-500 text-white p-8 text-center">
+      <div className="bg-emerald-500 text-white p-8 text-center relative">
+        {loading && <div className="absolute top-2 right-4 text-xs font-bold animate-pulse">Syncing DB...</div>}
         <p className="opacity-80 font-bold uppercase tracking-widest text-xs mb-2">Total Balance</p>
         <h1 className="text-5xl font-black">{balance.toLocaleString()} ฿</h1>
         <div className="flex justify-between mt-6 pt-6 border-t border-emerald-400">
@@ -31,27 +42,28 @@ export default function FinanceCalc() {
       </div>
       
       <div className="p-6 bg-gray-50 dark:bg-gray-900 border-b dark:border-gray-700 flex gap-2">
-        <select value={type} onChange={e=>setType(e.target.value)} className="p-3 rounded-lg border w-28 bg-white dark:bg-gray-800">
+        <select value={type} onChange={e=>setType(e.target.value)} disabled={loading} className="p-3 rounded-lg border w-28 bg-white dark:bg-gray-800 disabled:opacity-50">
           <option value="expense">Exp 🔴</option>
           <option value="income">Inc 🟢</option>
         </select>
-        <input type="text" placeholder="Label" value={label} onChange={e=>setLabel(e.target.value)} className="p-3 rounded-lg border flex-1" />
-        <input type="number" placeholder="Amt" value={amount} onChange={e=>setAmount(e.target.value)} className="p-3 rounded-lg border w-24" />
-        <button onClick={handleAdd} className="bg-blue-600 text-white p-3 rounded-lg font-bold">+</button>
+        <input type="text" placeholder="Label" value={label} onChange={e=>setLabel(e.target.value)} disabled={loading} className="p-3 rounded-lg border flex-1 disabled:opacity-50" />
+        <input type="number" placeholder="Amt" value={amount} onChange={e=>setAmount(e.target.value)} disabled={loading} className="p-3 rounded-lg border w-24 disabled:opacity-50" />
+        <button onClick={handleAdd} disabled={loading} className="bg-blue-600 text-white p-3 rounded-lg font-bold disabled:opacity-50">+</button>
       </div>
 
       <div className="p-6 space-y-3 h-80 overflow-y-auto">
-        {transactions.map((t: any) => (
+        {initialTransactions.map((t: any) => (
           <div key={t.id} className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
             <span className="font-medium">{t.label}</span>
             <div className="flex items-center gap-4">
               <span className={`font-bold ${t.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
                 {t.type === 'income' ? '+' : '-'}{t.amount.toLocaleString()}
               </span>
-              <button onClick={() => delTx(t.id)} className="text-gray-400 hover:text-red-500">✕</button>
+              <button onClick={() => handleDel(t.id)} disabled={loading} className="text-gray-400 hover:text-red-500 disabled:opacity-50">✕</button>
             </div>
           </div>
         ))}
+        {initialTransactions.length === 0 && <p className="text-center text-gray-400 font-bold mt-12">No transactions in Database.</p>}
       </div>
     </div>
   );
