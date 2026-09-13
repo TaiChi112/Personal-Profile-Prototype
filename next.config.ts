@@ -5,7 +5,7 @@ import withPWA from "@ducanh2912/next-pwa";
 const withMDX = createMDX();
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  output: process.env.VERCEL ? undefined : 'standalone',
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
