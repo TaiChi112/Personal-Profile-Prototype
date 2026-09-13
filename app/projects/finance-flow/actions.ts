@@ -32,3 +32,15 @@ export async function deleteTransaction(id: string) {
   });
   revalidatePath('/projects/finance-flow');
 }
+
+export async function getExpenseSummary() {
+  const session = await auth();
+  if (!session?.user?.id) return [];
+  const result = await prisma.financeTransaction.groupBy({
+    by: ['label'],
+    where: { userId: session.user.id, type: 'expense' },
+    _sum: { amount: true },
+    orderBy: { _sum: { amount: 'desc' } }
+  });
+  return result.map((r: any) => ({ label: r.label, total: r._sum.amount || 0 }));
+}
