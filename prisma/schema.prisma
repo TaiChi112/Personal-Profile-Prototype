@@ -13,4 +13,6 @@ model FinanceTransaction {
   amount    Float
   label     String
   createdAt DateTime @default(now())
+
+  @@map("finance_transactions")
 }
