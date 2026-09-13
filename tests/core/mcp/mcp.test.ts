@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { prisma } from "../lib/prisma";
+import { prisma } from "../../../lib/prisma";
 
 describe("FinanceFlow MCP Server", () => {
   let client: Client;
