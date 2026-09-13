@@ -57,7 +57,7 @@ export default async function Page(props: Readonly<{
   try {
     const pageFilePath = page.absolutePath;
     if (pageFilePath) {
-      const filePath = path.join(process.cwd(), /*turbopackIgnore: true*/ pageFilePath);
+      const filePath = path.join(/*turbopackIgnore: true*/ process.cwd(), pageFilePath);
       rawMarkdown = await fs.readFile(/*turbopackIgnore: true*/ filePath, "utf-8");
       githubEditUrl = `https://github.com/taichi112/personal-profile-prototype/edit/main/${pageFilePath}`;
       githubRawUrl = `https://raw.githubusercontent.com/taichi112/personal-profile-prototype/main/${pageFilePath}`;

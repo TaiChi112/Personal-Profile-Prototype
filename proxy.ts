@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // Check if the route starts with /api/
   if (request.nextUrl.pathname.startsWith('/api/')) {
     // Allow the request to pass through
