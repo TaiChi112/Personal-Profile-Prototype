@@ -37,7 +37,7 @@ async function safeFindUserByEmail(email: string) {
   try {
     return await prisma.user.findUnique({
       where: { email },
-      select: { id: true, email: true, name: true, role: true, provider: true },
+      select: { id: true, email: true, name: true,   },
     });
   } catch (error) {
     console.warn('[auth] DB lookup failed, using fallback claims:', error);
@@ -53,14 +53,14 @@ async function safeUpsertUser(
   email: string,
   name: string | null | undefined,
   image: string | null | undefined,
-  provider: string,
-  providerAccountId: string,
+  
+  
 ): Promise<void> {
   try {
     await prisma.user.upsert({
       where: { email },
-      update: { name, image, provider, providerAccountId },
-      create: { email, name, image, provider, providerAccountId },
+      update: { name, image },
+      create: { email, name, image },
     });
   } catch (error) {
     console.warn('[auth] DB sync skipped — database unavailable:', error);
@@ -128,7 +128,7 @@ export const authConfig = {
     async signIn({ user, account }) {
       if (!user.email || !account?.provider) return false;
       const providerAccountId = account.providerAccountId ?? user.email;
-      await safeUpsertUser(user.email, user.name, user.image, account.provider, providerAccountId);
+      await safeUpsertUser(user.email, user.name, user.image);
       return true;
     },
 
@@ -152,7 +152,7 @@ export const authConfig = {
         if (dbUser) {
           token.userId = dbUser.id;
           token.role = dbUser.role;
-          token.authProvider = dbUser.provider;
+           
         }
       }
       return token;
