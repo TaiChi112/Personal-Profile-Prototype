@@ -41,14 +41,16 @@ export default function FinanceCalc({ initialTransactions }: { initialTransactio
         </div>
       </div>
       
-      <div className="p-6 bg-gray-50 dark:bg-gray-900 border-b dark:border-gray-700 flex gap-2">
+      <div className="p-6 bg-gray-50 dark:bg-gray-900 border-b dark:border-gray-700 flex flex-wrap gap-2">
         <select value={type} onChange={e=>setType(e.target.value)} disabled={loading} className="p-3 rounded-lg border w-28 bg-white dark:bg-gray-800 disabled:opacity-50">
           <option value="expense">Exp 🔴</option>
           <option value="income">Inc 🟢</option>
         </select>
-        <input type="text" placeholder="Label" value={label} onChange={e=>setLabel(e.target.value)} disabled={loading} className="p-3 rounded-lg border flex-1 disabled:opacity-50" />
+        <input type="text" placeholder="Label" value={label} onChange={e=>setLabel(e.target.value)} disabled={loading} className="p-3 rounded-lg border flex-1 min-w-[120px] disabled:opacity-50" />
         <input type="number" placeholder="Amt" value={amount} onChange={e=>setAmount(e.target.value)} disabled={loading} className="p-3 rounded-lg border w-24 disabled:opacity-50" />
-        <button onClick={handleAdd} disabled={loading} className="bg-blue-600 text-white p-3 rounded-lg font-bold disabled:opacity-50">+</button>
+        <button onClick={handleAdd} disabled={loading} className="bg-blue-600 text-white px-5 py-3 rounded-lg font-bold disabled:opacity-50 transition-transform active:scale-95 flex-shrink-0">
+          + Add
+        </button>
       </div>
 
       <div className="p-6 space-y-3 h-80 overflow-y-auto">
