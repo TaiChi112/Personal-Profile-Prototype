@@ -48,6 +48,10 @@ model User {
   sessions      Session[]
   financeTransactions FinanceTransaction[]
   kanbanTasks   KanbanTask[]
+  habitStats    HabitUserStats?
+  habitItems    HabitItem[]
+  notes         Note[]
+  lendRecords   LendRecord[]
   appOnboardings AppOnboarding[]
 
   @@map("users")
@@ -94,4 +98,49 @@ model AppOnboarding {
   createdAt DateTime @default(now())
   @@unique([userId, appId])
   @@map("app_onboardings")
+}
+
+// --- Habit RPG Models ---
+model HabitUserStats {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  level     Int      @default(1)
+  exp       Int      @default(0)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("habit_user_stats")
+}
+
+model HabitItem {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("habit_items")
+}
+
+// --- NoteFlow Models ---
+model Note {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String   @default("Untitled Note")
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("notes")
+}
+
+// --- LendLedger Models ---
+model LendRecord {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  item      String
+  date      String
+  returned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("lend_records")
 }

@@ -1,9 +1,30 @@
 "use client";
-import React from 'react';
-import { useRpgStore } from '../store/useRpgStore';
+import React, { useState, useTransition } from 'react';
+import { addHabitAction, completeHabitAction } from '../actions';
 
-export default function RpgGame() {
-  const { level, exp, habits, completeHabit } = useRpgStore();
+interface Habit {
+  id: string;
+  title: string;
+  done: boolean;
+}
+
+export default function RpgGame({ level, exp, habits }: { level: number, exp: number, habits: Habit[] }) {
+  const [isPending, startTransition] = useTransition();
+  const [newTitle, setNewTitle] = useState('');
+
+  const handleAdd = () => {
+    if (!newTitle.trim()) return;
+    startTransition(() => {
+      addHabitAction(newTitle);
+      setNewTitle('');
+    });
+  }
+
+  const handleComplete = (id: string) => {
+    startTransition(() => {
+      completeHabitAction(id);
+    });
+  }
 
   return (
     <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl max-w-lg mx-auto">
@@ -17,12 +38,29 @@ export default function RpgGame() {
       </div>
       
       <div className="space-y-4">
+        <div className="flex gap-2 mb-4">
+          <input 
+            type="text" 
+            value={newTitle} 
+            onChange={(e) => setNewTitle(e.target.value)} 
+            placeholder="Add new quest..." 
+            className="flex-1 px-4 py-2 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
+            onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+          />
+          <button onClick={handleAdd} disabled={isPending} className="bg-gray-900 dark:bg-gray-100 text-white dark:text-black px-4 py-2 rounded-xl font-bold">Add</button>
+        </div>
+
         <h3 className="font-bold text-gray-500 uppercase text-sm tracking-wider">Daily Quests</h3>
         {habits.map(h => (
           <div key={h.id} className={`p-4 rounded-xl border flex justify-between items-center ${h.done ? 'bg-gray-50 opacity-50 dark:bg-gray-900' : 'bg-white dark:bg-gray-700'}`}>
             <span className={`font-medium ${h.done ? 'line-through text-gray-400' : ''}`}>{h.title}</span>
             {!h.done && (
-              <button onClick={() => completeHabit(h.id)} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:scale-105 transition-transform">+ EXP</button>
+              <button 
+                disabled={isPending}
+                onClick={() => handleComplete(h.id)} 
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:scale-105 transition-transform disabled:opacity-50">
+                + EXP
+              </button>
             )}
           </div>
         ))}
