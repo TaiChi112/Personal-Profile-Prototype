@@ -1,8 +1,9 @@
 "use client";
 import React, { useState } from 'react';
 import { addTransaction, deleteTransaction } from '../actions';
+import { signOut } from 'next-auth/react';
 
-export default function FinanceCalc({ initialTransactions }: { initialTransactions: any[] }) {
+export default function FinanceCalc({ initialTransactions, user }: { initialTransactions: any[], user: any }) {
   const [amount, setAmount] = useState('');
   const [label, setLabel] = useState('');
   const [type, setType] = useState('expense');
@@ -31,8 +32,18 @@ export default function FinanceCalc({ initialTransactions }: { initialTransactio
 
   return (
     <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden">
+      <div className="flex justify-between items-center p-4 bg-gray-100 dark:bg-gray-900">
+        <div className="flex items-center gap-3">
+          {user?.image && <img src={user.image} alt="Avatar" className="w-8 h-8 rounded-full" />}
+          <span className="font-bold text-sm">Welcome, {user?.name?.split(' ')[0] || 'User'}</span>
+        </div>
+        <button onClick={() => signOut({ callbackUrl: '/projects/finance-flow' })} className="text-xs font-bold text-red-500 hover:underline">
+          Sign Out
+        </button>
+      </div>
+
       <div className="bg-emerald-500 text-white p-8 text-center relative">
-        {loading && <div className="absolute top-2 right-4 text-xs font-bold animate-pulse">Syncing DB...</div>}
+        {loading && <div className="absolute top-2 right-4 text-xs font-bold animate-pulse">Syncing...</div>}
         <p className="opacity-80 font-bold uppercase tracking-widest text-xs mb-2">Total Balance</p>
         <h1 className="text-5xl font-black">{balance.toLocaleString()} ฿</h1>
         <div className="flex justify-between mt-6 pt-6 border-t border-emerald-400">
@@ -65,7 +76,7 @@ export default function FinanceCalc({ initialTransactions }: { initialTransactio
             </div>
           </div>
         ))}
-        {initialTransactions.length === 0 && <p className="text-center text-gray-400 font-bold mt-12">No transactions in Database.</p>}
+        {initialTransactions.length === 0 && <p className="text-center text-gray-400 font-bold mt-12">No transactions.</p>}
       </div>
     </div>
   );
