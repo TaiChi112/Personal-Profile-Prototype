@@ -52,6 +52,9 @@ model User {
   habitItems    HabitItem[]
   notes         Note[]
   lendRecords   LendRecord[]
+  todos         Todo[]
+  timeBlocks    TimeBlock[]
+  trips         Trip[]
   appOnboardings AppOnboarding[]
 
   @@map("users")
@@ -143,4 +146,41 @@ model LendRecord {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("lend_records")
+}
+
+// --- Todo Models ---
+model Todo {
+  id        String   @id @default(cuid())
+  userId    String
+  text      String
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("todos")
+}
+
+// --- TimeBlock Models ---
+model TimeBlock {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  start     String
+  end       String
+  color     String   @default("blue")
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("time_blocks")
+}
+
+// --- TripPlanner Models ---
+model Trip {
+  id        String   @id @default(uuid())
+  userId    String
+  destination String
+  startDate   String
+  endDate     String
+  budget      Float    @default(0)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("trips")
 }

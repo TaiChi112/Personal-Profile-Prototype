@@ -1,40 +1,10 @@
 "use server";
 
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma"; // Adjust this based on where prisma is
+import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
-export async function syncTodosToCloud(localTodos: { id: string; text: string; completed: boolean; createdAt: string }[]) {
-  const session = await auth();
-  const userId = session?.user?.id || 'user_1';
-
-  // We could implement this as an upsert or full sync.
-  // Assuming a simple sync where we push new ones or update existing ones.
-  // Actually, a simpler approach is a transaction:
-  const operations = localTodos.map((todo) => {
-    return prisma.todo.upsert({
-      where: {
-        id: todo.id,
-      },
-      update: {
-        text: todo.text,
-        completed: todo.completed,
-      },
-      create: {
-        id: todo.id,
-        userId: userId,
-        text: todo.text,
-        completed: todo.completed,
-        createdAt: new Date(todo.createdAt),
-      },
-    });
-  });
-
-  await prisma.$transaction(operations);
-
-  return { success: true };
-}
-
-export async function fetchCloudTodos() {
+export async function getTodos() {
   const session = await auth();
   const userId = session?.user?.id || 'user_1';
 
@@ -43,14 +13,60 @@ export async function fetchCloudTodos() {
       userId: userId,
     },
     orderBy: {
-      createdAt: "desc",
+      createdAt: "asc",
     },
   });
 
-  return todos.map((t) => ({
-    id: t.id,
-    text: t.text,
-    completed: t.completed,
-    createdAt: t.createdAt.toISOString(),
-  }));
+  return todos;
+}
+
+export async function addTodo(text: string) {
+  const session = await auth();
+  const userId = session?.user?.id || 'user_1';
+
+  if (!text.trim()) return { error: "Text is required" };
+
+  await prisma.todo.create({
+    data: {
+      userId: userId,
+      text: text.trim(),
+      completed: false,
+    },
+  });
+
+  revalidatePath('/projects/(micro-apps)/todo');
+  return { success: true };
+}
+
+export async function toggleTodo(id: string, completed: boolean) {
+  const session = await auth();
+  const userId = session?.user?.id || 'user_1';
+
+  await prisma.todo.update({
+    where: {
+      id: id,
+      userId: userId, // Ensure ownership
+    },
+    data: {
+      completed: completed,
+    },
+  });
+
+  revalidatePath('/projects/(micro-apps)/todo');
+  return { success: true };
+}
+
+export async function deleteTodo(id: string) {
+  const session = await auth();
+  const userId = session?.user?.id || 'user_1';
+
+  await prisma.todo.delete({
+    where: {
+      id: id,
+      userId: userId, // Ensure ownership
+    },
+  });
+
+  revalidatePath('/projects/(micro-apps)/todo');
+  return { success: true };
 }
