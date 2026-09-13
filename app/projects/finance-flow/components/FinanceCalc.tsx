@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { addTransaction, deleteTransaction } from '../actions';
 import { signOut } from 'next-auth/react';
 
-export default function FinanceCalc({ initialTransactions, user }: { initialTransactions: any[], user: any }) {
+export default function FinanceCalc({ initialTransactions, user, analytics = [] }: { initialTransactions: any[], user: any, analytics?: any[] }) {
   const [amount, setAmount] = useState('');
   const [label, setLabel] = useState('');
   const [type, setType] = useState('expense');
@@ -78,6 +78,29 @@ export default function FinanceCalc({ initialTransactions, user }: { initialTran
         ))}
         {initialTransactions.length === 0 && <p className="text-center text-gray-400 font-bold mt-12">No transactions.</p>}
       </div>
+
+      {analytics && analytics.length > 0 && (
+        <div className="p-6 bg-gray-100 dark:bg-gray-900 border-t dark:border-gray-700">
+          <h3 className="font-bold mb-4 opacity-80 uppercase text-xs tracking-widest">Expense Analytics (Group By)</h3>
+          <div className="space-y-3">
+            {analytics.map((item: any, idx: number) => {
+              const maxTotal = Math.max(...analytics.map(a => a.total));
+              const pct = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0;
+              return (
+                <div key={idx} className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium text-gray-600 dark:text-gray-300">{item.label}</span>
+                    <span className="font-bold">{item.total.toLocaleString()} ฿</span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                    <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${pct}%` }}></div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
