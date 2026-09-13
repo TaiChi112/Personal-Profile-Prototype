@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "bun:test";
-import { FinanceRepository } from "../lib/repositories/finance.repository";
-import { prisma } from "../lib/prisma";
+import { FinanceRepository } from "../../../lib/repositories/finance.repository";
+import { prisma } from "../../../lib/prisma";
 
 describe("Finance Repository Tests", () => {
   const testUserId = "test-user-id";

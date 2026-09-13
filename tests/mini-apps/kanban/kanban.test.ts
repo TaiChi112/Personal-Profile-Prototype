@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "bun:test";
-import { KanbanRepository } from "../lib/repositories/kanban.repository";
-import { prisma } from "../lib/prisma";
+import { KanbanRepository } from "../../../lib/repositories/kanban.repository";
+import { prisma } from "../../../lib/prisma";
 
 describe("Kanban Repository Tests", () => {
   const testUserId = "test-kanban-user-id";
