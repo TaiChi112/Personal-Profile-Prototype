@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OnboardingWrapper } from '@/app/components/onboarding/OnboardingWrapper';
 import FinanceCalc from './components/FinanceCalc';
 import { getTransactions, getExpenseSummary } from './actions';
 import { auth } from '@/auth';
@@ -26,12 +27,14 @@ export default async function Page() {
   const transactions = await getTransactions();
   const analytics = await getExpenseSummary();
   return (
-    <div className="min-h-screen p-8 bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <Link href="/projects" className="inline-block mb-4 px-4 py-2 bg-white dark:bg-gray-800 rounded-full border shadow-sm">← Back</Link>
-        <h1 className="text-3xl font-black mb-8 text-center text-emerald-600">FinanceFlow 💸</h1>
-        <FinanceCalc initialTransactions={transactions} user={session.user} analytics={analytics} />
+    <OnboardingWrapper appId="finance-flow" appName="FinanceFlow" description="Track your expenses and income across your AI OS.">
+      <div className="min-h-screen p-8 bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-4xl mx-auto space-y-8">
+          <Link href="/projects" className="inline-block mb-4 px-4 py-2 bg-white dark:bg-gray-800 rounded-full border shadow-sm">← Back</Link>
+          <h1 className="text-3xl font-black mb-8 text-center text-emerald-600">FinanceFlow 💸</h1>
+          <FinanceCalc initialTransactions={transactions} user={session.user} analytics={analytics} />
+        </div>
       </div>
-    </div>
+    </OnboardingWrapper>
   );
 }
