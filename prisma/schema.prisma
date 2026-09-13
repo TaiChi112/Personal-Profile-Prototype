@@ -47,6 +47,7 @@ model User {
   sessions      Session[]
   financeTransactions FinanceTransaction[]
   kanbanTasks   KanbanTask[]
+  appOnboardings AppOnboarding[]
 
   @@map("users")
 }
@@ -82,4 +83,14 @@ model KanbanTask {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@map("kanban_tasks")
+}
+
+model AppOnboarding {
+  id        String   @id @default(uuid())
+  appId     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  @@unique([userId, appId])
+  @@map("app_onboardings")
 }
