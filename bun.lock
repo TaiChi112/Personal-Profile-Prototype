@@ -7,6 +7,7 @@
       "dependencies": {
         "@ai-sdk/google": "^4.0.67",
         "@ai-sdk/react": "^4.0.100",
+        "@auth/prisma-adapter": "^2.11.3",
         "@ducanh2912/next-pwa": "^10.2.9",
         "@keystatic/core": "^0.6.8",
         "@keystatic/next": "^5.0.5",
@@ -26,7 +27,7 @@
         "lucide-react": "^0.562.0",
         "mermaid": "^11.14.0",
         "next": "16.3.3",
-        "next-auth": "5.0.0-beta.32",
+        "next-auth": "^5.0.0-beta.32",
         "pg": "^8.20.0",
         "postcss": "^8.5.23",
         "react": "19.2.3",
@@ -105,6 +106,8 @@
     "@apm-js-collab/tracing-hooks": ["@apm-js-collab/tracing-hooks@0.13.0", "", { "dependencies": { "@apm-js-collab/code-transformer": "^0.18.0", "debug": "^4.4.1", "module-details-from-path": "^1.0.4" } }, "sha512-mTvWz9rnQwx1U3h0XPTHaX7bgfkpipLLTQyjlC2cdhQpQEuoLT0AGzoydeoq2NxfEVv6fWOOETcSbb2nptleyw=="],
 
     "@auth/core": ["@auth/core@0.41.3", "", { "dependencies": { "@panva/hkdf": "^1.2.1", "jose": "^6.0.6", "oauth4webapi": "^3.3.0", "preact": "10.24.3", "preact-render-to-string": "6.5.11" }, "peerDependencies": { "@simplewebauthn/browser": "^9.0.1", "@simplewebauthn/server": "^9.0.2", "nodemailer": "^7.0.7 || ^8.0.5" }, "optionalPeers": ["@simplewebauthn/browser", "@simplewebauthn/server", "nodemailer"] }, "sha512-sJ3JMHHkXMD3aOjopv7mOBTO1Ocw4b0fAEXJBz6k7YHLpYQI6C40jCUPc5fNvUKxXRXNE1/sRISA15UrwWJBTw=="],
+
+    "@auth/prisma-adapter": ["@auth/prisma-adapter@2.11.3", "", { "dependencies": { "@auth/core": "0.41.3" }, "peerDependencies": { "@prisma/client": ">=2.26.0 || >=3 || >=4 || >=5 || >=6" } }, "sha512-jZbpVAO6PTc9zNtdTWc0RLWG8qap4iMc54/3oWaWbuKdj92wHxzPrs3HivWB2mB9975GPW0l3YM/wFUWiUlTlg=="],
 
     "@axe-core/cli": ["@axe-core/cli@4.13.0", "", { "dependencies": { "@axe-core/webdriverjs": "^4.13.0", "axe-core": "~4.13.0", "chromedriver": "latest", "colors": "^1.4.0", "commander": "^9.4.1", "dotenv": "^17.2.2", "selenium-webdriver": "~4.44.0" }, "bin": { "axe": "dist/src/bin/cli.js" } }, "sha512-LWjR4MQ28J/nDPC6mXG2kStRz/27jexFZzPeB40zMMkpW5dY1r+rMExEtsfY2aK8HHd2nLVphEn2ONsa6r2jEQ=="],
 
