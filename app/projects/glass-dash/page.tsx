@@ -1,18 +1,24 @@
-"use client";
-import Link from 'next/link';
-import AnalogClock from './components/AnalogClock';
-export default function Page() {
+import { auth } from "@/auth";
+import { FinanceRepository } from "@/lib/repositories/finance.repository";
+import { KanbanRepository } from "@/lib/repositories/kanban.repository";
+import DashboardView from "./components/DashboardView";
+import prisma from "@/lib/prisma";
+
+export default async function GlassDashPage() {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return <div>Please login</div>;
+  }
+
+  const userId = session.user.id;
+
+  const [kanbanTasks, transactions] = await Promise.all([
+    KanbanRepository.getTasks(userId),
+    prisma.financeTransaction.findMany({ where: { userId } }),
+  ]);
+
   return (
-    <div className="min-h-screen p-8 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="flex items-center justify-between">
-          <Link href="/projects" className="text-white/70 hover:text-white bg-white/10 backdrop-blur-md p-2 rounded-full border border-white/20">Back</Link>
-          <h1 className="text-3xl font-bold text-white">Glassmorphism Dash</h1>
-        </div>
-        <div className="flex items-center justify-center h-[60vh]">
-          <AnalogClock />
-        </div>
-      </div>
-    </div>
+    <DashboardView transactions={transactions} tasks={kanbanTasks} />
   );
 }
