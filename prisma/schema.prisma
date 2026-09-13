@@ -46,6 +46,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   financeTransactions FinanceTransaction[]
+  kanbanTasks   KanbanTask[]
 
   @@map("users")
 }
@@ -70,4 +71,15 @@ model FinanceTransaction {
   user      User     @relation(fields: [userId], references: [id])
 
   @@map("finance_transactions")
+}
+
+model KanbanTask {
+  id        String   @id @default(uuid())
+  title     String
+  status    String   @default("todo")
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("kanban_tasks")
 }

@@ -1,16 +1,34 @@
 "use client";
-import React, { useState } from 'react';
-import { useKanbanStore, TaskStatus } from '../store/useKanbanStore';
+import React, { useState, useEffect, startTransition } from 'react';
+import { addKanbanTask, updateKanbanTask, deleteKanbanTask } from '../actions';
 
-export default function KanbanBoard() {
-  const { tasks, addTask, moveTask, deleteTask } = useKanbanStore();
+export type TaskStatus = 'todo' | 'in-progress' | 'done';
+
+export default function KanbanBoard({ initialTasks }: { initialTasks: any[] }) {
+  const [tasks, setTasks] = useState(initialTasks);
   const [newTask, setNewTask] = useState('');
 
-  const handleAdd = () => {
+  useEffect(() => {
+    setTasks(initialTasks);
+  }, [initialTasks]);
+
+  const handleAdd = async () => {
     if (newTask.trim()) {
-      addTask(newTask, 'todo');
+      const title = newTask.trim();
       setNewTask('');
+      setTasks(prev => [...prev, { id: 'temp-' + Date.now(), title, status: 'todo' }]);
+      await addKanbanTask(title);
     }
+  };
+
+  const handleMove = async (id: string, newStatus: TaskStatus) => {
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, status: newStatus } : t));
+    await updateKanbanTask(id, newStatus);
+  };
+
+  const handleDelete = async (id: string) => {
+    setTasks(prev => prev.filter(t => t.id !== id));
+    await deleteKanbanTask(id);
   };
 
   const Column = ({ title, status }: { title: string, status: TaskStatus }) => (
@@ -33,10 +51,10 @@ export default function KanbanBoard() {
           <div key={task.id} className="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-sm border dark:border-gray-600">
             <p className="font-medium mb-3">{task.title}</p>
             <div className="flex justify-between items-center text-xs">
-              <button onClick={() => deleteTask(task.id)} className="text-red-500 font-bold hover:underline">Delete</button>
+              <button onClick={() => handleDelete(task.id)} className="text-red-500 font-bold hover:underline">Delete</button>
               <div className="flex gap-2">
-                {status !== 'todo' && <button onClick={() => moveTask(task.id, status === 'done' ? 'in-progress' : 'todo')} className="text-blue-500 hover:underline">← Move</button>}
-                {status !== 'done' && <button onClick={() => moveTask(task.id, status === 'todo' ? 'in-progress' : 'done')} className="text-blue-500 hover:underline">Move →</button>}
+                {status !== 'todo' && <button onClick={() => handleMove(task.id, status === 'done' ? 'in-progress' : 'todo')} className="text-blue-500 hover:underline">← Move</button>}
+                {status !== 'done' && <button onClick={() => handleMove(task.id, status === 'todo' ? 'in-progress' : 'done')} className="text-blue-500 hover:underline">Move →</button>}
               </div>
             </div>
           </div>
