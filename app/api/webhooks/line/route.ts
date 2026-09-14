@@ -7,10 +7,12 @@ import { HabitRepository } from '@/lib/repositories/habit.repository';
 
 async function replyMessage(replyToken: string, text: string, accessToken: string) {
   if (replyToken === '00000000000000000000000000000000' || replyToken === 'ffffffffffffffffffffffffffffffff') {
-    return; // Ignore LINE verification dummy tokens
+    return;
   }
   
-  await fetch('https://api.line.me/v2/bot/message/reply', {
+  console.log(`Sending reply to LINE: "${text.substring(0, 50)}..."`);
+  
+  const res = await fetch('https://api.line.me/v2/bot/message/reply', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -21,22 +23,28 @@ async function replyMessage(replyToken: string, text: string, accessToken: strin
       messages: [{ type: 'text', text }]
     })
   });
+  
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error('LINE API Reply Error:', res.status, errorText);
+  } else {
+    console.log('LINE Reply Success');
+  }
 }
 
 export async function POST(request: Request) {
   const channelSecret = process.env.LINE_CHANNEL_SECRET || process.env.CHANNEL_SECRET || '';
-  const channelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN || process.env.CHANNEL_ACCESS_TOKEN || '';
+  let channelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN || process.env.CHANNEL_ACCESS_TOKEN || '';
+  
+  // Clean up token in case it was pasted with quotes in Vercel
+  channelAccessToken = channelAccessToken.replace(/^"|"$/g, '').replace(/^'|'$/g, '');
+
   const glmApiKey = process.env.GLM_API_KEY || process.env.gGLM_API_KEY || 'dummy_key_for_build';
 
   const bodyText = await request.text();
   const signature = request.headers.get('x-line-signature') || '';
 
-  // Log for debugging on Vercel
-  console.log('Webhook Received, Signature:', signature);
-  console.log('Has Secret:', !!channelSecret);
-
   if (process.env.NODE_ENV === 'production' && !validateSignature(bodyText, channelSecret, signature)) {
-    console.error('Signature validation failed. Secret matched:', !!channelSecret);
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
 
@@ -60,10 +68,18 @@ export async function POST(request: Request) {
       const lineUserId = event.source.userId;
       const replyToken = event.replyToken;
 
+      console.log(`Received message from ${lineUserId}: ${text}`);
+
       if (!lineUserId) continue;
 
       // 1. Check if user is linked
-      const user = await prisma.user.findUnique({ where: { lineUserId } });
+      let user = null;
+      try {
+        user = await prisma.user.findUnique({ where: { lineUserId } });
+      } catch (e) {
+        console.error("Prisma Error:", e);
+      }
+      
       if (!user) {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || `https://${request.headers.get('host')}`;
         const linkUrl = `${appUrl}/api/auth/line-link?lineUserId=${lineUserId}`;
@@ -73,6 +89,7 @@ export async function POST(request: Request) {
 
       // 2. Pass to GLM API with Tools
       try {
+        console.log("Calling GLM API...");
         const response = await ai.chat.completions.create({
           model: 'glm-4',
           messages: [
@@ -116,10 +133,12 @@ export async function POST(request: Request) {
         const message = response.choices[0].message;
         const toolCalls = message.tool_calls;
         let replyText = message.content || "รับทราบครับ ทำการจัดการให้เรียบร้อยแล้ว!";
+        console.log("GLM API replied:", replyText, "Tool calls:", toolCalls?.length || 0);
 
         if (toolCalls && toolCalls.length > 0) {
           for (const call of toolCalls) {
             const args = JSON.parse(call.function.arguments);
+            console.log(`Executing tool: ${call.function.name} with args:`, args);
             if (call.function.name === 'add_transaction') {
               const { amount, label, type } = args;
               await FinanceRepository.addTransaction(user.id, Number(amount), label as string, type as string);
