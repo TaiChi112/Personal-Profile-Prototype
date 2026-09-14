@@ -5,15 +5,16 @@ import { prisma } from '@/lib/prisma';
 import { FinanceRepository } from '@/lib/repositories/finance.repository';
 import { HabitRepository } from '@/lib/repositories/habit.repository';
 
-const channelSecret = process.env.LINE_CHANNEL_SECRET || '';
-const channelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN || '';
-
-async function replyMessage(replyToken: string, text: string) {
+async function replyMessage(replyToken: string, text: string, accessToken: string) {
+  if (replyToken === '00000000000000000000000000000000' || replyToken === 'ffffffffffffffffffffffffffffffff') {
+    return; // Ignore LINE verification dummy tokens
+  }
+  
   await fetch('https://api.line.me/v2/bot/message/reply', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${channelAccessToken}`
+      'Authorization': `Bearer ${accessToken}`
     },
     body: JSON.stringify({
       replyToken,
@@ -23,10 +24,19 @@ async function replyMessage(replyToken: string, text: string) {
 }
 
 export async function POST(request: Request) {
+  const channelSecret = process.env.LINE_CHANNEL_SECRET || process.env.CHANNEL_SECRET || '';
+  const channelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN || process.env.CHANNEL_ACCESS_TOKEN || '';
+  const glmApiKey = process.env.GLM_API_KEY || process.env.gGLM_API_KEY || 'dummy_key_for_build';
+
   const bodyText = await request.text();
   const signature = request.headers.get('x-line-signature') || '';
 
+  // Log for debugging on Vercel
+  console.log('Webhook Received, Signature:', signature);
+  console.log('Has Secret:', !!channelSecret);
+
   if (process.env.NODE_ENV === 'production' && !validateSignature(bodyText, channelSecret, signature)) {
+    console.error('Signature validation failed. Secret matched:', !!channelSecret);
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
 
@@ -37,9 +47,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const events: WebhookEvent[] = body.events;
+  const events: WebhookEvent[] = body.events || [];
 
-  const glmApiKey = process.env.GLM_API_KEY || process.env.gGLM_API_KEY || 'dummy_key_for_build';
   const ai = new OpenAI({
     apiKey: glmApiKey,
     baseURL: 'https://open.bigmodel.cn/api/paas/v4/'
@@ -56,11 +65,9 @@ export async function POST(request: Request) {
       // 1. Check if user is linked
       const user = await prisma.user.findUnique({ where: { lineUserId } });
       if (!user) {
-        // Not linked, send link message
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || `https://${request.headers.get('host')}`;
         const linkUrl = `${appUrl}/api/auth/line-link?lineUserId=${lineUserId}`;
-        
-        await replyMessage(replyToken, `👋 สวัสดีครับ!\nดูเหมือนว่าคุณยังไม่ได้ผูกบัญชี LINE เข้ากับ AI-Native OS ของคุณเลย\n\nกรุณากดลิงก์ด้านล่างเพื่อผูกบัญชีก่อนใช้งานนะครับ:\n${linkUrl}`);
+        await replyMessage(replyToken, `👋 สวัสดีครับ!\nดูเหมือนว่าคุณยังไม่ได้ผูกบัญชี LINE เข้ากับ AI-Native OS ของคุณเลย\n\nกรุณากดลิงก์ด้านล่างเพื่อผูกบัญชีก่อนใช้งานนะครับ:\n${linkUrl}`, channelAccessToken);
         continue;
       }
 
@@ -111,7 +118,6 @@ export async function POST(request: Request) {
         let replyText = message.content || "รับทราบครับ ทำการจัดการให้เรียบร้อยแล้ว!";
 
         if (toolCalls && toolCalls.length > 0) {
-          // Process function calls
           for (const call of toolCalls) {
             const args = JSON.parse(call.function.arguments);
             if (call.function.name === 'add_transaction') {
@@ -126,11 +132,11 @@ export async function POST(request: Request) {
           }
         }
 
-        await replyMessage(replyToken, replyText);
+        await replyMessage(replyToken, replyText, channelAccessToken);
 
       } catch (err) {
         console.error('AI Processing Error:', err);
-        await replyMessage(replyToken, 'ขออภัยครับ ระบบ AI เกิดข้อผิดพลาดชั่วคราว ลองใหม่อีกครั้งนะครับ 😅');
+        await replyMessage(replyToken, 'ขออภัยครับ ระบบ AI เกิดข้อผิดพลาดชั่วคราว ลองใหม่อีกครั้งนะครับ 😅', channelAccessToken);
       }
     }
   }
