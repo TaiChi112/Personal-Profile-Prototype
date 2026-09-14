@@ -1,15 +1,12 @@
 import { NextResponse } from 'next/server';
 import { validateSignature, WebhookEvent } from '@line/bot-sdk';
-import { GoogleGenAI, Type } from '@google/genai';
+import OpenAI from 'openai';
 import { prisma } from '@/lib/prisma';
 import { FinanceRepository } from '@/lib/repositories/finance.repository';
 import { HabitRepository } from '@/lib/repositories/habit.repository';
 
 const channelSecret = process.env.LINE_CHANNEL_SECRET || '';
 const channelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN || '';
-const geminiApiKey = process.env.GEMINI_API_KEY || '';
-
-const ai = new GoogleGenAI({ apiKey: geminiApiKey });
 
 async function replyMessage(replyToken: string, text: string) {
   await fetch('https://api.line.me/v2/bot/message/reply', {
@@ -42,6 +39,12 @@ export async function POST(request: Request) {
 
   const events: WebhookEvent[] = body.events;
 
+  const glmApiKey = process.env.GLM_API_KEY || process.env.gGLM_API_KEY || 'dummy_key_for_build';
+  const ai = new OpenAI({
+    apiKey: glmApiKey,
+    baseURL: 'https://open.bigmodel.cn/api/paas/v4/'
+  });
+
   for (const event of events) {
     if (event.type === 'message' && event.message.type === 'text') {
       const text = event.message.text;
@@ -61,58 +64,62 @@ export async function POST(request: Request) {
         continue;
       }
 
-      // 2. Pass to Gemini API with Tools
+      // 2. Pass to GLM API with Tools
       try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: text,
-          config: {
-            systemInstruction: "You are the Antigravity AI Assistant integrated into LINE. The user is talking to you via LINE. Parse their request and use tools if they want to save expenses, add habits, etc. If they just say hi, reply friendly in Thai.",
-            tools: [
-              {
-                functionDeclarations: [
-                  {
-                    name: "add_transaction",
-                    description: "Add a financial transaction (income or expense) to the database.",
-                    parameters: {
-                      type: Type.OBJECT,
-                      properties: {
-                        amount: { type: Type.NUMBER, description: "The amount of money" },
-                        label: { type: Type.STRING, description: "What the money was spent on or earned from" },
-                        type: { type: Type.STRING, enum: ["income", "expense"], description: "Whether it is income or expense" }
-                      },
-                      required: ["amount", "label", "type"]
-                    }
+        const response = await ai.chat.completions.create({
+          model: 'glm-4',
+          messages: [
+            { role: "system", content: "You are the Antigravity AI Assistant integrated into LINE. The user is talking to you via LINE. Parse their request and use tools if they want to save expenses, add habits, etc. If they just say hi, reply friendly in Thai." },
+            { role: "user", content: text }
+          ],
+          tools: [
+            {
+              type: "function",
+              function: {
+                name: "add_transaction",
+                description: "Add a financial transaction (income or expense) to the database.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    amount: { type: "number", description: "The amount of money" },
+                    label: { type: "string", description: "What the money was spent on or earned from" },
+                    type: { type: "string", enum: ["income", "expense"], description: "Whether it is income or expense" }
                   },
-                  {
-                    name: "add_habit",
-                    description: "Add a new daily quest/habit to the Habit RPG game.",
-                    parameters: {
-                      type: Type.OBJECT,
-                      properties: {
-                        title: { type: Type.STRING, description: "The name of the habit or quest to add" }
-                      },
-                      required: ["title"]
-                    }
-                  }
-                ]
+                  required: ["amount", "label", "type"]
+                }
               }
-            ]
-          }
+            },
+            {
+              type: "function",
+              function: {
+                name: "add_habit",
+                description: "Add a new daily quest/habit to the Habit RPG game.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string", description: "The name of the habit or quest to add" }
+                  },
+                  required: ["title"]
+                }
+              }
+            }
+          ]
         });
 
-        const functionCalls = response.functionCalls;
-        let replyText = response.text || "รับทราบครับ ทำการจัดการให้เรียบร้อยแล้ว!";
+        const message = response.choices[0].message;
+        const toolCalls = message.tool_calls;
+        let replyText = message.content || "รับทราบครับ ทำการจัดการให้เรียบร้อยแล้ว!";
 
-        if (functionCalls && functionCalls.length > 0) {
+        if (toolCalls && toolCalls.length > 0) {
           // Process function calls
-          for (const call of functionCalls) {
-            if (call.name === 'add_transaction') {
-              const { amount, label, type } = call.args;
+          for (const call of toolCalls) {
+            const args = JSON.parse(call.function.arguments);
+            if (call.function.name === 'add_transaction') {
+              const { amount, label, type } = args;
               await FinanceRepository.addTransaction(user.id, Number(amount), label as string, type as string);
               replyText = `💸 บันทึก${type === 'income' ? 'รายรับ' : 'รายจ่าย'} '${label}' จำนวน ${amount} บาท เรียบร้อยแล้วครับ!`;
-            } else if (call.name === 'add_habit') {
-              const { title } = call.args;
+            } else if (call.function.name === 'add_habit') {
+              const { title } = args;
               await HabitRepository.addHabit(user.id, title as string);
               replyText = `🧙‍♂️ เพิ่มเควสรายวัน '${title}' ให้ฮีโร่ของคุณเรียบร้อยแล้วครับ!`;
             }
