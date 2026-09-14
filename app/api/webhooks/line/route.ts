@@ -91,7 +91,7 @@ export async function POST(request: Request) {
       try {
         console.log("Calling GLM API...");
         const response = await ai.chat.completions.create({
-          model: 'glm-4',
+          model: 'glm-5.3-flash',
           messages: [
             { role: "system", content: "You are the Antigravity AI Assistant integrated into LINE. The user is talking to you via LINE. Parse their request and use tools if they want to save expenses, add habits, etc. If they just say hi, reply friendly in Thai." },
             { role: "user", content: text }
