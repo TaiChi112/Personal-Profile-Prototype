@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy, Github, FileText, Bot, Printer, Check, ChevronDown, MessageSquare, Code, Cpu } from 'lucide-react';
+import { Copy, GitBranch, FileText, Bot, Printer, Check, ChevronDown, MessageSquare, Code, Cpu } from 'lucide-react';
 
 type DocsActionsDropdownProps = {
   readonly markdownContent: string;
@@ -105,7 +105,7 @@ export function DocsActionsDropdown({ markdownContent, githubEditUrl, githubRawU
                     className="w-full text-left px-4 py-2.5 text-sm hover:bg-fd-accent hover:text-fd-accent-foreground flex items-center gap-3 transition-colors"
                     role="menuitem"
                   >
-                    <Github className="w-4 h-4 text-fd-muted-foreground" />
+                    <GitBranch className="w-4 h-4 text-fd-muted-foreground" />
                     Open in GitHub
                   </button>
                 )}

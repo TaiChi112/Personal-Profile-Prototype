@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ContentSectionShell } from '../../components/section/SectionPrimitives';
 import { normalizeExternalUrl } from '../../data/resume';
-import { LayoutGrid, List, Github, ExternalLink, Code2 } from 'lucide-react';
+import { LayoutGrid, List, GitBranch, ExternalLink, Code2 } from 'lucide-react';
 import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
 import type { EventType } from '../../services/system/notification/NotificationBridge';
 import type { Project } from '../../data/content';
@@ -130,7 +130,7 @@ export function ProjectsSection({ currentStyle, labels, projectsList, selectedPr
 
                 {project.githubUrl ? (
                   <button onClick={() => handleSource(project)} className={`flex items-center gap-1.5 px-3 py-1.5 ${project.repoUrl ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300' : 'bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 text-white dark:text-gray-900'} text-sm font-semibold rounded-lg transition-colors`}>
-                    <Github size={14} />
+                    <GitBranch size={14} />
                     View Source
                   </button>
                 ) : (

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { addTransaction, deleteTransaction } from '../actions';
 import { signOut } from 'next-auth/react';
 
@@ -34,7 +35,7 @@ export default function FinanceCalc({ initialTransactions, user, analytics = [] 
     <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden">
       <div className="flex justify-between items-center p-4 bg-gray-100 dark:bg-gray-900">
         <div className="flex items-center gap-3">
-          {user?.image && <img src={user.image} alt="Avatar" className="w-8 h-8 rounded-full" />}
+          {user?.image && <Image src={user.image} alt="Avatar" width={32} height={32} className="w-8 h-8 rounded-full" />}
           <span className="font-bold text-sm">Welcome, {user?.name?.split(' ')[0] || 'User'}</span>
         </div>
         <button onClick={() => signOut({ callbackUrl: '/projects/finance-flow' })} className="text-xs font-bold text-red-500 hover:underline">

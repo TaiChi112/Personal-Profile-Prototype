@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import Image from 'next/image';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 // GitHub language colors
@@ -52,9 +53,11 @@ export default function BentoLayout({ userData, reposData }: { userData: any, re
         
         {/* Box 1: Profile Info */}
         <div className="md:col-span-2 row-span-2 bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col justify-center items-center text-center transition-all hover:shadow-md">
-          <img 
+          <Image 
             src={userData.avatar_url || 'https://github.com/identicons/jasonlong.png'} 
             alt={userData.name || userData.login || 'User'} 
+            width={128}
+            height={128}
             className="w-32 h-32 rounded-full mb-4 border-4 border-white shadow-sm"
           />
           <h2 className="text-3xl font-bold text-gray-800">{userData.name || userData.login || 'GitHub User'}</h2>

@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import Image from 'next/image';
 import { useBooksStore } from '../store/useBooksStore';
 
 export default function TimelineLayout({ books }: { books: any[] }) {
@@ -36,10 +37,12 @@ export default function TimelineLayout({ books }: { books: any[] }) {
               <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row gap-5">
                 
                 <div className="w-24 flex-shrink-0">
-                  <img 
+                  <Image 
                     src={info.imageLinks?.thumbnail?.replace('http:', 'https:') || 'https://via.placeholder.com/128x192.png?text=No+Cover'} 
                     alt={info.title}
-                    className="w-full rounded shadow-sm"
+                    width={128}
+                    height={192}
+                    className="w-full h-auto rounded shadow-sm"
                   />
                 </div>
 

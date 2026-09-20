@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import Link from "next/link";
+import Image from "next/image";
 
 export async function MicroProjectLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -21,7 +22,7 @@ export async function MicroProjectLayout({ children }: { children: React.ReactNo
                 {session.user.name}
               </span>
               {session.user.image ? (
-                <img src={session.user.image} alt="Profile" className="w-7 h-7 rounded-full border border-green-500 shadow-sm" />
+                <Image src={session.user.image} alt="Profile" width={28} height={28} className="w-7 h-7 rounded-full border border-green-500 shadow-sm" />
               ) : (
                 <div className="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xs">
                   {session.user.name?.charAt(0) || "U"}

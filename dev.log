@@ -1,0 +1,28 @@
+$ next dev --turbopack
+▲ Next.js 16.3.3 (Turbopack)
+- Local:         http://localhost:3002
+- Network:       http://192.168.248.21:3002
+- Environments: .env
+✓ Ready in 380ms
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /home/dev/ai-factory/bun.lock as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /home/dev/ai-factory/workspaces/Personal-Profile-Prototype/bun.lock
+
+✓ Running next.config.ts took 878ms
+[MDX] generated files in 20.264101999999866ms
+[MDX] started dev server
+⨯ Another next dev server is already running.
+
+- Local:        http://localhost:3001
+- PID:          1969651
+- Dir:          /home/dev/ai-factory/workspaces/Personal-Profile-Prototype
+- Log:          .next/dev/logs/next-development.log
+
+You can access the existing server at http://localhost:3001,
+or run kill 1969651 to stop it and start a new one.
+[MDX] closing dev server
+[?25h
+error: script "dev" exited with code 1

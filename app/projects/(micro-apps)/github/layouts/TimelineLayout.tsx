@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 export default function TimelineLayout({ userData, eventsData }: { userData: any, eventsData: any[] }) {
   if (!userData) return null;
@@ -36,7 +37,7 @@ export default function TimelineLayout({ userData, eventsData }: { userData: any
     <div className="w-full">
       <div className="flex items-center space-x-6 mb-10 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div className="w-20 h-20 rounded-full bg-gray-200 border-4 border-white shadow-md overflow-hidden flex-shrink-0">
-          <img src={userData.avatar_url || 'https://github.com/identicons/jasonlong.png'} alt="Avatar" className="w-full h-full object-cover" />
+          <Image src={userData.avatar_url || 'https://github.com/identicons/jasonlong.png'} alt="Avatar" width={80} height={80} className="w-full h-full object-cover" />
         </div>
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-1">{userData.name || userData.login}</h1>

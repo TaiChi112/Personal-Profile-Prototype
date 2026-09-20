@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { useBooksStore } from '../store/useBooksStore';
 
 export default function BookshelfLayout({ books, title = "Search Results" }: { books: any[], title?: string }) {
@@ -26,7 +27,7 @@ export default function BookshelfLayout({ books, title = "Search Results" }: { b
               
               {/* Cover Image */}
               <div className="relative w-full aspect-[2/3] bg-gray-100 dark:bg-gray-700 overflow-hidden">
-                <img src={thumbnail} alt={info.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <Image src={thumbnail} alt={info.title} fill sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 
                 {/* Favorite Button overlay */}
                 <button 

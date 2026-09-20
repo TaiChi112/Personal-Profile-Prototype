@@ -8,7 +8,7 @@ import { Mermaid } from "@/app/components/Mermaid";
 import { Quiz } from "@/app/components/mdx/Quiz";
 import { Playground } from "@/app/components/mdx/Playground";
 import { DocsActionsDropdown } from "@/app/components/docs/DocsActionsDropdown";
-import { Github } from "lucide-react";
+import { GitBranch } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import path from "path";
 import fs from "fs/promises";
@@ -93,7 +93,7 @@ export default async function Page(props: Readonly<{
               rel="noopener noreferrer"
               className="hover:text-fd-foreground flex items-center gap-2 transition-colors"
             >
-              <Github className="w-4 h-4" />
+              <GitBranch className="w-4 h-4" />
               Propose an edit on GitHub
             </a>
           </div>

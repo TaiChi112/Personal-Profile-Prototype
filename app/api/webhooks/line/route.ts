@@ -93,7 +93,7 @@ export async function POST(request: Request) {
         const response = await ai.chat.completions.create({
           model: 'glm-5.3-flash',
           messages: [
-            { role: "system", content: "You are the Antigravity AI Assistant integrated into LINE. The user is talking to you via LINE. Parse their request and use tools if they want to save expenses, add habits, etc. If they just say hi, reply friendly in Thai." },
+            { role: "system", content: "You are the AI Assistant for FinanceFlow and HabitRPG. If the user mentions spending money, buying something, or earning money, you MUST ALWAYS use the add_transaction tool. If they mention adding a quest or habit, you MUST ALWAYS use the add_habit tool. DO NOT simply reply with text if a tool is applicable. Your primary job is to extract data and trigger tools. If no tool is applicable, reply politely in Thai." },
             { role: "user", content: text }
           ],
           tools: [
