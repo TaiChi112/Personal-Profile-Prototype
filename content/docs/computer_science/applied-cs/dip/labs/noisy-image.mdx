@@ -1,0 +1,48 @@
+---
+title: "Lab: The Noisy Image"
+description: "A Problem-Based Learning Lab exploring convolutions and image filtering."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+# The Noisy Image: A Socratic Lab on Convolutions
+
+## Act 1: The Hook
+
+Imagine you are a planetary scientist receiving the first images from a new Mars rover. The transmission was corrupted by cosmic radiation, and the image is covered in random static-like noise. Your mission is to recover the geological features hidden beneath the noise without losing the sharp edges of the Martian rocks.
+
+<Callout title="Socratic AI Prompt" type="info">
+If you were to manually adjust the color of a single noisy pixel based on its surroundings, how would you decide its new color? What information around that pixel is most reliable?
+</Callout>
+
+## Act 2: Mental Model
+
+To clean the image, we can use a mathematical operation called a convolution. Think of convolution as a sliding window (a kernel or filter) that moves across the image pixel by pixel. At each step, it calculates a new value for the center pixel based on a weighted combination of its neighbors.
+
+<Callout title="Socratic AI Prompt" type="info">
+If our goal is to smooth out random noise, what kind of weights would you assign to the center pixel versus its immediate neighbors? How does this sliding window approach compare to how your own eyes blur a noisy picture?
+</Callout>
+
+### The Mean Filter
+A simple approach is the Mean Filter, where the sliding window averages the values of all pixels within the window. 
+
+<Callout title="Socratic AI Prompt" type="info">
+What happens to the sharp edges of the rocks when you average every pixel with its neighbors? Is there a trade-off between removing noise and preserving detail?
+</Callout>
+
+## Act 3: The Rabbit Hole
+
+While the mean filter removes noise, it also blurs the entire image. We need a smarter filter. Enter the Gaussian filter and the Median filter.
+
+<Callout title="Socratic AI Prompt" type="info">
+Instead of averaging, what if we took the median value of the pixels in our window? How would a median filter handle a single, extremely bright "salt" noise pixel compared to a mean filter?
+</Callout>
+
+Your task is to implement these convolution filters in code. Experiment with different kernel sizes (3x3, 5x5, etc.) and observe the effects on the Martian landscape image.
+
+<Callout title="Socratic AI Prompt" type="info">
+As you increase the size of the kernel, what happens to the processing time? How does the image change? Why might larger kernels not always be better?
+</Callout>
