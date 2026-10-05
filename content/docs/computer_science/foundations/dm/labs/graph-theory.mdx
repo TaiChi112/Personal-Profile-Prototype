@@ -1,0 +1,41 @@
+---
+title: "The Infinite Maze"
+description: "A Problem-Based Learning Lab on Graph Theory"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+# The Infinite Maze: A Graph Theory Lab
+
+## Act 1: The Hook
+
+Imagine you are trapped in a labyrinth that shifts every time you take a step. The paths connect in non-euclidean ways. Some doors lead back to rooms you have already visited, while others create entirely new branches of reality. You need to find the shortest path out, but the concept of "distance" no longer applies.
+
+<Callout title="Socratic Prompt" type="info">
+If physical distance is irrelevant, how would you measure the "length" of a path to the exit? What fundamental elements are necessary to map this labyrinth?
+</Callout>
+
+## Act 2: Mental Model
+
+To navigate the labyrinth, we can strip away the physical walls and focus only on two concepts: rooms and the doors connecting them. 
+
+In Graph Theory, we call the rooms **Vertices** (or Nodes) and the doors connecting them **Edges**. A graph is simply a collection of vertices and the edges that link them.
+
+By modeling the labyrinth as a graph, the problem of escaping becomes a matter of traversing nodes. If all doors take the same amount of effort to walk through, finding the shortest path means finding the route with the fewest edges.
+
+<Callout title="Socratic Prompt" type="info">
+Consider a scenario where some doors are heavy and take more effort to open. How would our mental model need to adapt to account for paths that have the same number of doors, but require different amounts of total effort?
+</Callout>
+
+## Act 3: The Rabbit Hole
+
+Graph theory extends far beyond escaping mazes. It is the foundation of how GPS navigation calculates routes, how social networks suggest new friends, and how the internet routes data packets globally.
+
+As graphs grow larger, finding the optimal path requires structured algorithms. Algorithms like Breadth-First Search (BFS) and Dijkstra's Algorithm systematically explore the graph to guarantee the shortest path is found without getting stuck in infinite loops.
+
+<Callout title="Socratic Prompt" type="info">
+If a graph has billions of nodes, like the internet, searching every possible path becomes computationally impossible. What strategies or heuristics could an algorithm use to prioritize which edges to explore first?
+</Callout>

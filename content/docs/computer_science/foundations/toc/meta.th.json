@@ -1,0 +1,10 @@
+{
+  "title": "ทฤษฎีการคำนวณ",
+  "pages": [
+    "index",
+    "automata",
+    "computability",
+    "complexity",
+    "labs"
+  ]
+}

@@ -1,0 +1,49 @@
+---
+title: "Theory of Computation"
+description: "หน้าเริ่มต้นสำหรับทบทวน Theory of Computation แบบเร่งด่วน"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+import { Cpu, Infinity, Combine } from 'lucide-react';
+import { TerminalSquare } from 'lucide-react';
+
+<Callout title="Quick Review" type="info">
+  หมวดหมู่นี้ออกแบบมาเพื่อการอ่านทบทวนแบบรวดเร็ว (Cheat Sheet) สรุปทฤษฎีรากฐานของ Computer Science ว่าปัญหาใดที่ Compute ได้ และปัญหาใดที่ทำไม่ได้
+</Callout>
+
+# Theory of Computation (TOC)
+
+Theory of Computation คือสาขาหัวใจหลักของ Computer Science ที่มุ่งเน้นการศึกษาว่า **ปัญหาใดบ้างที่ Computer สามารถแก้ได้ (Computability)** และ **ต้องใช้ Resource มากแค่ไหนในการแก้ (Complexity)** โดยใช้ Mathematics และ Logic ในการสร้าง Model จำลองการทำงาน
+
+เลือกหัวข้อที่ต้องการทบทวน (Bento Grid):
+
+<Cards>
+  <Card 
+    href="/en/docs/computer_science/foundations/toc/automata" 
+    title="Automata Theory" 
+    icon={<TerminalSquare />}
+    description="Abstract Machines, State, DFA, NFA, Regular Expressions และ CFG" 
+  />
+  <Card 
+    href="/en/docs/computer_science/foundations/toc/computability" 
+    title="Computability Theory" 
+    icon={<Infinity />}
+    description="Turing Machines, Decidability และ Halting Problem" 
+  />
+  <Card 
+    href="/en/docs/computer_science/foundations/toc/complexity" 
+    title="Complexity Theory" 
+    icon={<Combine />}
+    description="Time / Space Complexity, P vs NP และ NP-Completeness" 
+  />
+  <Card 
+    href="/th/docs/computer_science/foundations/toc/labs/halting-problem"
+    title="ห้องทดลอง (Interactive Labs)"
+    icon={<TerminalSquare />}
+    description="ฝึกแก้ปัญหาจากสถานการณ์จำลอง (Problem-Based) ด้วย Socratic AI Prompts"
+  />
+</Cards>

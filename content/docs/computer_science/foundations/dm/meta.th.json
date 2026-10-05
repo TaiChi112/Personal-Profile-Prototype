@@ -1,0 +1,11 @@
+{
+  "title": "คณิตศาสตร์ดิสครีต",
+  "pages": [
+    "index",
+    "logic-sets",
+    "relations-functions",
+    "graph-theory",
+    "combinatorics-boolean",
+    "labs"
+  ]
+}

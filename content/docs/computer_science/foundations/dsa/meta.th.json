@@ -1,0 +1,10 @@
+{
+  "title": "โครงสร้างข้อมูลและอัลกอริทึม",
+  "pages": [
+    "index",
+    "big-o",
+    "data-structures",
+    "algorithms",
+    "labs"
+  ]
+}

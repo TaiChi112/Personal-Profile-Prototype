@@ -1,0 +1,42 @@
+---
+title: "The Slow Search (Hash Maps)"
+description: "A Problem-Based Learning lab on Hash Maps."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+# The Slow Search
+
+## Act 1: The Hook
+
+Imagine you are running a massive library with millions of books. A student comes in and asks for a book by its exact title. Currently, your system requires you to start at the very first bookshelf and check every single book until you find the right one. 
+
+As the library grows, this search becomes painfully slow. 
+
+<Callout title="Socratic Prompt" type="info">
+How would you organize the library so that you can find any book almost instantly, regardless of how many books are in the library? What is the core mechanism that allows you to skip checking every single book?
+</Callout>
+
+## Act 2: Mental Model
+
+To solve the slow search problem, you decide to use a system where the title of the book tells you exactly which shelf it is on. You assign a specific mathematical formula to the title. When you plug the title into the formula, it outputs a shelf number. 
+
+This formula is called a **Hash Function**, and the library organization system is a **Hash Map** (or Hash Table). 
+
+Instead of searching, you compute the location.
+
+<Callout title="Socratic Prompt" type="info">
+What happens if two different book titles produce the exact same shelf number when put through your mathematical formula? How should the library handle this situation?
+</Callout>
+
+## Act 3: The Rabbit Hole
+
+You've built your Hash Map, but you notice a new problem. A large number of book titles are all outputting the exact same shelf number. This shelf is now overflowing with books, and when a student asks for a book on this shelf, you are back to searching one by one through a massive pile.
+
+This situation is known as a **Collision**.
+
+<Callout title="Socratic Prompt" type="info">
+If your shelf is overflowing due to collisions, what are two different strategies you could implement to fix this? Does changing the mathematical formula help, or should you change how books are stored on the shelf?
+</Callout>
