@@ -1,0 +1,36 @@
+---
+title: "The Broken Singleton"
+description: "A Problem-Based Learning Lab on Dependency Injection and Singleton Pattern"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+# The Broken Singleton Lab
+
+Welcome to the Socratic Problem-Based Learning Lab for Design Patterns. We will explore the Broken Singleton and Dependency Injection.
+
+## Act 1: The Hook
+
+You just started your first day at a tech company, and the server crashes because the database connection maxed out. You look at the code and see `Database::getInstance()` everywhere.
+
+<Callout title="Socratic AI Prompt" type="info">
+Why might having a globally accessible instance of a database connection cause issues when multiple parts of the application try to access it simultaneously? What happens to the state?
+</Callout>
+
+## Act 2: Mental Model
+
+We need to understand how Dependency Injection can replace the Singleton pattern. Instead of objects pulling their dependencies, dependencies are pushed into them.
+
+<Callout title="Socratic AI Prompt" type="info">
+If you pass the database connection via the constructor instead of calling a global instance, how does this change the testability of your class? Can you think of a way to pass a mock connection?
+</Callout>
+
+## Act 3: The Rabbit Hole
+
+Now we scale up. The application needs multiple databases for read and write operations.
+
+<Callout title="Socratic AI Prompt" type="info">
+How would the Singleton pattern handle multiple database instances? How does Dependency Injection solve this problem more elegantly?
+</Callout>

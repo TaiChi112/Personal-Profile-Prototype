@@ -1,0 +1,43 @@
+---
+title: The Mutating State
+description: Interactive Lab on Immutability in Functional Programming
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+# Lab: The Mutating State
+
+Welcome to the interactive lab on Immutability! We will explore this concept through a Problem-Based Learning (PBL) approach in three acts.
+
+## Act 1: The Hook
+
+Imagine you are building a banking application. You have an account with a balance of $100. Two transactions happen at the exact same time: a deposit of $50 and a withdrawal of $20. 
+
+If both transactions read the balance as $100 before applying their changes, what could go wrong?
+
+<Callout title="Socratic AI Prompt" type="info">
+How might the final balance differ if the state is shared and mutable versus if it is immutable? Consider the order of operations. What happens if the deposit overwrites the withdrawal, or vice versa?
+</Callout>
+
+## Act 2: Mental Model
+
+In a world with mutable state, variables are like chalkboards. Anyone can erase the current value and write a new one. When multiple processes write to the same chalkboard concurrently, the final message becomes unpredictable.
+
+Immutability, on the other hand, treats data as a historical ledger. Instead of erasing and rewriting, every change produces a brand new page with the updated information. The old page remains unchanged.
+
+<Callout title="Socratic AI Prompt" type="info">
+If we use a historical ledger instead of a chalkboard, how do we represent the sequence of events without changing the past? What are the trade-offs of creating a new "page" for every change in terms of memory and performance?
+</Callout>
+
+## Act 3: The Rabbit Hole
+
+Let us dive deeper. Consider how memory allocation works in programming languages when dealing with immutable data structures. Functional languages often use techniques like structural sharing to make immutability efficient.
+
+When you modify an element in an immutable list, the language does not copy the entire list. Instead, it creates a new list that shares most of its structure with the original one.
+
+<Callout title="Socratic AI Prompt" type="info">
+Think about a tree data structure. If you need to update one leaf node immutably, how much of the tree actually needs to be recreated? Can you visualize how structural sharing minimizes the performance penalty of immutability?
+</Callout>
