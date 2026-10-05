@@ -1,0 +1,42 @@
+---
+title: The God Object
+description: A Problem-Based Learning Lab on SOLID Principles
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+# Act I: The Hook
+
+Imagine a single piece of code that controls everything in your application: user authentication, database connections, email notifications, and even the UI logic. It seems convenient at first, but soon it becomes a massive, unmaintainable beast. This is known as "The God Object". 
+
+<Callout title="Socratic AI Prompt" type="info">
+If a single class is responsible for all major operations in an application, what happens when you need to change how emails are formatted? How does this affect the database connection code within the same class?
+</Callout>
+
+# Act II: Mental Model
+
+To understand how to dismantle the God Object, we must introduce the SOLID principles, specifically the Single Responsibility Principle (SRP). Think of your application as a restaurant. If the chef is also taking orders, serving food, and handling payments, chaos ensues. Instead, responsibilities must be divided among specialized roles.
+
+<Callout title="Socratic AI Prompt" type="info">
+How might you refactor a restaurant scenario where the chef does everything? Can you draw a parallel between separating restaurant roles and separating code responsibilities?
+</Callout>
+
+# Act III: The Rabbit Hole
+
+Now, look at the code snippet provided below. It represents a God Object in a hypothetical e-commerce system. Your task is to identify its multiple responsibilities and apply the SOLID principles to break it down.
+
+```python
+class ECommerceSystem:
+    def process_order(self, order):
+        # process payment
+        # update inventory
+        # send confirmation email
+        pass
+```
+
+<Callout title="Socratic AI Prompt" type="info">
+What are the distinct responsibilities hidden within the `process_order` method? How would extracting these into separate classes improve the system's testability and resilience to change?
+</Callout>
