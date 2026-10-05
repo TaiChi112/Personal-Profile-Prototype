@@ -1,0 +1,7 @@
+{
+  "title": "ห้องทดลอง (Interactive Labs)",
+  "icon": "TerminalSquare",
+  "pages": [
+    "sql-injection"
+  ]
+}

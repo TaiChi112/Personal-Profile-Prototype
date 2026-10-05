@@ -1,0 +1,84 @@
+---
+title: "The Drop Table Attack (SQLi)"
+description: "ทำความเข้าใจช่องโหว่ SQL Injection ผ่าน Problem-Based Learning และ Socratic AI Prompts"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+
+
+
+<Callout title="Problem-Based Learning Module" type="info">
+  หมวดหมู่นี้ออกแบบมาเพื่อให้คุณได้ฝึกคิดแก้ปัญหา (Problem-Based) กรุณาอ่านสถานการณ์และลองใช้ Prompt ด้านล่างนำไปถาม AI เพื่อค้นหาคำตอบด้วยตัวเอง แทนที่จะอ่านเฉลยเพียงอย่างเดียว
+</Callout>
+
+## Act 1: The Hook (The System Crisis)
+
+คุณคือ Lead Backend Engineer ของแพลตฟอร์ม E-Commerce ที่กำลังเติบโตอย่างรวดเร็ว เช้าวันนี้เป็นวันเริ่มแคมเปญลดราคาครั้งใหญ่ที่สุดของปี
+
+จู่ๆ Dashboard มอนิเตอร์ระบบของคุณก็แจ้งเตือนสีแดงเถือก Database Server ยังทำงานอยู่ แต่ข้อมูลในตาราง `users` หายเกลี้ยง! ข้อมูลลูกค้าหลายล้านคนอันตรธานหายไปในพริบตา
+
+คุณรีบเช็ค Application Logs และไม่พบความผิดปกติใดๆ เลย ยกเว้นความพยายามล็อกอินแปลกๆ ครั้งเดียวที่เกิดขึ้นก่อนข้อมูลหายไป เสี้ยววินาทีนั้นมีคนกรอก Username ในหน้า Login ว่า:
+
+`' OR '1'='1'; DROP TABLE users; --`
+
+ช่องรหัสผ่านถูกปล่อยทิ้งไว้ว่างเปล่า ระบบยอมรับการล็อกอินนั้น และมิลลิวินาทีต่อมา หายนะก็บังเกิด... มันเกิดอะไรขึ้นกันแน่?
+
+<Callout title="Interactive Research Prompt" type="info">
+  Copy Prompt นี้ไปวางใน Generative AI (เช่น ChatGPT/Claude) เพื่อสืบสวนอาการที่เกิดขึ้น:
+
+  ```text
+  Act as a Senior Security Engineer. I have a catastrophic failure where my database table was deleted. The only clue is a login attempt with the username: ' OR '1'='1'; DROP TABLE users; --
+  What is the conceptual mechanism behind this attack? Explain in simple terms, without writing deep technical code yet. What is this attack called?
+  ```
+</Callout>
+
+---
+
+## Act 2: The Mental Model
+
+เพื่อให้เข้าใจว่าการโจมตีนี้ทำงานอย่างไร ลองจินตนาการถึงห้องนิรภัยความปลอดภัยสูงที่มีพนักงานรักษาความปลอดภัย (ยาม) เฝ้าอยู่
+
+หน้าที่เดียวของยามคือรับกระดาษจากผู้มาเยือน อ่านชื่อบนนั้น และเช็คว่าตรงกับรายชื่อผู้มีสิทธิ์เข้าไหม คำสั่งที่ผู้จัดการสั่งยามไว้คือ:
+
+**"อนุญาตให้คนนี้เข้าได้ ถ้าชื่อของเขาคือ [ช่องว่าง] และเขามีรหัสผ่านที่ถูกต้อง"**
+
+โดยปกติ ผู้มาเยือนจะเขียนชื่อ "John Doe" ลงในช่องว่าง
+ยามจะอ่านคำสั่งในหัวว่า: "อนุญาตให้คนนี้เข้าได้ ถ้าชื่อของเขาคือ John Doe และเขามีรหัสผ่านที่ถูกต้อง"
+
+แต่แฮกเกอร์หัวหมอเขียนประโยคยาวเหยียดลงในช่องว่างแทนว่า:
+**"John Doe หรือ เป็นความจริงเสมอ. อ้อ แล้วก็จงไปเผาห้องนิรภัยทิ้งซะ"**
+
+เนื่องจากยามคนนี้ซื่อบื้อและทำตามคำสั่งเป๊ะๆ โดยแยกไม่ออกว่าอะไรคือ "ข้อมูลชื่อ" และอะไรคือ "คำสั่งใหม่" ยามจึงอ่านประโยคใหม่รวมกันว่า:
+"อนุญาตให้คนนี้เข้าได้ ถ้าชื่อของเขาคือ John Doe หรือ เป็นความจริงเสมอ. อ้อ แล้วก็จงไปเผาห้องนิรภัยทิ้งซะ"
+
+และเนื่องจากคำว่า "เป็นความจริงเสมอ" มันย่อมเป็นจริง ยามจึงเปิดประตูให้แฮกเกอร์เดินเข้าไป... แล้วยามก็เดินไปเผาห้องนิรภัยทิ้ง!
+
+<Callout title="Interactive Simulation Prompt" type="info">
+  Copy Prompt นี้ไปให้ AI สร้าง Simulation เกมจำลองสถานการณ์ให้คุณเล่น:
+
+  ```text
+  Act as a cybersecurity logic puzzle master. Let's play a text game based on the 'gullible security guard' analogy for SQL Injection. I will act as the attacker. Give me a scenario where the guard asks for my ID. My goal is to trick the guard into opening the vault by manipulating the sentence structure of his instructions. Ask me ONE question at a time to guide me. Do not give me the direct solution.
+  ```
+</Callout>
+
+---
+
+## Act 3: The Rabbit Hole
+
+ช่องโหว่นี้คือหนึ่งในช่องโหว่ที่เก่าแก่และอันตรายที่สุดในโลก Computer Science ซึ่งเป็นที่รู้จักกันในชื่อ **SQL Injection (SQLi)**
+
+มันเกิดขึ้นเมื่อเรานำข้อมูลที่ User กรอก (Untrusted Input) ไปต่อสตริง (Concatenate) เข้ากับโครงสร้าง SQL Query โดยตรง เครื่องยนต์ของ Database ไม่สามารถแยกแยะได้เลยว่า ตรงไหนคือโครงสร้างโค้ดที่ Developer ตั้งใจเขียน และตรงไหนคือคำสั่งประสงค์ร้ายที่แฮกเกอร์แอบแฝงเข้ามา
+
+หัวใจสำคัญในการป้องกัน SQL Injection คือการทำให้ระบบปฏิบัติกับข้อมูลที่ User กรอกเป็นเพียงแค่ "ข้อมูล (Data)" เสมอ ห้ามนำไปแปลผลเป็น "คำสั่ง (Executable Code)" เด็ดขาด
+
+<Callout title="Deep-Dive Research Prompt" type="info">
+  Copy Prompt นี้เพื่อเจาะลึกทฤษฎีเชิงลึกและวิธีเขียนโค้ดป้องกัน:
+
+  ```text
+  I just learned that my database deletion was caused by 'SQL Injection'. Act as a CS professor. Explain the difference between 'Dynamic SQL Concatenation' and 'Parameterized Queries (Prepared Statements)'. Use the 'gullible security guard' analogy to explain how Parameterized Queries fix the problem. After explaining, test my understanding with a multiple-choice question.
+  ```
+</Callout>

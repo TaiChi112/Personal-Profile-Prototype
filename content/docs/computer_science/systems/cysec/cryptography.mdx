@@ -1,0 +1,24 @@
+# Cryptography Cheat Sheet
+
+## CIA Triad
+* Confidentiality: Ensuring data is only accessible to authorized parties.
+* Integrity: Ensuring data has not been altered or tampered with.
+* Availability: Ensuring systems and data are accessible to authorized users when needed.
+
+## Symmetric Cryptography
+* Uses a single, shared key for both encryption and decryption.
+* Fast and efficient for large amounts of data.
+* Challenge: Secure key distribution.
+* Examples: AES, DES, 3DES, ChaCha20.
+
+## Asymmetric Cryptography (Public Key Cryptography)
+* Uses a key pair: a Public Key (for encryption/verification) and a Private Key (for decryption/signing).
+* Solves the key distribution problem.
+* Slower and more computationally expensive than symmetric cryptography.
+* Examples: RSA, ECC (Elliptic Curve Cryptography), Diffie-Hellman.
+
+## Hashing
+* A one-way mathematical function that converts data into a fixed-size string of characters (hash/digest).
+* Used for verifying data integrity and securely storing passwords.
+* Properties: Deterministic, fast, pre-image resistance, collision resistance.
+* Examples: SHA-256, SHA-3, MD5 (deprecated).
