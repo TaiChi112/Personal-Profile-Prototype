@@ -1,24 +1,30 @@
 ---
 title: "Data Structures & Algorithms (DSA)"
-description: "หน้าเริ่มต้นสำหรับทบทวนโครงสร้างข้อมูลและอัลกอริทึมแบบเร่งด่วน"
+description: "Starting page for a quick review of Data Structures and Algorithms"
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
 import { Clock, Database, CodeXml } from 'lucide-react';
+import { TerminalSquare } from 'lucide-react';
 
 <Callout title="Quick Review" type="info">
-  หมวดหมู่นี้ออกแบบมาเพื่อการอ่านทบทวนแบบรวดเร็ว (Cheat Sheet) เน้นใจความสำคัญ ไม่ลงลึกถึงการพิสูจน์ทางคณิตศาสตร์ เหมาะสำหรับเตรียมสอบหรือเตรียมสัมภาษณ์งาน
+  This category is designed for quick review (Cheat Sheet), focusing on key concepts without deep mathematical proofs. Suitable for exam preparation or job interviews.
 </Callout>
 
 # Data Structures & Algorithms
 
-เลือกหัวข้อที่ต้องการทบทวน (Bento Grid):
+Select a topic to review (Bento Grid):
 
 <Cards>
   <Card 
     href="/en/docs/computer_science/foundations/dsa/big-o" 
     title="Big-O Notation" 
     icon={<Clock />}
-    description="Time & Space Complexity, อัตราการเติบโต, และกฎการคำนวณ" 
+    description="Time & Space Complexity, growth rates, and calculation rules" 
   />
   <Card 
     href="/en/docs/computer_science/foundations/dsa/data-structures" 
@@ -31,5 +37,11 @@ import { Clock, Database, CodeXml } from 'lucide-react';
     title="Algorithms" 
     icon={<CodeXml />}
     description="Sorting, Searching, BFS/DFS, Dynamic Programming" 
+  />
+  <Card 
+    href="/en/docs/computer_science/foundations/dsa/labs/hash-map"
+    title="Interactive Labs (PBL)"
+    icon={<TerminalSquare />}
+    description="Problem-Based Learning scenarios with Socratic AI Prompts"
   />
 </Cards>

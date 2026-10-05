@@ -1,7 +1,11 @@
 ---
 title: Data Mining Exercise 5
-description: Data Representation & Data Nature - การแทนข้อมูลและธรรมชาติของข้อมูล
+description: Data Representation & Data Nature
 ---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
 
 <Callout title="Warning" type="warning">
 This article is a work in progress and may contain incomplete information or inaccuracies. Please verify details from reliable sources.
@@ -9,89 +13,93 @@ This article is a work in progress and may contain incomplete information or ina
 
 # Data Mining Exercise 5
 
-วัดความเข้าใจเรื่อง **Data Representation** (การแทนข้อมูล) และ **Data Nature** (ธรรมชาติของข้อมูล)
+Testing understanding of **Data Representation** and **Data Nature**.
 
 ---
 
-## ข้อ 1: การวิเคราะห์ข้อสอบด้วย Association Analysis
+## Question 1: Test Analysis using Association Analysis
 
-### สถานการณ์
+### Scenario
 
-นักจิตวิทยาการศึกษาต้องการหาความสัมพันธ์ เช่น "เด็กที่ตอบข้อ 1 ผิด เป็นข้อ ก. มักจะไปตอบข้อ 5 ผิด เป็นข้อ ค." (เพื่อวิเคราะห์ว่าตัวลวง (Distractor) ตัวไหนส่งผลต่อกัน)
+An educational psychologist wants to find relationships like "Children who answered question 1 incorrectly with option A often answered question 5 incorrectly with option C." (To analyze which Distractors affect each other).
 
-### 1) ต้องแปลงข้อมูลอย่างไรถึงจะเหมาะสม?
+### 1) How should the data be transformed to be appropriate?
 
-**ข้อมูลดิบ:** ปกติมักเก็บเป็น `[Student_ID, Q1, Q2, ..., Q100]` โดยค่าข้างในคือ `'A'`, `'B'`, `'C'`, `'D'`
+**Raw Data:** Usually stored as `[Student_ID, Q1, Q2, ..., Q100]` where values inside are `'A'`, `'B'`, `'C'`, `'D'`.
 
-**ปัญหา:** Algorithm สำหรับทำ Association Analysis (เช่น Apriori) ต้องการข้อมูลแบบ **Binary (0/1)** ว่า "มี item นี้ในตะกร้าหรือไม่"
+**Problem:** Algorithms for Association Analysis (like Apriori) require **Binary (0/1)** data indicating "whether this item is in the basket or not".
 
-<Callout title="💡 วิธีแก้" type="info">
-เราต้องแปลงข้อมูลด้วยวิธี **One-Hot Encoding** (กระจายตัวเลือกออกมาเป็นคอลัมน์ใหม่)
+<Callout title="💡 Solution" type="info">
+We must transform the data using **One-Hot Encoding** (spreading options into new columns).
 </Callout>
 
-### ตัวอย่างการแปลง
+### Transformation Example
 
-สมมติมีแค่ 2 ข้อ (Q1, Q2) และมีตัวเลือก ก, ข (A, B)
+Suppose there are only 2 questions (Q1, Q2) and options A, B.
 
-| ข้อมูลดิบ (Raw) | Q1_A | Q1_B | Q2_A | Q2_B |
-|-----------------|------|------|------|------|
-| นร. 1 ตอบ: A, B | 1 | 0 | 0 | 1 |
-| นร. 2 ตอบ: B, B | 0 | 1 | 0 | 1 |
+| Raw Data | Q1_A | Q1_B | Q2_A | Q2_B |
+|------
 
-**คำอธิบาย:** เราต้องสร้าง "Item" เสมือนขึ้นมา โดยระบุให้ชัดว่าคือ "ข้อที่เท่าไหร่ + เลือกช้อยส์ไหน" ถ้าเด็กเลือกช้อยส์นั้น ให้ใส่ค่า `1` (มีในตะกร้า) ถ้าไม่เลือกใส่ `0`
-### 2) Attribute ที่ได้เป็นประเภทใด มีขนาดเท่าไร?
+-----------|------|------|------|------|
+| Stu. 1 answers: A, B | 1 | 0 | 0 | 1 |
+| Stu. 2 answers: B, B | 0 | 1 | 0 | 1 |
 
-#### ประเภท (Type): Asymmetric Binary Attributes
+**Explanation:** We need to create virtual "Items", specifying clearly "Which question + which choice chosen". If a child chooses that choice, put `1` (in basket). If not chosen, put `0`.
+### 2) What type and size are the resulting Attributes?
 
-- **Binary:** เพราะมีค่าแค่ `0` หรือ `1`
-- **Asymmetric:** เพราะเราสนใจเฉพาะค่าที่เป็น `1` (การที่เด็ก "เลือก" ตอบข้อนั้น) เราไม่สนใจค่า `0` (สิ่งที่เด็กไม่เลือก) เหมือนกับการวิเคราะห์ตะกร้าสินค้าที่เราสนแค่ของที่หยิบใส่ตะกร้า
+#### Type: Asymmetric Binary Attributes
 
-#### ขนาด (Size/Dimensionality): 400 Attributes
+- **Binary:** Because values are only `0` or `1`.
+- **Asymmetric:** Because we only care about `1` (the fact the child "chose" to answer that question). We don't care about `0` (what the child didn't choose), just like market basket analysis where we only care about items put in the basket.
 
-**การคำนวณ:** 100 ข้อ × 4 ตัวเลือก = 400 คอลัมน์ (Items)
+#### Size/Dimensionality: 400 Attributes
 
-<Callout title="⚠️ หมายเหตุ" type="warn">
-ข้อมูลนี้จะมีความ**เบาบาง (Sparse)** มาก เพราะใน 400 คอลัมน์นี้ นักเรียน 1 คนจะมีค่าเป็น "1" เพียงแค่ 100 ช่องเท่านั้น (ตามจำนวนข้อสอบ) ส่วนอีก 300 ช่องจะเป็น "0"
+**Calculation:** 100 questions × 4 choices = 400 columns (Items).
+
+<Callout title="⚠️ Note" type="warn">
+This data will be highly **Sparse** because out of these 400 columns, 1 student will have a value of "1" in only 100 slots (equal to number of questions). The other 300 slots will be "0".
 </Callout>
 
 ---
 
-## ข้อ 2: Correlation ระหว่าง "ปริมาณฝน" vs "อุณหภูมิ" (รายวัน)
+## Question 2: Correlation between "Rainfall" vs "Temperature" (Daily)
 
-### คำถาม
+### Question
 
-ระหว่างวันติดกัน (Day t กับ Day t+1) ข้อมูลชุดไหนมี Correlation สูงกว่ากัน?
+Between adjacent days (Day t and Day t+1), which dataset has a higher Correlation?
 
-### คำตอบ
+### Answer
 
-<Callout title="✅ คำตอบ" type="success">
-**อุณหภูมิรายวัน (Daily Temperature)** มี Correlation ของวันติดกันสูงกว่า
+<Callout title="✅ Answer" type="success">
+**Daily Temperature** has a higher correlation for adjacent days.
 </Callout>
 
-### เหตุผล (Why)
+### Reason (Why)
 
-#### 1. ธรรมชาติของข้อมูล (Continuity vs. Sporadic)
+#### 1. Nature of Data (Continuity vs. Sporadic)
 
-**อุณหภูมิ (Temperature):**
-- มีความ**ต่อเนื่อง (Continuous)** สูง
-- ตามหลักฟิสิกส์อากาศมีความเฉื่อย (Thermal Inertia)
-- ถ้าวันนี้ร้อน 35°C พรุ่งนี้ก็มีแนวโน้มจะอยู่ที่ 34-36°C
-- อุณหภูมิจะไม่กระโดดจาก 35°C ไปเหลือ 10°C ในวันเดียว เว้นแต่จะมีพายุรุนแรงจริงๆ
-- กราฟจึงเป็นคลื่นที่**เปลี่ยนแปลงอย่างนุ่มนวล (Smooth)**
+**Temperature:**
+- Highly **Continuous**.
+- Physically, weather has Thermal Inertia.
+- If today is hot at 35°C, tomorrow will likely be 34-36°C.
+- Temperature will not jump from 35°C down to 10°C in one day unless there is a really severe storm.
+- The graph is a **Smooth** changing wave.
 
-**ปริมาณฝน (Rainfall):**
-- มีความ**ไม่ต่อเนื่องและเอาแน่เอานอนไม่ได้ (Sporadic/Stochastic)**
-- วันนี้ฝนตกหนัก 100mm พรุ่งนี้อาจจะแดดออกเปรี้ยง (0mm) เลยก็ได้
-- ข้อมูลฝนจึงเต็มไปด้วยเลข 0 และมี**แท่งกราฟกระโดดไปมา (Spiky)**
+**Rainfall:**
+- Highly **Sporadic/Stochastic**.
+- Today might have heavy rain of 100mm, tomorrow might be blazing sunny (0mm).
+- Rainfall data is full of 0s and has **Spiky** jumping bars.
 
-#### 2. Autocorrelation (สหสัมพันธ์ในตัวเอง)
+#### 2. Autocorrelation
 
-- **อุณหภูมิ:** ค่า Correlation ของอุณหภูมิวันพรุ่งนี้ เทียบกับวันนี้ จะมีค่าเป็นบวกสูง (เข้าใกล้ 1)
-- **ปริมาณฝน:** ค่า Correlation จะต่ำกว่ามาก เพราะฝนที่ตกวันนี้ ไม่ได้การันตีว่าพรุ่งนี้ฝนจะตกเสมอไป
+- **Temperature:** The Correlation value of tomorrow's temperature compared to today will be highly positive (approaching 1).
+- **Rainfall:** The Correlation value will be much lower because rain today does not guarantee rain tomorrow.
 
-### สรุปในมุม Data Mining
+### Summary from a Data Mining Perspective
 
-| ประเภทข้อมูล | ลักษณะ | การทำนาย |
-|--------------|--------|----------|
-| **อุณหภูมิ** | ทำนายได้ง่ายกว่า (Predictable) | สามารถใช้ Time Series Analysis ดูจากข้อมูลย้อนหลัง |
-| **ปริมาณฝน** | เป็น Outlier/Event-based บ่อยกว่า | ต้องใช้ปัจจัยอื่นประกอบ (ความชื้น, ความกดอากาศ) ลำพังแค่ปริมาณฝนในอดีตอาจไม่พอ |
+| Data Type | Characteristic | Prediction |
+|------
+
+--------|--------|----------|
+| **Temperature** | Easier to predict (Predictable) | Can use Time Series Analysis from past data |
+| **Rainfall** | More often an Outlier/Event-based | Must use other factors (Humidity, Air pressure). Past rainfall alone might not be enough |

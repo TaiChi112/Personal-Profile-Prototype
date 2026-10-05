@@ -1,20 +1,20 @@
 ---
 title: "Relations & Functions"
-description: "สรุปความสัมพันธ์และฟังก์ชัน"
+description: "Summary of relations and functions"
 ---
 
-# Relations & Functions (สรุปด่วน)
+# Relations & Functions (Quick Summary)
 
-## 1. Relations (ความสัมพันธ์)
-การเชื่อมโยงข้อมูลจากเซตหนึ่งไปยังอีกเซตหนึ่ง (หรือเซตตัวเอง)
-- **Reflexive:** ทุกตัวมีความสัมพันธ์กับตัวเอง (`aRa`)
-- **Symmetric:** ถ้า `a` สัมพันธ์กับ `b` แล้ว `b` ต้องสัมพันธ์กับ `a` (`aRb -> bRa`)
-- **Transitive:** ถ้า `a` สัมพันธ์กับ `b` และ `b` สัมพันธ์กับ `c` แล้ว `a` ต้องสัมพันธ์กับ `c` (`aRb ∧ bRc -> aRc`)
-- **Equivalence Relation:** เป็นความสัมพันธ์ที่มีครบทั้ง 3 ข้อข้างต้น
+## 1. Relations
+Linking data from one set to another (or to itself)
+- **Reflexive:** Every element is related to itself (`aRa`)
+- **Symmetric:** If `a` is related to `b`, then `b` must be related to `a` (`aRb -> bRa`)
+- **Transitive:** If `a` is related to `b` and `b` is related to `c`, then `a` must be related to `c` (`aRb ∧ bRc -> aRc`)
+- **Equivalence Relation:** A relation that has all 3 properties above
 
-## 2. Functions (ฟังก์ชัน)
-ความสัมพันธ์พิเศษที่ข้อมูลต้นทาง (Domain) 1 ตัว ส่งค่าไปยังปลายทาง (Codomain) ได้เพียง 1 ค่าเท่านั้น
-- **Injective (One-to-One):** ปลายทางไม่รับลูกศรซ้ำซ้อนจากต้นทาง
-- **Surjective (Onto):** ปลายทางทุกตัวถูกจับคู่หมด ไม่มีตัวว่าง
-- **Bijective (One-to-One and Onto):** เป็นทั้ง Injective และ Surjective (จับคู่แบบ 1:1 เป๊ะๆ สามารถหา Inverse Function ได้)
-- **ประยุกต์ใช้:** Cryptography (การเข้ารหัส, Hash function) และการแปลงข้อมูลภาพ
+## 2. Functions
+A special relation where one input (Domain) maps to exactly one output (Codomain)
+- **Injective (One-to-One):** No two inputs map to the same output
+- **Surjective (Onto):** Every element in the codomain is mapped to (none left unmapped)
+- **Bijective (One-to-One and Onto):** Both Injective and Surjective (exact 1:1 pairing, allows finding an Inverse Function)
+- **Applications:** Cryptography (encryption, Hash functions) and image data transformation

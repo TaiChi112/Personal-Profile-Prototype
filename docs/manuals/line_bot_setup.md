@@ -1,4 +1,4 @@
-# 🤖 การตั้งค่า LINE Messaging API
+#  การตั้งค่า LINE Messaging API
 
 เพื่อเชื่อมต่อ AI OS ของคุณเข้ากับแอปพลิเคชัน LINE บนมือถือ เราจำเป็นต้องสร้าง **LINE Channel** ขึ้นมาเพื่อรับส่งข้อความผ่าน Webhook ครับ
 
@@ -32,4 +32,4 @@
 
 ---
 
-ถ้าคุณเตรียม **Channel Access Token** และ **Channel Secret** พร้อมแล้ว แจ้งผมได้เลยครับ! เราจะเอามาใส่ใน Environment Variables (`.env`) แล้วเริ่มลุยเขียน API สำหรับรับข้อความทันที 🚀
+ถ้าคุณเตรียม **Channel Access Token** และ **Channel Secret** พร้อมแล้ว แจ้งผมได้เลยครับ! เราจะเอามาใส่ใน Environment Variables (`.env`) แล้วเริ่มลุยเขียน API สำหรับรับข้อความทันที 

@@ -5,47 +5,47 @@ description: "Query optimization, indexing, and measuring before optimizing."
 
 # Database Performance
 
-Database Performance คือการบริหารจัดการทรัพยากรเพื่อให้ระบบสามารถดึงและบันทึกข้อมูลได้อย่างรวดเร็ว รองรับปริมาณการใช้งานที่เพิ่มขึ้น โดยไม่ส่งผลกระทบต่อ User experience
+Database Performance is the management of resources so the system can retrieve and save data quickly, supporting increased usage volumes without affecting user experience.
 
 ## Cheat Sheet: Core Performance Concepts
 
 | Concept | Description |
 |---|---|
-| **Query Optimization** | การปรับปรุงคำสั่ง SQL (หรือ ORM query) เพื่อให้ Database ทำงานน้อยที่สุดในการค้นหาผลลัพธ์ที่ต้องการ |
-| **Caching** | การจัดเก็บผลลัพธ์ของ Query ที่ใช้บ่อยหรือข้อมูลที่เปลี่ยนแปลงน้อย ไว้ในระบบที่มีความเร็วสูง (เช่น In-memory database) |
-| **Connection Pooling** | การสร้างและจัดการกลุ่มของ Database connections ไว้ล่วงหน้า เพื่อลด Overhead ในการสร้าง Connection ใหม่ทุกครั้งที่มี Request |
+| **Query Optimization** | Improving SQL statements (or ORM queries) so the Database does the least amount of work to find the desired result. |
+| **Caching** | Storing results of frequently used queries or rarely changing data in a high-speed system (e.g., In-memory database). |
+| **Connection Pooling** | Creating and managing a pool of database connections in advance to reduce the overhead of creating a new connection for every request. |
 
 ## Practical Examples
 
 ### 1. Query Optimization with Indexing
-**Scenario**: ตาราง `users` มีข้อมูล 10 ล้านเรคคอร์ด การค้นหาผู้ใช้ด้วยอีเมลใช้เวลามากกว่า 3 วินาที
-**Practice**: การใช้คำสั่ง `EXPLAIN` หรือ `EXPLAIN ANALYZE` จะพบว่า Database กำลังทำ Sequential Scan (สแกนทุกแถว)
-*Solution*: สร้าง Index บนคอลัมน์ `email`
+**Scenario**: The `users` table has 10 million records. Searching for a user by email takes more than 3 seconds.
+**Practice**: Using the `EXPLAIN` or `EXPLAIN ANALYZE` command will show that the Database is performing a Sequential Scan (scanning every row).
+*Solution*: Create an Index on the `email` column.
 ```sql
 CREATE INDEX idx_users_email ON users(email);
 ```
-หลังจากสร้าง Index Database จะสามารถค้นหาข้อมูลผ่าน B-Tree structure ลดเวลาการค้นหาจากระดับวินาทีเหลือเพียงเสี้ยวของมิลลิวินาที (Index Scan)
+After creating the Index, the Database can search for data through a B-Tree structure, reducing search time from seconds to just a fraction of a millisecond (Index Scan).
 
 ### 2. Caching Expensive Queries
-**Scenario**: Dashboard ของระบบต้องแสดงผลสรุปยอดขายรายวัน ซึ่งเป็น Query ที่มีการคำนวณซับซ้อน (Aggregations) และใช้เวลาทำงาน 5 วินาที
-**Practice**: แทนที่จะให้ Database คำนวณใหม่ทุกครั้งที่มีผู้ใช้เปิด Dashboard เราสามารถนำ Redis มาประยุกต์ใช้เพื่อทำ Caching
+**Scenario**: The system's dashboard must display a daily sales summary, which involves a complex calculation query (Aggregations) that takes 5 seconds to run.
+**Practice**: Instead of having the Database recalculate every time a user opens the Dashboard, we can apply Redis for Caching.
 *Workflow*:
-1. Application ตรวจสอบว่ามีข้อมูลยอดขายใน Redis หรือไม่
-2. หากมี (Cache Hit): ส่งข้อมูลให้ผู้ใช้ทันที
-3. หากไม่มี (Cache Miss): ส่ง Query ไปยัง Database, นำผลลัพธ์ที่ได้ไปจัดเก็บใน Redis (กำหนด Time-To-Live หรือ TTL เช่น 10 นาที), และส่งข้อมูลให้ผู้ใช้
-*Result*: ระบบสามารถรองรับผู้ใช้งานพร้อมกันได้จำนวนมากโดยไม่สร้างโหลดให้ Database
+1. Application checks if sales data is in Redis.
+2. If yes (Cache Hit): Send data to the user immediately.
+3. If no (Cache Miss): Send Query to the Database, store the result in Redis (setting a Time-To-Live or TTL, e.g., 10 minutes), and send data to the user.
+*Result*: The system can support many simultaneous users without creating a load on the Database.
 
 ### 3. Connection Pooling for High Concurrency
-**Scenario**: แอปพลิเคชันมี Traffic สูงขึ้นอย่างฉับพลัน (Spike) ทำให้ระบบแสดงข้อความ Error "Too many connections"
-**Practice**: Database ส่วนใหญ่มีข้อจำกัดในการรองรับ Concurrent connections การสร้าง Connection ใหม่มี Overhead สูงในระดับ Network และ Authentication
-*Solution*: นำ Connection Pooler (เช่น PgBouncer สำหรับ PostgreSQL) มาคั่นกลางระหว่าง Application และ Database
-- Application จะทำการเชื่อมต่อไปยัง Connection Pool
-- Connection Pool จะบริหารจัดการและหมุนเวียน (Reuse) Connection จริงที่มีต่อ Database
-- เมื่อมีการส่ง Request จำนวนมากเกินกว่าที่ตั้งไว้ Request เหล่านั้นจะถูกจัดคิวรอ (Queue) แทนที่จะทำให้ Database ทำงานหนักจนล่ม
+**Scenario**: The application experiences a sudden spike in traffic, causing the system to show a "Too many connections" error.
+**Practice**: Most databases have limits on supporting concurrent connections. Creating new connections has high overhead at the Network and Authentication levels.
+*Solution*: Place a Connection Pooler (like PgBouncer for PostgreSQL) as a middleman between the Application and Database.
+- Application will connect to the Connection Pool.
+- Connection Pool will manage and reuse actual connections to the Database.
+- When there are too many requests, they will be queued instead of overloading and crashing the Database.
 
 ### 4. Avoiding N+1 Query Problem
-**Scenario**: การแสดงรายการบทความพร้อมชื่อผู้เขียนผ่าน ORM
-**Practice**: การดึงข้อมูลผิดวิธีอาจทำให้เกิดคำสั่ง SQL จำนวนมาก
+**Scenario**: Displaying a list of articles along with the author's name through an ORM.
+**Practice**: Retrieving data the wrong way can result in a massive amount of SQL queries.
 *Bad Practice (N+1)*:
 ```javascript
 const posts = await Post.find(); // 1 Query
@@ -57,4 +57,4 @@ for (let post of posts) {
 ```javascript
 const posts = await Post.find().populate('author'); // 1 Optimized Query
 ```
-การปรับ Query Shape ด้วย Join หรือ Eager loading ช่วยลดระยะเวลาที่ระบบต้องติดต่อกับ Database ได้อย่างมีนัยสำคัญ
+Adjusting the Query Shape with Joins or Eager loading significantly reduces the time the system spends communicating with the Database.

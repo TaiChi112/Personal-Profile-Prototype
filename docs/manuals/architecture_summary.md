@@ -1,4 +1,4 @@
-# 🏢 Google-Scale Architecture Summary
+#  Google-Scale Architecture Summary
 
 โปรเจ็กต์ Personal Profile Prototype ปัจจุบันได้ถูกยกระดับ (Over-engineered) จากแอปพลิเคชันพื้นฐานไปสู่สถาปัตยกรรมระดับ **Enterprise Cloud-Native** ที่มีความซับซ้อนและประสิทธิภาพสูง โดยมีองค์ประกอบหลักดังนี้:
 

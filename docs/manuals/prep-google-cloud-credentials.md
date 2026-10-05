@@ -2,7 +2,7 @@
 
 เพื่อที่จะให้ AI Agent เข้าถึง Google Drive, Google Docs, หรือ Google Calendar ของคุณหรือองค์กร เราจำเป็นต้องใช้สิทธิ์แบบ **Service Account** ผ่านไฟล์ Credentials `.json`
 
-## 📊 ภาพรวมการทำงาน (Architecture Flow)
+##  ภาพรวมการทำงาน (Architecture Flow)
 ```mermaid
 sequenceDiagram
     participant User
@@ -17,14 +17,14 @@ sequenceDiagram
     AI->>GCP: จัดการไฟล์บน Google Drive
 ```
 
-## 📝 ขั้นตอนการเตรียมข้อมูล (Step-by-Step)
+##  ขั้นตอนการเตรียมข้อมูล (Step-by-Step)
 1. เข้าไปที่ [Google Cloud Console](https://console.cloud.google.com/)
 2. เลือกโปรเจกต์ ไปที่ **IAM & Admin** -> **Service Accounts**
 3. คลิก **+ CREATE SERVICE ACCOUNT**
 4. หลังจากสร้างเสร็จ คลิกที่อีเมล Service Account นั้น -> ไปที่แท็บ **KEYS**
 5. คลิก **ADD KEY** -> **Create new key**
 
-## 📋 ข้อมูลที่ต้องกรอก (Fields & Configurations)
+##  ข้อมูลที่ต้องกรอก (Fields & Configurations)
 
 | ชื่อ Field / ขั้นตอน | สิ่งที่ต้องเลือก | ผลลัพธ์ (ความหมาย) |
 | :--- | :--- | :--- |

@@ -1,4 +1,4 @@
-# 🌐 Omnichannel AI Architecture (FinanceFlow)
+#  Omnichannel AI Architecture (FinanceFlow)
 
 **Status:** Proposed / Blueprint for Future Phase
 **Author:** Staff Engineer AI (Antigravity)

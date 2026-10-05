@@ -1,37 +1,49 @@
 ---
 title: "Theory of Computation"
-description: "หน้าเริ่มต้นสำหรับทบทวน Theory of Computation แบบเร่งด่วน"
+description: "Starting page for a quick review of Theory of Computation"
 ---
 
-import { Cpu, TerminalSquare, Infinity, Combine } from 'lucide-react';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+import { Cpu, Infinity, Combine } from 'lucide-react';
+import { TerminalSquare } from 'lucide-react';
 
 <Callout title="Quick Review" type="info">
-  หมวดหมู่นี้ออกแบบมาเพื่อการอ่านทบทวนแบบรวดเร็ว (Cheat Sheet) สรุปทฤษฎีรากฐานของ Computer Science ว่าปัญหาใดที่ Compute ได้ และปัญหาใดที่ทำไม่ได้
+  This category is designed for quick review (Cheat Sheet), summarizing foundational theories of Computer Science on which problems can be computed and which cannot.
 </Callout>
 
 # Theory of Computation (TOC)
 
-Theory of Computation คือสาขาหัวใจหลักของ Computer Science ที่มุ่งเน้นการศึกษาว่า **ปัญหาใดบ้างที่ Computer สามารถแก้ได้ (Computability)** และ **ต้องใช้ Resource มากแค่ไหนในการแก้ (Complexity)** โดยใช้ Mathematics และ Logic ในการสร้าง Model จำลองการทำงาน
+Theory of Computation is a core branch of Computer Science that focuses on studying **which problems a Computer can solve (Computability)** and **how much Resource is needed to solve them (Complexity)**, using Mathematics and Logic to create execution models.
 
-เลือกหัวข้อที่ต้องการทบทวน (Bento Grid):
+Select a topic to review (Bento Grid):
 
 <Cards>
   <Card 
     href="/en/docs/computer_science/foundations/toc/automata" 
     title="Automata Theory" 
     icon={<TerminalSquare />}
-    description="Abstract Machines, State, DFA, NFA, Regular Expressions และ CFG" 
+    description="Abstract Machines, State, DFA, NFA, Regular Expressions, and CFG" 
   />
   <Card 
     href="/en/docs/computer_science/foundations/toc/computability" 
     title="Computability Theory" 
     icon={<Infinity />}
-    description="Turing Machines, Decidability และ Halting Problem" 
+    description="Turing Machines, Decidability, and the Halting Problem" 
   />
   <Card 
     href="/en/docs/computer_science/foundations/toc/complexity" 
     title="Complexity Theory" 
     icon={<Combine />}
-    description="Time / Space Complexity, P vs NP และ NP-Completeness" 
+    description="Time / Space Complexity, P vs NP, and NP-Completeness" 
+  />
+  <Card 
+    href="/en/docs/computer_science/foundations/toc/labs/halting-problem"
+    title="Interactive Labs (PBL)"
+    icon={<TerminalSquare />}
+    description="Problem-Based Learning scenarios with Socratic AI Prompts"
   />
 </Cards>

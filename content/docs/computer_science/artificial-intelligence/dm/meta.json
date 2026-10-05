@@ -1,8 +1,9 @@
 {
-    "pages": [
-        "Demo",
-        "DM",
-        "Exercises",
-        "Summary"
-    ]
+  "pages": [
+    "DM",
+    "Demo",
+    "Exercises",
+    "Summary",
+    "labs"
+  ]
 }

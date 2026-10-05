@@ -2,26 +2,31 @@
 title: Data Mining
 description: An overview of Data Mining (DM), its techniques, applications, and challenges.
 ---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
 <Callout title="Warning" type="warning">
 This article is a work in progress and may contain incomplete information or inaccuracies. Please verify details from reliable sources.
 </Callout>
 
 # Data Mining (DM)
 
-# บทที่ 1: Data Mining (นิยามและภาพรวม)
+# Chapter 1: Data Mining (Definition and Overview)
 
-## 1) Data Mining คืออะไร? (นิยามแบบตกผลึก)
+## 1) What is Data Mining? (Synthesized Definition)
 > Data Mining is the process of automatically discovering useful information in large data repositories.
-> — Tan et al. (การขุดค้นข้อมูล คือกระบวนการค้นหาข้อมูลที่เป็นประโยชน์โดยอัตโนมัติจากแหล่งข้อมูลขนาดใหญ่)
+> — Tan et al.
 
-คีย์เวิร์ดสำคัญ 3 ข้อ:
-- Non-trivial (ไม่ธรรมดา): ไม่ใช่แค่การ query ง่ายๆ แต่ต้องค้นหา pattern ที่ซับซ้อน
-- Implicit & Previously Unknown (แฝงอยู่และไม่เคยรู้มาก่อน): ความรู้ซ่อนอยู่ ไม่ได้บอกไว้โต้งๆ
-- Potentially Useful (เอาไปใช้ประโยชน์ได้): นำไปช่วยตัดสินใจทางธุรกิจหรือวิทยาศาสตร์ได้
+3 Key Keywords:
+- Non-trivial: Not just a simple query, but discovering complex patterns.
+- Implicit & Previously Unknown: Knowledge is hidden, not explicitly stated.
+- Potentially Useful: Can be used to aid business or scientific decision-making.
 
-เปรียบเทียบสั้นๆ:
-- Query: ถามว่า "เมื่อวานขายกาแฟได้กี่แก้ว?" (ถามตรง ตอบตรง)
-- Data Mining: ถามว่า "ลูกค้าที่ซื้อกาแฟเย็น มักจะซื้อคู่กับขนมชนิดไหนในช่วงบ่ายวันศุกร์?" (หาความสัมพันธ์ที่ซ่อนอยู่)
+Brief Comparison:
+- Query: Asking "How many cups of coffee were sold yesterday?" (Direct question, direct answer)
+- Data Mining: Asking "Which snack do customers who buy iced coffee usually purchase together on a Friday afternoon?" (Finding hidden relationships)
 
 ## 2) KDD Process (Knowledge Discovery in Databases)
 ```mermaid
@@ -32,57 +37,57 @@ flowchart LR
     D --> E[Information]
 ```
 
-Data Mining เป็นเพียง "ขั้นตอนหนึ่ง" ใน KDD โดยมีรายละเอียดสำคัญ:
+Data Mining is just "one step" in KDD, with important details:
 - Data Preprocessing:
-	- Data Subsetting/Sampling: เลือกข้อมูลมาบางส่วนเพื่อประมวลผลเมื่อข้อมูลใหญ่เกินไป
-	- Feature Selection: เลือก column ที่มีผลจริงๆ ตัด column ขยะทิ้ง
-	- Dimensionality Reduction: ลดมิติข้อมูล เช่น ยุบรวมตัวแปร หรือใช้ PCA เพื่อให้โมเดลทำงานง่ายขึ้น
-	- Normalization: ปรับสเกลตัวเลขให้เท่าเทียมกัน (เช่น อายุ 0–100 กับ เงินเดือน 0–100,000 ต้องปรับให้สเกลใกล้เคียง)
+	- Data Subsetting/Sampling: Selecting a portion of data to process when the dataset is too large.
+	- Feature Selection: Selecting columns that actually have an impact, discarding garbage columns.
+	- Dimensionality Reduction: Reducing data dimensions, such as merging variables or using PCA to make the model work easier.
+	- Normalization: Scaling numerical values equally (e.g., age 0–100 and salary 0–100,000 must be scaled similarly).
 - Postprocessing:
-	- กรอง pattern ที่ซ้ำซ้อนหรือไม่สมเหตุสมผล
-	- สร้าง visualization และสรุปผลให้มนุษย์เข้าใจง่าย
+	- Filtering redundant or unreasonable patterns.
+	- Creating visualizations and summarizing results for human comprehension.
 
 ## 3) Case Study: Super Mart — Customer Churn Prediction
-เพื่อให้เห็นภาพชัดเจนตามหนังสือ Tan (ที่มักยกตัวอย่าง Market Basket Analysis หรือ Classification) เรามาจำลอง Project "ทำนายว่าลูกค้าคนไหนจะเลิกเป็นสมาชิก (Customer Churn Prediction)" กันครับ
+To clearly illustrate according to Tan's book (which often cites Market Basket Analysis or Classification), let's simulate a Project "Predicting which customer will stop their membership (Customer Churn Prediction)".
 
-- Input Data (ข้อมูลดิบ): ลูกค้าจำนวน 100,000 คน จากฐานข้อมูล
+- Input Data (Raw Data): 100,000 customers from the database
 	- Data fields: [ID, name, age, gender, salary, registration_date, days_since_last_purchase, total_purchase, address, phone]
 
-### Step 1: Data Preprocessing {/*(เตรียมวัตถุดิบ)*/}
-{/* ขั้นตอนนี้สำคัญที่สุด (กินเวลา 60–80% ของงานจริง) */}
+### Step 1: Data Preprocessing {/*(Preparing raw materials)*/}
+{/* This step is the most important (taking 60–80% of real work time) */}
 
 - Data Subsetting (Sampling):
-	- ข้อมูล 100,000 คนอาจ run นานเกินไปสำหรับ test เราสุ่มมา 10,000 คน ที่เป็นตัวแทนกลุ่มประชากรอย่างเหมาะสม
+	- 100,000 records might take too long for testing, so we randomly select 10,000 that represent the population appropriately.
 - Feature Selection:
-	- ตัดทิ้ง: name, phone, ID (ไม่มีผลต่อการวิเคราะห์ว่าเขาจะเลิกเป็นลูกค้าหรือไม่)
-	- เก็บไว้: age, total_purchase, days_since_last_purchase
+	- Discard: name, phone, ID (No effect on the analysis of whether they will stop being a customer or not).
+	- Keep: age, total_purchase, days_since_last_purchase.
 - Dimensionality Reduction:
-	- สมมติเรามี column "ยอดซื้อปี 2023", "ยอดซื้อปี 2024", "ยอดซื้อปี 2025" เราอาจยุบรวมเหลือ column เดียวคือ "ยอดซื้อเฉลี่ย 3 ปี" เพื่อลดความซับซ้อน
+	- Suppose we have columns "2023 total purchases", "2024 total purchases", "2025 total purchases", we might merge them into a single column "3-year average purchases" to reduce complexity.
 - Normalization:
-	- age: ค่าอยู่ระหว่าง 18–80
-	- salary: ค่าอยู่ระหว่าง 15,000–200,000
-	- problem: ถ้าเอาเข้า Data Mining เลย ค่าเงินเดือนจะกลบค่าอายุหมด
-	- solution: ปรับทั้งคู่ให้อยู่ในช่วง $0$ ถึง $1$ (Min–Max Scaling)
+	- age: Values range from 18–80.
+	- salary: Values range from 15,000–200,000.
+	- problem: If fed directly into Data Mining, the salary value will completely overshadow the age value.
+	- solution: Scale both to be in the range of 0 to 1 (Min–Max Scaling).
 
-### Step 2: Data Mining {/*(ขุดหา Pattern)*/}
-- Goal: ต้องการแบ่งกลุ่มว่าใคร "อยู่ต่อ" หรือ "จะเลิก" (Classification)
-- Technique: ใช้ Decision Tree ในการสร้างกฎ (Rules) เพื่อทำนาย
+### Step 2: Data Mining {/*(Mining for Patterns)*/}
+- Goal: We want to classify who will "stay" or "churn" (Classification).
+- Technique: Use Decision Tree to generate Rules for prediction.
 - Process (Example Rules Discovered):
-	- Rule 1: ถ้า "ไม่ได้ซื้อของเกิน 30 วัน" และ "ยอดซื้อรวมต่ำกว่า 500" → มีโอกาส "เลิก" 90%
-	- Rule 2: ถ้า "อายุ > 50" และ "ซื้อของทุกสัปดาห์" → มีโอกาส "อยู่ต่อ" 95%
+	- Rule 1: If "has not purchased anything for over 30 days" and "total purchases under 500" → 90% chance to "churn".
+	- Rule 2: If "age > 50" and "buys every week" → 95% chance to "stay".
 
-### Step 3: Postprocessing {/*(เจียระไน)*/}
+### Step 3: Postprocessing {/*(Polishing)*/}
 - Filtering Patterns:
-	- เราอาจเจอ pattern แปลกๆ เช่น "คนที่มีเงินเดือน 0 บาท มีโอกาสอยู่ต่อ 100%" (ซึ่งจริงๆ อาจเป็นข้อมูล error) จึงต้องกรองกฎที่ make sense หรือที่มีความเชื่อมั่น (confidence) สูงๆ เท่านั้น
-- Visualization: วาดกราฟ Decision Tree ออกมาให้ทีมการตลาดดู
-- Pattern Interpretation: แปลความหมาย
-	- ตัวอย่าง: "จากการขุดข้อมูล พบว่าลูกค้าที่มีความเสี่ยงจะหนีหาย คือกลุ่มวัยรุ่นที่ไม่ได้เข้าร้านมาเกิน 45 วัน"
+	- We might find weird patterns like "People with 0 salary have a 100% chance to stay" (which is actually likely an error in data), so we must filter only rules that make sense or have high confidence.
+- Visualization: Draw the Decision Tree graph to show the marketing team.
+- Pattern Interpretation: Interpret the meaning.
+	- Example: "From data mining, it is found that the customers at risk of churning are teenagers who have not visited the store for over 45 days."
 
-### Output: Information {/*(สารสนเทศ)*/}
-- ข้อมูลที่พร้อมใช้งานเพื่อตัดสินใจ
-- Action: ส่งคูปองส่วนลด 50% ให้ลูกค้ากลุ่มวัยรุ่นที่ไม่ได้เข้าร้านมาเกิน 30 วัน เพื่อดึงพวกเขากลับมา
+### Output: Information {/*(Information)*/}
+- Information ready to be used for decision-making.
+- Action: Send a 50% discount coupon to the teenage group who has not visited the store for over 30 days to bring them back.
 
-## บทสรุป (Takeaway)
-- Data Mining ตามแนวทางของ Tan et al. ไม่ใช่เวทมนตร์ แต่คือ "กระบวนการแปลงข้อมูลดิบ (Data) ให้เป็นความรู้ (Knowledge)"
-- ถ้า Preprocessing ไม่ดี (เช่น ไม่ Normalize) → ผลลัพธ์ Data Mining จะผิดเพี้ยน (Garbage In, Garbage Out)
-- ถ้าไม่ทำ Postprocessing → จะได้ pattern ขยะมากมายที่ใช้งานจริงไม่ได้
+## Conclusion (Takeaway)
+- Data Mining according to Tan et al. is not magic, but it is "the process of converting raw Data into Knowledge".
+- If Preprocessing is bad (e.g., no Normalization) → Data Mining results will be distorted (Garbage In, Garbage Out).
+- If Postprocessing is not done → You will get a lot of garbage patterns that are not practically usable.

@@ -5,23 +5,23 @@ description: Cheat sheet for 4 Pillars of OOP and SOLID Principles
 
 # Object-Oriented Programming (OOP) Cheat Sheet
 
-การเขียนโปรแกรมเชิงวัตถุ หรือ Object-Oriented Programming (OOP) อาศัยหลักการสำคัญและ practice ที่ช่วยให้ code จัดการได้ง่ายและยืดหยุ่น
+Object-Oriented Programming (OOP) relies on key principles and practices that help make code easy to manage and flexible.
 
 ## 4 Pillars of OOP
 
-หลักการ 4 เสาหลักของ OOP ประกอบด้วย:
+The 4 pillars of OOP consist of:
 
-1. **Encapsulation**: การซ่อน internal state ของ object และบังคับให้การเข้าถึงข้อมูลผ่าน method (เช่น getter, setter) เท่านั้น เพื่อป้องกันการแก้ไขข้อมูลโดยไม่ตั้งใจ
-2. **Abstraction**: การซ่อน implementation detail ที่ซับซ้อน และเปิดเผยเฉพาะ interface หรือ function ที่จำเป็นต่อการใช้งาน
-3. **Inheritance**: การสร้าง class ใหม่ที่สืบทอด property และ method จาก existing class ช่วยให้สามารถ reuse code ได้
-4. **Polymorphism**: ความสามารถของ object ในการถูกปฏิบัติเสมือน object ของ parent class ทำให้สามารถใช้ interface เดียวกันสำหรับ data type ต่างๆ
+1. **Encapsulation**: Hiding the internal state of an object and forcing data access through methods (such as getters and setters) only, to prevent accidental modification of data.
+2. **Abstraction**: Hiding complex implementation details and exposing only the interfaces or functions necessary for usage.
+3. **Inheritance**: Creating a new class that inherits properties and methods from an existing class, allowing code reuse.
+4. **Polymorphism**: The ability of an object to be treated as an object of its parent class, allowing the same interface to be used for different data types.
 
 ## SOLID Principles
 
-SOLID คือ 5 design principle สำหรับ OOP เพื่อสร้าง software ที่ maintain และ scale ได้ง่าย:
+SOLID consists of 5 design principles for OOP to create software that is easy to maintain and scale:
 
-- **Single Responsibility Principle (SRP)**: หนึ่ง class ควรมี responsibility หรือเหตุผลในการเปลี่ยนแปลงเพียงข้อเดียว
-- **Open-Closed Principle (OCP)**: Class ควร open for extension แต่ closed for modification
-- **Liskov Substitution Principle (LSP)**: Object ของ subclass ควรสามารถทดแทน object ของ superclass ได้โดยไม่ทำให้โปรแกรมทำงานผิดพลาด
-- **Interface Segregation Principle (ISP)**: Client ไม่ควรถูกบังคับให้พึ่งพา interface ที่ไม่ได้ใช้งาน ควรแยก interface ใหญ่ให้เป็น interface เล็กและเฉพาะเจาะจง
-- **Dependency Inversion Principle (DIP)**: High-level module ไม่ควร depend on low-level module ทั้งคู่ควร depend on abstraction
+- **Single Responsibility Principle (SRP)**: A class should have only one responsibility or one reason to change.
+- **Open-Closed Principle (OCP)**: A class should be open for extension but closed for modification.
+- **Liskov Substitution Principle (LSP)**: Objects of a subclass should be able to replace objects of a superclass without causing the program to malfunction.
+- **Interface Segregation Principle (ISP)**: Clients should not be forced to depend on interfaces they do not use. Large interfaces should be separated into smaller and more specific interfaces.
+- **Dependency Inversion Principle (DIP)**: High-level modules should not depend on low-level modules. Both should depend on abstractions.

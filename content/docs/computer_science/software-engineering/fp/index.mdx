@@ -5,23 +5,23 @@ description: Cheat sheet for Functional Programming
 
 # Functional Programming
 
-แนวคิด Functional Programming มุ่งเน้นการเขียนโปรแกรมโดยใช้ Pure Functions และหลีกเลี่ยง Shared State หรือ Mutable Data
+Functional Programming concepts focus on programming using Pure Functions and avoiding Shared State or Mutable Data.
 
 ## Pure Functions
 
-Pure Functions คือฟังก์ชันที่มีคุณสมบัติดังนี้:
-- ให้ Output ที่เหมือนเดิมเสมอเมื่อได้รับ Input เดียวกัน (Deterministic)
-- ไม่มี Side Effects หรือการเปลี่ยนแปลง State นอกฟังก์ชัน
+Pure Functions are functions with the following properties:
+- Always produce the same Output when given the same Input (Deterministic).
+- Have no Side Effects or modifications to State outside the function.
 
 ## Immutability
 
-Immutability หมายถึงการที่ Data ไม่สามารถถูกเปลี่ยนแปลงได้หลังจากถูกสร้างขึ้น หากต้องการปรับเปลี่ยน Data จะต้องสร้าง Data ขึ้นมาใหม่แทนการแก้ไข Data เดิม
+Immutability means that Data cannot be modified after it is created. If Data needs to be changed, new Data must be created instead of modifying the existing Data.
 
 ## Higher-Order Functions
 
-Higher-Order Functions คือฟังก์ชันที่สามารถรับฟังก์ชันอื่นเป็น Argument หรือสามารถคืนค่า Output เป็นฟังก์ชันได้ ซึ่งช่วยในการทำ Function Composition และการสร้าง Abstraction ที่มีความยืดหยุ่นสูง
+Higher-Order Functions are functions that can accept other functions as Arguments or return an Output as a function. This helps in Function Composition and creating highly flexible Abstractions.
 
 ## Declarative vs Imperative
 
-- **Declarative**: การเขียนโค้ดที่อธิบายว่าต้องการผลลัพธ์อะไร (What to do) เช่น การใช้ `map`, `filter`, หรือ `reduce`
-- **Imperative**: การเขียนโค้ดที่ระบุขั้นตอนการทำงานอย่างละเอียด (How to do) เช่น การใช้ `for` loop ในการเปลี่ยนแปลงตัวแปร State
+- **Declarative**: Writing code that describes what the desired outcome is (What to do), such as using `map`, `filter`, or `reduce`.
+- **Imperative**: Writing code that specifies detailed execution steps (How to do), such as using a `for` loop to change State variables.

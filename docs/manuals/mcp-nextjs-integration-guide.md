@@ -1,10 +1,10 @@
-# 🚀 คู่มือการเชื่อมต่อ MCP Servers เข้ากับ Next.js Web UI
+#  คู่มือการเชื่อมต่อ MCP Servers เข้ากับ Next.js Web UI
 
 คู่มือนี้จะสอนขั้นตอนการเปลี่ยนแชทบอทธรรมดา ให้กลายเป็น **Agentic Software Engineer** โดยการเชื่อมต่อกับเครื่องมือ MCP (Model Context Protocol) เพื่อให้ AI สามารถอ่านไฟล์, รันคำสั่ง, ดึงข้อมูลจาก GitHub และ Linear ได้ด้วยตัวเอง
 
 ---
 
-## 🗺️ Architecture Overview (สถาปัตยกรรมระบบ)
+## ️ Architecture Overview (สถาปัตยกรรมระบบ)
 
 ```mermaid
 graph TD
@@ -20,7 +20,7 @@ graph TD
 
 ---
 
-## 🛠️ ขั้นตอนที่ 1: ติดตั้งไลบรารี MCP SDK
+## ️ ขั้นตอนที่ 1: ติดตั้งไลบรารี MCP SDK
 เราจำเป็นต้องให้ฝั่ง Next.js รู้จักกับโปรโตคอล MCP ก่อน ให้รันคำสั่งนี้ในโฟลเดอร์ `/home/dev/ai-factory/web-ui`:
 
 ```bash
@@ -30,7 +30,7 @@ bun add @modelcontextprotocol/sdk
 
 ---
 
-## 🌉 ขั้นตอนที่ 2: สร้างสะพานเชื่อมต่อ (MCP Client Bridge)
+##  ขั้นตอนที่ 2: สร้างสะพานเชื่อมต่อ (MCP Client Bridge)
 สร้างไฟล์ใหม่ที่ `lib/ai/mcp-client.ts` เพื่อทำหน้าที่เชื่อมต่อกับเซิร์ฟเวอร์ MCP เบื้องหลังผ่านทาง Stdio (Command Line) และแปลงให้อยู่ในฟอร์แมตที่ Vercel AI SDK เข้าใจ
 
 **สร้างไฟล์: `lib/ai/mcp-client.ts`**
@@ -84,7 +84,7 @@ export async function getFilesystemTools() {
 
 ---
 
-## 🔌 ขั้นตอนที่ 3: เสียบ Tools เข้ากับ API Route ของแชทบอท
+##  ขั้นตอนที่ 3: เสียบ Tools เข้ากับ API Route ของแชทบอท
 แก้ไขไฟล์ API Route ของแชท เพื่อเพิ่ม Tools ที่เราดึงมาจาก MCP Client เข้าไปให้ Groq โมเดลเรียกใช้ได้
 
 **แก้ไขไฟล์: `app/(chat)/api/chat/route.ts`**
@@ -111,7 +111,7 @@ const result = streamText({
 
 ---
 
-## 🧪 ขั้นตอนที่ 4: รีสตาร์ทและทดสอบ (Test the Agent)
+##  ขั้นตอนที่ 4: รีสตาร์ทและทดสอบ (Test the Agent)
 หลังจากเพิ่มโค้ดเสร็จแล้ว ให้รีสตาร์ทเซิร์ฟเวอร์เพื่อให้โค้ดใหม่ทำงาน:
 
 1. กลับไปที่หน้าเว็บ `http://localhost:3000`
@@ -121,4 +121,4 @@ const result = streamText({
 
 ---
 
-💡 **หมายเหตุสำหรับคุณ:** หากคุณทำตามขั้นตอนนี้สำเร็จ เราจะใช้วิธีเดียวกันนี้ในการเชื่อมต่อ **GitHub MCP** (เพื่อให้ AI สั่ง Commit โค้ดได้) และ **Linear MCP** (เพื่อให้ AI จัดการ Task ได้) ในบทเรียนถัดไปครับ!
+ **หมายเหตุสำหรับคุณ:** หากคุณทำตามขั้นตอนนี้สำเร็จ เราจะใช้วิธีเดียวกันนี้ในการเชื่อมต่อ **GitHub MCP** (เพื่อให้ AI สั่ง Commit โค้ดได้) และ **Linear MCP** (เพื่อให้ AI จัดการ Task ได้) ในบทเรียนถัดไปครับ!

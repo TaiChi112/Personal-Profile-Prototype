@@ -14,6 +14,9 @@ Every file must contain standard YAML frontmatter with at least `title` and `des
 title: "Article Title"
 description: "A concise, 1-2 sentence description of what the reader will learn."
 ---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
 ```
 
 ### Content Hierarchy
@@ -35,7 +38,6 @@ Use the standard types to ensure consistent semantic coloring:
 
 ### Example Usage
 ```mdx
-import { Callout } from 'fumadocs-ui/components/callout';
 
 <Callout type="warn" title="Breaking Change">
   This API will be deprecated in v2.0. Please migrate to the new endpoint.

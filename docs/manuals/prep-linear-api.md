@@ -1,8 +1,8 @@
-# 📋 คู่มือการเตรียม Linear API Key
+#  คู่มือการเตรียม Linear API Key
 
 เพื่อช่วยให้ AI เข้าไปอ่าน Ticket, ขยับสถานะ Kanban Board, หรือสร้าง Bug Report บนระบบ Linear อัตโนมัติ
 
-## 📋 ข้อมูลที่ต้องกรอก
+##  ข้อมูลที่ต้องกรอก
 1. ล็อกอินเข้า [Linear](https://linear.app) -> ไปที่ Settings -> API
 2. กด **New API Key**
 

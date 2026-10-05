@@ -5,6 +5,7 @@ export const useWheelStore = create((set) => ({
   result: null,
   isSpinning: false,
   spin: () => set((s:any) => {
+    if (!s.options || s.options.length === 0) return {};
     const random = s.options[Math.floor(Math.random() * s.options.length)];
     return { isSpinning: true, result: random };
   }),

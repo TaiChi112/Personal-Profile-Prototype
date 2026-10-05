@@ -5,6 +5,7 @@
     "logic-sets",
     "relations-functions",
     "graph-theory",
-    "combinatorics-boolean"
+    "combinatorics-boolean",
+    "labs"
   ]
 }

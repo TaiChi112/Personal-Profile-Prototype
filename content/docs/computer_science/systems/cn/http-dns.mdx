@@ -1,30 +1,30 @@
 ---
 title: "HTTP & DNS"
-description: "กลไกการทำงานของ Web Protocols เบื้องต้น"
+description: "Basic Working Mechanisms of Web Protocols"
 ---
 
-# HTTP & DNS (สรุปด่วน)
+# HTTP & DNS (Quick Summary)
 
 ## 1. HTTP (HyperText Transfer Protocol)
-ทำงานอยู่บน **L7 (Application Layer)** เป็น Protocol หลักที่ใช้บน World Wide Web แบบ Request-Response
-- **Stateless:** Server ไม่จดจำสถานะของ Client ใน Request ก่อนหน้า (จึงต้องใช้ `Cookies` หรือ `Tokens` เพื่อยืนยันตัวตน)
+Operates on **L7 (Application Layer)** and is the main protocol used on the World Wide Web in a Request-Response model.
+- **Stateless:** The server does not remember the state of the client from previous requests (hence `Cookies` or `Tokens` must be used for authentication).
 - **HTTP Methods:**
-  - `GET`: ขอข้อมูล (Read)
-  - `POST`: ส่งข้อมูลไปสร้างใหม่ (Create)
-  - `PUT/PATCH`: อัปเดตข้อมูล (Update)
-  - `DELETE`: ลบข้อมูล (Delete)
-- **Status Codes หลัก:**
-  - `2xx`: Success (เช่น `200 OK`, `201 Created`)
-  - `3xx`: Redirection (เช่น `301 Moved Permanently`)
-  - `4xx`: Client Error (เช่น `400 Bad Request`, `401 Unauthorized`, `404 Not Found`)
-  - `5xx`: Server Error (เช่น `500 Internal Server Error`, `502 Bad Gateway`)
+  - `GET`: Request data (Read)
+  - `POST`: Send data to create something new (Create)
+  - `PUT/PATCH`: Update data (Update)
+  - `DELETE`: Delete data (Delete)
+- **Main Status Codes:**
+  - `2xx`: Success (e.g., `200 OK`, `201 Created`)
+  - `3xx`: Redirection (e.g., `301 Moved Permanently`)
+  - `4xx`: Client Error (e.g., `400 Bad Request`, `401 Unauthorized`, `404 Not Found`)
+  - `5xx`: Server Error (e.g., `500 Internal Server Error`, `502 Bad Gateway`)
 
 ## 2. DNS (Domain Name System)
-สมุดโทรศัพท์ของ Internet
-- **หน้าที่:** แปลง Human-Readable Domain (เช่น `google.com`) ไปเป็น IP Address (เช่น `142.250.190.46`) ที่ Computer ใช้คุยกันผ่าน L3 (Network Layer)
+The phonebook of the Internet.
+- **Function:** Translates Human-Readable Domains (e.g., `google.com`) into IP Addresses (e.g., `142.250.190.46`) that computers use to communicate via L3 (Network Layer).
 - **DNS Resolution Flow:**
-  1. Browser Cache (เช็คเครื่องตัวเองก่อน)
-  2. OS Cache (ไฟล์ `hosts`)
+  1. Browser Cache (checks local machine first)
+  2. OS Cache (`hosts` file)
   3. Router Cache
   4. ISP Recursive DNS Server
-  5. วิ่งไปถาม Root Server -> TLD Server (`.com`) -> Authoritative Server จนได้ IP กลับมา
+  5. Queries Root Server -> TLD Server (`.com`) -> Authoritative Server until the IP is returned

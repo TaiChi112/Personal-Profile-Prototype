@@ -22,11 +22,12 @@ RUN bunx prisma generate
 # ---------------------------------------------------------
 # *** เพิ่มบรรทัดนี้: ใส่ตัวแปรหลอกๆ ให้ Next.js เช็คผ่านตอน Build ***
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy_db"
+ENV DIRECT_URL="postgresql://dummy:dummy@localhost:5432/dummy_db"
 # (ถ้าโค้ดของคุณมีการเช็คตัวแปรอื่นตอน Build เช่น NEXTAUTH_SECRET ก็เติมต่อตรงนี้ได้เลย)
 # ---------------------------------------------------------
 
 # Build Next.js application
-RUN bun run build
+RUN bunx next build
 
 # Stage 2: Production stage
 FROM node:20.19-alpine AS runner

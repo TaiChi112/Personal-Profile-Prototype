@@ -2,157 +2,167 @@
 title: Data Mining Exercise 1
 description: An overview of Data Mining (DM), its techniques, applications, and challenges.
 ---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
 <Callout title="Warning" type="warning">
 This article is a work in progress and may contain incomplete information or inaccuracies. Please verify details from reliable sources.
 </Callout>
 
 # Data Mining Exercise 1
 
-## โจทย์: ทำนายว่า "ลูกค้าคนไหนมีแนวโน้มจะย้ายค่ายในเดือนหน้า?"
+## Problem: Predict "Which customers are likely to change their provider next month?"
 
-## 1. Data Selection (การคัดเลือกข้อมูล)
+## 1. Data Selection
 
-เราไม่จำเป็นต้องดึงข้อมูลทั้งหมดในจักรวาลบริษัท เราเลือกเฉพาะข้อมูลที่น่าจะส่งผลต่อการตัดสินใจย้ายค่าย
+We don't need to pull all the data in the company's universe. We only select data that is likely to affect the decision to change providers.
 
-**สิ่งที่เลือกมา:**
-- ประวัติการโทร
-- ยอดค่าใช้จ่าย
-- การโทรหา Call Center
-- ประเภทโปรโมชั่น
+**Selected:**
+- Call history
+- Billing amount
+- Calls to Call Center
+- Promotion type
 
-**สิ่งที่ไม่เลือก:**
-- ชื่อ-นามสกุล (ไม่เกี่ยวกับการตัดสินใจ)
-- เลขบัตรประชาชน
-- สีที่ชอบ
+**Not selected:**
+- First and last name (unrelated to the decision)
+- ID card number
+- Favorite color
 
-### จำลองข้อมูลดิบ (Raw Data) ที่ดึงมา:
+### Simulated Raw Data Extracted:
 
-| ID  | Monthly_Bill (บาท) | Data_Usage (GB) | Calls_to_Support (ครั้ง) | Contract (สัญญา) | Last_Month_Usage | Churn (Label) |
-| --- | ------------------ | --------------- | ---------------------- | --------------- | ---------------- | ------------- |
+| ID  | Monthly_Bill (THB) | Data_Usage (GB) | Calls_to_Support (Times) | Contract | Last_Month_Usage | Churn (Label) |
+| --- | ---
+
+--------------- | --------------- | ---------------------- | --------------- | ---------------- | ------------- |
 | 101 | 899                | 50              | 0                      | 1 Year          | 50 GB            | No            |
 | 102 | 1200               | 10              | 5                      | Monthly         | NULL             | Yes           |
 | 103 | 399                | 2               | 0                      | Monthly         | 2 GB             | No            |
 | 104 | 2500               | 100             | 1                      | 2 Years         | 200 GB           | Yes           |
 
-## 2. Data Preprocessing (เตรียมและทำความสะอาด)
+## 2. Data Preprocessing
 
-ข้อมูลดิบมักสกปรก เราต้องจัดการก่อน
+Raw data is often dirty. We need to handle it first.
 
 ### 🔍 Missing Values
-- **ปัญหา:** ลูกค้า 102 ข้อมูล `Last_Month_Usage` หายไป (NULL)
-- **วิธีแก้:** เติมค่าเฉลี่ย (Mean Imputation) หรือตัดทิ้ง
-  - ในที่นี้สมมติเราเติมค่าเฉลี่ย = **40 GB**
+- **Problem:** Customer 102's `Last_Month_Usage` data is missing (NULL).
+- **Solution:** Mean Imputation or drop it.
+  - Here, let's assume we fill in the mean = **40 GB**.
 
 ### ⚡ Noise/Outlier
-- **ปัญหา:** สมมติลูกค้า 104 ยอดใช้เน็ตเดือนก่อน 200GB (สูงผิดปกติ)
-- **วิธีแก้:** ตรวจสอบว่าเป็น error หรือใช้จริง
-  - ถ้าใช้จริง → เก็บไว้ เพราะอาจเป็นกลุ่ม VIP
+- **Problem:** Suppose Customer 104's internet usage last month was 200GB (abnormally high).
+- **Solution:** Check if it's an error or actual usage.
+  - If actual usage → Keep it, because they might be a VIP group.
 
-### ผลลัพธ์หลัง Clean:
-- **ID 102:** `Last_Month_Usage` เปลี่ยนจาก `NULL` → `40 GB`
+### Result after Cleaning:
+- **ID 102:** `Last_Month_Usage` changed from `NULL` → `40 GB`
 
-## 3. Data Transformation (แปลงสภาพข้อมูล)
+## 3. Data Transformation
 
-ขั้นตอนนี้คือการแปลงข้อมูลให้ Algorithm เข้าใจและเรียนรู้ได้ง่ายขึ้น
+This step involves transforming data to make it easier for Algorithms to understand and learn.
 
-### 🔨 Feature Construction (สร้างตัวแปรใหม่)
+### 🔨 Feature Construction
 
-**สร้าง `Usage_Drop_Rate`:**
+**Create `Usage_Drop_Rate`:**
 ```
-Usage_Drop_Rate = (เดือนก่อน - เดือนนี้) / เดือนก่อน
+Usage_Drop_Rate = (Last month - This month) / Last month
 ```
 
-**เหตุผล:** การที่ยอดใช้ฮวบลง อาจแปลว่าเขาเริ่มไปใช้ซิมค่ายอื่นแล้ว
+**Reason:** A sharp drop in usage might mean they've started using another provider's SIM.
 
 ### 📊 Normalization
 
-**ปัญหา:** `Monthly_Bill` (หลักพัน) กับ `Calls_to_Support` (หลักหน่วย) สเกลต่างกันเกินไป
+**Problem:** `Monthly_Bill` (thousands) and `Calls_to_Support` (single digits) have scales that are too different.
 
-**วิธีแก้:** ปรับทุกอย่างให้เป็นช่วง **0-1** (Min-Max Scaling)
+**Solution:** Scale everything to a range of **0-1** (Min-Max Scaling).
 
 ### 🔢 Encoding
 
 | ID  | Norm_Bill | Norm_Support_Calls | Usage_Drop_Rate    | Is_Monthly_Contract | Churn (Target) |
-| --- | --------- | ------------------ | ------------------ | ------------------- | -------------- |
-| 101 | 0.3       | 0.0                | 0.0 (คงที่)        | 0                   | No             |
-| 102 | 0.5       | 1.0 (โทรบ่อย)      | 0.6 (ลดลงเยอะ)     | 1                   | Yes            |
+| --- | ---
+
+------ | ------------------ | ------------------ | ------------------- | -------------- |
+| 101 | 0.3       | 0.0                | 0.0 (Constant)     | 0                   | No             |
+| 102 | 0.5       | 1.0 (Frequent calls)| 0.6 (Large drop)   | 1                   | Yes            |
 | 103 | 0.1       | 0.0                | 0.0                | 1                   | No             |
-| 104 | 1.0       | 0.2                | 0.5 (ลดลง)         | 0                   | Yes            |
+| 104 | 1.0       | 0.2                | 0.5 (Drop)         | 0                   | Yes            |
 
-## 4. Data Mining (ขุดค้น Pattern)
+## 4. Data Mining
 
-ส่งข้อมูลตารางข้างบนเข้าไปใน Algorithm (เช่น **Decision Tree** หรือ **Logistic Regression**)
+Send the table data above into an Algorithm (like **Decision Tree** or **Logistic Regression**).
 
-**Goal:** หาความสัมพันธ์ระหว่าง $X$ (Bill, Calls, Drop_rate) กับ $Y$ (Churn)
+**Goal:** Find the relationship between $X$ (Bill, Calls, Drop_rate) and $Y$ (Churn).
 
-### จำลองการทำงานของ Algorithm (Decision Tree Learning)
+### Simulating Algorithm Operation (Decision Tree Learning)
 
-## 5. Pattern Evaluation (ประเมินผล)
+## 5. Pattern Evaluation
 
-เราได้ "กฎ" มาแล้ว ต้องมาดูว่าเชื่อถือได้ไหม
+We have the "rules" now, we must see if they are reliable.
 
 ### 🧪 Test
-ลองเอากฎไปทายข้อมูลลูกค้าชุดใหม่ (Test Set)
+Try applying the rules to guess a new set of customer data (Test Set).
 
 **Result:**
-- ✅ ทายถูก **90 คน**
-- ❌ ทายผิด **10 คน** (เช่น ทายว่าจะย้าย แต่ดันไม่ย้าย)
+- ✅ Guessed correctly **90 people**
+- ❌ Guessed incorrectly **10 people** (e.g., guessed they would churn, but they didn't)
 - **Accuracy = 90%**
 
-### 💡 Interpretation (แปลผล)
+### 💡 Interpretation
 
-เราพบ **Pattern ที่น่าสนใจ (Knowledge):**
+We found an **interesting Pattern (Knowledge):**
 
 <Callout title="📌 Key Finding" type="success">
-"ลูกค้าที่มี**โปรรายเดือน (Monthly)** และมี**ยอดการใช้งานลดลงเกิน 50%** หรือ**โทรหา Call Center เกิน 3 ครั้งในเดือนเดียว** มีโอกาสย้ายค่ายสูงถึง **85%**"
+"Customers who are on a **Monthly Contract** and have **a usage drop of more than 50%** or **called the Call Center more than 3 times in a single month** have a high chance of churning up to **85%**."
 </Callout>
 
-### จำลองการทำงานของ Algorithm (Decision Tree Learning)
+### Simulating Algorithm Operation (Decision Tree Learning)
 
-โมเดลจะพยายามสร้างกฎแบบนี้:
-- **Node แรก:** เช็ค Calls_to_Support ก่อนเลย → ถ้า > 0.8 (โทรบ่อย) → มีโอกาส Churn สูง
-- **Node สอง:** เช็ค Usage_Drop_Rate → ถ้าลดลงเกิน 40% → มีโอกาส Churn สูง
+The model will try to create rules like this:
+- **First Node:** Check Calls_to_Support first → If > 0.8 (calls often) → High chance of Churn.
+- **Second Node:** Check Usage_Drop_Rate → If drops more than 40% → High chance of Churn.
 
-## 5. Pattern Evaluation (ประเมินผล)
+## 5. Pattern Evaluation
 
-เราได้ "กฎ" มาแล้ว ต้องมาดูว่าเชื่อถือได้ไหม
+We have the "rules" now, we must see if they are reliable.
 
 ### 🧪 Test
-ลองเอากฎไปทายข้อมูลลูกค้าชุดใหม่ (Test Set)
+Try applying the rules to guess a new set of customer data (Test Set).
 
 **Result:**
-- ✅ ทายถูก **90 คน**
-- ❌ ทายผิด **10 คน** (เช่น ทายว่าจะย้าย แต่ดันไม่ย้าย)
+- ✅ Guessed correctly **90 people**
+- ❌ Guessed incorrectly **10 people** (e.g., guessed they would churn, but they didn't)
 - **Accuracy = 90%**
 
-### 💡 Interpretation (แปลผล)
+### 💡 Interpretation
 
-เราพบ **Pattern ที่น่าสนใจ (Knowledge):**
-## 6. Knowledge Presentation & Action (นำไปใช้จริง)
+We found an **interesting Pattern (Knowledge):**
+## 6. Knowledge Presentation & Action
 
-ขั้นตอนนี้คือปลายทางของ KDD
+This step is the destination of KDD.
 
-### 🎯 สิ่งที่ทำ (Action)
+### 🎯 Action
 
-**ระบบจะดึงรายชื่อลูกค้าที่เข้าข่าย Pattern นี้ออกมาอัตโนมัติทุกเช้า**
+**The system will automatically pull a list of customers who fall into this Pattern every morning.**
 
 ### 🎁 Retention Campaign
 
-ส่ง SMS หรือให้พนักงานโทรไปเสนอ:
-- **"ส่วนลด 50% นาน 6 เดือน"** ทันที
-- ก่อนที่ลูกค้าจะเดินไปศูนย์บริการคู่แข่ง
+Send an SMS or have an employee call to offer:
+- **"50% discount for 6 months"** immediately.
+- Before the customer walks over to a competitor's service center.
 
 ---
 
-## 📝 สรุปภาพรวม (Takeaway)
+## 📝 Takeaway
 
-| ขั้นตอน        | รายละเอียด                                                                                        |
-| -------------- | ------------------------------------------------------------------------------------------------- |
-| **Input**      | ข้อมูลลูกค้าเป็นล้านบรรทัด                                                                        |
-| **KDD Process** | คัดกรอง → ทำความสะอาด → แปลงตัวเลข → สร้างโมเดล → คัดเลือกกฎ                                      |
-| **Output**     | "รายชื่อลูกค้าเสี่ยง" และ "เงื่อนไข (Logic)" ที่บอกว่าทำไมเขาถึงเสี่ยง (เช่น โทรหา Call center บ่อย) |
+| Step           | Details                                                                                           |
+| ------
 
-> **🎯 เป้าหมาย:** ให้ทีมการตลาดเข้าไปแก้ปัญหาได้ตรงจุด
-KDD Process: คัดกรอง -> ทำความสะอาด -> แปลงตัวเลข -> สร้างโมเดล -> คัดเลือกกฎ
+-------- | ------------------------------------------------------------------------------------------------- |
+| **Input**      | Millions of rows of customer data                                                                 |
+| **KDD Process**| Filter → Clean → Transform numbers → Create model → Select rules                                  |
+| **Output**     | "List of at-risk customers" and "Logic" indicating why they are at risk (e.g. frequent Call center calls) |
 
-Output: "รายชื่อลูกค้าเสี่ยง" และ "เงื่อนไข (Logic)" ที่บอกว่าทำไมเขาถึงเสี่ยง (เช่น โทรหา Call center บ่อย) เพื่อให้ทีมการตลาดเข้าไปแก้ปัญหาได้ตรงจุดครับ
+> **🎯 Goal:** Allow the marketing team to solve the problem directly.
+KDD Process: Filter -> Clean -> Transform numbers -> Create model -> Select rules
+
+Output: "List of at-risk customers" and "Logic" indicating why they are at risk (e.g. frequent Call center calls) to allow the marketing team to solve the problem directly.

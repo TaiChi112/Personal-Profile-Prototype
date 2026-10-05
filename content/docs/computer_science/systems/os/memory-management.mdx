@@ -1,24 +1,24 @@
 ---
 title: "Memory Management"
-description: "สรุปเรื่อง Virtual Memory, Paging และ Fragmentation"
+description: "Summary of Virtual Memory, Paging, and Fragmentation"
 ---
 
-# Memory Management (สรุปด่วน)
+# Memory Management (Quick Summary)
 
-OS ทำหน้าที่จัดการหน่วยความจำหลัก (RAM) เพื่อให้ Process หลายตัวรันพร้อมกันได้อย่างปลอดภัยและมีประสิทธิภาพ
+The OS is responsible for managing main memory (RAM) so that multiple processes can run concurrently safely and efficiently.
 
 ## 1. Virtual Memory
-เทคนิคที่ทำให้ Process คิดว่าตัวเองมี Memory ต่อเนื่องขนาดใหญ่ (Illusion) โดยที่ในความเป็นจริง Memory นั้นอาจกระจายอยู่บน RAM หรือถูกโยกไปเก็บบน Hard Drive ชั่วคราว (Swap Space)
-- **ข้อดี:** Process ใช้ Memory เกินความจุจริงของ RAM ได้, ป้องกันไม่ให้ Process ก้าวก่าย Memory ของกันและกัน (Security Isolation)
+A technique that gives a process the illusion that it has a large contiguous block of memory, while in reality, that memory may be scattered across RAM or temporarily moved to the Hard Drive (Swap Space).
+- **Advantages:** Processes can use memory exceeding the actual capacity of RAM, prevents processes from interfering with each other's memory (Security Isolation).
 
 ## 2. Paging & Segmentation
-กลไกการแบ่ง Memory เพื่อป้องกันการเกิดช่องโหว่ (Fragmentation)
-- **Paging:** แบ่ง Logical Memory ของ Process เป็นบล็อกขนาดเท่าๆ กันเรียกว่า `Pages` และแบ่ง RAM เป็น `Frames` ทำให้ OS สามารถยัด Page ลงใน Frame ไหนก็ได้ที่ว่างอยู่ 
-  - *แก้ปัญหา:* External Fragmentation
-- **Segmentation:** แบ่ง Memory ตามขนาดจริงของ Logical Unit (เช่น Text, Data, Stack)
-  - *ปัญหาที่เกิด:* External Fragmentation (มีช่องว่างระหว่าง Segment)
+Mechanisms for partitioning memory to prevent gaps (Fragmentation).
+- **Paging:** Divides a process's Logical Memory into equal-sized blocks called `Pages` and divides RAM into `Frames`, allowing the OS to fit a Page into any available Frame.
+  - *Solves:* External Fragmentation
+- **Segmentation:** Divides memory according to the actual size of Logical Units (e.g., Text, Data, Stack).
+  - *Problem created:* External Fragmentation (gaps between Segments).
 
 ## 3. Page Fault
-เหตุการณ์ที่เกิดขึ้นเมื่อ CPU พยายามเข้าถึง Data บน Virtual Memory แต่ Data นั้นยังไม่ได้ถูกโหลดลง RAM จริงๆ
-- **กลไก:** OS จะหยุดการทำงาน (Trap) ไปดึง Data จาก Disk (Swap) มาใส่ RAM และอัปเดต Page Table ก่อนที่จะให้ CPU รันต่อ
-- **Thrashing:** ภาวะที่ระบบมี Page Fault มากเกินไป จน OS เสียเวลาไปกับการสลับ Page เข้าออก Disk มากกว่าการให้ CPU ประมวลผลจริง ทำให้ระบบค้างหรือช้ามาก
+An event that occurs when the CPU attempts to access Data in Virtual Memory, but that Data has not actually been loaded into RAM yet.
+- **Mechanism:** The OS stops execution (Trap), fetches Data from Disk (Swap) into RAM, and updates the Page Table before allowing the CPU to resume.
+- **Thrashing:** A condition where the system has excessive Page Faults, causing the OS to spend more time swapping Pages in and out of Disk than allowing the CPU to actually process, making the system freeze or become extremely slow.

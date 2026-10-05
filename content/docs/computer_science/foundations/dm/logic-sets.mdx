@@ -1,25 +1,25 @@
 ---
 title: "Logic & Set Theory"
-description: "สรุปตรรกศาสตร์และทฤษฎีเซตเบื้องต้น"
+description: "Summary of basic logic and set theory"
 ---
 
-# Logic & Sets (สรุปด่วน)
+# Logic & Sets (Quick Summary)
 
-## 1. Propositional Logic (ตรรกศาสตร์)
-ตรรกศาสตร์คือการให้เหตุผลเพื่อหาความจริง (True/False) ใช้มากในเงื่อนไข `if-else`
-- **Proposition (ประพจน์):** ประโยคที่บอกได้แน่ชัดว่าเป็นจริงหรือเท็จ (เช่น "1+1=2" เป็นจริง, แต่ "x+1=2" ไม่ใช่ประพจน์เพราะไม่รู้ค่า x)
+## 1. Propositional Logic
+Logic is reasoning to find truth (True/False). Heavily used in `if-else` conditions.
+- **Proposition:** A sentence that can be definitively stated as true or false (e.g., "1+1=2" is true, but "x+1=2" is not a proposition because x is unknown).
 - **Operators:**
-  - `AND (∧)`: จริงเมื่อจริงทั้งคู่
-  - `OR (∨)`: จริงเมื่อมีอย่างน้อยหนึ่งจริง
-  - `NOT (¬)`: สลับค่าความจริง
-  - `XOR (⊕)`: จริงเมื่อค่าต่างกัน
-  - `Implies (→)`: "ถ้า...แล้ว..." เป็นเท็จกรณีเดียวคือ "หน้าจริง หลังเท็จ" (T → F = F)
+  - `AND (∧)`: True when both are true
+  - `OR (∨)`: True when at least one is true
+  - `NOT (¬)`: Inverts truth value
+  - `XOR (⊕)`: True when values differ
+  - `Implies (→)`: "If...then..." False only when "Premise is true, Conclusion is false" (T → F = F)
 
-## 2. Set Theory (ทฤษฎีเซต)
-พื้นฐานของการรวมกลุ่มข้อมูล และเป็นรากฐานของ Relational Database (SQL)
-- **Set (เซต):** กลุ่มของข้อมูลที่ไม่ซ้ำกัน (เช่น `A = {1, 2, 3}`)
+## 2. Set Theory
+The foundation of data grouping, and the basis of Relational Databases (SQL).
+- **Set:** A collection of unique data (e.g., `A = {1, 2, 3}`)
 - **Operations:**
-  - `Union (A ∪ B)`: รวมทุกตัวของ A และ B
-  - `Intersection (A ∩ B)`: เอาเฉพาะตัวที่ซ้ำกันของ A และ B (หลักการเดียวกับ `INNER JOIN`)
-  - `Difference (A \ B)`: เอาตัวที่อยู่ใน A แต่ไม่อยู่ใน B
-  - `Subset (A ⊆ B)`: ทุกตัวใน A ต้องอยู่ใน B
+  - `Union (A ∪ B)`: Combines all elements of A and B
+  - `Intersection (A ∩ B)`: Takes only elements common to A and B (Same principle as `INNER JOIN`)
+  - `Difference (A \ B)`: Elements in A but not in B
+  - `Subset (A ⊆ B)`: All elements in A must be in B

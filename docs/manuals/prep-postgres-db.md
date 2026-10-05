@@ -1,8 +1,8 @@
-# 🐘 คู่มือการเตรียม PostgreSQL Connection URL
+#  คู่มือการเตรียม PostgreSQL Connection URL
 
 เพื่อให้ AI Agent สามารถดึงข้อมูล, วิเคราะห์ Schema, หรือทำ Backend Data Debugging ในฐานข้อมูลจริงได้
 
-## 📊 ภาพรวมการทำงาน
+##  ภาพรวมการทำงาน
 ```mermaid
 graph LR
     AI[AI Agent] -->|Execute SQL| MCP(mcp_config.json)
@@ -10,7 +10,7 @@ graph LR
     DB -->|Return Rows| AI
 ```
 
-## 📋 ข้อมูลที่ต้องกรอก
+##  ข้อมูลที่ต้องกรอก
 | ชื่อ Field | รูปแบบที่ต้องการ | ตัวอย่าง |
 | :--- | :--- | :--- |
 | **Connection URL** | `postgresql://[user]:[password]@[host]:[port]/[dbname]` | `postgresql://admin:secret@localhost:5432/my_app_db` |

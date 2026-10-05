@@ -8,7 +8,7 @@ A full-stack TypeScript/Next.js web application that serves as both an **interac
 
 ---
 
-## 🎯 For Readers & Recruiters
+##  For Readers & Recruiters
 
 Welcome! This repository powers the live portfolio and interactive pattern playground. 
 - **Live Demo**: [Will be added soon]
@@ -20,7 +20,7 @@ Welcome! This repository powers the live portfolio and interactive pattern playg
 
 ---
 
-## 💻 For Contributors & Students
+##  For Contributors & Students
 
 If you want to run this project locally, experiment with the design patterns, or contribute to the codebase, follow these quick steps:
 
@@ -69,7 +69,7 @@ For full deployment instructions, see the **SDLC Documentation** below.
 ---
 
 <details>
-<summary><h2>📚 Software Development Life Cycle (SDLC) Documentation</h2></summary>
+<summary><h2> Software Development Life Cycle (SDLC) Documentation</h2></summary>
 
 This project was built following a strict SDLC process to serve as an educational reference. Below is the full engineering documentation.
 
@@ -145,8 +145,8 @@ Traditional developer portfolios are static, single-purpose pages that fail to d
 | FR-8 | Contact Form with Mediator Validation | Medium | ✅ Implemented |
 | FR-9 | Admin Dashboard (Visitor analytics, Prototype cloning) | High | ✅ Implemented |
 | FR-10 | REST API for Posts CRUD | High | ✅ Implemented |
-| FR-11 | Full CRUD for Projects, Articles, Podcasts | Medium | 🔲 Planned |
-| FR-12 | AI/LLM Content Generation | Low | 🔲 Planned |
+| FR-11 | Full CRUD for Projects, Articles, Podcasts | Medium |  Planned |
+| FR-12 | AI/LLM Content Generation | Low |  Planned |
 
 ### 2.2 Non-Functional Requirements
 
@@ -183,18 +183,18 @@ block-beta
 
   block:client["Client (Browser)"]
     columns 1
-    ui["🖥️ UI Layer — React Components\nNavigationShell · Sections · Feed · System Controls"]
+    ui["️ UI Layer — React Components\nNavigationShell · Sections · Feed · System Controls"]
     domain["⚙️ Domain Layer — Models & Services\nTheme · Command · Feed · Content · Tour"]
-    facade["🏛️ Application Facade\nAppSystemFacade (Bootstrap)"]
+    facade["️ Application Facade\nAppSystemFacade (Bootstrap)"]
   end
 
   arrow["HTTP / JSON"]
 
   block:server["Server (Next.js)"]
     columns 1
-    api["🌐 Server Layer — Next.js API Routes\n/api/auth · /api/posts · Auth Middleware"]
-    dal["🔗 Data Access Layer — Prisma ORM"]
-    db["🗄️ Database — PostgreSQL 16\nusers · posts · future models"]
+    api[" Server Layer — Next.js API Routes\n/api/auth · /api/posts · Auth Middleware"]
+    dal[" Data Access Layer — Prisma ORM"]
+    db["️ Database — PostgreSQL 16\nusers · posts · future models"]
   end
 
   ui --> domain
@@ -287,7 +287,7 @@ erDiagram
 
 ```mermaid
 flowchart TD
-    A(["🔑 Login"]) --> B{"Choose Provider"}
+    A([" Login"]) --> B{"Choose Provider"}
     B -- "Google OAuth" --> C["NextAuth OAuth Callback"]
     B -- "Credentials" --> D["Credential Validation"]
     C --> E["Upsert User in PostgreSQL"]
@@ -425,8 +425,8 @@ personal-profile-prototype/
 | **Integration — Auth + DB** | Bun script (`scripts/integration-auth-db.ts`) | ✅ Available locally; not run by the current deployment workflow |
 | **Integration — HTTP CRUD** | Bun script (`scripts/integration-http-crud.ts`) | ✅ Available locally; not run by the current deployment workflow |
 | **Integration — Admin Users** | Bun script (`scripts/integration-http-admin-users.ts`) | ✅ Available locally; not run by the current deployment workflow |
-| **Unit Tests — React Components** | Jest / React Testing Library | 🔲 To be defined |
-| **E2E Tests** | Playwright | 🔲 To be defined |
+| **Unit Tests — React Components** | Jest / React Testing Library |  To be defined |
+| **E2E Tests** | Playwright |  To be defined |
 
 ### 5.2 Running Pattern Tests
 

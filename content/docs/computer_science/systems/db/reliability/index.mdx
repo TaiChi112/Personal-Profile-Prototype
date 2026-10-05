@@ -5,41 +5,41 @@ description: "Strategies for data integrity, backups, and preventing data loss."
 
 # Database Reliability
 
-Database Reliability คือการสร้างความมั่นใจว่าข้อมูลจะถูกจัดเก็บอย่างปลอดภัย ไม่สูญหาย และระบบสามารถฟื้นตัวจากเหตุการณ์ไม่คาดฝันได้เสมอ (Handling failures)
+Database Reliability is ensuring that data is securely stored, not lost, and the system can recover from unexpected events (Handling failures).
 
 ## Cheat Sheet: Core Reliability Concepts
 
 | Concept | Description |
 |---|---|
-| **Data Durability** | การรับประกันว่าเมื่อข้อมูลถูกบันทึกสำเร็จ (Commit) ข้อมูลนั้นจะคงอยู่ถาวร แม้ระบบจะล่มหรือไฟฟ้าดับ |
-| **Backups** | การทำสำเนาข้อมูลตามช่วงเวลา (Snapshot) เพื่อใช้สำหรับการกู้คืน (Recovery) เมื่อเกิดข้อผิดพลาดร้ายแรง |
-| **Replication** | การทำสำเนาข้อมูลไปยัง Database server อื่นแบบเรียลไทม์ (หรือเกือบเรียลไทม์) เพื่อเพิ่ม Availability |
-| **Handling Failures** | กระบวนการรับมือและฟื้นฟูระบบจากเหตุขัดข้อง เช่น Server crash, Network partition |
+| **Data Durability** | The guarantee that once data is successfully saved (Commit), it remains permanent, even if the system crashes or power is lost. |
+| **Backups** | Making copies of data at specific times (Snapshot) to be used for recovery when severe errors occur. |
+| **Replication** | Copying data to other database servers in real-time (or near real-time) to increase Availability. |
+| **Handling Failures** | The process of handling and recovering the system from disruptions such as a Server crash or Network partition. |
 
 ## Practical Examples
 
 ### 1. Data Durability via Write-Ahead Logging (WAL)
-**Scenario**: ระบบประมวลผลการสั่งซื้อสินค้า
-**How it works**: ก่อนที่ Database จะเขียนข้อมูลลง Data file โดยตรง ระบบจะบันทึกรายละเอียดของการเปลี่ยนแปลงลงใน Write-Ahead Log (WAL) ก่อน หากเกิดไฟดับระหว่างที่กำลังบันทึกข้อมูล เมื่อระบบกลับมาทำงาน Database จะอ่าน WAL เพื่อทำซ้ำ (Redo) การกระทำที่ยังไม่เสร็จสมบูรณ์ ทำให้มั่นใจได้ว่า Data durability จะไม่ถูกทำลาย
+**Scenario**: Order processing system
+**How it works**: Before the Database writes data directly to the Data file, the system records the details of the changes into a Write-Ahead Log (WAL). If a power outage occurs while saving data, when the system restarts, the Database will read the WAL to repeat (Redo) the incomplete actions, ensuring that Data durability is not compromised.
 
 ### 2. Backups Strategy (3-2-1 Rule)
-**Scenario**: การปกป้องข้อมูลระดับองค์กรจากการโจมตีหรืออุบัติเหตุ
+**Scenario**: Enterprise-level data protection from attacks or accidents
 **Practice**: 
-- มีข้อมูล **3** Copies (1 ข้อมูลหลัก + 2 Backups)
-- จัดเก็บใน **2** Storage types ที่แตกต่างกัน (เช่น Local disk และ Cloud storage)
-- จัดเก็บ **1** Copy ไว้ใน Offsite location
-*Example*: การตั้งค่า Automated nightly backups ไปยัง Amazon S3 และมี Point-in-Time Recovery (PITR) เพื่อให้สามารถย้อนกลับไปช่วงเวลาใดก็ได้ใน 7 วันที่ผ่านมา
+- Have **3** Copies of data (1 primary data + 2 backups)
+- Store in **2** different Storage types (e.g., Local disk and Cloud storage)
+- Store **1** Copy in an Offsite location
+*Example*: Setting up Automated nightly backups to Amazon S3 and having Point-in-Time Recovery (PITR) to allow rolling back to any point in time within the past 7 days.
 
 ### 3. Replication for High Availability
-**Scenario**: แอปพลิเคชันมีผู้ใช้งานทั่วประเทศ ไม่สามารถยอมรับการเกิด Downtime ได้
-**Practice**: ตั้งค่า Primary-Replica architecture
-- **Primary Node**: รับหน้าที่จัดการ Write transactions ทั้งหมด
-- **Replica Nodes**: คัดลอกข้อมูลจาก Primary อย่างต่อเนื่อง และรับหน้าที่ Read queries
-*Failure Handling*: หาก Primary node หยุดทำงาน ระบบจะทำการ Promoting หนึ่งใน Replica node ขึ้นมาเป็น Primary ทันที (Automatic Failover) เพื่อให้ระบบทำงานต่อไปได้โดยไม่มีผลกระทบต่อผู้ใช้งาน
+**Scenario**: The application has users nationwide and cannot tolerate Downtime.
+**Practice**: Set up Primary-Replica architecture
+- **Primary Node**: Responsible for handling all Write transactions
+- **Replica Nodes**: Continuously copy data from the Primary and handle Read queries
+*Failure Handling*: If the Primary node goes down, the system immediately promotes one of the Replica nodes to Primary (Automatic Failover) so the system can continue operating without affecting users.
 
 ### 4. Handling Failures in Application Logic
-**Scenario**: การโอนเงินข้ามบัญชี
-**Practice**: ใช้ Database Transactions (ACID) เพื่อให้มั่นใจใน Data integrity
+**Scenario**: Transferring money between accounts
+**Practice**: Use Database Transactions (ACID) to ensure Data integrity
 ```sql
 BEGIN;
 UPDATE accounts SET balance = balance - 1000 WHERE user_id = 1;
@@ -47,4 +47,4 @@ UPDATE accounts SET balance = balance - 1000 WHERE user_id = 1;
 UPDATE accounts SET balance = balance + 1000 WHERE user_id = 2;
 COMMIT;
 ```
-การจัดการ Failure ในระดับ Code ควรมีการทำ Retry Mechanism อย่างเหมาะสม และมีการ Log ข้อผิดพลาดเพื่อให้ Engineer สามารถตรวจสอบได้ทันที
+Handling Failure at the code level should include an appropriate Retry Mechanism and Log errors so Engineers can immediately investigate.

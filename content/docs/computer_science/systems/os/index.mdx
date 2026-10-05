@@ -1,37 +1,42 @@
 ---
 title: "Operating Systems (OS)"
-description: "ทบทวนพื้นฐานระบบปฏิบัติการ การจัดการโปรเซส และหน่วยความจำ"
+description: "Review of Operating System Basics, Process Management, and Memory"
 ---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
 
 import { Cpu, Layers, HardDrive } from 'lucide-react';
 
 <Callout title="Quick Review" type="info">
-  หมวดหมู่นี้ออกแบบมาเพื่อการอ่านทบทวน (Cheat Sheet) สรุปทฤษฎี Operating Systems (OS) ระดับแกนกลางที่เป็นรากฐานของการทำ Backend และ System Architecture
+  This category is designed as a review (Cheat Sheet) summarizing core Operating Systems (OS) theory that forms the foundation of Backend and System Architecture.
 </Callout>
 
 # Operating Systems (OS)
 
-Operating Systems คือ System Software ที่ทำหน้าที่จัดการ Hardware และ Software Resources ของ Computer และทำหน้าที่เป็นตัวกลางระหว่าง User Programs กับ Hardware
+Operating Systems are System Software that manages the Computer's Hardware and Software Resources and acts as an intermediary between User Programs and Hardware.
 
-เลือกหัวข้อที่ต้องการทบทวน (Bento Grid):
+Select a topic to review (Bento Grid):
 
 <Cards>
   <Card 
     href="/en/docs/computer_science/systems/os/process-thread" 
     title="Process & Thread" 
     icon={<Cpu />}
-    description="ความแตกต่างระหว่าง Process และ Thread, Context Switching และ PCB" 
+    description="Differences between Process and Thread, Context Switching, and PCB" 
   />
   <Card 
     href="/en/docs/computer_science/systems/os/concurrency" 
     title="Concurrency & Synchronization" 
     icon={<Layers />}
-    description="Mutex, Semaphore, Deadlock และ Race Condition" 
+    description="Mutex, Semaphore, Deadlock, and Race Condition" 
   />
   <Card 
     href="/en/docs/computer_science/systems/os/memory-management" 
     title="Memory Management" 
     icon={<HardDrive />}
-    description="Virtual Memory, Paging, Segmentation และ Cache" 
+    description="Virtual Memory, Paging, Segmentation, and Cache" 
   />
 </Cards>

@@ -25,6 +25,10 @@ export class KanbanRepository {
     });
   }
 
+  static async updateTask(userId: string, id: string, status: string) {
+    return this.updateTaskStatus(userId, id, status);
+  }
+
   static async deleteTask(userId: string, id: string) {
     return prisma.kanbanTask.delete({
       where: { id, userId },

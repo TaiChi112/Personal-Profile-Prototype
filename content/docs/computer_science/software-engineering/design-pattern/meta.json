@@ -1,9 +1,12 @@
 {
-    "pages": [
-        "DS",
-        "Creational",
-        "Structural",
-        "Behavioral",
-        "other"
-    ]
+  "title": "Design Patterns",
+  "pages": [
+    "index",
+    "DS",
+    "Creational",
+    "Structural",
+    "Behavioral",
+    "other",
+    "labs"
+  ]
 }

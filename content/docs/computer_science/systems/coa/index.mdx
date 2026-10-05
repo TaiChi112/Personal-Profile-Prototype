@@ -1,37 +1,51 @@
 ---
 title: "Computer Architecture (COA)"
-description: "ทบทวนสถาปัตยกรรมคอมพิวเตอร์ กลไกของ CPU และ Memory Hierarchy"
+description: "Review of Computer Architecture, CPU Mechanisms, and Memory Hierarchy"
 ---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+import { TerminalSquare } from 'lucide-react';
+
 
 import { Cpu, Microchip, Layers } from 'lucide-react';
 
 <Callout title="Quick Review" type="info">
-  สรุปหลักการทำงานระดับ Hardware ที่ Engineer ควรรู้ เพื่อให้สามารถเขียน Software ที่ Optimize ประสิทธิภาพได้สูงสุด
+  Summary of hardware-level principles that engineers should know to write highly optimized software.
 </Callout>
 
 # Computer Organization & Architecture
 
-ศาสตร์ที่ว่าด้วยโครงสร้างภายในของระบบคอมพิวเตอร์ การทำงานร่วมกันระหว่าง CPU, Memory และ I/O Devices
+The study of the internal structure of computer systems and the interaction between CPU, Memory, and I/O Devices.
 
-เลือกหัวข้อที่ต้องการทบทวน:
+Select a topic to review:
 
 <Cards>
   <Card 
     href="/en/docs/computer_science/systems/coa/cpu-architecture" 
     title="CPU Architecture" 
     icon={<Cpu />}
-    description="ส่วนประกอบของ CPU, Instruction Cycle และวงจร ALU" 
+    description="CPU Components, Instruction Cycle, and ALU Circuit" 
   />
   <Card 
     href="/en/docs/computer_science/systems/coa/memory-hierarchy" 
     title="Memory Hierarchy" 
     icon={<Layers />}
-    description="ลำดับชั้นหน่วยความจำ Cache L1/L2/L3 และ RAM" 
+    description="Memory Hierarchy, Cache L1/L2/L3, and RAM" 
   />
   <Card 
     href="/en/docs/computer_science/systems/coa/pipelining" 
     title="Pipelining & Hazards" 
     icon={<Microchip />}
-    description="การประมวลผลคำสั่งแบบขนาน และปัญหา Hazards ที่เกิดขึ้น" 
+    description="Parallel Instruction Processing and the Resulting Hazards" 
+  />
+  <Card 
+    href="/en/docs/computer_science/systems/coa/labs/pipelining-hazard"
+    title="Interactive Labs (PBL)"
+    icon={<TerminalSquare />}
+    description="Problem-Based Learning scenarios with Socratic AI Prompts"
   />
 </Cards>

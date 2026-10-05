@@ -1,29 +1,29 @@
 ---
 title: Deep Learning Cheat Sheet
-description: สรุปเนื้อหาสำคัญสำหรับ Deep Learning
+description: Summary of key concepts for Deep Learning
 ---
 
 ## Neural Networks
 
-Neural Networks คือโมเดลพื้นฐานของ Deep Learning ประกอบด้วยเลเยอร์ของโหนดหรือนิวรอน การทำงานแบ่งเป็น Forward Propagation สำหรับการทำนายผล และ Backpropagation สำหรับการปรับปรุงน้ำหนัก (Weights) และอคติ (Biases) เพื่อลดค่า Loss Function
+Neural Networks are the fundamental models of Deep Learning, consisting of layers of nodes or neurons. The operation is divided into Forward Propagation for prediction and Backpropagation for adjusting weights and biases to minimize the Loss Function.
 
 ## Activation Functions
 
-ฟังก์ชันกระตุ้นใช้เพิ่มคุณสมบัติ Non-linearity ให้กับโมเดล ทำให้ Neural Networks สามารถเรียนรู้แพทเทิร์นที่ซับซ้อนได้
-- Sigmoid: ให้ค่าลัพธ์ระหว่าง 0 ถึง 1 มักใช้ใน Output Layer สำหรับ Binary Classification
-- Tanh: ให้ผลลัพธ์ระหว่าง -1 ถึง 1
-- ReLU (Rectified Linear Unit): คืนค่า 0 หากค่าน้อยกว่าศูนย์ และคืนค่าเดิมหากค่ามากกว่าศูนย์ นิยมใช้ใน Hidden Layers ส่วนใหญ่
-- Softmax: ใช้ใน Output Layer สำหรับ Multi-class Classification เพื่อแปลงค่าเป็นความน่าจะเป็น
+Activation functions add non-linearity to the model, allowing Neural Networks to learn complex patterns.
+- Sigmoid: Outputs a value between 0 and 1, commonly used in the Output Layer for Binary Classification.
+- Tanh: Outputs a value between -1 and 1.
+- ReLU (Rectified Linear Unit): Returns 0 if the value is less than zero, and returns the original value if it is greater than zero. Widely used in most Hidden Layers.
+- Softmax: Used in the Output Layer for Multi-class Classification to convert values into probabilities.
 
 ## Convolutional Neural Networks (CNN)
 
-CNN ถูกออกแบบมาสำหรับงาน Computer Vision มีองค์ประกอบหลักดังนี้
-- Convolutional Layers: ใช้ Filters หรือ Kernels ในการสกัดฟีเจอร์จากภาพ
-- Pooling Layers: ลดขนาดของข้อมูลและพารามิเตอร์ มักใช้ Max Pooling
-- Fully Connected Layers: นำฟีเจอร์ที่สกัดได้มาทำการจำแนกประเภท
+CNNs are designed for Computer Vision tasks and have the following main components:
+- Convolutional Layers: Use Filters or Kernels to extract features from images.
+- Pooling Layers: Reduce the size of data and parameters, often using Max Pooling.
+- Fully Connected Layers: Take the extracted features to perform classification.
 
 ## Recurrent Neural Networks (RNN)
 
-RNN เหมาะสำหรับ Sequential Data เช่น ข้อมูลอนุกรมเวลาหรือ Natural Language Processing (NLP)
-- Hidden State: อนุญาตให้ข้อมูลก่อนหน้าส่งผลต่อการประมวลผลข้อมูลปัจจุบัน
-- ปัญหา Vanishing Gradient: RNN แบบพื้นฐานมักมีปัญหาในการจำข้อมูลระยะยาว จึงมีการพัฒนา LSTM (Long Short-Term Memory) และ GRU (Gated Recurrent Unit) เพื่อแก้ปัญหานี้
+RNNs are suitable for Sequential Data such as time series data or Natural Language Processing (NLP).
+- Hidden State: Allows previous data to affect the processing of current data.
+- Vanishing Gradient Problem: Basic RNNs often struggle to remember long-term information. Therefore, LSTM (Long Short-Term Memory) and GRU (Gated Recurrent Unit) were developed to solve this problem.

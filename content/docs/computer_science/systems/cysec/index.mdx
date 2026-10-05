@@ -1,15 +1,52 @@
 ---
-title: "Cyber Security"
-description: "Learn about computer science concepts, their applications, and fundamental principles."
-# icon: "Science"
+title: "Cyber Security (CySec)"
+description: "Review of Core Security Concepts, Vulnerabilities, and Defensive Mechanisms"
 ---
 
-<Callout title="Warning" type="warning">
-  **Pardon our dust!** This section is currently a work in progress. I am
-  actively migrating and restructuring content from my previous project. Some
-  information may be incomplete or temporarily unavailable. Thank you for your
-  patience as I build this out—stay tuned for upcoming updates!
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+import { Shield, GlobeLock, KeyRound, Network, TerminalSquare } from 'lucide-react';
+
+<Callout title="Quick Review" type="info">
+  This category is designed as a review (Cheat Sheet) summarizing core Cyber Security (CySec) theory that forms the foundation of secure System Architecture and Backend Development.
 </Callout>
-# Cyber Security
 
+# Cyber Security (CySec)
 
+Cyber Security is the practice of protecting systems, networks, and programs from digital attacks. These attacks are usually aimed at accessing, changing, or destroying sensitive information, extorting money from users, or interrupting normal business processes.
+
+Select a topic to review (Bento Grid):
+
+<Cards>
+  <Card 
+    href="/en/docs/computer_science/systems/cysec/web-security" 
+    title="Web Security" 
+    icon={<GlobeLock />}
+    description="OWASP Top 10, SQL Injection, XSS, and CSRF" 
+  />
+  <Card 
+    href="/en/docs/computer_science/systems/cysec/cryptography" 
+    title="Cryptography" 
+    icon={<Shield />}
+    description="Symmetric vs Asymmetric, Hashing, and CIA Triad" 
+  />
+  <Card 
+    href="/en/docs/computer_science/systems/cysec/iam" 
+    title="Identity & Access Management" 
+    icon={<KeyRound />}
+    description="Authentication, Authorization, JWT, OAuth, and RBAC" 
+  />
+  <Card 
+    href="/en/docs/computer_science/systems/cysec/network-security" 
+    title="Network Security" 
+    icon={<Network />}
+    description="Firewalls, DDoS, MitM, and WAF" 
+  />
+  <Card 
+    href="/en/docs/computer_science/systems/cysec/labs/sql-injection" 
+    title="Interactive Labs (PBL)" 
+    icon={<TerminalSquare />}
+    description="Problem-Based Learning scenarios with Socratic AI Prompts" 
+  />
+</Cards>

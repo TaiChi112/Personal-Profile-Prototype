@@ -1,7 +1,10 @@
 ---
 title: Data Mining Exercise 6
-description: Data Preprocessing & Decision Tree - การสุ่มตัวอย่างและการคำนวณ Entropy เพื่อเลือก Node
+description: Data Preprocessing & Decision Tree - Sampling and Entropy calculation for Node selection
 ---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
 
 <Callout title="Warning" type="warning">
 This article is a work in progress and may contain incomplete information or inaccuracies. Please verify details from reliable sources.
@@ -9,78 +12,80 @@ This article is a work in progress and may contain incomplete information or ina
 
 # Data Mining Exercise 6
 
-รากฐานของ **Data Preprocessing** (การสุ่มตัวอย่าง) และ **Decision Tree Model** (การคำนวณ Entropy เพื่อเลือก Node)
+The foundation of **Data Preprocessing** (Sampling) and **Decision Tree Model** (Entropy calculation for Node selection).
 
 ---
 
-## ข้อ 3: ความแตกต่างระหว่างการสุ่ม 2 แบบ (Stratified vs. Simple Random)
+## Question 3: Difference between 2 sampling methods (Stratified vs. Simple Random)
 
-### โจทย์
+### Problem
 
-ต้องการสุ่มตัวอย่าง $n$ จากประชากรที่มีกลุ่มย่อย $k$ กลุ่ม
+Want to sample $n$ from a population with $k$ subgroups.
 
-- **แบบที่ 1:** Stratified Sampling (เลือกตามสัดส่วน)
-- **แบบที่ 2:** Simple Random Sampling (สุ่มรวม ไม่สนกลุ่ม)
+- **Method 1:** Stratified Sampling (proportional selection)
+- **Method 2:** Simple Random Sampling (random pool, ignoring groups)
 
-### ความแตกต่าง (Difference)
+### Difference
 
-หัวใจสำคัญอยู่ที่ **"ความน่าจะเป็นที่จะได้ตัวแทนครบทุกกลุ่ม"** และ **"ความแม่นยำ (Precision)"**
+The core lies in **"probability of getting representatives from all groups"** and **"Precision"**.
 
-#### 1. การการันตีตัวแทน (Representation Guarantee)
+#### 1. Representation Guarantee
 
-**แบบที่ 1 (Stratified):**
-- การันตี 100% ว่าจะได้ข้อมูลครบทุกกลุ่ม $k$ ตามสัดส่วนจริง
-- วิธีนี้ดีมากถ้าข้อมูลเรา **Imbalanced** (เช่น มีกลุ่มที่หายากมากๆ อยู่)
+**Method 1 (Stratified):**
+- 100% guarantee to get data from all $k$ groups according to their real proportions.
+- This method is excellent if our data is **Imbalanced** (e.g. contains very rare groups).
 
-<Callout title="📌 ตัวอย่าง: สำรวจความเห็นในมหาวิทยาลัย" type="info">
-มีนักศึกษา 9,000 คน และ อาจารย์ 100 คน
+<Callout title="📌 Example: University Opinion Poll" type="info">
+There are 9,000 students and 100 professors.
 
-ถ้าสุ่มแบบ **Stratified** เราจะบังคับโควตาเลยว่าต้องหยิบอาจารย์มาด้วย
+If sampling via **Stratified**, we force a quota that professors must be included.
 </Callout>
 
-**แบบที่ 2 (Simple Random):**
-- อาศัยดวง ถ้ากลุ่ม $k$ ไหนมีขนาดเล็กมาก มีโอกาสสูงที่เราจะ **"สุ่มไม่เจอเลย"**
-- ทำให้ข้อมูลกลุ่มนั้นหายไป (Under-represented)
+**Method 2 (Simple Random):**
+- Relies on luck. If any group $k$ is very small, there's a high chance we **"won't sample them at all"**.
+- Causing that group's data to be missing (Under-represented).
 
-<Callout title="ตัวอย่าง: ปัญหาของ Simple Random" type="warn">
-จากเคสมหาวิทยาลัย ถ้าสุ่มรวมๆ เราอาจจะได้แต่นักเรียนล้วนๆ ไม่ได้อาจารย์เลย ทำให้ผลสำรวจเพี้ยน
+<Callout title="Example: Simple Random Problem" type="warn">
+From the university case, if randomly pooled, we might only get students and no professors, causing a skewed poll result.
 </Callout>
 
-#### 2. ความคลาดเคลื่อน (Standard Error)
+#### 2. Standard Error
 
-| วิธีสุ่ม | ค่า Error | เหตุผล |
-|---------|----------|--------|
-| **Stratified** | ต่ำกว่า | รับประกันโครงสร้างของประชากรไว้แล้ว ข้อมูลที่ได้จะกระจายตัวดีกว่า |
-| **Simple Random** | สูงกว่า | โดยเฉพาะถ้าแต่ละกลุ่มมีความแตกต่างกันมาก |
+| Sampling Method | Error Value | Reason |
+|------
 
-### สรุป
+---|----------|--------|
+| **Stratified** | Lower | Guarantees population structure. The obtained data is better distributed. |
+| **Simple Random** | Higher | Especially if each group is highly diverse. |
 
-<Callout title="✅ ข้อแนะนำ" type="success">
-ถ้าคุณรู้ว่าข้อมูลแบ่งเป็นกลุ่มๆ อยู่แล้ว และอยากให้แต่ละกลุ่มมีที่ยืน ต้องใช้ **Stratified**
+### Conclusion
 
-(นี่คือ Standard ในการแบ่ง Train/Test set ของงาน Classification ด้วย)
+<Callout title="✅ Recommendation" type="success">
+If you know the data is already divided into groups and want each group to be represented, you must use **Stratified**.
+
+(This is also the Standard for splitting Train/Test sets in Classification tasks).
 </Callout>
 
 {/* ![Stratified Sampling Diagram](/image/licensed-image.jpg) */}
 
 ---
 
-## ข้อ 4: การคำนวณ Entropy (ค่าความไม่แน่นอน)
+## Question 4: Entropy Calculation (Uncertainty value)
 
-### ข้อมูล
+### Data
 
-ลูกบอลรวม 8 ลูก:
-- 🔴 แดง: 4 ลูก
-- 🟢 เขียว: 2 ลูก
-- 🔵 ฟ้า: 2 ลูก
+Total 8 balls:
+- 🔴 Red: 4 balls
+- 🟢 Green: 2 balls
+- 🔵 Blue: 2 balls
 
-### สูตร Entropy:
+### Entropy Formula:
 
 $$H(X) = - \sum_{i=1}^{n} p(x_i) \log_2 p(x_i)$$
 
-### ขั้นตอนการคำนวณ
+### Calculation Steps
 
-#### 1. หาความน่าจะเป็น ($p$) ของแต่ละสี
+#### 1. Find the probability ($p$) of each color
 
 $$
 P(\text{Red}) = \frac{4}{8} = 0.5
@@ -92,15 +97,15 @@ $$
 P(\text{Blue}) = \frac{2}{8} = 0.25
 $$
 
-#### 2. แทนค่าลงในสูตร
+#### 2. Substitute values into the formula
 
-เราต้องคิดทีละเทอมแล้วเอามารวมกัน (อย่าลืมเครื่องหมายลบข้างหน้าสุด):
+We must calculate term by term and sum them up (don't forget the minus sign at the front):
 
 $$
 H(X) = - [ (0.5 \log_2 0.5) + (0.25 \log_2 0.25) + (0.25 \log_2 0.25) ]
 $$
 
-#### 3. แปลงค่า Log (ฐาน 2):
+#### 3. Convert Log values (base 2):
 $$
 \log_2(0.5) = \log_2(2^{-1}) = -1
 $$
@@ -108,7 +113,7 @@ $$
 \log_2(0.25) = \log_2(2^{-2}) = -2
 $$
 
-#### 4. คำนวณตัวเลข
+#### 4. Calculate numbers
 
 $$
 \begin{aligned}
@@ -126,27 +131,27 @@ H(X) &= \mathbf{1.5} \text{ bits}
 \end{aligned}
 $$
 
-### คำตอบ
+### Answer
 
-<Callout title="✅ ผลลัพธ์" type="success">
-ค่า Entropy คือ **1.5 bits**
+<Callout title="✅ Result" type="success">
+The Entropy value is **1.5 bits**.
 </Callout>
 
 ---
 
-## เกร็ดความรู้เชื่อมโยง Data Mining
+## Data Mining Connection Trivia
 
-### ค่าสูงสุดที่เป็นไปได้ (Max Entropy) ของโจทย์นี้คือเท่าไหร่?
+### What is the maximum possible value (Max Entropy) for this problem?
 
-ถ้าลูกบอล 3 สี มีจำนวนเท่ากันเป๊ะ (โอกาสเกิดเท่ากันหมด) ค่า Entropy จะสูงที่สุดคือ $\log_2(3) \approx 1.585$ bits
+If 3 ball colors have exactly equal amounts (equal occurrence probability), the highest Entropy value would be $\log_2(3) \approx 1.585$ bits.
 
-<Callout title="💡 การตีความผลลัพธ์" type="info">
-ค่าที่เราคำนวณได้ **1.5** ซึ่งเกือบเต็ม Max แปลว่าข้อมูลชุดนี้ **"มีความไม่แน่นอนสูง"** (เดายากว่าจะหยิบได้สีอะไร แม้สีแดงจะเยอะสุดก็ตาม)
+<Callout title="💡 Result Interpretation" type="info">
+Our calculated value of **1.5**, which is almost the Max, means this dataset **"has high uncertainty"** (hard to guess what color will be drawn, even though Red is the most abundant).
 </Callout>
 
-### ความเชื่อมโยงกับ Decision Tree
+### Connection with Decision Tree
 
-**ใน Decision Tree:**
-- เราชอบ Node ที่มี **Entropy ต่ำๆ** (เช่น มีสีแดงล้วน = Entropy 0)
-- เพราะมันแปลว่าข้อมูล**บริสุทธิ์ (Pure)**
-- ยิ่ง Pure ยิ่งทำนายได้แม่นยำ!
+**In Decision Tree:**
+- We like Nodes with **low Entropy** (e.g. all Red = Entropy 0).
+- Because it means the data is **Pure**.
+- The purer it is, the more accurate the prediction!

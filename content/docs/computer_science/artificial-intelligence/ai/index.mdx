@@ -1,35 +1,21 @@
 ---
-title: Artificial Intelligence (AI) Cheat Sheet
-description: สรุปแนวคิดพื้นฐานของ Artificial Intelligence
+title: "Artificial Intelligence"
+description: "The core principles, algorithms, and methodologies of building intelligent agents and systems."
 ---
 
-# Artificial Intelligence (AI) Cheat Sheet
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Route, Brain, Network, ShieldCheck, Microscope } from 'lucide-react';
 
-เอกสารนี้สรุปเนื้อหาสำคัญเกี่ยวกับ Artificial Intelligence เพื่อการทบทวนอย่างรวดเร็ว
+<Callout title="A Note from the Author" type="info">
+  **Welcome to Artificial Intelligence (AI)!** 
+  
+  This section explores the fundamental algorithms that allow machines to perceive, reason, and act in complex environments. We cover everything from classic search algorithms to modern probabilistic reasoning.
+</Callout>
 
-## 1. Weak AI vs Strong AI
-
-*   **Weak AI (Narrow AI):** ระบบ AI ที่ถูกออกแบบและฝึกสอนมาสำหรับงานเฉพาะทาง เช่น Virtual Assistants, Recommendation Systems และ Image Recognition ระบบเหล่านี้ไม่มี Consciousness หรือ General Intelligence
-*   **Strong AI (Artificial General Intelligence - AGI):** ระบบ AI ในทฤษฎีที่มีความสามารถในการทำความเข้าใจ เรียนรู้ และประยุกต์ใช้ Intelligence ในระดับเทียบเท่ามนุษย์ในทุกๆ ด้าน
-
-## 2. Intelligent Agents
-
-Intelligent Agent คือระบบที่รับรู้ Environment ผ่าน Sensors และกระทำต่อ Environment นั้นผ่าน Actuators เพื่อให้บรรลุ Goals ที่ตั้งไว้
-
-*   **Simple Reflex Agents:** ตัดสินใจกระทำโดยอิงจาก Percept ในปัจจุบันเท่านั้น ข้าม History ของ Percept
-*   **Model-Based Reflex Agents:** รักษา Internal State ที่สอดคล้องกับ History เพื่อจัดการกับ Environment ที่สังเกตได้บางส่วน
-*   **Goal-Based Agents:** ตัดสินใจโดยพิจารณา Goals ควบคู่กับ State ปัจจุบัน
-*   **Utility-Based Agents:** ประเมินความพึงพอใจหรือ Utility Function ในแต่ละ State เพื่อเลือกการกระทำที่ดีที่สุด
-*   **Learning Agents:** สามารถเรียนรู้จากประสบการณ์เพื่อปรับปรุง Performance Element
-
-## 3. Search Algorithms
-
-Search Algorithms เป็นเทคนิคสำคัญในการแก้ปัญหาใน AI
-
-### Uninformed Search (Blind Search)
-*   **Breadth-First Search (BFS):** กระจายการค้นหาในระดับความลึกเดียวกันก่อน
-*   **Depth-First Search (DFS):** ค้นหาลึกลงไปในแต่ละ Branch ให้สุดก่อนเปลี่ยน Branch
-
-### Informed Search (Heuristic Search)
-*   **Greedy Best-First Search:** เลือก Node ที่ดูเหมือนจะเข้าใกล้ Goal มากที่สุดโดยประเมินจาก Heuristic Function
-*   **A* Search:** Algorithm ที่หา Path ที่ดีที่สุดโดยรวม Cost ที่เกิดขึ้นแล้ว $g(n)$ กับ Heuristic Cost ที่คาดว่าจะเกิดขึ้น $h(n)$ เข้าด้วยกันเป็น $f(n) = g(n) + h(n)$ ซึ่งรับประกันการเจอ Optimal Solution หาก Heuristic เป็น Admissible
+<Cards>
+  <Card title="Search & Problem Solving" href="/en/docs/computer_science/artificial-intelligence/ai/search" icon={<Route />} description="Uninformed and informed search algorithms, A*, and Minimax for adversarial games." />
+  <Card title="Knowledge & Reasoning" href="/en/docs/computer_science/artificial-intelligence/ai/knowledge-reasoning" icon={<Brain />} description="Propositional logic, First-Order Logic, and expert systems for deductive reasoning." />
+  <Card title="Probabilistic Reasoning" href="/en/docs/computer_science/artificial-intelligence/ai/probabilistic-reasoning" icon={<Network />} description="Bayesian Networks, Markov Decision Processes, and reasoning under uncertainty." />
+  <Card title="AI Ethics & Safety" href="/en/docs/computer_science/artificial-intelligence/ai/ethics-safety" icon={<ShieldCheck />} description="Bias, fairness, alignment, and the ethical implications of artificial intelligence." />
+  <Card title="Interactive Labs" href="/en/docs/computer_science/artificial-intelligence/ai/labs" icon={<Microscope />} description="Hands-on PBL exercises and interactive simulations for core AI algorithms." />
+</Cards>

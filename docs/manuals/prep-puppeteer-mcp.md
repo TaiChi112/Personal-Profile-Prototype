@@ -1,8 +1,8 @@
-# 🕷️ คู่มือการใช้ Puppeteer MCP
+# ️ คู่มือการใช้ Puppeteer MCP
 
 Puppeteer MCP ไม่ต้องใช้ API Key ใดๆ แต่ต้องการให้เครื่องเซิร์ฟเวอร์ติดตั้ง Browser (Chromium) เพื่อให้ AI สามารถเปิดเบราว์เซอร์แบบ Headless เข้าไปแคปจอ หรือทดสอบ E2E ได้
 
-## 📊 ภาพรวมการทำงาน
+##  ภาพรวมการทำงาน
 ```mermaid
 graph LR
     AI[AI Agent] -->|Navigate & Screenshot| MCP(Puppeteer MCP)

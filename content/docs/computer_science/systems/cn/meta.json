@@ -1,9 +1,4 @@
 {
-  "title": "Computer Networks",
-  "pages": [
-    "index",
-    "osi-model",
-    "tcp-udp",
-    "http-dns"
-  ]
+  "title": "Computer Networks (CN)",
+  "pages": ["index", "labs"]
 }

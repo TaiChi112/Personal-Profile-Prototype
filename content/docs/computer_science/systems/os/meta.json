@@ -4,6 +4,7 @@
     "index",
     "process-thread",
     "concurrency",
-    "memory-management"
+    "memory-management",
+    "labs"
   ]
 }

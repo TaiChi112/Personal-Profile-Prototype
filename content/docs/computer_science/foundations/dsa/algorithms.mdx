@@ -1,28 +1,28 @@
 ---
 title: "Algorithms"
-description: "สรุปอัลกอริทึมพื้นฐาน Sorting, Searching, Graph, Dynamic Programming"
+description: "Summary of basic algorithms: Sorting, Searching, Graph, Dynamic Programming"
 ---
 
-# Algorithms (สรุปด่วน)
+# Algorithms (Quick Summary)
 
-## 1. Searching (การค้นหา)
-- **Linear Search:** ไล่หาทีละตัว `O(n)`
-- **Binary Search:** ข้อมูลต้องเรียงแล้ว หารครึ่งไปเรื่อยๆ `O(log n)`
+## 1. Searching
+- **Linear Search:** Searching one by one `O(n)`
+- **Binary Search:** Data must be sorted, repeatedly divided in half `O(log n)`
 
-## 2. Sorting (การจัดเรียง)
-- **Bubble / Insertion / Selection Sort:** เรียงแบบง่ายๆ วนลูปซ้อน `O(n^2)` (ใช้จริงเมื่อข้อมูลน้อยมาก)
-- **Merge Sort:** แบ่งครึ่งแล้วรวม (Divide & Conquer) `O(n log n)` เสมอ แต่กินพื้นที่ `O(n)`
-- **Quick Sort:** สุ่ม Pivot แล้วแบ่งฝั่ง เฉลี่ย `O(n log n)` พื้นที่ `O(log n)` แต่อาจแย่สุด `O(n^2)`
+## 2. Sorting
+- **Bubble / Insertion / Selection Sort:** Simple sorting, nested loops `O(n^2)` (used in practice when data is very small)
+- **Merge Sort:** Divide and combine (Divide & Conquer), always `O(n log n)` but takes `O(n)` space
+- **Quick Sort:** Random Pivot and partition, average `O(n log n)`, space `O(log n)`, but worst case `O(n^2)`
 
-## 3. Graph Traversal (การท่องกราฟ/ต้นไม้)
-- **BFS (Breadth-First Search):** ค้นหาแนวกว้าง กระจายออกเป็นชั้นๆ ใช้ Queue เหมาะสำหรับหา Shortest Path บนกราฟน้ำหนักเท่ากัน
-- **DFS (Depth-First Search):** ค้นหาแนวลึก พุ่งไปจนสุดทางแล้วถอยกลับ ใช้ Stack หรือ Recursion เหมาะสำหรับลุยเขาวงกต หรือเช็ค Cycle
+## 3. Graph Traversal (Graphs/Trees)
+- **BFS (Breadth-First Search):** Broad search, spreads layer by layer using a Queue. Suitable for finding the Shortest Path on unweighted graphs.
+- **DFS (Depth-First Search):** Deep search, dives to the end and backtracks using a Stack or Recursion. Suitable for solving mazes or cycle detection.
 
-## 4. Shortest Path (เส้นทางสั้นสุด)
-- **Dijkstra:** หาระยะสั้นสุดแบบมีน้ำหนักบวก `O(E log V)` (เมื่อใช้ Priority Queue)
-- **Bellman-Ford:** รองรับกราฟที่มีน้ำหนักติดลบ `O(VE)`
-- **Floyd-Warshall:** หาระยะสั้นสุดทุกคู่โหนด `O(V^3)`
+## 4. Shortest Path
+- **Dijkstra:** Finds shortest path with positive weights `O(E log V)` (when using a Priority Queue)
+- **Bellman-Ford:** Supports graphs with negative weights `O(VE)`
+- **Floyd-Warshall:** Finds shortest path for all pairs of nodes `O(V^3)`
 
 ## 5. Algorithmic Paradigms
-- **Greedy:** เลือกทางที่ดูดีที่สุดในปัจจุบัน (Local Optimum) หวังว่าจะได้ดีที่สุดในตอนจบ (เช่น Coin Change บางสกุล, Dijkstra, Huffman Coding)
-- **Dynamic Programming (DP):** จำผลลัพธ์ของปัญหาย่อย (Memoization/Tabulation) เพื่อไม่ให้ต้องคำนวณซ้ำ ใช้แก้ปัญหาที่มี Overlapping Subproblems (เช่น Fibonacci, Knapsack)
+- **Greedy:** Chooses the path that looks best currently (Local Optimum) hoping for the global best (e.g., Coin Change for some currencies, Dijkstra, Huffman Coding)
+- **Dynamic Programming (DP):** Remembers subproblem results (Memoization/Tabulation) to avoid recalculating. Used for problems with Overlapping Subproblems (e.g., Fibonacci, Knapsack)

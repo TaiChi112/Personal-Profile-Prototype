@@ -2,104 +2,109 @@
 title: Data Mining Exercise 0
 description: An overview of Data Mining (DM), its techniques, applications, and challenges.
 ---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
 <Callout title="Warning" type="warning">
 This article is a work in progress and may contain incomplete information or inaccuracies. Please verify details from reliable sources.
 </Callout>
 
 # Data Mining Exercise 0
 
-## 1. 🎯 Data Selection (การคัดเลือกข้อมูล)
+## 1. 🎯 Data Selection
 
-คือการเลือก **"วัตถุดิบ"** ที่เราจะใช้ ไม่ใช่ทุกข้อมูลในฐานข้อมูลจะจำเป็นเสมอไป
+This is selecting the **"raw materials"** we will use. Not all data in a database is always necessary.
 
-### สิ่งที่ทำ:
-- ดึงข้อมูลจาก **Database**, **Data Warehouse** หรือไฟล์ต่างๆ
-- เลือกเฉพาะส่วนที่เกี่ยวข้องกับโจทย์ที่เราตั้งไว้
+### What to do:
+- Extract data from a **Database**, **Data Warehouse**, or various files.
+- Select only the parts relevant to our set problem.
 
-<Callout title="💡 ตัวอย่าง" type="info">
-ถ้าจะวิเคราะห์ **"ยอดขายกาแฟ"** เราก็ดึงข้อมูลบิลขาย แต่**ไม่ต้องดึง**ข้อมูล "ทะเบียนรถพนักงาน" มาใช้
+<Callout title="💡 Example" type="info">
+If analyzing **"coffee sales"**, we extract sales receipt data, but **do not extract** "employee car registration" data.
 </Callout>
 
-## 2. 🧹 Data Preprocessing (การเตรียมและทำความสะอาดข้อมูล)
+## 2. 🧹 Data Preprocessing
 
-<Callout title="⚡ ข้อสำคัญ" type="warn">
-ขั้นตอนนี้**สำคัญที่สุด** (ใช้เวลา **60-80%** ของงาน) คือการล้างและเตรียมวัตถุดิบให้พร้อมปรุง
+<Callout title="⚡ Important" type="warn">
+This step is the **most important** (takes **60-80%** of the work). It is the cleaning and preparation of raw materials for cooking.
 </Callout>
 
-### ขั้นตอนย่อย:
+### Sub-steps:
 
 #### 🧽 Data Cleaning
-จัดการกับ **Noise** (ข้อมูลเพี้ยน) และ **Missing Values** (ข้อมูลแหว่ง)
+Handle **Noise** (distorted data) and **Missing Values** (incomplete data).
 
 #### 🔗 Data Integration
-รวมข้อมูลจากหลายแหล่ง (เช่น ไฟล์ Excel ยอดขาย + ฐานข้อมูลลูกค้า SQL) ให้เป็นก้อนเดียวกัน
+Combine data from multiple sources (e.g., Sales Excel file + SQL Customer Database) into a single block.
 
 #### 🔄 Data Transformation/Normalization
-ปรับรูปแบบข้อมูล เช่น:
-- แปลงข้อมูลให้อยู่ในช่วง `0-1` (Min-Max)
-- แปลงข้อความให้เป็นตัวเลข
+Adjust data format, such as:
+- Transform data to be in the range `0-1` (Min-Max)
+- Convert text into numbers
 
 #### 🎯 Feature Selection/Reduction
-เลือกเฉพาะคอลัมน์ที่สำคัญ ตัดสิ่งที่ไม่จำเป็นออกเพื่อลดขนาดข้อมูล
+Select only important columns. Discard unnecessary things to reduce data size.
 
-## 3. ⛏️ Data Mining (การขุดค้นข้อมูล)
+## 3. ⛏️ Data Mining
 
-คือขั้นตอน **"การปรุงอาหาร"** หรือหัวใจหลักที่เราใช้ Algorithm เข้ามาจับ
+This is the **"cooking"** step, or the core where we apply Algorithms.
 
-### สิ่งที่ทำ:
-เลือกโมเดลทางคณิตศาสตร์ที่เหมาะสมกับโจทย์
+### What to do:
+Choose a mathematical model suitable for the problem.
 
-### เทคนิคที่ใช้:
+### Techniques used:
 
-- **📊 Classification:** ทำนายกลุ่ม
-  - ตัวอย่าง: ลูกค้าจะเลิก/ไม่เลิก
+- **📊 Classification:** Predicting groups
+  - Example: Customer will churn/stay
 
-- **🎨 Clustering:** จัดกลุ่ม
-  - ตัวอย่าง: แบ่งกลุ่มลูกค้าตามพฤติกรรม
+- **🎨 Clustering:** Grouping
+  - Example: Grouping customers by behavior
 
-- **🔗 Association:** หาความสัมพันธ์
-  - ตัวอย่าง: คนซื้อเบียร์มักซื้อผ้าอ้อม
+- **🔗 Association:** Finding relationships
+  - Example: People who buy beer often buy diapers
 
-## 4. 🔍 Pattern Evaluation / Postprocessing (การประเมินและกลั่นกรองผลลัพธ์)
+## 4. 🔍 Pattern Evaluation / Postprocessing
 
-เมื่อปรุงเสร็จ เราต้อง **"ชิม"** และ **"จัดจาน"** ไม่ใช่ทุก Pattern ที่ขุดเจอจะมีประโยชน์
+After cooking, we must **"taste"** and **"plate"**. Not every Pattern discovered will be useful.
 
-### ขั้นตอน:
+### Steps:
 
 #### 🧪 Filtering
-คัดกรองกฎที่ซ้ำซ้อน หรือกฎที่เรารู้อยู่แล้ว (Trivial) ออกไป
+Filter out redundant rules or rules we already know (Trivial).
 
 #### 📈 Visualization
-แปลงตัวเลขผลลัพธ์ให้เป็น:
-- กราฟ
-- แผนภาพ (เช่น Decision Tree Diagram)
-- เพื่อให้ดูง่าย
+Transform numerical results into:
+- Graphs
+- Diagrams (like Decision Tree Diagram)
+- To make it easy to understand
 
 #### 💬 Interpretation
-แปลความหมายทางคณิตศาสตร์ให้เป็นภาษาธุรกิจ
+Translate mathematical meanings into business language.
 
-## 5. 🎁 Knowledge Presentation (การนำเสนอความรู้)
+## 5. 🎁 Knowledge Presentation
 
-คือ **"จานอาหารที่พร้อมเสิร์ฟ"**
+This is the **"dish ready to serve"**.
 
-### สิ่งที่ได้:
+### What we get:
 
-<Callout title="✨ ความรู้ที่นำไปใช้ได้จริง" type="success">
-ไม่ใช่แค่ข้อมูล (**Data**) หรือสารสนเทศ (**Information**) แต่คือ **ความรู้ (Knowledge)** ที่นำไปตัดสินใจได้จริง (**Actionable Insights**)
+<Callout title="✨ Actionable Knowledge" type="success">
+It is not just data (**Data**) or information (**Information**), but it is **Knowledge** that can actually be used for decision-making (**Actionable Insights**).
 </Callout>
 
-### 💡 ตัวอย่าง:
+### 💡 Example:
 
-> "เราควรจัดโปรโมชั่นลดราคาแป้งทำขนม ในช่วงเย็นวันศุกร์ เพราะกลุ่มแม่บ้านมักจะมาซื้อคู่กับนมสด"
+> "We should run a discount promotion on baking flour on Friday evenings, because housewives often buy it together with fresh milk."
 
 ---
 
-## 📝 สรุปสั้นๆ ให้จำได้ขึ้นใจ
+## 📝 Brief Summary to Remember
 
-| ขั้นตอน | คำอธิบาย | Analogy |
-|---------|----------|----------|
-| 1️⃣ Selection | คัดเลือกข้อมูล | เลือกของ |
-| 2️⃣ Preprocessing | เตรียมและทำความสะอาด | ล้าง/หั่น |
-| 3️⃣ Mining | ขุดค้น Pattern | ปรุง |
-| 4️⃣ Evaluation | ประเมินและกลั่นกรอง | ชิม/จัดจาน |
-| 5️⃣ Knowledge | นำเสนอความรู้ | อาหารอร่อย 🍽️ |
+| Step | Description | Analogy |
+|------
+
+---|----------|----------|
+| 1️⃣ Selection | Select data | Choose ingredients |
+| 2️⃣ Preprocessing | Prepare and clean | Wash/chop |
+| 3️⃣ Mining | Discover Pattern | Cook |
+| 4️⃣ Evaluation | Evaluate and filter | Taste/plate |
+| 5️⃣ Knowledge | Present knowledge | Delicious food 🍽️ |

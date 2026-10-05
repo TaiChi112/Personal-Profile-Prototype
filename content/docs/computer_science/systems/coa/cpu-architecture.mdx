@@ -1,23 +1,23 @@
 ---
 title: "CPU Architecture"
-description: "ส่วนประกอบหลักของ CPU และ Instruction Cycle"
+description: "Core Components of a CPU and Instruction Cycle"
 ---
 
-# CPU Architecture (สรุปด่วน)
+# CPU Architecture (Quick Summary)
 
-CPU (Central Processing Unit) คือสมองของคอมพิวเตอร์ ทำหน้าที่ประมวลผลคำสั่งทางตรรกะและคณิตศาสตร์
+The CPU (Central Processing Unit) is the brain of the computer, responsible for processing logical and mathematical instructions.
 
-## 1. Core Components (ส่วนประกอบหลัก)
-- **ALU (Arithmetic Logic Unit):** วงจรที่ทำหน้าที่คำนวณทางคณิตศาสตร์ (บวก, ลบ) และตรรกศาสตร์ (AND, OR, NOT)
-- **CU (Control Unit):** วงจรควบคุมที่คอยสั่งการและดึงคำสั่ง (Fetch) จาก Memory มาถอดรหัส (Decode)
-- **Registers:** หน่วยความจำขนาดเล็กมากๆ แต่อยู่ติดกับ CPU โดยตรง (ทำงานเร็วที่สุดในระบบ)
-  - `PC (Program Counter)`: เก็บ Address ของคำสั่งถัดไปที่ต้องทำ
-  - `IR (Instruction Register)`: เก็บคำสั่งที่กำลังถูกประมวลผลอยู่
-  - `ACC (Accumulator)`: เก็บผลลัพธ์จากการคำนวณของ ALU ชั่วคราว
+## 1. Core Components
+- **ALU (Arithmetic Logic Unit):** The circuit responsible for mathematical (add, subtract) and logical (AND, OR, NOT) calculations.
+- **CU (Control Unit):** The control circuit that directs and fetches instructions (Fetch) from Memory to decode them (Decode).
+- **Registers:** Very small memory units that are located directly on the CPU (the fastest in the system).
+  - `PC (Program Counter)`: Stores the address of the next instruction to be executed.
+  - `IR (Instruction Register)`: Stores the instruction currently being processed.
+  - `ACC (Accumulator)`: Temporarily stores the calculation results from the ALU.
 
-## 2. Instruction Cycle (รอบการทำงาน)
-วงจรพื้นฐาน (Machine Cycle) ที่ CPU ทำซ้ำไปเรื่อยๆ:
-1. **Fetch:** ดึงคำสั่งจาก Memory (RAM หรือ Cache) มาไว้ที่ `IR`
-2. **Decode:** CU ถอดรหัสคำสั่งว่าเป็นคำสั่งอะไร (บวก, ย้ายข้อมูล, กระโดด)
-3. **Execute:** ส่งให้ ALU หรือส่วนอื่นๆ คำนวณตามคำสั่ง
-4. **Store (Write Back):** เก็บผลลัพธ์กลับลงไปที่ Register หรือ Memory
+## 2. Instruction Cycle
+The basic cycle (Machine Cycle) that the CPU repeats continuously:
+1. **Fetch:** Fetches the instruction from Memory (RAM or Cache) to the `IR`.
+2. **Decode:** The CU decodes the instruction to determine what it is (add, move data, jump).
+3. **Execute:** Sends it to the ALU or other components to calculate according to the instruction.
+4. **Store (Write Back):** Stores the result back to a Register or Memory.

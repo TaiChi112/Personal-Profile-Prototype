@@ -1,21 +1,21 @@
 ---
 title: "Pipelining & Hazards"
-description: "เทคนิค Pipelining และปัญหาที่เกิดขึ้น"
+description: "Pipelining Techniques and Resulting Problems"
 ---
 
-# Pipelining & Hazards (สรุปด่วน)
+# Pipelining & Hazards (Quick Summary)
 
 ## 1. Pipelining
-คือเทคนิคที่ทำให้ CPU สามารถทำงานหลายคำสั่งพร้อมกันได้ (Instruction-Level Parallelism) โดยเปรียบเทียบเหมือน "สายพานในโรงงาน"
-- **แบบเดิม (Non-Pipelined):** ต้องรอให้คำสั่งที่ 1 ทำครบ 4 ขั้นตอน (Fetch, Decode, Execute, Store) ถึงจะเริ่มคำสั่งที่ 2 ได้
-- **แบบ Pipelined:** ขณะที่คำสั่งที่ 1 กำลัง Execute คำสั่งที่ 2 สามารถทำ Decode และคำสั่งที่ 3 สามารถทำ Fetch ได้พร้อมกันใน Clock Cycle เดียวกัน ทำให้ Throughput เพิ่มขึ้นมหาศาล
+This is a technique that allows the CPU to process multiple instructions simultaneously (Instruction-Level Parallelism), similar to an "assembly line in a factory."
+- **Traditional (Non-Pipelined):** Must wait for instruction 1 to complete all 4 stages (Fetch, Decode, Execute, Store) before starting instruction 2.
+- **Pipelined:** While instruction 1 is executing, instruction 2 can decode, and instruction 3 can fetch concurrently in the same Clock Cycle, significantly increasing throughput.
 
-## 2. Pipeline Hazards (ปัญหาที่ทำให้สายพานสะดุด)
-เมื่อคำสั่งทำงานซ้อนทับกัน อาจเกิดปัญหาที่ทำให้ Pipeline ต้องหยุดรอ (Stall / Bubble)
+## 2. Pipeline Hazards (Problems that disrupt the pipeline)
+When instructions overlap, problems may occur that cause the pipeline to stall (Stall / Bubble).
 
-1. **Structural Hazard:** Resource ไม่พอ (เช่น พยายามใช้ Memory ตัวเดียวกันในการอ่าน Instruction และอ่าน Data พร้อมกัน)
-   - *วิธีแก้:* แยก Cache เป็น Instruction Cache และ Data Cache
-2. **Data Hazard:** คำสั่งที่ 2 ต้องใช้ผลลัพธ์จากคำสั่งที่ 1 แต่คำสั่งที่ 1 ยังประมวลผลไม่เสร็จ
-   - *วิธีแก้:* ใช้เทคนิค Data Forwarding (ส่งผลลัพธ์ตรงจากวงจร ALU ข้ามกลับมาให้เลยโดยไม่ต้องรอเขียนลง Register)
-3. **Control Hazard (Branch Hazard):** เกิดจากการเจอคำสั่ง `if-else` หรือ `jump` ทำให้ CPU ไม่รู้ว่าคำสั่งถัดไปที่ต้อง Fetch คือเส้นทางไหน
-   - *วิธีแก้:* ใช้เทคนิค Branch Prediction (เดาทางล่วงหน้า ถ้าเดาผิดค่อย Flush Pipeline ทิ้ง)
+1. **Structural Hazard:** Insufficient resources (e.g., trying to use the same memory to read an instruction and read data simultaneously).
+   - *Solution:* Separate Cache into Instruction Cache and Data Cache.
+2. **Data Hazard:** Instruction 2 requires the result from instruction 1, but instruction 1 has not finished processing yet.
+   - *Solution:* Use Data Forwarding (bypassing the result directly from the ALU circuit back without waiting to write to the Register).
+3. **Control Hazard (Branch Hazard):** Occurs when encountering an `if-else` or `jump` instruction, causing the CPU to not know which path to fetch for the next instruction.
+   - *Solution:* Use Branch Prediction (predicting the path in advance, and if guessed wrong, flush the pipeline).

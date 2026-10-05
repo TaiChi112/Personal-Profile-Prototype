@@ -3,6 +3,7 @@ title: "Computer Science"
 description: "Explore the theoretical foundations of information and computation, along with practical techniques for their implementation and application."
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
 import { LayoutTemplate, Cpu, Code2, BrainCircuit, Database, Network } from 'lucide-react';
 
 <Callout title="A Note from the Author" type="info">
@@ -12,22 +13,10 @@ import { LayoutTemplate, Cpu, Code2, BrainCircuit, Database, Network } from 'luc
 </Callout>
 
 <Cards>
-  <Card title="Foundations" href="/en/docs/computer_science/foundations" icon={<LayoutTemplate />}>
-    Dive into Data Structures, Algorithms, and the fundamental theories of computation.
-  </Card>
-  <Card title="Systems" href="/en/docs/computer_science/systems" icon={<Cpu />}>
-    Learn about Databases, Operating Systems, Computer Networks, and Architecture.
-  </Card>
-  <Card title="Software Engineering" href="/en/docs/computer_science/software-engineering" icon={<Code2 />}>
-    Explore Design Patterns, Object-Oriented Programming, and software development lifecycles.
-  </Card>
-  <Card title="Artificial Intelligence" href="/en/docs/computer_science/artificial-intelligence" icon={<BrainCircuit />}>
-    Study Machine Learning, Deep Learning, and advanced AI methodologies.
-  </Card>
-  <Card title="Applied CS" href="/en/docs/computer_science/applied-cs" icon={<Database />}>
-    Discover practical applications of computer science in various industries.
-  </Card>
-  <Card title="Guides & Tutorials" href="/en/docs/computer_science/guides" icon={<Network />}>
-    Step-by-step guides and practical tutorials for hands-on learning.
-  </Card>
+  <Card title="Foundations" href="/en/docs/computer_science/foundations" icon={<LayoutTemplate />} description="Dive into Data Structures, Algorithms, and the fundamental theories of computation." />
+  <Card title="Systems" href="/en/docs/computer_science/systems" icon={<Cpu />} description="Learn about Databases, Operating Systems, Computer Networks, and Architecture." />
+  <Card title="Software Engineering" href="/en/docs/computer_science/software-engineering" icon={<Code2 />} description="Explore Design Patterns, Object-Oriented Programming, and software development lifecycles." />
+  <Card title="Artificial Intelligence" href="/en/docs/computer_science/artificial-intelligence" icon={<BrainCircuit />} description="Study Machine Learning, Deep Learning, and advanced AI methodologies." />
+  <Card title="Applied CS" href="/en/docs/computer_science/applied-cs" icon={<Database />} description="Discover practical applications of computer science in various industries." />
+  <Card title="Guides & Tutorials" href="/en/docs/computer_science/guides" icon={<Network />} description="Step-by-step guides and practical tutorials for hands-on learning." />
 </Cards>

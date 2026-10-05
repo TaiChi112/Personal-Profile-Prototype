@@ -1,25 +1,25 @@
 ---
 title: "Automata Theory"
-description: "สรุป Automata Theory และ Abstract Machines"
+description: "Summary of Automata Theory and Abstract Machines"
 ---
 
-# Automata Theory (สรุปด่วน)
+# Automata Theory (Quick Summary)
 
-Automata Theory เป็นการศึกษาเกี่ยวกับ **Abstract Machines** และปัญหาที่ Machine เหล่านี้สามารถแก้ได้ ซึ่งเป็นพื้นฐานสำคัญของการสร้าง **Compiler** และ **Programming Languages**
+Automata Theory is the study of **Abstract Machines** and the problems these machines can solve, which is a crucial foundation for building **Compilers** and **Programming Languages**.
 
 ## 1. Finite Automata (FA)
-เป็น Abstract Machine ที่มี **State** จำนวนจำกัด ไม่มี Memory ฝังตัว (ทำงานโดยการเปลี่ยน State ตาม Input)
-- **Deterministic Finite Automaton (DFA):** สำหรับแต่ละ State และแต่ละ Input จะมีทางไปสู่ State ถัดไปเพียง **ทางเดียว** เท่านั้น
-- **Nondeterministic Finite Automaton (NFA):** สามารถไปยัง State ถัดไปได้ **หลายทาง** (หรือไม่มีเลย) ด้วย Input เดียวกัน รวมถึงข้าม State ได้โดยไม่ต้องรับ Input (Epsilon transition)
-- **Fact:** DFA และ NFA มีความสามารถในการประมวลผล (Computational Power) เท่ากัน
+An Abstract Machine with a limited number of **States** and no embedded Memory (operates by changing states based on Input).
+- **Deterministic Finite Automaton (DFA):** For each State and each Input, there is exactly **one** path to the next State.
+- **Nondeterministic Finite Automaton (NFA):** Can transition to **multiple** next States (or none) on the same Input, including skipping States without receiving Input (Epsilon transition).
+- **Fact:** DFA and NFA have equal computational power.
 
 ## 2. Regular Expressions (RegEx)
-ใช้สำหรับอธิบายรูปแบบของ String (Pattern Matching)
-- มีความสามารถเทียบเท่ากับ Finite Automata (ปัญหาใดที่ FA แก้ได้ RegEx ก็สามารถอธิบายได้ เรียกว่า Regular Languages)
-- **Applications:** Text processing, การหา Pattern ใน Code, Lexical analysis ใน Compiler
+Used to describe patterns of Strings (Pattern Matching).
+- Has equal capability to Finite Automata (Any problem FA can solve, RegEx can describe, known as Regular Languages).
+- **Applications:** Text processing, finding patterns in Code, Lexical analysis in Compilers.
 
 ## 3. Context-Free Grammars (CFG)
-เป็นระบบในการสร้าง String โดยมีชุดของ Rules (Productions) เพื่ออธิบายภาษาที่มีโครงสร้างซับซ้อนขึ้น
-- มีความสามารถมากกว่า FA (เช่น สามารถเช็ควงเล็บเปิด/ปิดว่าจับคู่กันครบหรือไม่)
-- เครื่องจักรที่เทียบเท่ากับ CFG คือ **Pushdown Automata (PDA)** ซึ่งก็คือ FA ที่มี Memory แบบ Stack เพิ่มเข้ามา
-- **Applications:** การสร้าง Syntax Parser ใน Compiler (การเช็คว่าเขียน Code ถูกหลัก Syntax หรือไม่)
+A system for generating Strings using a set of Rules (Productions) to describe languages with more complex structures.
+- More capable than FA (e.g., can check if open/close parentheses match completely).
+- The machine equivalent to CFG is the **Pushdown Automata (PDA)**, which is essentially an FA with a Stack Memory added.
+- **Applications:** Building Syntax Parsers in Compilers (checking if Code is written with correct Syntax).

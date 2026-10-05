@@ -4,7 +4,7 @@
 
 ---
 
-## 🛠️ The Master Prompt
+## ️ The Master Prompt
 
 ```text
 You are an expert Cloud Architect and DevOps Engineer. I want you to transform this empty remote server into a highly scalable "AI Software Factory" and testing sandbox. 

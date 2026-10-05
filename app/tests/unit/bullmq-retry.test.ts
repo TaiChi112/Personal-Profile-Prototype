@@ -1,6 +1,15 @@
 import { Queue, Job } from 'bullmq';
 
-jest.mock('bullmq');
+jest.mock('bullmq', () => {
+  return {
+    Queue: class MockQueue {
+      constructor(public name?: string) {}
+      getJob = jest.fn();
+      retryJobs = jest.fn();
+    },
+    Job: class MockJob {}
+  };
+});
 
 describe('BullMQ Dead-Letter Queue (Failed Jobs) Retries', () => {
   let queue: jest.Mocked<Queue>;

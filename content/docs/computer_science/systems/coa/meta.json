@@ -1,9 +1,4 @@
 {
-  "title": "Computer Architecture",
-  "pages": [
-    "index",
-    "cpu-architecture",
-    "memory-hierarchy",
-    "pipelining"
-  ]
+  "title": "Computer Architecture (COA)",
+  "pages": ["index", "labs"]
 }

@@ -1,6 +1,7 @@
 {
-    "pages": [
-        "DIP",
-        "Problem"
-    ]
+  "pages": [
+    "DIP",
+    "Problem",
+    "labs"
+  ]
 }

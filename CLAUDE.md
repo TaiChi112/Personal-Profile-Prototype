@@ -4,7 +4,7 @@
 
 ---
 
-# 🛑 CRITICAL RULE: STRICT TYPESCRIPT (NO `any`)
+#  CRITICAL RULE: STRICT TYPESCRIPT (NO `any`)
 - **NEVER use the `any` type.**
 - **NEVER use `as any`.**
 - The project's CI/CD has `@typescript-eslint/no-explicit-any` configured as an error. Your code will fail the build if you use `any`.

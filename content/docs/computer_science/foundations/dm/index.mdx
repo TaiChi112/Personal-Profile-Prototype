@@ -1,41 +1,53 @@
 ---
-title: "Discrete Mathematics (คณิตศาสตร์ไม่ต่อเนื่อง)"
-description: "หน้าเริ่มต้นสำหรับทบทวนพื้นฐานคณิตศาสตร์สำหรับวิทยาการคอมพิวเตอร์"
+title: "Discrete Mathematics"
+description: "Starting page for reviewing the fundamentals of mathematics for computer science"
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
 import { Binary, Link, Network, Shuffle } from 'lucide-react';
+import { TerminalSquare } from 'lucide-react';
 
 <Callout title="Quick Review" type="info">
-  หมวดหมู่นี้ออกแบบมาเพื่อการอ่านทบทวนแบบรวดเร็ว (Cheat Sheet) สรุปทฤษฎีและคอนเซปต์หลักของ Discrete Mathematics ที่ใช้บ่อยในการเขียนโปรแกรมและออกแบบอัลกอริทึม
+  This category is designed for a quick review (Cheat Sheet), summarizing the main theories and concepts of Discrete Mathematics frequently used in programming and algorithm design.
 </Callout>
 
 # Discrete Mathematics
 
-เลือกหัวข้อที่ต้องการทบทวน (Bento Grid):
+Select a topic to review (Bento Grid):
 
 <Cards>
   <Card 
     href="/en/docs/computer_science/foundations/dm/logic-sets" 
     title="Logic & Sets" 
     icon={<Binary />}
-    description="ตรรกศาสตร์ ประพจน์ ทฤษฎีเซต และฐานข้อมูล" 
+    description="Logic, propositions, set theory, and databases" 
   />
   <Card 
     href="/en/docs/computer_science/foundations/dm/relations-functions" 
     title="Relations & Functions" 
     icon={<Link />}
-    description="ความสัมพันธ์ ฟังก์ชันโดเมน เรนจ์ และการเข้ารหัส" 
+    description="Relations, functions, domain, range, and cryptography" 
   />
   <Card 
     href="/en/docs/computer_science/foundations/dm/graph-theory" 
     title="Graph Theory" 
     icon={<Network />}
-    description="ทฤษฎีกราฟ โหนด เส้นทางต้นไม้ และเน็ตเวิร์ค" 
+    description="Graph theory, nodes, trees, paths, and networks" 
   />
   <Card 
     href="/en/docs/computer_science/foundations/dm/combinatorics-boolean" 
     title="Combinatorics & Boolean" 
     icon={<Shuffle />}
-    description="การเรียงสับเปลี่ยน การจัดหมู่ ความน่าจะเป็น และพีชคณิตบูลีน" 
+    description="Permutations, combinations, probability, and Boolean algebra" 
+  />
+  <Card 
+    href="/en/docs/computer_science/foundations/dm/labs/graph-theory"
+    title="Interactive Labs (PBL)"
+    icon={<TerminalSquare />}
+    description="Problem-Based Learning scenarios with Socratic AI Prompts"
   />
 </Cards>

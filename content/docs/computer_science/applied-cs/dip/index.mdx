@@ -2,13 +2,22 @@
 title: Digital Image Processing
 description: Overview of DIP concepts and problems
 ---
+
+import { TerminalSquare } from 'lucide-react';
+
 import { FileText, AlertCircle } from 'lucide-react';
 
 <Cards>
   <Card title="DIP Concepts" href="/en/docs/computer_science/applied-cs/dip/DIP" icon={<FileText />}>
-    ทฤษฎี แนวคิดพื้นฐาน และ Algorithm สำหรับการประมวลผลภาพดิจิทัล
+    Theory, foundational concepts, and Algorithms for digital image processing.
   </Card>
   <Card title="DIP Problems" href="/en/docs/computer_science/applied-cs/dip/Problem" icon={<AlertCircle />}>
-    การประยุกต์ใช้งานและกรณีศึกษาสำหรับโจทย์ปัญหา DIP ในระดับสูง
+    Applications and case studies for advanced DIP problems.
   </Card>
+  <Card 
+    href="/en/docs/computer_science/applied-cs/dip/labs/noisy-image"
+    title="Interactive Labs (PBL)"
+    icon={<TerminalSquare />}
+    description="Problem-Based Learning scenarios with Socratic AI Prompts"
+  />
 </Cards>

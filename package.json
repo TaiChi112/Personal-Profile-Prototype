@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "rm -rf .next && next dev --turbopack",
     "dev:webpack": "next dev --webpack",
     "build": "prisma generate && prisma db push && next build",
     "start": "next start",
@@ -21,7 +21,18 @@
     "integration:auth-db": "bun tests/core/integration/integration-auth-db.ts",
     "integration:http-crud": "bun tests/core/integration/integration-http-crud.ts",
     "integration:http-admin-users": "bun tests/core/integration/integration-http-admin-users.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:unit": "bun test tests/unit",
+    "test:coverage": "bun test --coverage tests/unit",
+    "script:check-db": "bun run scripts/db/check_db.js",
+    "script:link-dummy-user": "bun run scripts/db/link_dummy_user.js",
+    "script:compile-mdx": "bun run scripts/docs/compile-all-mdx.js",
+    "script:test-mdx": "bun run scripts/testing/test-mdx.js",
+    "script:test-page": "bun run scripts/testing/test-page.ts",
+    "script:test-webhook": "bun run scripts/testing/test_webhook.js",
+    "script:test-webhook2": "bun run scripts/testing/test_webhook2.js",
+    "script:worker": "bun run scripts/queue/worker.ts",
+    "script:mcp-server": "bun run scripts/mcp/mcp-server.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.67",

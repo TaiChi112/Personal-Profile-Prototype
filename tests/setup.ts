@@ -1,10 +1,11 @@
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import { expect, afterEach } from 'bun:test';
-import * as matchers from '@testing-library/jest-dom/matchers';
-import { cleanup } from '@testing-library/react';
 
-// Setup DOM Environment
+// Setup DOM Environment before importing testing-library
 GlobalRegistrator.register();
+
+const matchers = await import('@testing-library/jest-dom/matchers');
+const { cleanup } = await import('@testing-library/react');
 
 // Add testing-library custom matchers to bun:test
 expect.extend(matchers);
@@ -13,3 +14,4 @@ expect.extend(matchers);
 afterEach(() => {
   cleanup();
 });
+

@@ -2,7 +2,7 @@
 
 Welcome to the project's documentation hub. This directory contains all standard SDLC documents, organized by role.
 
-## 📁 Directory Structure
+##  Directory Structure
 
 - **/pm**: Project Management (PRD, Roadmap, Release Notes)
 - **/developer**: Technical specifications (Architecture, API, Database)

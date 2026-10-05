@@ -1,37 +1,51 @@
 ---
 title: "Computer Networks (CN)"
-description: "ทบทวนพื้นฐานระบบเครือข่าย OSI Model และ Protocols"
+description: "Review of Networking Basics, OSI Model, and Protocols"
 ---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+import { TerminalSquare } from 'lucide-react';
+
 
 import { Globe, ShieldAlert, ArrowRightLeft, Layers } from 'lucide-react';
 
 <Callout title="Quick Review" type="info">
-  สรุปหลักการเชื่อมต่อและส่งข้อมูลข้ามเครือข่ายที่เป็นรากฐานของ Internet และ Web Architecture
+  Summary of network connection and data transmission principles that form the foundation of the Internet and Web Architecture
 </Callout>
 
 # Computer Networks
 
-Computer Networks คือศาสตร์ที่ว่าด้วยการเชื่อมโยงระบบ Computer เข้าด้วยกันเพื่อสื่อสารและแลกเปลี่ยนข้อมูล
+Computer Networks is the discipline of connecting computer systems together to communicate and exchange data.
 
-เลือกหัวข้อที่ต้องการทบทวน (Bento Grid):
+Select a topic to review (Bento Grid):
 
 <Cards>
   <Card 
     href="/en/docs/computer_science/systems/cn/osi-model" 
     title="OSI Model" 
     icon={<Layers />}
-    description="โมเดล 7 เลเยอร์มาตรฐานที่ใช้แบ่งหน้าที่การทำงานของระบบ Network" 
+    description="The standard 7-layer model used to divide the functions of a network system" 
   />
   <Card 
     href="/en/docs/computer_science/systems/cn/tcp-udp" 
     title="TCP & UDP" 
     icon={<ArrowRightLeft />}
-    description="ความแตกต่างของ Transport Layer, Three-way Handshake และ Reliability" 
+    description="Differences in Transport Layer, Three-way Handshake, and Reliability" 
   />
   <Card 
     href="/en/docs/computer_science/systems/cn/http-dns" 
     title="HTTP & DNS" 
     icon={<Globe />}
-    description="กลไกของ Web Application, Domain Name System และ HTTP Status Codes" 
+    description="Mechanisms of Web Applications, Domain Name System, and HTTP Status Codes" 
+  />
+  <Card 
+    href="/en/docs/computer_science/systems/cn/labs/tcp-handshake"
+    title="Interactive Labs (PBL)"
+    icon={<TerminalSquare />}
+    description="Problem-Based Learning scenarios with Socratic AI Prompts"
   />
 </Cards>

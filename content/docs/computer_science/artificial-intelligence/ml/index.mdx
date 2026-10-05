@@ -1,38 +1,38 @@
 ---
 title: Machine Learning (ML) Cheat Sheet
-description: สรุปหลักการของ Machine Learning
+description: Summary of Machine Learning principles
 ---
 
 # Machine Learning (ML) Cheat Sheet
 
-เอกสารนี้สรุปประเด็นหลักใน Machine Learning สำหรับใช้เป็นแหล่งอ้างอิง
+This document summarizes key concepts in Machine Learning for reference.
 
 ## 1. Learning Paradigms
 
-Machine Learning สามารถแบ่งออกเป็นประเภทหลักๆ ตามวิธีการเรียนรู้ดังนี้
+Machine Learning can be mainly categorized based on learning methods as follows:
 
 ### Supervised Learning
-โมเดลเรียนรู้จาก Labeled Data โดย Algorithm พยายามหา Mapping Function จาก Input ไปยัง Output
-*   **Classification:** การทำนาย Categorical Labels (เช่น Spam Detection)
-*   **Regression:** การทำนาย Continuous Values (เช่น House Price Prediction)
+The model learns from Labeled Data, where the algorithm tries to find a Mapping Function from Input to Output.
+*   **Classification:** Predicting Categorical Labels (e.g., Spam Detection).
+*   **Regression:** Predicting Continuous Values (e.g., House Price Prediction).
 
 ### Unsupervised Learning
-โมเดลเรียนรู้จาก Unlabeled Data โดย Algorithm พยายามค้นหา Hidden Structure หรือรูปแบบในข้อมูล
-*   **Clustering:** การจัดกลุ่ม Data Points ที่มีลักษณะคล้ายกัน (เช่น K-Means)
-*   **Dimensionality Reduction:** การลดจำนวน Features โดยรักษา Information ให้มากที่สุด (เช่น PCA)
+The model learns from Unlabeled Data, where the algorithm tries to find Hidden Structure or patterns in the data.
+*   **Clustering:** Grouping Data Points with similar characteristics (e.g., K-Means).
+*   **Dimensionality Reduction:** Reducing the number of features while preserving as much information as possible (e.g., PCA).
 
 ### Reinforcement Learning
-Agent เรียนรู้การตัดสินใจผ่านการกระทำใน Environment โดยรับ Feedback ในรูปของ Rewards หรือ Penalties เพื่อหา Optimal Policy
+An Agent learns to make decisions through actions in an Environment, receiving feedback in the form of Rewards or Penalties to find the Optimal Policy.
 
 ## 2. Bias-Variance Tradeoff
 
-*   **Bias:** Error ที่เกิดจากการใช้โมเดลที่เรียบง่ายเกินไป ทำให้ไม่สามารถจับความซับซ้อนของข้อมูลได้ นำไปสู่ปัญหา Underfitting
-*   **Variance:** Error ที่เกิดจากการที่โมเดลมีความไวต่อ Fluctuation ใน Training Data มากเกินไป ทำให้จับ Noise ในข้อมูล นำไปสู่ปัญหา Overfitting
-*   **Tradeoff:** การสร้างโมเดลที่มีประสิทธิภาพจำเป็นต้องหาจุดสมดุล (Sweet Spot) ระหว่าง Bias และ Variance เพื่อให้ได้ Minimum Total Error บน Unseen Data
+*   **Bias:** Error resulting from using a model that is too simple, making it unable to capture the complexity of the data, leading to Underfitting.
+*   **Variance:** Error resulting from the model being too sensitive to fluctuations in the Training Data, causing it to capture noise in the data, leading to Overfitting.
+*   **Tradeoff:** Creating an effective model requires finding a sweet spot between Bias and Variance to achieve the Minimum Total Error on Unseen Data.
 
 ## 3. Evaluation Metrics
 
-*   **Accuracy:** อัตราส่วนของการทำนายที่ถูกต้องทั้งหมด
-*   **Precision:** สัดส่วนของ True Positives จาก Positive Predictions ทั้งหมด
-*   **Recall (Sensitivity):** สัดส่วนของ True Positives จาก Actual Positives ทั้งหมด
-*   **F1 Score:** ค่า Harmonic Mean ระหว่าง Precision และ Recall
+*   **Accuracy:** The ratio of total correct predictions.
+*   **Precision:** The proportion of True Positives out of all Positive Predictions.
+*   **Recall (Sensitivity):** The proportion of True Positives out of all Actual Positives.
+*   **F1 Score:** The Harmonic Mean between Precision and Recall.

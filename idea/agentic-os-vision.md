@@ -1,4 +1,4 @@
-# 🚀 The Vision: AI-Native Personal Operating System (Personal OS)
+#  The Vision: AI-Native Personal Operating System (Personal OS)
 
 **Documented on:** 2026-09-11
 **Status:** In Progress (Phase 1: Micro-Project Scaffolding)

@@ -4,10 +4,11 @@ description: Software Design Patterns
 ---
 
 import { Cuboid, Component, Activity } from 'lucide-react';
+import { TerminalSquare } from 'lucide-react';
 
 # Design Patterns
 
-Design Patterns คือรูปแบบการแก้ปัญหาที่เกิดขึ้นซ้ำๆ ในการทำ Software Design ซึ่งสามารถนำมาประยุกต์ใช้เพื่อปรับปรุง Code Architecture ให้มีความยืดหยุ่นและง่ายต่อการดูแลรักษา
+Design Patterns are typical solutions to commonly occurring problems in Software Design, which can be applied to improve Code Architecture, making it flexible and easy to maintain.
 
 <Cards>
   <Card 
@@ -15,20 +16,26 @@ Design Patterns คือรูปแบบการแก้ปัญหาท�
     title="Creational Patterns" 
     icon={<Cuboid />} 
   >
-    รูปแบบที่เกี่ยวข้องกับ Object Creation Mechanism เพื่อเพิ่มความยืดหยุ่นในการสร้าง Object
+    Patterns related to Object Creation Mechanisms to increase flexibility in object creation.
   </Card>
   <Card 
     href="/en/docs/computer_science/software-engineering/design-pattern/Structural" 
     title="Structural Patterns" 
     icon={<Component />} 
   >
-    รูปแบบที่จัดการเรื่อง Object Composition โดยจัดโครงสร้าง Class หรือ Object ให้ทำงานร่วมกันได้อย่างมีประสิทธิภาพ
+    Patterns that handle Object Composition by structuring Classes or Objects to work together efficiently.
   </Card>
   <Card 
     href="/en/docs/computer_science/software-engineering/design-pattern/Behavioral" 
     title="Behavioral Patterns" 
     icon={<Activity />} 
   >
-    รูปแบบที่มุ่งเน้นเรื่อง Object Communication และการกำหนดความรับผิดชอบระหว่าง Object ต่างๆ
+    Patterns that focus on Object Communication and assigning responsibilities between various Objects.
   </Card>
+  <Card 
+    href="/en/docs/computer_science/software-engineering/design-pattern/labs/broken-singleton"
+    title="Interactive Labs (PBL)"
+    icon={<TerminalSquare />}
+    description="Problem-Based Learning scenarios with Socratic AI Prompts"
+  />
 </Cards>

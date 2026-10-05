@@ -1,22 +1,22 @@
 ---
 title: "Memory Hierarchy"
-description: "ลำดับชั้นของหน่วยความจำในระบบคอมพิวเตอร์"
+description: "The Hierarchy of Memory in a Computer System"
 ---
 
-# Memory Hierarchy (สรุปด่วน)
+# Memory Hierarchy (Quick Summary)
 
-การออกแบบระบบคอมพิวเตอร์ต้องรักษาสมดุลระหว่าง **"ความเร็ว"**, **"ความจุ"**, และ **"ราคา"** จึงเกิดเป็นแนวคิดลำดับชั้นหน่วยความจำแบบปิรามิด
+Designing a computer system requires balancing **"Speed"**, **"Capacity"**, and **"Cost"**, which leads to the concept of a pyramid-shaped memory hierarchy.
 
-## 1. ลำดับชั้น (จากเร็วที่สุดไปช้าที่สุด)
-1. **Registers:** อยู่ใน CPU โดยตรง เร็วที่สุด (ความจุน้อยระดับ Bytes)
-2. **Cache Memory (SRAM):** อยู่ในหรือใกล้ CPU มากๆ เพื่อลดเวลาที่ CPU ต้องไปรอข้อมูลจาก RAM
-   - `L1 Cache`: เร็วสุด เล็กสุด (แยก Core)
-   - `L2 Cache`: ช้ากว่า L1 (แยก Core)
-   - `L3 Cache`: ใหญ่สุดในกลุ่ม Cache (แชร์กันทุก Core)
-3. **Main Memory (RAM / DRAM):** พื้นที่ทำงานหลักของระบบ (ความจุระดับ GB)
-4. **Secondary Storage (SSD / HDD):** เก็บข้อมูลถาวร ช้าที่สุด แต่ความจุมากและราคาถูกสุด (ระดับ TB)
+## 1. Hierarchy (From Fastest to Slowest)
+1. **Registers:** Located directly inside the CPU, the fastest (capacity in Bytes).
+2. **Cache Memory (SRAM):** Located in or very close to the CPU to reduce the time the CPU has to wait for data from RAM.
+   - `L1 Cache`: Fastest, smallest (per Core).
+   - `L2 Cache`: Slower than L1 (per Core).
+   - `L3 Cache`: Largest among Caches (shared across all Cores).
+3. **Main Memory (RAM / DRAM):** The main workspace of the system (capacity in GB).
+4. **Secondary Storage (SSD / HDD):** Stores permanent data, the slowest, but with the largest capacity and lowest cost (in TB).
 
 ## 2. Principle of Locality
-เหตุผลที่ Cache Memory ทำงานได้ผลดีเยี่ยม มาจากพฤติกรรมการเข้าถึงข้อมูลของ Program:
-- **Spatial Locality:** ถ้า CPU เข้าถึงข้อมูลตรง Address หนึ่ง มีโอกาสสูงมากที่เร็วๆ นี้ CPU จะเข้าถึงข้อมูลที่อยู่ "ใกล้เคียงกัน" (เช่น การวนลูป Array)
-- **Temporal Locality:** ถ้า CPU เข้าถึงข้อมูลตัวใดตัวหนึ่ง มีโอกาสสูงมากที่เร็วๆ นี้ CPU จะกลับมาเรียกใช้ข้อมูล "ตัวเดิมซ้ำอีก" (เช่น ตัวแปร Counter ใน Loop)
+The reason Cache Memory works so well comes from the data access behavior of programs:
+- **Spatial Locality:** If the CPU accesses data at a specific address, there is a very high probability that the CPU will soon access data that is "nearby" (e.g., iterating through an Array).
+- **Temporal Locality:** If the CPU accesses a specific piece of data, there is a very high probability that the CPU will soon request "the same data again" (e.g., a Counter variable in a Loop).

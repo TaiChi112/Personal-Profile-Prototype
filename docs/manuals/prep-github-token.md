@@ -1,8 +1,8 @@
-# 🐙 คู่มือการเตรียม GitHub Personal Access Token
+#  คู่มือการเตรียม GitHub Personal Access Token
 
 คู่มือนี้อธิบายขั้นตอนการขอ Token จาก GitHub เพื่อให้เซิร์ฟเวอร์ AI ของเรา (ผ่าน MCP) สามารถเข้าไปอ่านโค้ด โคลนโปรเจกต์ และจัดการ Repository ได้
 
-## 📊 ภาพรวมการทำงาน (Architecture Flow)
+##  ภาพรวมการทำงาน (Architecture Flow)
 ```mermaid
 sequenceDiagram
     participant User as Human (คุณ)
@@ -17,14 +17,14 @@ sequenceDiagram
     AI->>GitHub: 5. ดึง Source Code / จัดการ PR แทนมุษย์
 ```
 
-## 📝 ขั้นตอนการเตรียมข้อมูล (Step-by-Step)
+##  ขั้นตอนการเตรียมข้อมูล (Step-by-Step)
 1. เข้าไปที่เว็บ [GitHub.com](https://github.com) และ Log in ด้วยบัญชีของคุณ
 2. คลิกที่รูป Profile มุมขวาบน -> เลือก **Settings**
 3. เลื่อนแถบเมนูซ้ายมือลงล่างสุด คลิก **Developer settings**
 4. เลือก **Personal access tokens** -> **Tokens (classic)**
 5. คลิกปุ่ม **Generate new token (classic)**
 
-## 📋 ข้อมูลที่ต้องกรอก (Fields & Configurations)
+##  ข้อมูลที่ต้องกรอก (Fields & Configurations)
 
 | ชื่อ Field บนหน้าจอ | สิ่งที่ต้องกรอก / เลือก | ผลลัพธ์ (ความหมาย) |
 | :--- | :--- | :--- |

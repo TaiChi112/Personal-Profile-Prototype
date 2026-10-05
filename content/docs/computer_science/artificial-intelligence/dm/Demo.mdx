@@ -2,6 +2,10 @@
 title: Data Mining Demo
 description: An overview of Data Mining (DM), its techniques, applications, and challenges.
 ---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
 <Callout title="Warning" type="warning">
 This article is a work in progress and may contain incomplete information or inaccuracies. Please verify details from reliable sources.
 </Callout>
@@ -19,8 +23,8 @@ from sklearn.metrics import accuracy_score
 # ==========================================
 # 1. INPUT DATA (Data Collection)
 # ==========================================
-# จำลองข้อมูลลูกค้า 10 คน (ในความเป็นจริงข้อมูลจะมาจาก SQL Database หรือ CSV)
-# สมมติ 1 = เลิกเป็นสมาชิก (Churn), 0 = ยังอยู่ต่อ
+# Simulate 10 customers' data (in reality, data comes from SQL Database or CSV)
+# Assume 1 = Churn, 0 = Stay
 data = {
     'Customer_ID': ['C001', 'C002', 'C003', 'C004', 'C005', 'C006', 'C007', 'C008', 'C009', 'C010'],
     'Name': ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Grace', 'Hannah', 'Ian', 'Jack'],
@@ -33,36 +37,46 @@ data = {
 
 df = pd.DataFrame(data)
 
-print("--- ข้อมูลดิบ (Raw Data) ---")
-print(df.head(3)) # ดูแค่ 3 แถวแรก
+print("--- Raw Data ---
+
+")
+print(df.head(3)) # View only the first 3 rows
 print("\n")
 
 # ==========================================
 # 2. DATA PREPROCESSING
 # ==========================================
 
-# --- 2.1 Feature Selection (เลือกเฉพาะคอลัมน์ที่มีผล) ---
-# HINT: ID กับ ชื่อ เป็น Unique Identifier ไม่มีผลต่อพฤติกรรมการซื้อ ตัดทิ้งได้เลย
-# นี่คือการลด Dimensions แบบง่ายที่สุด (Manual Feature Selection)
+# --- 2.1 Feature Selection (Select only features that matter) ---
+
+
+# HINT: ID and Name are Unique Identifiers and have no effect on purchasing behavior. Discard them.
+# This is the simplest dimension reduction (Manual Feature Selection)
 features = df.drop(['Customer_ID', 'Name', 'Churn_Label'], axis=1)
 labels = df['Churn_Label']
 
 # --- 2.2 Data Subsetting (Train/Test Split) ---
-# HINT: แบ่งข้อมูลไว้ "สอน" (Train) และ "สอบ" (Test) เพื่อจำลองการใช้งานจริง
-# สุ่ม 80% ไปสอน, 20% ไปสอบ
+
+
+# HINT: Split data for "teaching" (Train) and "testing" (Test) to simulate real-world usage
+# Randomly assign 80% to train, 20% to test
 X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
 
-# --- 2.3 Normalization (ปรับสเกลข้อมูล) ---
-# HINT: Salary หลักหมื่น vs Age หลักสิบ ถ้าไม่ปรับ โมเดลจะลำเอียงไปทาง Salary
-# เราใช้ Min-Max Scaler ปรับทุกอย่างให้อยู่ในช่วง 0 ถึง 1
+# --- 2.3 Normalization (Scaling data) ---
+
+
+# HINT: Salary in tens of thousands vs Age in tens. If not scaled, the model will bias towards Salary
+# We use Min-Max Scaler to scale everything to be between 0 and 1
 scaler = MinMaxScaler()
 
-# fit_transform กับตัว Train (จำค่า Min/Max ของ Train ไว้)
+# fit_transform on Train data (remembers Min/Max of Train)
 X_train_scaled = scaler.fit_transform(X_train) 
-# transform ตัว Test (ใช้ค่า Min/Max เดิมจาก Train เพื่อความแฟร์)
+# transform Test data (uses the same Min/Max from Train for fairness)
 X_test_scaled = scaler.transform(X_test)
 
-print("--- ข้อมูลหลัง Preprocessing (Normalized) ---")
+print("--- Data after Preprocessing (Normalized) ---
+
+")
 print(pd.DataFrame(X_train_scaled, columns=features.columns).head(3))
 print("\n")
 
@@ -70,116 +84,122 @@ print("\n")
 # 3. DATA MINING
 # ==========================================
 
-# เลือก Algorithm: Decision Tree (ต้นไม้ตัดสินใจ)
-# เพราะเข้าใจง่าย เหมาะกับการเริ่มเรียนรู้
+# Choose Algorithm: Decision Tree
+# Because it's easy to understand and suitable for beginners
 clf = DecisionTreeClassifier(random_state=42)
 
-# สั่งให้โมเดล "เรียนรู้" จากข้อมูลที่เตรียมไว้ (Machine Learning)
+# Make the model "learn" from prepared data (Machine Learning)
 clf.fit(X_train_scaled, y_train)
 
-# ลองทำนายข้อมูลชุดสอบ (Test Set)
+# Try predicting the test set
 y_pred = clf.predict(X_test_scaled)
 
 # ==========================================
 # 4. POSTPROCESSING & INFORMATION
 # ==========================================
 
-# --- 4.1 Evaluation (วัดผล) ---
-accuracy = accuracy_score(y_test, y_pred)
-print(f"--- ผลลัพธ์ (Information) ---")
-print(f"ความแม่นยำของโมเดล: {accuracy * 100:.2f}%")
+# --- 4.1 Evaluation ---
 
-# --- 4.2 Pattern Interpretation (ดูว่าโมเดลรู้อะไร) ---
-# HINT: ดูว่า Feature ไหนสำคัญที่สุดในการตัดสินใจว่าลูกค้าจะเลิกหรือไม่เลิก
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f"--- Output (Information) ---
+
+")
+print(f"Model Accuracy: {accuracy * 100:.2f}%")
+
+# --- 4.2 Pattern Interpretation (See what the model knows) ---
+
+
+# HINT: Look at which Feature is most important in deciding whether the customer will churn or not
 feature_importance = pd.DataFrame({
     'Feature': features.columns,
     'Importance': clf.feature_importances_
 }).sort_values(by='Importance', ascending=False)
 
-print("\nปัจจัยที่มีผลต่อการเลิกเป็นสมาชิก (เรียงตามความสำคัญ):")
+print("\nFactors affecting membership churn (sorted by importance):")
 print(feature_importance)
 ```
 
-## คำอธิบายเพิ่มเติม
+## Additional Explanation
 
-### 1. Data Preprocessing {/*(จุดที่คุณถามถึง) */}
+### 1. Data Preprocessing {/*(The point you asked about) */}
 
-ใน Code นี้ผมรวมขั้นตอนย่อยๆ ไว้ในช่วง Step 2:
+In this Code, I combined sub-steps in Step 2:
 
-- **Feature Selection**: คำสั่ง `df.drop(['Customer_ID', 'Name'...])` คือการบอก "อย่าเอา Name คนมาคิดนะ มันไม่เกี่ยว" นี่คือการลด Noise ครับ
+- **Feature Selection**: The command `df.drop(['Customer_ID', 'Name'...])` tells it "don't consider Name, it's irrelevant". This is Noise reduction.
 
-- **Dimensionality Reduction**: ใน Code นี้เราทำแบบ Basic คือการ "ตัด column ทิ้ง" แต่ถ้าเป็นขั้นสูง (ในหนังสือ Tan) อาจจะใช้คำสั่ง PCA เพื่อยุบรวม `Salary + Total_Spend` ให้เหลือตัวแปรเดียว แต่ในทางปฏิบัติเบื้องต้น การเลือก Feature ที่ดีก็เพียงพอแล้วครับ
+- **Dimensionality Reduction**: In this Code, we do the basic "discarding columns", but advanced methods (in Tan's book) might use PCA to merge `Salary + Total_Spend` into one variable. However, in basic practice, good Feature Selection is enough.
 
-- **Normalization**: คำสั่ง `MinMaxScaler` สำคัญมาก สังเกตว่า Salary (หลักแสน) จะถูกย่อเหลือแค่ `0.x` เพื่อให้เท่าเทียมกับ Age (หลักสิบ) ถ้าไม่ทำขั้นตอนนี้ โมเดลจะมองว่า Salary สำคัญที่สุดเสมอเพราะตัวเลขมันเยอะ
+- **Normalization**: The `MinMaxScaler` command is very important. Notice that Salary (hundreds of thousands) will shrink to `0.x` to be on par with Age (tens). If this step is skipped, the model will always consider Salary the most important because the numbers are large.
 
 ### 2. Data Mining vs Algorithm
 
-- **Data Mining** คือชื่อกระบวนการภาพใหญ่
-- **Decision Tree Classifier** คือ "เครื่องมือ" หรือ Algorithm ที่เราหยิบมาใช้ในขั้นตอนนี้ (เหมือนเราหยิบสว่านมาเจาะรู)
+- **Data Mining** is the name of the big picture process.
+- **Decision Tree Classifier** is the "tool" or Algorithm we pick to use in this step (like picking a drill to make a hole).
 
 ### 3. Postprocessing
 
-- ผลลัพธ์ที่เป็นตัวเลข (`y_pred`) อาจจะดูยาก
-- เราจึงทำ `feature_importance` ออกมา เพื่อแปลงคณิตศาสตร์ให้เป็นภาษาธุรกิจว่า:
+- Numerical results (`y_pred`) might be hard to read.
+- So we create `feature_importance` to translate math into business language:
   
-  > "อ๋อ... สิ่งสำคัญที่สุดคือ จำนวนวันที่หายไป (Days_Since_Last_Buy) ถ้าหายไปนาน มีโอกาสเลิกสูง"
+  > "Ah... the most important thing is the number of absent days (Days_Since_Last_Buy). If gone for a long time, there's a high chance to churn."
   
-  **นี่แหละครับคือ Knowledge ที่ค้นพบ**
+  **This is the discovered Knowledge.**
 
 Python Code: Visualizing Decision Tree
 
 ```python
 # ==========================================
-# 5. VISUALIZATION (แถมพิเศษ: ดูหน้าตาโมเดล)
+# 5. VISUALIZATION (Bonus: Look at the model)
 # ==========================================
 import matplotlib.pyplot as plt
 from sklearn.tree import plot_tree
 
-# กำหนดขนาดของภาพที่จะวาด (กว้าง 15 นิ้ว, สูง 10 นิ้ว) agar ให้เห็นชัดๆ
+# Set the image size (width 15 inches, height 10 inches) for clear viewing
 plt.figure(figsize=(15, 10))
 
-# คำสั่งวาดต้นไม้
+# Tree drawing command
 plot_tree(clf, 
-          feature_names=features.columns,  # ใส่ชื่อคอลัมน์เพื่อให้ร่องรู้ง่ายขึ้น (Age, Salary)
-          class_names=['Stay (0)', 'Churn (1)'], # ตั้งชื่อให้ผลลัพธ์ (0=อยู่ต่อ, 1=เลิก)
-          filled=True,     # ระบายสีกล่องตามกลุ่มผลลัพธ์ (สีฟ้า=อยู่ต่อ, สีส้ม=เลิก)
-          rounded=True,    # ทำขอบมนๆ ให้สวยงาม
-          fontsize=12)     # ขนาดตัวอักษร
+          feature_names=features.columns,  # Add column names for easy reading (Age, Salary)
+          class_names=['Stay (0)', 'Churn (1)'], # Name the results (0=Stay, 1=Churn)
+          filled=True,     # Color boxes by result group (Blue=Stay, Orange=Churn)
+          rounded=True,    # Make rounded edges for beauty
+          fontsize=12)     # Font size
 
 plt.title("Decision Tree Logic for Customer Churn Prediction")
-plt.show() # แสดงภาพขึ้นมา
+plt.show() # Display the image
 ```
 
-<Callout title="⚠️ สิ่งที่สำคัญที่สุดในการอ่าน Diagram นี้ (อ่านก่อนรัน!)" type="warn">
-เนื่องจากในขั้นตอน Preprocessing เราได้ทำ **Normalization (Min-Max Scaling)** ไปแล้ว ข้อมูลทั้งหมดถูกบีบให้เหลือค่าระหว่าง **0 ถึง 1**
+<Callout title="⚠️ The most important thing in reading this Diagram (Read before running!)" type="warn">
+Because in the Preprocessing step we did **Normalization (Min-Max Scaling)**, all data was compressed to between **0 and 1**.
 
-ดังนั้น ใน Diagram คุณจะ**ไม่เห็น**เงื่อนไขแบบ `"Age <= 30 ปี"` แต่คุณจะเห็นเงื่อนไขแบบนี้แทน:
+Therefore, in the Diagram you will **not see** conditions like `"Age <= 30 years"`, but you will see conditions like this instead:
 
 ```
 Age <= 0.354
 ```
 
-**การแปลความหมาย:** นี่ไม่ได้แปลว่าอายุ 0.3 ปี! แต่มันหมายถึง "ค่าอายุที่ถูกสเกลแล้ว ที่มีค่าน้อยกว่าหรือเท่ากับ 0.354"
+**Interpretation:** This doesn't mean age 0.3 years! It means "the scaled age value that is less than or equal to 0.354".
 
-**ตัวอย่างการคำนวณกลับ:**
-- ถ้าค่าน้อยสุด (0.0) = อายุ 23 ปี
-- ถ้าค่ามากสุด (1.0) = อายุ 60 ปี
-- ค่า 0.354 ในโมเดล ≈ อายุจริงประมาณ **36 ปี**
+**Reverse calculation example:**
+- If minimum value (0.0) = Age 23
+- If maximum value (1.0) = Age 60
+- The value 0.354 in the model ≈ Actual age about **36 years**
 
-> นี่คือเหตุผลที่ Data Scientist ต้องเข้าใจ Preprocessing เป็นอย่างดี เพราะมันส่งผลต่อการแปลผลลัพธ์ให้ฝั่ง Business ฟัง
+> This is why a Data Scientist must understand Preprocessing very well, because it affects how results are interpreted for the Business side.
 </Callout>
 
-## ตัวอย่างหน้าตาของ Diagram ที่คุณจะได้
+## Example of Diagram appearance you will get
 
-เมื่อรันแล้ว คุณจะได้ภาพประมาณนี้ (รูปร่างจริงจะเปลี่ยนไปตามการสุ่มข้อมูลในการรันแต่ละครั้ง):
+When run, you will get an image roughly like this (actual shape will change based on data randomization in each run):
 
-### องค์ประกอบของ Diagram:
+### Elements of Diagram:
 
-- **กล่องบนสุด (Root Node):** คือคำถามแรกที่สำคัญที่สุดที่โมเดลใช้แบ่งคน เช่น มันอาจจะถามเรื่อง "จำนวนวันที่หายไป" ก่อน
+- **Top box (Root Node):** This is the first most important question the model uses to split people. E.g. it might ask about "absent days" first.
 
-- **สีของกล่อง (Filled Color):**
-  - 🔵 **สีฟ้า** (โทนเย็น): แนวโน้มคือกลุ่มที่จะ **"อยู่ต่อ (Stay)"**
-  - 🟠 **สีส้ม** (โทนร้อน): แนวโน้มคือกลุ่มที่จะ **"เลิก (Churn)"**
+- **Box color (Filled Color):**
+  - 🔵 **Blue color** (cool tone): Tendency is the group that will **"Stay"**
+  - 🟠 **Orange color** (warm tone): Tendency is the group that will **"Churn"**
 
-- **gini:** คือค่าทางคณิตศาสตร์ที่บอกว่า "ความไม่บริสุทธิ์" ของข้อมูลในกล่องนั้นมีแค่ไหน
-  - ยิ่งเข้าใกล้ `0.0` = ในกล่องนั้นมีแต่คนกลุ่มเดียวกันล้วนๆ (ดีมาก)
+- **gini:** This is the mathematical value that tells "impurity" of data in that box.
+  - Closer to `0.0` = That box has only purely people of the same group (very good)
