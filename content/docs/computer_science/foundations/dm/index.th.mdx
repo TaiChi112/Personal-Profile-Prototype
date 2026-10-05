@@ -1,0 +1,53 @@
+---
+title: "Discrete Mathematics (คณิตศาสตร์ไม่ต่อเนื่อง)"
+description: "หน้าเริ่มต้นสำหรับทบทวนพื้นฐานคณิตศาสตร์สำหรับวิทยาการคอมพิวเตอร์"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+import { Binary, Link, Network, Shuffle } from 'lucide-react';
+import { TerminalSquare } from 'lucide-react';
+
+<Callout title="Quick Review" type="info">
+  หมวดหมู่นี้ออกแบบมาเพื่อการอ่านทบทวนแบบรวดเร็ว (Cheat Sheet) สรุปทฤษฎีและคอนเซปต์หลักของ Discrete Mathematics ที่ใช้บ่อยในการเขียนโปรแกรมและออกแบบอัลกอริทึม
+</Callout>
+
+# Discrete Mathematics
+
+เลือกหัวข้อที่ต้องการทบทวน (Bento Grid):
+
+<Cards>
+  <Card 
+    href="/en/docs/computer_science/foundations/dm/logic-sets" 
+    title="Logic & Sets" 
+    icon={<Binary />}
+    description="ตรรกศาสตร์ ประพจน์ ทฤษฎีเซต และฐานข้อมูล" 
+  />
+  <Card 
+    href="/en/docs/computer_science/foundations/dm/relations-functions" 
+    title="Relations & Functions" 
+    icon={<Link />}
+    description="ความสัมพันธ์ ฟังก์ชันโดเมน เรนจ์ และการเข้ารหัส" 
+  />
+  <Card 
+    href="/en/docs/computer_science/foundations/dm/graph-theory" 
+    title="Graph Theory" 
+    icon={<Network />}
+    description="ทฤษฎีกราฟ โหนด เส้นทางต้นไม้ และเน็ตเวิร์ค" 
+  />
+  <Card 
+    href="/en/docs/computer_science/foundations/dm/combinatorics-boolean" 
+    title="Combinatorics & Boolean" 
+    icon={<Shuffle />}
+    description="การเรียงสับเปลี่ยน การจัดหมู่ ความน่าจะเป็น และพีชคณิตบูลีน" 
+  />
+  <Card 
+    href="/th/docs/computer_science/foundations/dm/labs/graph-theory"
+    title="ห้องทดลอง (Interactive Labs)"
+    icon={<TerminalSquare />}
+    description="ฝึกแก้ปัญหาจากสถานการณ์จำลอง (Problem-Based) ด้วย Socratic AI Prompts"
+  />
+</Cards>

@@ -1,0 +1,47 @@
+---
+title: "The Halting Problem"
+description: "The Impossible Program"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+# The Halting Problem: The Impossible Program
+
+## Act 1: The Hook
+
+Imagine you are a brilliant programmer. Your boss comes to you with a simple request: write a program that takes another program and its input, and tells us if that program will eventually finish running (halt) or if it will run forever in an infinite loop. 
+
+It sounds like an incredibly useful tool. No more software crashing because of infinite loops! But there is a catch: it is mathematically impossible to write this program.
+
+<Callout title="Socratic AI Prompt" type="info">
+If you were to design this "loop-checking" program, how would you start? What kind of information would you need to analyze the other program's code?
+</Callout>
+
+## Act 2: Mental Model
+
+To understand why this is impossible, we can think of a paradox. Suppose you successfully build the `halts(program, input)` function. It returns `true` if the program stops, and `false` if it runs forever.
+
+Now, imagine we write a new, mischievous program called `paradox()`. 
+
+1. `paradox()` asks your `halts()` function to analyze `paradox()` itself.
+2. If `halts()` says "it will stop", `paradox()` deliberately goes into an infinite loop.
+3. If `halts()` says "it will run forever", `paradox()` stops immediately.
+
+<Callout title="Socratic AI Prompt" type="info">
+What happens when `halts(paradox)` is executed? Walk through the logical steps. Can `halts()` ever give the correct answer?
+</Callout>
+
+This contradiction shows that the `halts()` function cannot possibly exist. This is the essence of Alan Turing's proof of the Halting Problem in 1936.
+
+## Act 3: The Rabbit Hole
+
+The Halting Problem is not just a quirky puzzle; it is a fundamental limit on what computers can do. It proves that there are well-defined problems that no algorithm can ever solve, no matter how powerful the computer is.
+
+This leads us to the concept of undecidability. Because of the Halting Problem, we cannot build perfect virus scanners, perfect bug finders, or compilers that catch all infinite loops. 
+
+<Callout title="Socratic AI Prompt" type="info">
+If we cannot write a perfect program to check for infinite loops, how do modern compilers and code analysis tools catch some of these errors? What compromises do they make?
+</Callout>
