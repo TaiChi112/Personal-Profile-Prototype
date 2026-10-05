@@ -1,0 +1,7 @@
+{
+  "title": "Interactive Labs",
+  "icon": "TerminalSquare",
+  "pages": [
+    "sql-injection"
+  ]
+}

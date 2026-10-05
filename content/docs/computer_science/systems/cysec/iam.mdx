@@ -1,0 +1,32 @@
+---
+title: "Identity & Access Management (IAM)"
+description: "A quick technical summary of core IAM concepts."
+---
+
+# Identity & Access Management (IAM)
+
+A concise overview of fundamental Identity and Access Management concepts.
+
+## Authentication vs. Authorization
+
+*   **Authentication (AuthN):** The process of verifying *who* a user or system is. (e.g., verifying a username and password, biometrics, multi-factor authentication).
+*   **Authorization (AuthZ):** The process of determining *what* an authenticated user or system is allowed to do. (e.g., checking if a user has read or write access to a specific file).
+
+## Core Concepts
+
+### JWT (JSON Web Token)
+*   A compact, URL-safe means of representing claims to be transferred between two parties.
+*   Consists of three parts: Header, Payload (claims), and Signature.
+*   Stateless: The server does not need to store session information; all required data is in the token.
+*   Often used for bearer authentication.
+
+### OAuth (Open Authorization)
+*   An open standard for access delegation.
+*   Allows users to grant third-party applications access to their resources without sharing their credentials (passwords).
+*   Common flows: Authorization Code Flow, Client Credentials Flow, Implicit Flow.
+*   Typically uses access tokens to grant permissions.
+
+### RBAC (Role-Based Access Control)
+*   An authorization method where access permissions are assigned to specific roles rather than individual users.
+*   Users are assigned roles (e.g., Admin, Editor, Viewer).
+*   Simplifies management in large organizations, as permissions are updated at the role level.

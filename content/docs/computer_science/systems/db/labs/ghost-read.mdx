@@ -1,0 +1,37 @@
+---
+title: "The Ghost Read"
+description: "A Problem-Based Learning Lab on Database Transaction Isolation."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+# The Ghost Read
+
+## Act 1: The Hook
+
+Imagine you are building a banking application. You need to calculate the total balance of all accounts for a customer. You start a transaction and run a query to sum the balances. While your transaction is running, another transaction inserts a new account for the same customer. When you run the sum query again within the same transaction, the total balance has changed. You have just experienced a "Ghost Read" (Phantom Read).
+
+<Callout title="Socratic Prompt: The Anomaly" type="info">
+If a transaction is supposed to be isolated, why did the second query see the new account? What assumption about "isolation" was violated here?
+</Callout>
+
+## Act 2: Mental Model
+
+To understand the Ghost Read, we need to explore Transaction Isolation Levels. The SQL standard defines four levels: Read Uncommitted, Read Committed, Repeatable Read, and Serializable. 
+
+A Phantom Read occurs when a transaction executes a query returning a set of rows that satisfy a search condition, and then finds that the set of rows has changed upon re-execution due to another recently-committed transaction.
+
+<Callout title="Socratic Prompt: Repeatable Read vs Phantom Read" type="info">
+The "Repeatable Read" isolation level prevents non-repeatable reads (where a row's data changes). Why doesn't it necessarily prevent Phantom Reads? Think about the difference between locking existing rows versus locking a range of conditions.
+</Callout>
+
+## Act 3: The Rabbit Hole
+
+If we want to completely avoid Phantom Reads, we can use the "Serializable" isolation level. However, this comes with significant performance costs.
+
+<Callout title="Socratic Prompt: The Cost of Perfection" type="info">
+How does a database actually implement the Serializable isolation level? If every transaction behaves as if it runs sequentially, what happens to concurrent user requests? Is it always worth trading performance for perfect consistency?
+</Callout>

@@ -1,0 +1,39 @@
+---
+title: "TCP Handshake Lab"
+description: "Socratic Problem-Based Learning Lab: The Intercepted Packet"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+# TCP Handshake: The Intercepted Packet
+
+## Act 1: The Hook
+
+Imagine you are a security analyst monitoring a network. You see a packet that looks suspicious. The payload is encrypted, but the header reveals something strange: a packet with just the SYN flag set has been intercepted, but it was sent to an IP address that doesn't exist on your network.
+
+<Callout title="Socratic AI Prompt" type="info">
+What does a single packet with only the SYN flag set typically represent? What happens if this packet reaches a non-existent destination?
+</Callout>
+
+## Act 2: Mental Model
+
+To understand this, we need to break down the TCP three-way handshake. Think of it like a formal introduction between two people before they start a conversation.
+
+1.  **SYN (Synchronize):** Person A says, "Hello, I would like to talk to you. I will start speaking from sequence number X."
+2.  **SYN-ACK (Synchronize-Acknowledge):** Person B says, "Hello, I heard you. I acknowledge your sequence number X. I will also start speaking from sequence number Y."
+3.  **ACK (Acknowledge):** Person A says, "I acknowledge your sequence number Y. Let us begin."
+
+<Callout title="Socratic AI Prompt" type="info">
+Why does TCP use a three-way handshake instead of just a two-way (request and response) connection establishment? What problem does the third step solve?
+</Callout>
+
+## Act 3: The Rabbit Hole
+
+Returning to our intercepted packet. The SYN packet was sent, but the destination is a "black hole". If a server receives a SYN packet but never gets the final ACK, what happens to the connection?
+
+<Callout title="Socratic AI Prompt" type="info">
+If a malicious actor sends thousands of SYN packets to a server but never completes the handshake, what impact would this have on the server's resources? What is this attack called, and how can systems defend against it?
+</Callout>

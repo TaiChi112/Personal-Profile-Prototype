@@ -1,0 +1,51 @@
+---
+title: "Computer Architecture (COA)"
+description: "ทบทวนสถาปัตยกรรมคอมพิวเตอร์ กลไกของ CPU และ Memory Hierarchy"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+import { TerminalSquare } from 'lucide-react';
+
+
+import { Cpu, Microchip, Layers } from 'lucide-react';
+
+<Callout title="Quick Review" type="info">
+  สรุปหลักการทำงานระดับ Hardware ที่ Engineer ควรรู้ เพื่อให้สามารถเขียน Software ที่ Optimize ประสิทธิภาพได้สูงสุด
+</Callout>
+
+# Computer Organization & Architecture
+
+ศาสตร์ที่ว่าด้วยโครงสร้างภายในของระบบคอมพิวเตอร์ การทำงานร่วมกันระหว่าง CPU, Memory และ I/O Devices
+
+เลือกหัวข้อที่ต้องการทบทวน:
+
+<Cards>
+  <Card 
+    href="/en/docs/computer_science/systems/coa/cpu-architecture" 
+    title="CPU Architecture" 
+    icon={<Cpu />}
+    description="ส่วนประกอบของ CPU, Instruction Cycle และวงจร ALU" 
+  />
+  <Card 
+    href="/en/docs/computer_science/systems/coa/memory-hierarchy" 
+    title="Memory Hierarchy" 
+    icon={<Layers />}
+    description="ลำดับชั้นหน่วยความจำ Cache L1/L2/L3 และ RAM" 
+  />
+  <Card 
+    href="/en/docs/computer_science/systems/coa/pipelining" 
+    title="Pipelining & Hazards" 
+    icon={<Microchip />}
+    description="การประมวลผลคำสั่งแบบขนาน และปัญหา Hazards ที่เกิดขึ้น" 
+  />
+  <Card 
+    href="/th/docs/computer_science/systems/coa/labs/pipelining-hazard"
+    title="ห้องทดลอง (Interactive Labs)"
+    icon={<TerminalSquare />}
+    description="ฝึกแก้ปัญหาจากสถานการณ์จำลอง (Problem-Based) ด้วย Socratic AI Prompts"
+  />
+</Cards>
