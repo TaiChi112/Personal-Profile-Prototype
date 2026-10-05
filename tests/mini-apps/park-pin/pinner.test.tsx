@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 import Pinner from "@/app/projects/(micro-apps)/park-pin/components/Pinner";
 import { useParkStore } from "@/app/projects/(micro-apps)/park-pin/store/useParkStore";

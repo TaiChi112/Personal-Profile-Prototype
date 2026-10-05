@@ -1,5 +1,4 @@
 import { describe, it, expect, mock, beforeEach } from 'bun:test';
-import React from 'react';
 import { render } from '@testing-library/react';
 
 // Mock dependencies

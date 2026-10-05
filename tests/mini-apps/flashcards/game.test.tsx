@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React, { act } from "react";
+import { act } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import CardGame from "@/app/projects/(micro-apps)/flashcards/components/CardGame";
 import Page from "@/app/projects/(micro-apps)/flashcards/page";

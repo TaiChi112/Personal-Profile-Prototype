@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, fireEvent, act } from "@testing-library/react";
 import { useBillStore } from "../../../app/projects/(micro-apps)/bill-splitter/store/useBillStore";
 import SplitCalc from "../../../app/projects/(micro-apps)/bill-splitter/components/SplitCalc";

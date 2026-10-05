@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 
 export default function KanbanWidget({ tasks }: { tasks: any[] }) {
   const todoCount = tasks.filter((t) => t.status === "todo").length;

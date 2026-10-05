@@ -1,5 +1,4 @@
 import { auth } from "@/auth";
-import { FinanceRepository } from "@/lib/repositories/finance.repository";
 import { KanbanRepository } from "@/lib/repositories/kanban.repository";
 import DashboardView from "./components/DashboardView";
 import prisma from "@/lib/prisma";

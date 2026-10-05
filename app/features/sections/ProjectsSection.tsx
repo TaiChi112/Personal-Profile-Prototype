@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ContentSectionShell } from '../../components/section/SectionPrimitives';
 import { normalizeExternalUrl } from '../../data/resume';
-import { LayoutGrid, List, GitBranch, ExternalLink, Code2 } from 'lucide-react';
+import { LayoutGrid, List, GitBranch, Code2 } from 'lucide-react';
 import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
 import type { EventType } from '../../services/system/notification/NotificationBridge';
 import type { Project } from '../../data/content';

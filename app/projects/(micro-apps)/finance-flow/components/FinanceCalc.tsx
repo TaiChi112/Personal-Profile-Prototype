@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import { addTransaction, deleteTransaction } from '../actions';
 import { signOut } from 'next-auth/react';
@@ -94,7 +94,7 @@ export default function FinanceCalc({ initialTransactions, user, analytics = [] 
                     <span className="font-bold">{item.total.toLocaleString()} ฿</span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-                    <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${pct}%` }}></div>
+                    <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );

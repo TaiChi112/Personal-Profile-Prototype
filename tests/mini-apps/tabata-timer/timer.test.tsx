@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
-import React from 'react';
 import { render, fireEvent, act } from '@testing-library/react';
 import Timer from '@/app/projects/(micro-apps)/tabata-timer/components/Timer';
 import Page from '@/app/projects/(micro-apps)/tabata-timer/page';

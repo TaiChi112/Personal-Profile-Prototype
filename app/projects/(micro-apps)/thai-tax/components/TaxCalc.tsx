@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import { useTaxStore } from '../store/useTaxStore';
 
 export default function TaxCalc() {
@@ -7,18 +6,18 @@ export default function TaxCalc() {
 
   // Simplified Thai Tax Logic
   const totalIncome = (salary * 12) + bonus;
-  const standardDeduction = Math.min(totalIncome * 0.5, 100000);
-  const personalDeduction = 60000;
+  const standardDeduction = Math.min(totalIncome * 0.5, 100_000);
+  const personalDeduction = 60_000;
   const netIncome = Math.max(0, totalIncome - standardDeduction - personalDeduction - ssf - insurance);
 
   let tax = 0;
-  if (netIncome > 5000000) tax += (netIncome - 5000000) * 0.35 + 1265000;
-  else if (netIncome > 2000000) tax += (netIncome - 2000000) * 0.30 + 365000;
-  else if (netIncome > 1000000) tax += (netIncome - 1000000) * 0.25 + 115000;
-  else if (netIncome > 750000) tax += (netIncome - 750000) * 0.20 + 65000;
-  else if (netIncome > 500000) tax += (netIncome - 500000) * 0.15 + 27500;
-  else if (netIncome > 300000) tax += (netIncome - 300000) * 0.10 + 7500;
-  else if (netIncome > 150000) tax += (netIncome - 150000) * 0.05;
+  if (netIncome > 5_000_000) { tax += (netIncome - 5_000_000) * 0.35 + 1_265_000; }
+  else if (netIncome > 2_000_000) { tax += (netIncome - 2_000_000) * 0.30 + 365_000; }
+  else if (netIncome > 1_000_000) { tax += (netIncome - 1_000_000) * 0.25 + 115_000; }
+  else if (netIncome > 750_000) { tax += (netIncome - 750_000) * 0.20 + 65_000; }
+  else if (netIncome > 500_000) { tax += (netIncome - 500_000) * 0.15 + 27_500; }
+  else if (netIncome > 300_000) { tax += (netIncome - 300_000) * 0.10 + 7500; }
+  else if (netIncome > 150_000) { tax += (netIncome - 150_000) * 0.05; }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

@@ -13,7 +13,7 @@ async function main() {
     return;
   }
 
-  console.log(`User found. Creating Kanban tasks...`);
+  console.log("User found. Creating Kanban tasks...");
 
   await prisma.kanbanTask.create({
     data: {

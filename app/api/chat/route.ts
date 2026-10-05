@@ -1,6 +1,6 @@
 
 
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { AIService } from '@/app/services/AIService';
 
 // Allow streaming responses up to 30 seconds

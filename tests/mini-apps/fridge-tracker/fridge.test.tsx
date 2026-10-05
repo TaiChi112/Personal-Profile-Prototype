@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 import Fridge from "@/app/projects/(micro-apps)/fridge-tracker/components/Fridge";
 import { useFridgeStore } from "@/app/projects/(micro-apps)/fridge-tracker/store/useFridgeStore";

@@ -36,7 +36,7 @@ export default async function MicroAppsLayout({ children }: { children: React.Re
             <div className="flex items-center space-x-3">
               {/* Guest Mode Indicator */}
               <div className="flex items-center space-x-2 text-amber-600 bg-amber-50 dark:bg-amber-900/30 px-3 py-1.5 rounded-full border border-amber-200 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
                 <span className="text-xs font-bold">Guest Mode</span>
               </div>
               <Link href="/api/auth/signin" className="text-sm px-5 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all">

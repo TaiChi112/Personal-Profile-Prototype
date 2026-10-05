@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { useHeatStore } from "@/app/projects/(micro-apps)/life-heatmap/store/useHeatStore";
 import Heatmap from "@/app/projects/(micro-apps)/life-heatmap/components/Heatmap";

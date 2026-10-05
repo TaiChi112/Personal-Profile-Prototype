@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useRecipeStore } from '../store/useRecipeStore';
 
 export default function Scaler() {
@@ -42,7 +42,7 @@ export default function Scaler() {
               <div className="flex items-center gap-4">
                 <div className="text-right">
                   <p className="text-xs text-gray-400 line-through">{i.amount} {i.unit}</p>
-                  <p className="font-black text-xl text-orange-600">{scaledAmount % 1 !== 0 ? scaledAmount.toFixed(1) : scaledAmount} {i.unit}</p>
+                  <p className="font-black text-xl text-orange-600">{scaledAmount % 1 === 0 ? scaledAmount : scaledAmount.toFixed(1)} {i.unit}</p>
                 </div>
                 <button onClick={()=>delIng(i.id)} className="text-gray-400 hover:text-red-500">✕</button>
               </div>

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { validateSignature, WebhookEvent } from '@line/bot-sdk';
+import { validateSignature, type WebhookEvent } from '@line/bot-sdk';
 import OpenAI from 'openai';
 import { prisma } from '@/lib/prisma';
 import { FinanceRepository } from '@/lib/repositories/finance.repository';
@@ -24,11 +24,11 @@ async function replyMessage(replyToken: string, text: string, accessToken: strin
     })
   });
   
-  if (!res.ok) {
+  if (res.ok) {
+    console.log('LINE Reply Success');
+  } else {
     const errorText = await res.text();
     console.error('LINE API Reply Error:', res.status, errorText);
-  } else {
-    console.log('LINE Reply Success');
   }
 }
 
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
 
       console.log(`Received message from ${lineUserId}: ${text}`);
 
-      if (!lineUserId) continue;
+      if (!lineUserId) { continue; }
 
       // 1. Check if user is linked
       let user = null;

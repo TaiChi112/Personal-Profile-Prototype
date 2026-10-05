@@ -1,17 +1,16 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, fireEvent, act } from "@testing-library/react";
 import { useFlowStore } from "../../../app/projects/(micro-apps)/cash-flow/store/useFlowStore";
 import Flow from "../../../app/projects/(micro-apps)/cash-flow/components/Flow";
 import CashFlowPage from "../../../app/projects/(micro-apps)/cash-flow/page";
 
 const initialStoreState = {
-  income: 50000,
+  income: 50_000,
   expenses: [
-    { id: 1, name: 'Rent', value: 15000, color: 'bg-indigo-500' },
-    { id: 2, name: 'Food', value: 10000, color: 'bg-emerald-500' },
-    { id: 3, name: 'Savings', value: 15000, color: 'bg-blue-500' },
-    { id: 4, name: 'Fun', value: 10000, color: 'bg-pink-500' },
+    { id: 1, name: 'Rent', value: 15_000, color: 'bg-indigo-500' },
+    { id: 2, name: 'Food', value: 10_000, color: 'bg-emerald-500' },
+    { id: 3, name: 'Savings', value: 15_000, color: 'bg-blue-500' },
+    { id: 4, name: 'Fun', value: 10_000, color: 'bg-pink-500' },
   ],
 };
 
@@ -26,30 +25,30 @@ describe("Cash Flow Micro-App", () => {
   describe("useFlowStore", () => {
     it("should initialize with default income and expense breakdown", () => {
       const state = (useFlowStore as any).getState();
-      expect(state.income).toBe(50000);
+      expect(state.income).toBe(50_000);
       expect(state.expenses).toHaveLength(4);
       expect(state.expenses[0].name).toBe("Rent");
-      expect(state.expenses[0].value).toBe(15000);
+      expect(state.expenses[0].value).toBe(15_000);
     });
 
     it("should update total income", () => {
       const { setIncome } = (useFlowStore as any).getState();
-      setIncome(65000);
+      setIncome(65_000);
 
       const state = (useFlowStore as any).getState();
-      expect(state.income).toBe(65000);
+      expect(state.income).toBe(65_000);
     });
 
     it("should update specific expense by id", () => {
       const { updateExp } = (useFlowStore as any).getState();
-      updateExp(2, 12000);
+      updateExp(2, 12_000);
 
       const state = (useFlowStore as any).getState();
       const food = state.expenses.find((e: any) => e.id === 2);
-      expect(food.value).toBe(12000);
+      expect(food.value).toBe(12_000);
 
       // Verify other expenses are unchanged
-      expect(state.expenses.find((e: any) => e.id === 1).value).toBe(15000);
+      expect(state.expenses.find((e: any) => e.id === 1).value).toBe(15_000);
     });
 
     it("should safely ignore update for non-existent expense id", () => {

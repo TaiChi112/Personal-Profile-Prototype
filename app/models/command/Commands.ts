@@ -29,7 +29,7 @@ class CommandHistory {
 
   push(command: ICommand): void {
     this.history.push(command);
-    if (this.history.length > 20) this.history.shift();
+    if (this.history.length > 20) { this.history.shift(); }
   }
 
   pop(): ICommand | undefined {

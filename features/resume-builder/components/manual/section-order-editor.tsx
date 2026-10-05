@@ -38,7 +38,7 @@ export function SectionOrderEditor({
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>, index: number) => {
     e.preventDefault(); // Necessary to allow dropping
-    if (draggedIndex === null || draggedIndex === index) return;
+    if (draggedIndex === null || draggedIndex === index) { return; }
 
     // We can swap instantly for visual feedback
     const newOrder = [...currentActiveOrder];

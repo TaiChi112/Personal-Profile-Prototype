@@ -8,9 +8,7 @@ mock.module("framer-motion", () => ({
     {},
     {
       get: (_, tag: string) => {
-        const Comp = React.forwardRef<any, any>(({ children, initial, animate, exit, transition, ...props }, ref) => {
-          return React.createElement(tag, { ...props, ref }, children);
-        });
+        const Comp = React.forwardRef<any, any>(({ children, initial, animate, exit, transition, ...props }, ref) => React.createElement(tag, { ...props, ref }, children));
         Comp.displayName = `motion.${tag}`;
         return Comp;
       },

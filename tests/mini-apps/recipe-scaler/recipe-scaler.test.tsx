@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { useRecipeStore } from "@/app/projects/(micro-apps)/recipe-scaler/store/useRecipeStore";
 import Scaler from "@/app/projects/(micro-apps)/recipe-scaler/components/Scaler";

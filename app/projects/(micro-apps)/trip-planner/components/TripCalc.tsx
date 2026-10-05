@@ -1,5 +1,5 @@
 "use client";
-import React, { useTransition } from 'react';
+import { useTransition } from 'react';
 import { addTripAction, deleteTripAction } from '../actions';
 
 type Trip = {

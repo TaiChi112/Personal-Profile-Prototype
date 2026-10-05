@@ -1,5 +1,5 @@
 import { reader } from './keystatic';
-import { getProjectsTree, getBlogsTree, getArticlesTree } from '../services/content/ContentTreeSetup';
+import { getBlogsTree, getArticlesTree } from '../services/content/ContentTreeSetup';
 
 export async function fetchAllKeystaticData() {
   const [blogsListRaw, articlesListRaw, projectsListRaw] = await Promise.all([

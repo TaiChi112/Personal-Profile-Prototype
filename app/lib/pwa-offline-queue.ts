@@ -27,7 +27,7 @@ export class OfflineSyncQueue {
   }
 
   public getAll(): SyncTask[] {
-    if (typeof window === 'undefined') return [];
+    if (typeof window === 'undefined') { return []; }
     
     try {
       const data = localStorage.getItem(this.queueKey);

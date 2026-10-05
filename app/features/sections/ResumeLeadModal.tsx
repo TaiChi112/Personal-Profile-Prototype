@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
 
 interface ResumeLeadModalProps {
@@ -14,7 +15,7 @@ export function ResumeLeadModal({ isOpen, onClose, onSubmit }: ResumeLeadModalPr
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  if (!isOpen) return null;
+  if (!isOpen) { return null; }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

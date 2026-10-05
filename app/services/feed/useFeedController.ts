@@ -52,28 +52,28 @@ export function useFeedController({ allItems, notify }: UseFeedControllerParams)
       notify,
     );
 
-    if (!wasSaved) return;
+    if (!wasSaved) { return; }
     setSnapshotName('');
     setShowSnapshots(false);
   };
 
   const loadSnapshot = (name: string) => {
     const state = loadFeedSnapshot(feedCaretaker, name);
-    if (!state) return;
+    if (!state) { return; }
 
     setLayout(state.layout);
     setSearchQuery(state.searchQuery);
     setFilterType(state.filterType);
 
     const strategy = selectFeedSortStrategy(FEED_SORT_STRATEGIES, state.sortLabel);
-    if (strategy) setCurrentSortStrategy(strategy);
+    if (strategy) { setCurrentSortStrategy(strategy); }
     notify(`Restored workspace: ${name}`, 'SUCCESS');
     setShowSnapshots(false);
   };
 
   const selectSortByKey = (sortKey: string) => {
     const strategy = selectFeedSortStrategy(FEED_SORT_STRATEGIES, sortKey);
-    if (!strategy) return;
+    if (!strategy) { return; }
 
     setCurrentSortStrategy(strategy);
     notify(`Sorted by ${strategy.label}`, 'INFO');

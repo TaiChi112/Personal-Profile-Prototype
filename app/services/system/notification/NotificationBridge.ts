@@ -95,9 +95,9 @@ class NotificationService {
 const notify = NotificationService.getInstance();
 
 export function setNotificationChannel(channelName: 'Toast' | 'Console' | 'Alert') {
-  if (channelName === 'Toast') notify.setChannel(new ToastChannel());
-  else if (channelName === 'Console') notify.setChannel(new ConsoleChannel());
-  else notify.setChannel(new AlertChannel());
+  if (channelName === 'Toast') { notify.setChannel(new ToastChannel()); }
+  else if (channelName === 'Console') { notify.setChannel(new ConsoleChannel()); }
+  else { notify.setChannel(new AlertChannel()); }
 }
 
 export function subscribeToToasts(observer: Observer): () => void {

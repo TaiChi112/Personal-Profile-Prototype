@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import { useKanbanStore, TaskStatus, Task } from "../../../app/projects/(micro-apps)/kanban/store/useKanbanStore";
+import { useKanbanStore, type Task } from "../../../app/projects/(micro-apps)/kanban/store/useKanbanStore";
 
 const initialDefaultTasks: Task[] = [
   { id: "1", title: "Research competitors", status: "todo" },

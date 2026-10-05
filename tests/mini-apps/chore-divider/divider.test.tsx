@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import Divider from "@/app/projects/(micro-apps)/chore-divider/components/Divider";
 import Page from "@/app/projects/(micro-apps)/chore-divider/page";

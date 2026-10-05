@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import Image from 'next/image';
 import { useBooksStore } from '../store/useBooksStore';
 
@@ -6,7 +6,7 @@ export default function TimelineLayout({ books }: { books: any[] }) {
   const { favorites, toggleFavorite } = useBooksStore();
 
   const sortedBooks = useMemo(() => {
-    if (!books) return [];
+    if (!books) { return []; }
     return [...books]
       .filter(book => book.volumeInfo.publishedDate)
       .sort((a, b) => {
@@ -32,7 +32,7 @@ export default function TimelineLayout({ books }: { books: any[] }) {
           return (
             <div key={book.id} className="relative group">
               {/* Timeline Node */}
-              <span className="absolute -left-10 top-1 flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 border-4 border-white dark:border-gray-900 z-10 shadow-sm group-hover:scale-125 transition-transform"></span>
+              <span className="absolute -left-10 top-1 flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 border-4 border-white dark:border-gray-900 z-10 shadow-sm group-hover:scale-125 transition-transform" />
               
               <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row gap-5">
                 
@@ -63,7 +63,7 @@ export default function TimelineLayout({ books }: { books: any[] }) {
                       title="Toggle Favorite"
                     >
                       <svg className={`w-6 h-6 ${isFav ? 'text-red-500 fill-current' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                       </svg>
                     </button>
                   </div>

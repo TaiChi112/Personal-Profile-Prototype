@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 
 import {
@@ -330,8 +329,8 @@ describe("Focus Flow Micro-App", () => {
       const todayStr = new Date().toISOString().split("T")[0];
       useFocusStore.setState({
         history: [
-          { id: "1", date: todayStr, durationMinutes: 60, timestamp: 1700000000000 },
-          { id: "2", date: todayStr, durationMinutes: 30, timestamp: 1700000001000 },
+          { id: "1", date: todayStr, durationMinutes: 60, timestamp: 1_700_000_000_000 },
+          { id: "2", date: todayStr, durationMinutes: 30, timestamp: 1_700_000_001_000 },
         ],
       });
 
@@ -350,7 +349,7 @@ describe("Focus Flow Micro-App", () => {
       const todayStr = new Date().toISOString().split("T")[0];
       useFocusStore.setState({
         history: [
-          { id: "1", date: todayStr, durationMinutes: 25, timestamp: 1700000000000 },
+          { id: "1", date: todayStr, durationMinutes: 25, timestamp: 1_700_000_000_000 },
         ],
       });
 

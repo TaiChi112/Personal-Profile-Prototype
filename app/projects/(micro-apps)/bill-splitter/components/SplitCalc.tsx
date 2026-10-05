@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import { useBillStore } from '../store/useBillStore';
 
 export default function SplitCalc() {

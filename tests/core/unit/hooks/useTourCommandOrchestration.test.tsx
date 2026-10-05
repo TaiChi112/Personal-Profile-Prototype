@@ -1,5 +1,5 @@
 import { expect, test, describe, mock, beforeEach } from 'bun:test';
-import { renderHook, act, fireEvent } from '@testing-library/react';
+import { renderHook, act, } from '@testing-library/react';
 import { useTourCommandOrchestration } from '../../../../app/features/composition/useTourCommandOrchestration';
 import { historyManager } from '../../../../app/models/command/Commands';
 import type { TourStep } from '../../../../app/models/tour/Tour';

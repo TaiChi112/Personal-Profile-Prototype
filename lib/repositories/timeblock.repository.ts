@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { TimeBlock } from '@prisma/client';
+import type { TimeBlock } from '@prisma/client';
 
 export async function getTimeBlocks(userId: string): Promise<TimeBlock[]> {
   return prisma.timeBlock.findMany({

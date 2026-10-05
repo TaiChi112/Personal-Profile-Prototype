@@ -1,5 +1,4 @@
 import { expect, test, describe, mock, afterEach } from 'bun:test';
-import React from 'react';
 import { render } from '@testing-library/react';
 import { DocsClientBackground } from '../../../../../app/components/system/DocsClientBackground';
 

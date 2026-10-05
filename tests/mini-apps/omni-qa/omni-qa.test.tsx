@@ -1,5 +1,4 @@
-import { describe, it, expect, mock, beforeEach, afterEach } from 'bun:test';
-import React from 'react';
+import { describe, it, expect, mock, beforeEach, } from 'bun:test';
 import { render, fireEvent, act } from '@testing-library/react';
 
 // Mock xyflow to avoid SVG / layout dependencies in happy-dom

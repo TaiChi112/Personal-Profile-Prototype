@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import { useWaterStore } from '../store/useWaterStore';
 
 export default function Hydrate() {
@@ -8,7 +7,7 @@ export default function Hydrate() {
 
   return (
     <div className="max-w-md mx-auto bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl text-center relative overflow-hidden">
-      <div className="absolute bottom-0 left-0 right-0 bg-blue-100 dark:bg-blue-900/30 -z-10 transition-all duration-1000" style={{height: `${pct}%`}}></div>
+      <div className="absolute bottom-0 left-0 right-0 bg-blue-100 dark:bg-blue-900/30 -z-10 transition-all duration-1000" style={{height: `${pct}%`}} />
       
       <h2 className="text-2xl font-bold mb-2 text-blue-600">Daily Hydration</h2>
       <p className="text-gray-500 font-medium mb-8">Stay fresh. Hit 8 glasses.</p>
@@ -25,7 +24,7 @@ export default function Hydrate() {
 
       <div className="flex justify-center flex-wrap gap-2 mb-8">
         {Array.from({length: goal}).map((_, i) => (
-          <div key={i} className={`w-8 h-10 rounded-b-xl border-2 transition-colors ${i < glasses ? 'bg-blue-500 border-blue-500' : 'bg-transparent border-gray-300 dark:border-gray-600'}`}></div>
+          <div key={i} className={`w-8 h-10 rounded-b-xl border-2 transition-colors ${i < glasses ? 'bg-blue-500 border-blue-500' : 'bg-transparent border-gray-300 dark:border-gray-600'}`} />
         ))}
       </div>
 

@@ -1,5 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, mock } from "bun:test";
-import React from "react";
+import { describe, it, expect, beforeEach, afterEach, } from "bun:test";
 import { render, fireEvent, act } from "@testing-library/react";
 import { useWheelStore } from "../../../app/projects/(micro-apps)/decision-wheel/store/useWheelStore";
 import Spinner from "../../../app/projects/(micro-apps)/decision-wheel/components/Spinner";
@@ -34,14 +33,14 @@ describe("Decision Wheel Micro-App", () => {
     intervalCallbacks = [];
     nextIntervalId = 1;
 
-    globalThis.setTimeout = ((cb: () => void, delay: number = 0) => {
+    globalThis.setTimeout = ((cb: () => void, delay = 0) => {
       timeoutCallbacks.push({ callback: cb, delay });
       return timeoutCallbacks.length as any;
     }) as any;
 
     globalThis.clearTimeout = ((id: any) => {}) as any;
 
-    globalThis.setInterval = ((cb: () => void, interval: number = 0) => {
+    globalThis.setInterval = ((cb: () => void, interval = 0) => {
       const id = nextIntervalId++;
       intervalCallbacks.push({ callback: cb, interval, id });
       return id as any;

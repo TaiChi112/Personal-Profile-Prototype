@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import { useRegexStore } from '../store/useRegexStore';
 
 export default function Highlighter() {

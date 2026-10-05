@@ -33,7 +33,7 @@ class ContactButton extends BaseComponent {
   public disabled = true;
 
   click() {
-    if (!this.disabled) this.mediator.notify(this, 'click');
+    if (!this.disabled) { this.mediator.notify(this, 'click'); }
   }
 
   setDisabled(isDisabled: boolean) {

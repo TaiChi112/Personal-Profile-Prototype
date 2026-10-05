@@ -1,6 +1,5 @@
 "use client";
 
-import React from 'react';
 import AnalogClock from './AnalogClock';
 import FinanceWidget from './FinanceWidget';
 import KanbanWidget from './KanbanWidget';

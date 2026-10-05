@@ -1,5 +1,5 @@
 import { describe, it, expect, mock, beforeEach } from "bun:test";
-import React, { act } from "react";
+import { act } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 
 // Mock auth

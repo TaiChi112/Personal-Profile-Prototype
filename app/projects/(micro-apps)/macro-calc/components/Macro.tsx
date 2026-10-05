@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import { useMacroStore } from '../store/useMacroStore';
 
 export default function Macro() {
@@ -16,7 +15,7 @@ export default function Macro() {
 
   const InputBar = ({ label, val, onChange, color, cal }: any) => (
     <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
-      <div className={`w-3 h-12 rounded-full ${color}`}></div>
+      <div className={`w-3 h-12 rounded-full ${color}`} />
       <div className="flex-1">
         <p className="font-bold">{label}</p>
         <p className="text-xs text-gray-500">{cal} kcal</p>
@@ -34,9 +33,9 @@ export default function Macro() {
       </div>
       
       <div className="h-4 w-full flex rounded-full overflow-hidden mb-8 shadow-inner">
-        <div style={{width: `${pPct}%`}} className="bg-blue-500"></div>
-        <div style={{width: `${cPct}%`}} className="bg-emerald-500"></div>
-        <div style={{width: `${fPct}%`}} className="bg-amber-500"></div>
+        <div style={{width: `${pPct}%`}} className="bg-blue-500" />
+        <div style={{width: `${cPct}%`}} className="bg-emerald-500" />
+        <div style={{width: `${fPct}%`}} className="bg-amber-500" />
       </div>
       <div className="flex justify-between text-xs font-bold text-gray-500 mb-8 px-2">
         <span className="text-blue-500">{pPct.toFixed(0)}% P</span>

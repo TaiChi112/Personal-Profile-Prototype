@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTimerStore } from '../store/useTimerStore';
 
 export default function Timer() {
@@ -7,12 +7,12 @@ export default function Timer() {
   const timerRef = useRef<any>(null);
 
   useEffect(() => {
-    if (status !== 'idle') {
+    if (status === 'idle') {
+      clearInterval(timerRef.current);
+    } else {
       timerRef.current = setInterval(() => {
         setTimeLeft(timeLeft - 1);
       }, 1000);
-    } else {
-      clearInterval(timerRef.current);
     }
     return () => clearInterval(timerRef.current);
   }, [status, timeLeft, setTimeLeft]);

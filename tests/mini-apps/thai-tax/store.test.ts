@@ -4,7 +4,7 @@ import { useTaxStore } from "@/app/projects/(micro-apps)/thai-tax/store/useTaxSt
 describe("useTaxStore Zustand Store", () => {
   beforeEach(() => {
     useTaxStore.setState({
-      salary: 50000,
+      salary: 50_000,
       bonus: 0,
       ssf: 0,
       insurance: 0,
@@ -13,7 +13,7 @@ describe("useTaxStore Zustand Store", () => {
 
   it("should have correct initial values", () => {
     const state = useTaxStore.getState() as any;
-    expect(state.salary).toBe(50000);
+    expect(state.salary).toBe(50_000);
     expect(state.bonus).toBe(0);
     expect(state.ssf).toBe(0);
     expect(state.insurance).toBe(0);
@@ -21,25 +21,25 @@ describe("useTaxStore Zustand Store", () => {
 
   it("should update salary correctly", () => {
     const store = useTaxStore.getState() as any;
-    store.update("salary", 80000);
-    expect((useTaxStore.getState() as any).salary).toBe(80000);
+    store.update("salary", 80_000);
+    expect((useTaxStore.getState() as any).salary).toBe(80_000);
   });
 
   it("should update bonus correctly", () => {
     const store = useTaxStore.getState() as any;
-    store.update("bonus", 150000);
-    expect((useTaxStore.getState() as any).bonus).toBe(150000);
+    store.update("bonus", 150_000);
+    expect((useTaxStore.getState() as any).bonus).toBe(150_000);
   });
 
   it("should update ssf correctly", () => {
     const store = useTaxStore.getState() as any;
-    store.update("ssf", 50000);
-    expect((useTaxStore.getState() as any).ssf).toBe(50000);
+    store.update("ssf", 50_000);
+    expect((useTaxStore.getState() as any).ssf).toBe(50_000);
   });
 
   it("should update insurance correctly", () => {
     const store = useTaxStore.getState() as any;
-    store.update("insurance", 100000);
-    expect((useTaxStore.getState() as any).insurance).toBe(100000);
+    store.update("insurance", 100_000);
+    expect((useTaxStore.getState() as any).insurance).toBe(100_000);
   });
 });

@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from 'bun:test';
-import React from 'react';
 import { render, fireEvent, act } from '@testing-library/react';
 import Calculator from '@/app/projects/(micro-apps)/body-metrics/components/Calculator';
 import Page from '@/app/projects/(micro-apps)/body-metrics/page';

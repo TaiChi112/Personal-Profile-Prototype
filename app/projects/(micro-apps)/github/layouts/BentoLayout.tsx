@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import Image from 'next/image';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -24,7 +24,7 @@ const langColors: Record<string, string> = {
 
 export default function BentoLayout({ userData, reposData }: { userData: any, reposData: any[] }) {
   const languageData = useMemo(() => {
-    if (!reposData || reposData.length === 0) return [];
+    if (!reposData || reposData.length === 0) { return []; }
     
     const langCounts: Record<string, number> = {};
     reposData.forEach(repo => {
@@ -45,7 +45,7 @@ export default function BentoLayout({ userData, reposData }: { userData: any, re
     return sorted;
   }, [reposData]);
 
-  if (!userData) return null;
+  if (!userData) { return null; }
 
   return (
     <div className="w-full">

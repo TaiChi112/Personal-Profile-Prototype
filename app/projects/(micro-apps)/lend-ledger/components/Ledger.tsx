@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { addRecord, toggleReturn, deleteRecord } from '../actions';
 
 export default function Ledger({ records }: { records: any[] }) {

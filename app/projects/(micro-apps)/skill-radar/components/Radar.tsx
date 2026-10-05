@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import { useRadarStore } from '../store/useRadarStore';
 
 export default function Radar() {
@@ -14,13 +13,11 @@ export default function Radar() {
     return `${center + r * Math.cos(angle)},${center + r * Math.sin(angle)}`;
   }).join(' ');
 
-  const gridPolygons = [0.2, 0.4, 0.6, 0.8, 1].map(scale => {
-    return skills.map((_:any, i:number) => {
+  const gridPolygons = [0.2, 0.4, 0.6, 0.8, 1].map(scale => skills.map((_:any, i:number) => {
       const angle = (Math.PI * 2 * i) / skills.length - Math.PI / 2;
       const r = scale * radius;
       return `${center + r * Math.cos(angle)},${center + r * Math.sin(angle)}`;
-    }).join(' ');
-  });
+    }).join(' '));
 
   return (
     <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">

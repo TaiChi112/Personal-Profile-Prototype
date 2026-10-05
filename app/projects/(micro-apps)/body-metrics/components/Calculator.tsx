@@ -1,11 +1,10 @@
 "use client";
-import React from 'react';
 import { useMetricsStore } from '../store/useMetricsStore';
 
 export default function Calculator() {
   const { weight, height, age, gender, update } = useMetricsStore() as any;
 
-  const bmi = weight / Math.pow(height / 100, 2);
+  const bmi = weight / (height / 100) ** 2;
   let bmr = (10 * weight) + (6.25 * height) - (5 * age);
   bmr = gender === 'male' ? bmr + 5 : bmr - 161;
 

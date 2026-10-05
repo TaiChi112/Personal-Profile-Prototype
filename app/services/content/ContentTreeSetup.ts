@@ -55,8 +55,6 @@ const getProjectRepositoryLink = (project: Project) => {
   if (typeof project.repoUrl === "string") {
     return project.repoUrl;
   }
-
-  return undefined;
 };
 
 export const adaptProjectToUnified = (
@@ -98,7 +96,7 @@ export const adaptVideoToUnified = (
   imageUrl: video.thumbnail_high,
   meta: [`${video.views} views`],
   actionLink: "#",
-  decorations: video.views > 10000 ? ["popular", "hot"] : [],
+  decorations: video.views > 10_000 ? ["popular", "hot"] : [],
 });
 
 export const adaptArticleToUnified = (
@@ -312,8 +310,9 @@ export async function getBlogsTree(articles: Article[], blogs: Blog[]): Promise<
   
   // Add remaining blogs dynamically
   blogs.forEach((blog, index) => {
-      if (index === 0 && blog.category === 'Personal') return; // already added as container data maybe
-      if (index === 0 && blog.category === 'Lifestyle') return;
+      if (index === 0 && blog.category === 'Personal') { return; // already added as container data maybe
+}
+      if (index === 0 && blog.category === 'Lifestyle') { return; }
       builder.addItem(adaptBlogToUnified(blog));
   });
 

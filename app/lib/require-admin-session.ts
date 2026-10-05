@@ -61,7 +61,7 @@ export async function requireAuthenticatedSession(): Promise<SessionGuardResult>
 export async function requireAdminSession(): Promise<NextResponse | null> {
   const { session, error } = await requireAuthenticatedSession();
 
-  if (error !== null || !session) return error;
+  if (error !== null || !session) { return error; }
 
   if (session.user.role !== 'admin') {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });

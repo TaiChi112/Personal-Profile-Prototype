@@ -5,7 +5,7 @@ import { FeedSearchFilterControls } from './FeedSearchFilterControls';
 import { FeedSnapshotBar } from './FeedSnapshotBar';
 import { ContentLayoutFactory, LayoutSwitcher, type LayoutType } from '../layout/ContentLayouts';
 import { SectionBanner } from '../section/SectionPrimitives';
-import type { FeedItem, FeedLayoutType, FeedStyleContract } from '../../interfaces/feed';
+import type { FeedItem, FeedStyleContract } from '../../interfaces/feed';
 import type { SectionTitleStyle } from '../../types/section-style';
 import { composeFeedItems } from '../../services/feed/FeedCompositionService';
 import { useFeedController } from '../../services/feed/useFeedController';

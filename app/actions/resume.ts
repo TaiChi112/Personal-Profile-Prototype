@@ -7,7 +7,6 @@ import {
   asCertificateId,
   asExperienceId,
   asProjectId,
-  asResumeId,
   asSkillId,
   type FeatureResumeStatus,
   type NewProjectDraft,
@@ -39,14 +38,14 @@ import {
 type PrismaResumeCompositionClient = Prisma.TransactionClient;
 
 const parseSafeDate = (dateStr: string | null | undefined): Date | null => {
-  if (!dateStr) return null;
+  if (!dateStr) { return null; }
   const d = new Date(dateStr);
   return isNaN(d.getTime()) ? null : d;
 };
 
 async function getUserId() {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (!session?.user?.id) { throw new Error("Unauthorized"); }
   return session.user.id;
 }
 
@@ -71,7 +70,7 @@ export async function loadVaultData(userId: string): Promise<VaultData> {
       resumes: { orderBy: { updatedAt: "desc" }, take: 1, include: { resumeBasic: true } },
     },
   });
-  if (!user) throw new Error("User profile not found");
+  if (!user) { throw new Error("User profile not found"); }
 
   const [userSkills, projects, experiences, certificates, awards] = await Promise.all([
     prisma.userSkill.findMany({ where: { userId }, include: { skill: true }, orderBy: { skill: { name: "asc" } } }),
@@ -178,7 +177,7 @@ export async function createSkill(input: { category: string; name: string }): Pr
 export async function updateSkill(skillId: string, input: { category: string; name: string }): Promise<VaultSkill> {
   const userId = await getUserId();
   const userSkill = await prisma.userSkill.findUnique({ where: { userId_skillId: { userId, skillId } } });
-  if (!userSkill) throw new Error("Skill not found for user");
+  if (!userSkill) { throw new Error("Skill not found for user"); }
 
   const newSkill = await prisma.skill.upsert({
     where: { name: input.name.trim() },
@@ -351,13 +350,13 @@ export async function saveResume(input: UpsertSavedResumeInput): Promise<SavedRe
   const userId = await getUserId();
   const savedResumeId = await prisma.$transaction(async (tx) => {
     const user = await tx.user.findUnique({ where: { id: userId }, include: { resumes: { orderBy: { updatedAt: "desc" }, take: 1, include: { resumeBasic: true } } } });
-    if (!user) throw new Error("User profile not found");
+    if (!user) { throw new Error("User profile not found"); }
 
     const persistedStatus = toPersistedResumeStatus(input.status);
     const savedResume = input.resumeId
       ? await (async () => {
           const existing = await tx.resume.findFirst({ where: { userId, resumeId: String(input.resumeId) } });
-          if (!existing) throw new Error("Resume not found");
+          if (!existing) { throw new Error("Resume not found"); }
           return tx.resume.update({
             where: { resumeId: existing.resumeId },
             data: { versionName: input.title, targetJobTitle: input.config.targetRole || null, targetCompany: input.config.targetCompany || null, status: persistedStatus, sectionOrder: input.config.sectionOrder || ["skills", "projects", "experience", "certificates", "awards"] },
@@ -392,7 +391,7 @@ export async function saveResume(input: UpsertSavedResumeInput): Promise<SavedRe
 
   const resumes = await loadSavedResumes(userId);
   const result = resumes.find(r => r.id === savedResumeId);
-  if (!result) throw new Error("Saved resume could not be reloaded");
+  if (!result) { throw new Error("Saved resume could not be reloaded"); }
   return result;
 }
 
@@ -400,7 +399,7 @@ export async function duplicateResume(resumeId: ResumeId, duplicatedAt: string):
   const userId = await getUserId();
   const resumes = await loadSavedResumes(userId);
   const existing = resumes.find(r => r.id === resumeId);
-  if (!existing) return null;
+  if (!existing) { return null; }
 
   const duplicated = await saveResume({
     title: `${existing.title} (Copy)`,
@@ -422,7 +421,7 @@ export async function updateResumeStatus(resumeId: ResumeId, status: FeatureResu
   const userId = await getUserId();
   const resumes = await loadSavedResumes(userId);
   const existing = resumes.find(r => r.id === resumeId);
-  if (!existing) return null;
+  if (!existing) { return null; }
 
   return saveResume({
     resumeId,

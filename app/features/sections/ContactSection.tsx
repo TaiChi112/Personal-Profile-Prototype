@@ -20,7 +20,7 @@ export function ContactSection({ currentStyle, labels, onNotify }: ContactSectio
     <div className="py-12 px-4 max-w-4xl mx-auto">
       <SectionBanner title={labels.sections.contact} description={labels.sections.contactDesc} currentStyle={currentStyle} className="mb-10" />
       <div className={`${currentStyle.getCardClass()} p-8 md:p-12 shadow-2xl overflow-hidden relative`}>
-        <div className="absolute top-0 right-0 w-64 h-64 bg-linear-to-bl from-blue-100 to-transparent dark:from-blue-900/20 dark:to-transparent rounded-bl-full opacity-50 pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-linear-to-bl from-blue-100 to-transparent dark:from-blue-900/20 dark:to-transparent rounded-bl-full opacity-50 pointer-events-none" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
           <div className="space-y-6">
             <h3 className="text-2xl font-bold dark:text-white flex items-center gap-2">
@@ -68,7 +68,7 @@ export function ContactSection({ currentStyle, labels, onNotify }: ContactSectio
                 onChange={(event) => mediator.message.setValue(event.target.value)}
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 placeholder="Tell me about your project..."
-              ></textarea>
+              />
             </div>
             <button
               onClick={() => mediator.submitButton.click()}

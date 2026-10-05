@@ -25,7 +25,7 @@ export function FloatingThemeControls(props: FloatingThemeControlsProps) {
 
     // ดักจับการคลิกพื้นที่ว่างเพื่อปิดเมนู
     useEffect(() => {
-        if (!isPaletteOpen) return;
+        if (!isPaletteOpen) { return; }
         function handleClickOutside(e: MouseEvent) {
             const target = e.target as Node;
             const isClickedInside = paletteRef.current?.contains(target) || buttonRef.current?.contains(target);

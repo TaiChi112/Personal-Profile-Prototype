@@ -80,7 +80,7 @@ export function TourControls<TStep extends TourStepLike>({
     return () => clearInterval(interval);
   }, [isPlaying, isActive, iterator, onExecuteStep, speed]);
 
-  if (!isActive) return null;
+  if (!isActive) { return null; }
 
   const currentStep = iterator.current();
 
@@ -112,7 +112,7 @@ export function TourControls<TStep extends TourStepLike>({
             onClick={() => {
               setIsPlaying(false);
               const previous = iterator.prev();
-              if (previous) onExecuteStep(previous);
+              if (previous) { onExecuteStep(previous); }
             }}
             disabled={!iterator.hasPrev()}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded disabled:opacity-30 transition-colors"
@@ -131,8 +131,8 @@ export function TourControls<TStep extends TourStepLike>({
             onClick={() => {
               setIsPlaying(false);
               const next = iterator.next();
-              if (next) onExecuteStep(next);
-              else onStop();
+              if (next) { onExecuteStep(next); }
+              else { onStop(); }
             }}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
             title={labels.actions.tourNext}
@@ -151,7 +151,7 @@ export function TourControls<TStep extends TourStepLike>({
           </button>
         </div>
       </div>
-      {isPlaying ? <div className="absolute bottom-0 left-0 h-1 bg-blue-500" style={{ width: '100%', transition: `width ${3000 / speed}ms linear` }}></div> : null}
+      {isPlaying ? <div className="absolute bottom-0 left-0 h-1 bg-blue-500" style={{ width: '100%', transition: `width ${3000 / speed}ms linear` }} /> : null}
     </div>
   );
 }

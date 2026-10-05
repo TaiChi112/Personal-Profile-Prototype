@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useMoodStore } from '../store/useMoodStore';
 
 export default function Mood() {
@@ -35,7 +35,7 @@ export default function Mood() {
             <div className="flex-1">
               <p className="font-bold text-gray-700 dark:text-gray-300">{e.date}</p>
               <div className="w-full bg-gray-200 h-2 rounded-full mt-2">
-                <div className="bg-purple-500 h-2 rounded-full" style={{width: `${(e.energy/10)*100}%`}}></div>
+                <div className="bg-purple-500 h-2 rounded-full" style={{width: `${(e.energy/10)*100}%`}} />
               </div>
             </div>
           </div>

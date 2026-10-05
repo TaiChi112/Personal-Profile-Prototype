@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { useTimetableStore } from "@/app/projects/(micro-apps)/smart-timetable/store/useTimetableStore";
 import Timetable from "@/app/projects/(micro-apps)/smart-timetable/components/Timetable";

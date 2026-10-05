@@ -1,5 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, mock } from "bun:test";
-import React from "react";
+import { describe, it, expect, mock } from "bun:test";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 
 let lastNodesChangeHandler: any;

@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import { useWealthStore } from '../store/useWealthStore';
 
 export default function WealthDashboard() {
@@ -34,7 +33,7 @@ export default function WealthDashboard() {
         </div>
         <div className="flex flex-wrap gap-4 justify-center">
           {assets.map((a:any) => (
-            <div key={a.id} className="flex items-center gap-2"><span className="w-3 h-3 rounded-full" style={{backgroundColor: a.color}}></span><span className="text-sm font-bold">{a.name}</span></div>
+            <div key={a.id} className="flex items-center gap-2"><span className="w-3 h-3 rounded-full" style={{backgroundColor: a.color}} /><span className="text-sm font-bold">{a.name}</span></div>
           ))}
         </div>
       </div>

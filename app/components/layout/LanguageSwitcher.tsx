@@ -10,7 +10,7 @@ export default function LanguageSwitcher() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const getPath = (lang: string) => {
-    if (!pathname) return `/${lang}/`;
+    if (!pathname) { return `/${lang}/`; }
     
     const segments = pathname.split('/');
     // Check if the path already starts with a language code

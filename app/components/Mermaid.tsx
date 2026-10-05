@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import mermaid from 'mermaid';
 import { useTheme } from 'next-themes'; // ดึง Theme จาก Fumadocs
 
@@ -18,7 +18,7 @@ export function Mermaid({ chart }: { chart: string }) {
 
     const renderChart = async () => {
       try {
-        const id = `mermaid-svg-${Math.floor(Math.random() * 10000)}`;
+        const id = `mermaid-svg-${Math.floor(Math.random() * 10_000)}`;
         const { svg: renderedSvg } = await mermaid.render(id, chart);
         setSvg(renderedSvg);
       } catch (error) {
@@ -30,7 +30,7 @@ export function Mermaid({ chart }: { chart: string }) {
   }, [chart, resolvedTheme]);
 
   // แสดงผล Placeholder โหลดเบาๆ ระหว่างที่เรนเดอร์ Diagram
-  if (!svg) return <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 w-full rounded-lg my-6" />;
+  if (!svg) { return <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 w-full rounded-lg my-6" />; }
 
   return (
     <div 

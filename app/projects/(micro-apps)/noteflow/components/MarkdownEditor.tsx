@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { addNoteAction, updateNoteAction, deleteNoteAction } from '../actions';
 
 interface Note { id: string; title: string; content: string; updatedAt: Date; }

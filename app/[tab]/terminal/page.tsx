@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect, KeyboardEvent } from "react";
+import type React from "react";
+import { useState, useRef, useEffect, type KeyboardEvent } from "react"
 
 interface CommandHistory {
   command: string;
@@ -15,7 +16,7 @@ export default function TerminalPage() {
 
   const handleCommand = (cmd: string) => {
     const trimmed = cmd.trim();
-    if (!trimmed) return;
+    if (!trimmed) { return; }
 
     let output: string | React.ReactNode = "";
     const lowerCmd = trimmed.toLowerCase();

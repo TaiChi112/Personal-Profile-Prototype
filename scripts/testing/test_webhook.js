@@ -12,7 +12,7 @@ const body = JSON.stringify({
         id: "1234567890",
         text: "วันนี้ซื้อกาแฟไป 120 บาท"
       },
-      timestamp: 1625665242211,
+      timestamp: 1_625_665_242_211,
       source: {
         type: "user",
         userId: "U1234567890" // Dummy user ID
@@ -34,7 +34,7 @@ fetch('http://localhost:3001/api/webhooks/line', {
     'Content-Type': 'application/json',
     'x-line-signature': signature
   },
-  body: body
+  body
 }).then(async res => {
   console.log('Status:', res.status);
   console.log('Response:', await res.text());

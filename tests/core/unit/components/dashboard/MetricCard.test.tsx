@@ -1,5 +1,4 @@
 import { expect, test, describe } from 'bun:test';
-import React from 'react';
 import { render } from '@testing-library/react';
 import { MetricCard } from '../../../../../app/components/dashboard/MetricCard';
 

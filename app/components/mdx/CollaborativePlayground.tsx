@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import type React from "react";
+import { useEffect } from "react";
 import { Playground } from "./Playground";
 
 type CollaborativePlaygroundProps = React.ComponentProps<typeof Playground>;

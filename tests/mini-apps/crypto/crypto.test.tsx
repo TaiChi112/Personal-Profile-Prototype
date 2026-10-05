@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach, mock } from "bun:test";
-import React from "react";
 import { render, screen, act } from "@testing-library/react";
 
 // Mock recharts to avoid canvas/layout dimension warnings
@@ -14,7 +13,7 @@ mock.module("recharts", () => ({
   Legend: () => <div data-testid="legend" />,
 }));
 
-import CryptoCard, { Coin } from "@/app/projects/(micro-apps)/crypto/components/CryptoCard";
+import CryptoCard, { type Coin } from "@/app/projects/(micro-apps)/crypto/components/CryptoCard";
 import PriceFlashValue from "@/app/projects/(micro-apps)/crypto/components/PriceFlashValue";
 import CryptoMarketChart from "@/app/projects/(micro-apps)/crypto/components/CryptoMarketChart";
 import CryptoDashboard from "@/app/projects/(micro-apps)/crypto/page";
@@ -53,7 +52,7 @@ describe("Crypto Micro-App", () => {
       id: "bitcoin",
       name: "Bitcoin",
       symbol: "BTC",
-      price: 64123.45,
+      price: 64_123.45,
       change24h: 3.52,
     };
 
@@ -61,7 +60,7 @@ describe("Crypto Micro-App", () => {
       id: "pepe",
       name: "Pepe",
       symbol: "PEPE",
-      price: 0.000085,
+      price: 0.000_085,
       change24h: -4.18,
     };
 
@@ -169,7 +168,7 @@ describe("Crypto Micro-App", () => {
       expect(es).toBeDefined();
 
       const sampleData: Coin[] = [
-        { id: "btc", name: "Bitcoin", symbol: "BTC", price: 65000, change24h: 2.1 },
+        { id: "btc", name: "Bitcoin", symbol: "BTC", price: 65_000, change24h: 2.1 },
         { id: "eth", name: "Ethereum", symbol: "ETH", price: 3500, change24h: -1.4 },
       ];
 

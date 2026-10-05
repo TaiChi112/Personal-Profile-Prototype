@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 import Hydrate from "@/app/projects/(micro-apps)/hydrate/components/Hydrate";
 import { useWaterStore } from "@/app/projects/(micro-apps)/hydrate/store/useWaterStore";

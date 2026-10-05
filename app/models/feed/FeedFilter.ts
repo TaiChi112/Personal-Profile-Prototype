@@ -21,7 +21,7 @@ class SearchFilter extends FeedFilterHandler {
     if (request.query) {
       const query = request.query.toLowerCase();
       const matches = item.title.toLowerCase().includes(query) || item.description.toLowerCase().includes(query);
-      if (!matches) return false;
+      if (!matches) { return false; }
     }
     return super.handle(item, request);
   }
@@ -40,7 +40,7 @@ class TagFilter extends FeedFilterHandler {
   handle(item: FeedItem, request: FeedFilterRequest): boolean {
     if (request.tags.length > 0) {
       const hasTag = item.meta.some((tag) => request.tags.includes(tag));
-      if (!hasTag) return false;
+      if (!hasTag) { return false; }
     }
     return super.handle(item, request);
   }

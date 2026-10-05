@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
 
 export default function BentoLayout({ books }: { books: any[] }) {
   const stats = useMemo(() => {
-    if (!books || books.length === 0) return null;
+    if (!books || books.length === 0) { return null; }
 
     let totalPages = 0;
     const authorCounts: Record<string, number> = {};
@@ -12,7 +12,7 @@ export default function BentoLayout({ books }: { books: any[] }) {
 
     books.forEach(book => {
       const info = book.volumeInfo;
-      if (info.pageCount) totalPages += info.pageCount;
+      if (info.pageCount) { totalPages += info.pageCount; }
       
       if (info.authors) {
         info.authors.forEach((a: string) => {
@@ -103,7 +103,7 @@ export default function BentoLayout({ books }: { books: any[] }) {
             <div className="w-50% pl-4 space-y-3">
               {stats.topCategories.map((cat, index) => (
                 <div key={cat.name} className="flex items-center text-sm">
-                  <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                  <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
                   <span className="text-gray-700 dark:text-gray-300 truncate font-medium flex-1">{cat.name}</span>
                   <span className="text-gray-400 font-bold ml-2">{cat.value}</span>
                 </div>

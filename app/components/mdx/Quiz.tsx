@@ -64,13 +64,11 @@ export function Quiz({ question, options, answer }: QuizProps) {
             } else {
               buttonClass += "border-fd-border bg-fd-muted opacity-50";
             }
-          } else {
-            if (isSelected) {
+          } else if (isSelected) {
               buttonClass += "border-fd-primary bg-fd-primary/10 ring-1 ring-fd-primary";
             } else {
               buttonClass += "border-fd-border bg-fd-background hover:bg-fd-accent";
             }
-          }
 
           return (
             <button

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { auth } from '@/auth';
 import { OnboardingRepository } from '@/lib/repositories/onboarding.repository';
 import { OnboardingScreen } from './OnboardingScreen';

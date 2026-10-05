@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useTransition } from 'react';
+import type React from 'react';
+import { useState, useTransition } from 'react';
 import { addTodo, toggleTodo, deleteTodo } from '@/app/features/todo/actions';
 
 type Todo = {

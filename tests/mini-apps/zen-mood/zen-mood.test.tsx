@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, fireEvent, act } from "@testing-library/react";
 import { useMoodStore } from "../../../app/projects/(micro-apps)/zen-mood/store/useMoodStore";
 import Mood from "../../../app/projects/(micro-apps)/zen-mood/components/Mood";

@@ -1,6 +1,5 @@
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
-import type { AtsExportProfile } from '../../data/resume';
 
 export type ExportLanguage = 'en' | 'th';
 
@@ -180,7 +179,7 @@ function buildProjectsSection(resume: ExportableResume): string {
       return [
         `### ${projectHeading}`,
         ...project.description.map((detail) => `- ${formatProjectLabelForMarkdown(detail)}`),
-        ...(timelineLine ? ['', `**Timeline:**`, timelineLine] : []),
+        ...(timelineLine ? ['', "**Timeline:**", timelineLine] : []),
       ].join('\n');
     })
     .join('\n\n');

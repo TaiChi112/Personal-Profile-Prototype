@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useFocusStore } from '../store/useFocusStore';
 
 export default function ActivityHeatmap() {
@@ -31,10 +31,10 @@ export default function ActivityHeatmap() {
   }, [activityMap]);
 
   const getColor = (minutes: number) => {
-    if (minutes === 0) return 'bg-gray-100 dark:bg-gray-700/50';
-    if (minutes < 25) return 'bg-emerald-200 dark:bg-emerald-900/40';
-    if (minutes < 60) return 'bg-emerald-400 dark:bg-emerald-700/70';
-    if (minutes < 120) return 'bg-emerald-500 dark:bg-emerald-500';
+    if (minutes === 0) { return 'bg-gray-100 dark:bg-gray-700/50'; }
+    if (minutes < 25) { return 'bg-emerald-200 dark:bg-emerald-900/40'; }
+    if (minutes < 60) { return 'bg-emerald-400 dark:bg-emerald-700/70'; }
+    if (minutes < 120) { return 'bg-emerald-500 dark:bg-emerald-500'; }
     return 'bg-emerald-600 dark:bg-emerald-400';
   };
 
@@ -55,7 +55,7 @@ export default function ActivityHeatmap() {
                 key={day.dateStr} 
                 title={`${day.dateStr}: ${day.minutes} mins focused`}
                 className={`w-4 h-4 rounded-sm ${getColor(day.minutes)} transition-colors hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 cursor-help`}
-              ></div>
+              />
             ))}
           </div>
         ))}
@@ -63,11 +63,11 @@ export default function ActivityHeatmap() {
       
       <div className="flex items-center justify-end gap-2 text-xs text-gray-500 mt-2">
         <span>Less</span>
-        <div className="w-3 h-3 rounded-sm bg-gray-100 dark:bg-gray-700/50"></div>
-        <div className="w-3 h-3 rounded-sm bg-emerald-200 dark:bg-emerald-900/40"></div>
-        <div className="w-3 h-3 rounded-sm bg-emerald-400 dark:bg-emerald-700/70"></div>
-        <div className="w-3 h-3 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
-        <div className="w-3 h-3 rounded-sm bg-emerald-600 dark:bg-emerald-400"></div>
+        <div className="w-3 h-3 rounded-sm bg-gray-100 dark:bg-gray-700/50" />
+        <div className="w-3 h-3 rounded-sm bg-emerald-200 dark:bg-emerald-900/40" />
+        <div className="w-3 h-3 rounded-sm bg-emerald-400 dark:bg-emerald-700/70" />
+        <div className="w-3 h-3 rounded-sm bg-emerald-500 dark:bg-emerald-500" />
+        <div className="w-3 h-3 rounded-sm bg-emerald-600 dark:bg-emerald-400" />
         <span>More</span>
       </div>
     </div>

@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import { usePackStore } from '../store/usePackStore';
 
 export default function Packer() {
@@ -22,7 +21,7 @@ export default function Packer() {
       <div className="mb-6">
         <div className="flex justify-between text-sm font-bold text-gray-500 mb-2"><span>Packing Progress</span> <span>{progress}%</span></div>
         <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div className="h-full bg-sky-500 transition-all duration-500" style={{width: `${progress}%`}}></div>
+          <div className="h-full bg-sky-500 transition-all duration-500" style={{width: `${progress}%`}} />
         </div>
       </div>
 

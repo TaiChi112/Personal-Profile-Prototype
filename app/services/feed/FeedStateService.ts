@@ -6,7 +6,7 @@ import type {
   FeedViewState,
 } from '../../interfaces/feed';
 import { createFeedFilterChain } from '../../models/feed/FeedFilter';
-import { FeedStateCaretaker, FeedStateMemento } from '../../models/feed/FeedState';
+import { type FeedStateCaretaker, FeedStateMemento } from '../../models/feed/FeedState';
 
 export function saveFeedSnapshot(
   caretaker: FeedStateCaretaker,
@@ -14,7 +14,7 @@ export function saveFeedSnapshot(
   state: FeedViewState,
   notify: (message: string, level: 'SUCCESS' | 'WARNING' | 'INFO' | 'ERROR') => void,
 ): boolean {
-  if (!name.trim()) return false;
+  if (!name.trim()) { return false; }
   caretaker.saveSnapshot(name, new FeedStateMemento(state));
   notify(`Snapshot "${name}" saved!`, 'SUCCESS');
   return true;
@@ -25,7 +25,7 @@ export function loadFeedSnapshot(
   name: string,
 ): FeedViewState | null {
   const memento = caretaker.getSnapshot(name);
-  if (!memento) return null;
+  if (!memento) { return null; }
   return memento.getState();
 }
 

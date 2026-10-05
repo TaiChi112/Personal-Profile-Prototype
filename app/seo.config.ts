@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 const title = "Anothai(TaiChi) Portfolio";
 const description = "Personal Website Portfolio of TaiChi";

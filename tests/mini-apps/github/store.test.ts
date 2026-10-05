@@ -51,14 +51,14 @@ describe("useGithubStore Zustand Store", () => {
   it("should update userData with setUserData", () => {
     const dummyUserData = {
       login: "octocat",
-      id: 583231,
+      id: 583_231,
       name: "The Octocat",
       company: "@github",
       blog: "https://github.blog",
       location: "San Francisco",
       bio: "GitHub mascot",
       public_repos: 8,
-      followers: 10000,
+      followers: 10_000,
       following: 9,
       created_at: "2011-01-25T18:44:36Z",
     };

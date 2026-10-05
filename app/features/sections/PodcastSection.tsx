@@ -103,7 +103,7 @@ export function PodcastSection({ currentStyle, labels, onNotify }: PodcastSectio
                   <div
                     className={`h-full bg-blue-600 ${playerStateName === 'PLAYING' ? 'animate-[width_20s_linear]' : ''}`}
                     style={{ width: playerStateName === 'PLAYING' ? '100%' : '30%' }}
-                  ></div>
+                  />
                 </div>
                 <div className="flex justify-between text-xs text-gray-400 mb-6">
                   <span>12:45</span>

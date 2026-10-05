@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 interface RSCStreamingSkeletonProps {
   className?: string;

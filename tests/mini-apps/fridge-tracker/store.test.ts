@@ -45,7 +45,7 @@ describe("useFridgeStore Zustand Store", () => {
 
   it("should not modify items if deleting a non-existent id", () => {
     const { delItem } = useFridgeStore.getState() as any;
-    delItem(99999);
+    delItem(99_999);
 
     const state = useFridgeStore.getState() as any;
     expect(state.items.length).toBe(3);

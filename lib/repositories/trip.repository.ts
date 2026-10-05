@@ -22,7 +22,7 @@ export class TripRepository {
 
   static async deleteTrip(userId: string, tripId: string) {
     const trip = await prisma.trip.findUnique({ where: { id: tripId } });
-    if (!trip || trip.userId !== userId) throw new Error("Trip not found");
+    if (!trip || trip.userId !== userId) { throw new Error("Trip not found"); }
     return prisma.trip.delete({
       where: { id: tripId },
     });

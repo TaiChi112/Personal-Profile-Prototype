@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import SubCalc from "@/app/projects/(micro-apps)/sub-auditor/components/SubCalc";
 import Page from "@/app/projects/(micro-apps)/sub-auditor/page";

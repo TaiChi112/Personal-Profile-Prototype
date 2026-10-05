@@ -10,7 +10,7 @@ export default function Timetable() {
   return (
     <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl overflow-x-auto">
       <div className="grid grid-cols-6 gap-2 min-w-[700px]">
-        <div className="p-4"></div>
+        <div className="p-4" />
         {days.map(d => <div key={d} className="p-4 font-bold text-center bg-gray-100 dark:bg-gray-700 rounded-xl">{d}</div>)}
         
         {times.map((t, rowIdx) => (

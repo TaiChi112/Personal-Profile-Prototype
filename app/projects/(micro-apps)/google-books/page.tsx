@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useBooksStore, LayoutMode } from './store/useBooksStore';
+import { useBooksStore, type LayoutMode } from './store/useBooksStore';
 import BookshelfLayout from './layouts/BookshelfLayout';
 import BentoLayout from './layouts/BentoLayout';
 import TimelineLayout from './layouts/TimelineLayout';
@@ -32,7 +33,7 @@ export default function GoogleBooksExplorer() {
       const data = await res.json();
       setBooksData(data.items || []);
       // Switch back to bookshelf if searching from favorites tab
-      if (layoutMode === 'FAVORITES') setLayoutMode('BOOKSHELF');
+      if (layoutMode === 'FAVORITES') { setLayoutMode('BOOKSHELF'); }
     } catch (error) {
       console.error('Error fetching books:', error);
       setBooksData([]);
@@ -42,8 +43,8 @@ export default function GoogleBooksExplorer() {
   };
 
   const handleSearch = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!searchQuery.trim()) return;
+    if (e) { e.preventDefault(); }
+    if (!searchQuery.trim()) { return; }
     await fetchBooks(searchQuery);
   };
 
@@ -62,7 +63,8 @@ export default function GoogleBooksExplorer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!mounted) return null; // Avoid hydration mismatch for LocalStorage
+  if (!mounted) { return null; // Avoid hydration mismatch for LocalStorage
+}
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
@@ -71,7 +73,7 @@ export default function GoogleBooksExplorer() {
         {/* Navigation & Header */}
         <div className="flex items-center gap-4">
           <Link href="/projects" className="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -95,7 +97,7 @@ export default function GoogleBooksExplorer() {
                 Search
               </button>
               <button type="button" onClick={loadRandomSubject} title="Feeling Lucky" className="px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl transition-colors border border-gray-200 dark:border-gray-600 flex items-center justify-center">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
               </button>
             </form>
           </div>
@@ -115,7 +117,7 @@ export default function GoogleBooksExplorer() {
               </button>
             ))}
             
-            <div className="flex-1"></div>
+            <div className="flex-1" />
             
             <button
               onClick={() => setLayoutMode('FAVORITES')}
@@ -125,7 +127,7 @@ export default function GoogleBooksExplorer() {
                   : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500'
               }`}
             >
-              <svg className={`w-4 h-4 ${favorites.length > 0 ? 'text-red-500 fill-current' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+              <svg className={`w-4 h-4 ${favorites.length > 0 ? 'text-red-500 fill-current' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
               My Library ({favorites.length})
             </button>
           </div>
@@ -135,7 +137,7 @@ export default function GoogleBooksExplorer() {
         <div className="layout-container min-h-[500px]">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
             </div>
           ) : (
             <>

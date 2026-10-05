@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 import MedList from "@/app/projects/(micro-apps)/med-tracker/components/MedList";
 import { useMedStore } from "@/app/projects/(micro-apps)/med-tracker/store/useMedStore";

@@ -13,7 +13,6 @@ import type {
   ResumeBuilderAction,
   ResumeBuilderState,
 } from "./resume-builder.types";
-import type { SavedResume } from "@uaps/shared/resume-builder";
 
 const toggleIdInList = <TId extends string>(items: TId[], id: TId) => {
   if (items.includes(id)) {

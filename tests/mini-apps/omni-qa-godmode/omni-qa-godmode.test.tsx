@@ -7,9 +7,7 @@ mock.module("framer-motion", () => ({
     {},
     {
       get: (_, tag: string) => {
-        const Comp = React.forwardRef<any, any>(({ children, initial, animate, exit, transition, ...props }, ref) => {
-          return React.createElement(tag, { ...props, ref }, children);
-        });
+        const Comp = React.forwardRef<any, any>(({ children, initial, animate, exit, transition, ...props }, ref) => React.createElement(tag, { ...props, ref }, children));
         Comp.displayName = `motion.${tag}`;
         return Comp;
       },
@@ -50,7 +48,7 @@ describe("OmniQA God Mode Micro-App", () => {
     intervalCallbacks = [];
     nextIntervalId = 1;
 
-    globalThis.setTimeout = ((cb: () => void, delay: number = 0) => {
+    globalThis.setTimeout = ((cb: () => void, delay = 0) => {
       timeoutCallbacks.push({ callback: cb, delay });
       return timeoutCallbacks.length as any;
     }) as any;
@@ -59,7 +57,7 @@ describe("OmniQA God Mode Micro-App", () => {
       // Clear timeout
     }) as any;
 
-    globalThis.setInterval = ((cb: () => void, interval: number = 0) => {
+    globalThis.setInterval = ((cb: () => void, interval = 0) => {
       const id = nextIntervalId++;
       intervalCallbacks.push({ callback: cb, interval, id });
       return id as any;

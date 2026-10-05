@@ -1,4 +1,4 @@
-import { SpanStatusCode, Span } from '@opentelemetry/api';
+import { SpanStatusCode, type Span } from '@opentelemetry/api';
 import { Prisma } from '@prisma/client';
 import { getTracer } from './telemetry';
 

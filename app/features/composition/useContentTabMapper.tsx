@@ -6,7 +6,7 @@ import {
   MOCK_VIDEOS,
   type Blog, type Project,
 } from '../../data/content';
-import type { CompositeNode, UnifiedContentItem } from '../../interfaces/content-tree';
+import type { CompositeNode, } from '../../interfaces/content-tree';
 import type { StyleFactory, UILabels } from '../../models/theme/ThemeConfig';
 import {
   adaptBlogToUnified,
@@ -14,7 +14,7 @@ import {
   adaptProjectToUnified,
   adaptVideoToUnified,
 } from '../../services/content/ContentTreeSetup';
-import { type EventType } from '../../services/system/notification/NotificationBridge';
+import type { EventType } from '../../services/system/notification/NotificationBridge';
 import dynamic from 'next/dynamic';
 
 const ArticlesSection = dynamic(() => import('../sections/ArticlesSection').then(mod => mod.ArticlesSection));

@@ -34,7 +34,7 @@ export function ToastContainer({ style, subscribe }: ToastContainerProps) {
     return unsubscribe;
   }, [subscribe]);
 
-  if (toasts.length === 0) return null;
+  if (toasts.length === 0) { return null; }
 
   return (
     <>

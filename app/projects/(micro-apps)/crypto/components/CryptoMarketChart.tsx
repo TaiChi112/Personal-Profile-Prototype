@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   AreaChart,
   Area,
@@ -26,7 +26,7 @@ export default function CryptoMarketChart() {
     const generateData = () => {
       const result: ChartData[] = [];
       const now = new Date();
-      let btcPrice = 60000;
+      let btcPrice = 60_000;
       let ethPrice = 3000;
       let solPrice = 100;
 

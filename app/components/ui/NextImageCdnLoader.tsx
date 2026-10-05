@@ -1,6 +1,6 @@
 'use client';
 
-import Image, { ImageProps } from 'next/image';
+import Image, { type ImageProps } from 'next/image';
 
 const cloudflareLoader = ({ src, width, quality }: { src: string; width: number; quality?: number }) => {
   const params = [`width=${width}`];

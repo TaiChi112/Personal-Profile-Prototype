@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export default function TabLayout({ userData, reposData, eventsData }: { userData: any, reposData: any[], eventsData: any[] }) {
   const [activeTab, setActiveTab] = useState('profile');
 
-  if (!userData) return null;
+  if (!userData) { return null; }
 
   return (
     <div className="w-full">
@@ -85,7 +85,7 @@ export default function TabLayout({ userData, reposData, eventsData }: { userDat
                     <div className="flex items-center gap-4 text-xs font-medium text-gray-500">
                       {repo.language && (
                         <div className="flex items-center gap-1">
-                          <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                          <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
                           {repo.language}
                         </div>
                       )}

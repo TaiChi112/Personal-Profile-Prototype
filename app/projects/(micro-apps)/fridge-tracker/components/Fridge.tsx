@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useFridgeStore } from '../store/useFridgeStore';
 
 export default function Fridge() {
@@ -12,8 +12,8 @@ export default function Fridge() {
   const getStatus = (dateStr: string) => {
     const diff = new Date(dateStr).getTime() - new Date().getTime();
     const days = Math.ceil(diff / (1000 * 3600 * 24));
-    if (days < 0) return { color: 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400', label: 'Expired!' };
-    if (days <= 2) return { color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400', label: `Exp in ${days}d` };
+    if (days < 0) { return { color: 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400', label: 'Expired!' }; }
+    if (days <= 2) { return { color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400', label: `Exp in ${days}d` }; }
     return { color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400', label: `Safe (${days}d)` };
   };
 

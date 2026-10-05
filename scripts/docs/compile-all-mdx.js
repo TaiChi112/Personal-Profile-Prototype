@@ -25,5 +25,5 @@ async function checkFiles() {
 }
 
 checkFiles().then(() => {
-  if (!hasError) console.log('ALL FILES PASSED MDX COMPILATION!');
+  if (!hasError) { console.log('ALL FILES PASSED MDX COMPILATION!'); }
 });

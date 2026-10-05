@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 export const useTaxStore = create((set) => ({
-  salary: 50000,
+  salary: 50_000,
   bonus: 0,
   ssf: 0,
   insurance: 0,

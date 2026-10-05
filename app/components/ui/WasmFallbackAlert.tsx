@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 
 interface WasmFallbackAlertProps {
   message?: string;
@@ -8,8 +8,7 @@ interface WasmFallbackAlertProps {
 export const WasmFallbackAlert: React.FC<WasmFallbackAlertProps> = ({ 
   message = "Failed to load WebAssembly module. The application is running in fallback mode with degraded performance.",
   onRetry 
-}) => {
-  return (
+}) => (
     <div 
       role="alert" 
       className="wasm-fallback-alert"
@@ -64,6 +63,5 @@ export const WasmFallbackAlert: React.FC<WasmFallbackAlertProps> = ({
       )}
     </div>
   );
-};
 
 export default WasmFallbackAlert;

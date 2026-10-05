@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import { useFlowStore } from '../store/useFlowStore';
 
 export default function Flow() {
@@ -15,8 +14,8 @@ export default function Flow() {
         </div>
         
         <div className="w-16 flex flex-col justify-center items-center opacity-50">
-          <div className="h-1 bg-gray-400 w-full mb-1"></div>
-          <div className="w-4 h-4 border-t-4 border-r-4 border-gray-400 transform rotate-45"></div>
+          <div className="h-1 bg-gray-400 w-full mb-1" />
+          <div className="w-4 h-4 border-t-4 border-r-4 border-gray-400 transform rotate-45" />
         </div>
 
         <div className="flex-[2] flex flex-col gap-4">
@@ -24,8 +23,8 @@ export default function Flow() {
             const pct = income ? (e.value / income) * 100 : 0;
             return (
               <div key={e.id} className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm flex items-center relative overflow-hidden group">
-                <div className={`absolute left-0 top-0 bottom-0 opacity-20 transition-all ${e.color}`} style={{width: `${pct}%`}}></div>
-                <div className={`w-3 h-10 rounded-full mr-4 ${e.color}`}></div>
+                <div className={`absolute left-0 top-0 bottom-0 opacity-20 transition-all ${e.color}`} style={{width: `${pct}%`}} />
+                <div className={`w-3 h-10 rounded-full mr-4 ${e.color}`} />
                 <div className="flex-1 z-10">
                   <p className="font-bold">{e.name}</p>
                   <p className="text-xs text-gray-500">{pct.toFixed(1)}% of Income</p>

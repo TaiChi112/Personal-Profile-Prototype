@@ -60,11 +60,10 @@ export function InteractiveContentNode({
       const timer = setTimeout(() => {
         setIsOpen(true);
         const element = document.getElementById(`node-${node.id}`);
-        if (element) element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (element) { element.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
       }, 100);
       return () => clearTimeout(timer);
     }
-    return undefined;
   }, [activeNodeId, node.id]);
 
   const contentItem = 'data' in node ? node.data : undefined;
@@ -98,7 +97,7 @@ export function InteractiveContentNode({
   };
 
   const renderContentCard = () => {
-    if (!contentItem && !isComposite(node)) return null;
+    if (!contentItem && !isComposite(node)) { return null; }
 
     if (!contentItem && isComposite(node)) {
       return (
@@ -179,7 +178,7 @@ export function InteractiveContentNode({
   };
 
   const renderRelatedItemsModal = () => {
-    if (!isComposite(node) || !contentItem) return null;
+    if (!isComposite(node) || !contentItem) { return null; }
 
     return (
       <>
@@ -273,10 +272,10 @@ export function InteractiveContentNode({
     }
 
     // For container-only nodes (no content), show children inline
-    if (!isComposite(node)) return null;
+    if (!isComposite(node)) { return null; }
 
     const shouldRender = isOpen || true;
-    if (!shouldRender) return null;
+    if (!shouldRender) { return null; }
 
     return (
       <div className={`${style.getContainerClass(currentLayout)} animate-in fade-in slide-in-from-top-4 duration-300`}>

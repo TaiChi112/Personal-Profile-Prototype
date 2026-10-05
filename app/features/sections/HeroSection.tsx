@@ -17,7 +17,7 @@ import { profileData } from "../../data/profileData";
 import type { StyleFactory, UILabels } from "../../models/theme/ThemeConfig";
 
 // เพิ่ม Loading Spinner ลงในฟังก์ชันเช็คไอคอน
-const renderIcon = (iconName: string, isLoading: boolean = false) => {
+const renderIcon = (iconName: string, isLoading = false) => {
   if (isLoading) {
     return <Loader2 size={20} className="animate-spin" />;
   }
@@ -118,9 +118,9 @@ export function HeroSection({
                   onClick={() => handleNavigation(btn.target)}
                   disabled={loadingTarget !== null} // ป้องกันการกดปุ่มรัวๆ หรือกดปุ่มอื่นขณะกำลังโหลด
                   className={`px-6 py-3 rounded-xl font-medium transition-colors flex items-center gap-2 ${
-                    loadingTarget !== null
-                      ? "opacity-70 cursor-not-allowed"
-                      : "cursor-pointer hover:scale-105"
+                    loadingTarget === null
+                      ? "cursor-pointer hover:scale-105"
+                      : "opacity-70 cursor-not-allowed"
                   } ${
                     isPrimary
                       ? "bg-blue-600 text-white hover:bg-blue-700"
@@ -138,7 +138,7 @@ export function HeroSection({
 
         {/* Box 2: Profile / Identity */}
         <div className="bg-linear-to-br from-blue-500 to-indigo-600 p-8 rounded-3xl flex flex-col items-center justify-center text-white shadow-xl relative overflow-hidden group">
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20" />
           <div className="relative z-10 w-32 h-32 rounded-full mb-6 flex items-center justify-center text-5xl font-bold bg-white/20 backdrop-blur-sm border-2 border-white/30 group-hover:scale-110 transition-transform duration-500 overflow-hidden">
             {profileData.avatar.imageUrl ? (
               <Image

@@ -55,7 +55,7 @@ describe("Resume Builder Utils", () => {
       expect(toPersistedResumeStatus("Applied")).toBe("Published");
       expect(toPersistedResumeStatus("Interviewing")).toBe("Archived");
       expect(toPersistedResumeStatus("Draft")).toBe("Draft");
-      // @ts-ignore - testing invalid input fallback
+      // @ts-expect-error - testing invalid input fallback
       expect(toPersistedResumeStatus("Unknown")).toBe("Draft");
     });
   });

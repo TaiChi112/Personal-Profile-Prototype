@@ -1,26 +1,25 @@
 "use client";
 
-import React, { useState, useCallback } from 'react';
+import type React from 'react';
+import { useState, useCallback } from 'react';
 import { 
   ReactFlow, 
   Controls, 
   Background, 
   applyNodeChanges, 
   applyEdgeChanges,
-  Node,
-  Edge,
-  NodeChange,
-  EdgeChange,
+  type Node,
+  type Edge,
+  type NodeChange,
+  type EdgeChange,
   MarkerType,
   Panel
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { 
-  Send, Activity, Settings, Cpu, Bot, CheckCircle2, ShieldAlert, 
-  History, GitCommit, GitBranch, ArrowRight, Download, Users, 
+import { Activity, Settings, Cpu, Bot, GitBranch, ArrowRight, Download, 
   AlertTriangle, CheckSquare, Target
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, } from 'framer-motion';
 
 const baseNodes: Node[] = [
   { id: '1', position: { x: 250, y: 50 }, data: { label: 'Start: Order Placed' }, type: 'input', style: { color: '#0f172a', fontWeight: 'bold' } },
@@ -59,16 +58,16 @@ export default function AgenticTestingPage() {
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      if (version === 'v1.0') setNodes((nds) => applyNodeChanges(changes, nds));
-      else setV2Nodes((nds) => applyNodeChanges(changes, nds));
+      if (version === 'v1.0') { setNodes((nds) => applyNodeChanges(changes, nds)); }
+      else { setV2Nodes((nds) => applyNodeChanges(changes, nds)); }
     },
     [version]
   );
   
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
-      if (version === 'v1.0') setEdges((eds) => applyEdgeChanges(changes, eds));
-      else setV2Edges((eds) => applyEdgeChanges(changes, eds));
+      if (version === 'v1.0') { setEdges((eds) => applyEdgeChanges(changes, eds)); }
+      else { setV2Edges((eds) => applyEdgeChanges(changes, eds)); }
     },
     [version]
   );
@@ -79,7 +78,7 @@ export default function AgenticTestingPage() {
 
   const handleProcessIntent = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim()) { return; }
     
     const userIntent = input;
     setInput('');
@@ -93,7 +92,7 @@ export default function AgenticTestingPage() {
         body: JSON.stringify({ prompt: userIntent, currentNodes: nodes, currentEdges: edges })
       });
 
-      if (!response.ok) throw new Error('API Error');
+      if (!response.ok) { throw new Error('API Error'); }
       const data = await response.json();
 
       addLog(`AI Action: ${data.impact.logMessage}`, 'success');
@@ -192,7 +191,7 @@ export default function AgenticTestingPage() {
               <span className="text-3xl font-black text-indigo-700 dark:text-indigo-300">{metrics.qaScore}</span>
             </div>
             <div className="w-full bg-indigo-200 dark:bg-indigo-900/50 h-2 rounded-full overflow-hidden">
-              <div className="bg-indigo-600 h-full" style={{ width: `${metrics.qaScore}%` }}></div>
+              <div className="bg-indigo-600 h-full" style={{ width: `${metrics.qaScore}%` }} />
             </div>
             <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
               <div className="flex flex-col">

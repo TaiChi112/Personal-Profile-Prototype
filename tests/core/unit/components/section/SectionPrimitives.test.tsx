@@ -1,5 +1,4 @@
 import { expect, test, describe } from 'bun:test';
-import React from 'react';
 import { render } from '@testing-library/react';
 import { SectionHeader, SectionBanner, ContentSectionShell } from '../../../../../app/components/section/SectionPrimitives';
 import type { SectionTitleStyle } from '../../../../../app/types/section-style';

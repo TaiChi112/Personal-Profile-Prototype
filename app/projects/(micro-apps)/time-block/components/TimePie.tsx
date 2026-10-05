@@ -1,7 +1,7 @@
 "use client";
-import React, { useTransition, useRef } from 'react';
+import { useTransition, useRef } from 'react';
 import { addTimeBlockAction, deleteTimeBlockAction } from '../actions';
-import { TimeBlock } from '@prisma/client';
+import type { TimeBlock } from '@prisma/client';
 
 export default function TimePie({ timeBlocks }: { timeBlocks: TimeBlock[] }) {
   const [isPending, startTransition] = useTransition();
@@ -14,7 +14,7 @@ export default function TimePie({ timeBlocks }: { timeBlocks: TimeBlock[] }) {
     const [sh, sm] = start.split(':').map(Number);
     const [eh, em] = end.split(':').map(Number);
     let hrs = (eh - sh) + (em - sm) / 60;
-    if (hrs < 0) hrs += 24;
+    if (hrs < 0) { hrs += 24; }
     return hrs;
   };
 
@@ -33,7 +33,7 @@ export default function TimePie({ timeBlocks }: { timeBlocks: TimeBlock[] }) {
     currentPct += (a.hours / 24) * 100;
     stops.push(`${a.color} ${startPct}%, ${a.color} ${currentPct}%`);
   }
-  if (24 - totalUsed > 0) stops.push(`#e5e7eb ${currentPct}%, #e5e7eb 100%`);
+  if (24 - totalUsed > 0) { stops.push(`#e5e7eb ${currentPct}%, #e5e7eb 100%`); }
 
   const gradient = `conic-gradient(${stops.join(', ')})`;
 
@@ -54,7 +54,7 @@ export default function TimePie({ timeBlocks }: { timeBlocks: TimeBlock[] }) {
           {activities.map(a => (
             <div key={a.id} className="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-100">
               <div className="flex items-center gap-3">
-                <span className="w-4 h-4 rounded-full" style={{backgroundColor: a.color}}></span>
+                <span className="w-4 h-4 rounded-full" style={{backgroundColor: a.color}} />
                 <span className="font-bold">{a.title}</span>
               </div>
               <div className="flex items-center gap-4">

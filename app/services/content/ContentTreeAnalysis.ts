@@ -38,7 +38,7 @@ class MetricsVisitor implements ContentTreeVisitor {
   }
 
   visitComposite(composite: CompositeNode): void {
-    if (composite.data) this.countItem(composite.data);
+    if (composite.data) { this.countItem(composite.data); }
   }
 
   private countItem(item: UnifiedContentItem): void {

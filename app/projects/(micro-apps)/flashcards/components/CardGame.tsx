@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useCardStore } from '../store/useCardStore';
 
 export default function CardGame() {
@@ -30,7 +30,7 @@ export default function CardGame() {
         className="h-80 w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border-4 border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center p-8 text-center cursor-pointer transition-all transform hover:scale-105 active:scale-95"
       >
         <p className={`text-2xl font-bold transition-opacity ${flipped ? 'opacity-0 h-0' : 'opacity-100'}`}>{card.q}</p>
-        <p className={`text-xl font-medium text-emerald-600 transition-opacity ${!flipped ? 'opacity-0 h-0' : 'opacity-100'}`}>{card.a}</p>
+        <p className={`text-xl font-medium text-emerald-600 transition-opacity ${flipped ? 'opacity-100' : 'opacity-0 h-0'}`}>{card.a}</p>
         <p className="text-xs text-gray-400 absolute bottom-4">(Click to flip)</p>
       </div>
 

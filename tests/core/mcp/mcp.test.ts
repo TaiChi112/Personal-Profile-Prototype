@@ -31,7 +31,7 @@ describe("FinanceFlow MCP Server", () => {
     await prisma.financeTransaction.deleteMany({ where: { user: { email: testEmail } } });
     await prisma.user.deleteMany({ where: { email: testEmail } });
     // Close MCP Client
-    if (transport) await transport.close();
+    if (transport) { await transport.close(); }
   });
 
   it("should list available tools", async () => {

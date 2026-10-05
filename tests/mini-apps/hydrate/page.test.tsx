@@ -1,5 +1,4 @@
 import { describe, it, expect } from "bun:test";
-import React from "react";
 import { render } from "@testing-library/react";
 import HydratePage from "@/app/projects/(micro-apps)/hydrate/page";
 

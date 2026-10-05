@@ -1,5 +1,5 @@
 import { google } from '@ai-sdk/google';
-import { streamText, tool, Message } from 'ai';
+import { streamText, tool, type Message } from 'ai';
 import { z } from 'zod';
 import { source } from '@/app/lib/source';
 
@@ -7,7 +7,7 @@ export class AIService {
   private static failureCount = 0;
   private static lastFailureTime = 0;
   private static readonly FAILURE_THRESHOLD = 3;
-  private static readonly COOLDOWN_PERIOD = 60000; // 1 minute
+  private static readonly COOLDOWN_PERIOD = 60_000; // 1 minute
 
   private static isCircuitOpen(): boolean {
     if (this.failureCount >= this.FAILURE_THRESHOLD) {
@@ -30,14 +30,14 @@ export class AIService {
 
   private static recordSuccess() {
     if (this.failureCount > 0) {
-      console.log(`[AIService] API successful. Resetting failure count.`);
+      console.log("[AIService] API successful. Resetting failure count.");
     }
     this.failureCount = 0;
   }
 
   static async generateChatResponse(messages: Message[]) {
     if (this.isCircuitOpen()) {
-      console.warn(`[AIService] Circuit is OPEN. Returning fallback response.`);
+      console.warn("[AIService] Circuit is OPEN. Returning fallback response.");
       return this.getFallbackResponse();
     }
 
@@ -66,7 +66,7 @@ export class AIService {
       const abortController = new AbortController();
       const timeoutId = setTimeout(() => {
         abortController.abort(new Error('AI API timeout'));
-      }, 25000); // 25 second timeout
+      }, 25_000); // 25 second timeout
 
       const result = await streamText({
         model: google('gemini-2.5-flash'),

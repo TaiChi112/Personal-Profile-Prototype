@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import PriceFlashValue from './PriceFlashValue';
 
@@ -26,14 +26,13 @@ export default function CryptoCard({ coin }: CryptoCardProps) {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }).format(price);
-    } else {
+    }
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
         minimumFractionDigits: 2,
         maximumFractionDigits: 5,
       }).format(price);
-    }
   };
 
   // Format change24h to exactly 2 decimal places with % sign

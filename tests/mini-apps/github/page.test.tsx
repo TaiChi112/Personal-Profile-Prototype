@@ -1,5 +1,4 @@
 import { describe, it, expect, mock, beforeEach, afterEach } from "bun:test";
-import React from "react";
 import { render, fireEvent, waitFor } from "@testing-library/react";
 
 // Mock next/image to avoid loader issues
@@ -119,9 +118,7 @@ describe("GithubExplorer Page Component", () => {
   });
 
   it("should trigger alert when user is not found (404 message)", async () => {
-    globalThis.fetch = mock(() => {
-      return Promise.resolve({ json: () => Promise.resolve({ message: "Not Found" }) } as any);
-    }) as any;
+    globalThis.fetch = mock(() => Promise.resolve({ json: () => Promise.resolve({ message: "Not Found" }) } as any)) as any;
 
     const { getByPlaceholderText, getByText } = render(<GithubExplorer />);
 
@@ -141,9 +138,7 @@ describe("GithubExplorer Page Component", () => {
     const originalConsoleError = console.error;
     console.error = consoleErrorMock;
 
-    globalThis.fetch = mock(() => {
-      return Promise.reject(new Error("Network Error"));
-    }) as any;
+    globalThis.fetch = mock(() => Promise.reject(new Error("Network Error"))) as any;
 
     const { getByPlaceholderText, getByText } = render(<GithubExplorer />);
 
@@ -206,7 +201,7 @@ describe("GithubExplorer Page Component", () => {
     let calledUsername = "";
     globalThis.fetch = mock((url: string) => {
       const match = url.match(/\/users\/([^/?]+)/);
-      if (match) calledUsername = match[1];
+      if (match) { calledUsername = match[1]; }
       return Promise.resolve({ json: () => Promise.resolve({ login: "random" }) } as any);
     }) as any;
 

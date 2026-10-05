@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import { useChoreStore } from '../store/useChoreStore';
 
 export default function Divider() {

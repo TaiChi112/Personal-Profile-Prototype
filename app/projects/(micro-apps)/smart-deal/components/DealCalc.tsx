@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import { useDealStore } from '../store/useDealStore';
 
 export default function DealCalc() {

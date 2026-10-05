@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function LiveViewers() {
   const [viewers, setViewers] = useState<number>(1);
@@ -20,7 +20,7 @@ export default function LiveViewers() {
         }
       } catch (err) {
         // Fallback if data is a raw string number
-        const num = parseInt(event.data, 10);
+        const num = Number.parseInt(event.data, 10);
         if (!isNaN(num)) {
           setViewers(num);
         }

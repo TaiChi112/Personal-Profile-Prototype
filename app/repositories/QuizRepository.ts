@@ -1,6 +1,6 @@
 import prisma from '../../lib/prisma';
 import { redis } from '../lib/redis';
-import { QuizScore } from '@prisma/client';
+import type { QuizScore } from '@prisma/client';
 
 export class QuizRepository {
   private static CACHE_KEY = 'quiz_scores';

@@ -1,5 +1,4 @@
-import { describe, it, expect, beforeEach, mock } from "bun:test";
-import React from "react";
+import { describe, it, expect, beforeEach, } from "bun:test";
 import { render, fireEvent, act } from "@testing-library/react";
 import { useTypeStore } from "../../../app/projects/(micro-apps)/type-trainer/store/useTypeStore";
 import TypingGame from "../../../app/projects/(micro-apps)/type-trainer/components/TypingGame";
@@ -20,7 +19,7 @@ describe("Type Trainer", () => {
     });
 
     it("should record start time on first character input", () => {
-      const baseTime = 1700000000000;
+      const baseTime = 1_700_000_000_000;
       const originalNow = Date.now;
       Date.now = () => baseTime;
 
@@ -35,13 +34,13 @@ describe("Type Trainer", () => {
     });
 
     it("should accurately calculate WPM as elapsed time increases", () => {
-      let currentTime = 1700000000000;
+      let currentTime = 1_700_000_000_000;
       const originalNow = Date.now;
       Date.now = () => currentTime;
 
       try {
         useTypeStore.getState().setInput("c");
-        currentTime += 30000;
+        currentTime += 30_000;
         useTypeStore.getState().setInput("const developer = new Set");
 
         const state = useTypeStore.getState();

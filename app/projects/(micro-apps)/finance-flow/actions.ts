@@ -5,7 +5,7 @@ import { auth } from '@/auth';
 
 export async function getTransactions() {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (!session?.user?.id) { throw new Error("Unauthorized"); }
   
   return await prisma.financeTransaction.findMany({
     where: { userId: session.user.id },
@@ -15,7 +15,7 @@ export async function getTransactions() {
 
 export async function addTransaction(amount: number, label: string, type: string) {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (!session?.user?.id) { throw new Error("Unauthorized"); }
 
   await prisma.financeTransaction.create({
     data: { amount, label, type, userId: session.user.id }
@@ -25,7 +25,7 @@ export async function addTransaction(amount: number, label: string, type: string
 
 export async function deleteTransaction(id: string) {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (!session?.user?.id) { throw new Error("Unauthorized"); }
 
   await prisma.financeTransaction.delete({
     where: { id, userId: session.user.id }
@@ -35,7 +35,7 @@ export async function deleteTransaction(id: string) {
 
 export async function getExpenseSummary() {
   const session = await auth();
-  if (!session?.user?.id) return [];
+  if (!session?.user?.id) { return []; }
   const result = await prisma.financeTransaction.groupBy({
     by: ['label'],
     where: { userId: session.user.id, type: 'expense' },

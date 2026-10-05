@@ -16,10 +16,6 @@ import {
   FONTS,
   LOCALES,
   STYLES,
-  type FontKey,
-  type LocaleKey,
-  type StyleKey,
-  getInitialThemePreference,
 } from '../../models/theme/ThemeConfig';
 import { notify, setNotificationChannel, subscribeToToasts } from '../../services/system/notification/NotificationBridge';
 import { SiteHeader } from '../../components/layout/SiteHeader';

@@ -1,8 +1,8 @@
-import React from 'react';
+
 import Image from 'next/image';
 
 export default function TimelineLayout({ userData, eventsData }: { userData: any, eventsData: any[] }) {
-  if (!userData) return null;
+  if (!userData) { return null; }
 
   const parseEvent = (event: any) => {
     switch (event.type) {
@@ -17,9 +17,9 @@ export default function TimelineLayout({ userData, eventsData }: { userData: any
       case 'PullRequestEvent':
         return { text: `${event.payload.action} a pull request in`, icon: 'M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2', color: 'text-purple-500' };
       case 'IssueCommentEvent':
-        return { text: `Commented on an issue in`, icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z', color: 'text-gray-500' };
+        return { text: "Commented on an issue in", icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z', color: 'text-gray-500' };
       case 'ForkEvent':
-        return { text: `Forked`, icon: 'M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3', color: 'text-blue-400' };
+        return { text: "Forked", icon: 'M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3', color: 'text-blue-400' };
       default:
         return { text: `Did ${event.type} at`, icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', color: 'text-gray-400' };
     }
@@ -28,7 +28,7 @@ export default function TimelineLayout({ userData, eventsData }: { userData: any
   const getRelativeTime = (dateString: string) => {
     const diff = new Date().getTime() - new Date(dateString).getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
-    if (hours < 24) return `${hours} hours ago`;
+    if (hours < 24) { return `${hours} hours ago`; }
     const days = Math.floor(hours / 24);
     return `${days} days ago`;
   };
@@ -53,7 +53,7 @@ export default function TimelineLayout({ userData, eventsData }: { userData: any
               <div key={event.id} className="relative group">
                 <span className={`absolute -left-10 top-1 flex items-center justify-center w-10 h-10 rounded-full bg-white border-2 border-gray-200 ${color} z-10 group-hover:border-blue-400 group-hover:scale-110 transition-transform shadow-sm`}>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={icon}></path>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={icon} />
                   </svg>
                 </span>
                 <div className="ml-6 p-5 bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition-all">

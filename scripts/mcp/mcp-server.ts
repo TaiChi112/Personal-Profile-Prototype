@@ -8,8 +8,7 @@ const server = new Server(
   { capabilities: { tools: {} } }
 );
 
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return {
+server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: [
       {
         name: "get_financial_summary",
@@ -73,15 +72,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         }
       }
     ]
-  };
-});
+  }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
   
   if (name === "get_financial_summary") {
     const user = await prisma.user.findUnique({ where: { email: String(args.userEmail) } });
-    if (!user) throw new Error("User not found");
+    if (!user) { throw new Error("User not found"); }
 
     const summary = await prisma.financeTransaction.groupBy({
       by: ['label'],
@@ -96,7 +94,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   if (name === "add_transaction") {
     const user = await prisma.user.findUnique({ where: { email: String(args.userEmail) } });
-    if (!user) throw new Error("User not found");
+    if (!user) { throw new Error("User not found"); }
 
     const tx = await prisma.financeTransaction.create({
       data: {
@@ -114,7 +112,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   if (name === "get_kanban_tasks") {
     const user = await prisma.user.findUnique({ where: { email: String(args.userEmail) } });
-    if (!user) throw new Error("User not found");
+    if (!user) { throw new Error("User not found"); }
 
     const tasks = await prisma.kanbanTask.findMany({
       where: { userId: user.id }
@@ -127,7 +125,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   if (name === "add_kanban_task") {
     const user = await prisma.user.findUnique({ where: { email: String(args.userEmail) } });
-    if (!user) throw new Error("User not found");
+    if (!user) { throw new Error("User not found"); }
 
     const task = await prisma.kanbanTask.create({
       data: {
@@ -144,7 +142,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   if (name === "update_kanban_status") {
     const user = await prisma.user.findUnique({ where: { email: String(args.userEmail) } });
-    if (!user) throw new Error("User not found");
+    if (!user) { throw new Error("User not found"); }
 
     const task = await prisma.kanbanTask.update({
       where: { id: String(args.taskId) },

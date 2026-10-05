@@ -10,7 +10,7 @@ export async function GET(req: Request) {
           const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,cardano&vs_currencies=usd&include_24hr_change=true');
           const data = await res.json();
           
-          if (!data || !data.bitcoin) return;
+          if (!data || !data.bitcoin) { return; }
 
           const formattedData = [
             { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', price: data.bitcoin.usd, change24h: data.bitcoin.usd_24h_change },

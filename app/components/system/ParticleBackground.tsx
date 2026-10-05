@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 type ParticleBackgroundProps = {
   isDark: boolean;
@@ -33,7 +33,7 @@ class ParticleFactory {
     key: string,
     symbol: string,
     color: string,
-    font: string = "monospace",
+    font = "monospace",
   ): ParticleFlyweight {
     const uniqueKey = `${key}-${color}-${font}`;
     if (!this.flyweights.has(uniqueKey)) {
@@ -102,8 +102,8 @@ class ParticleContext {
   update(w: number, h: number) {
     this.x += this.vx;
     this.y += this.vy;
-    if (this.x < 0 || this.x > w) this.vx *= -1;
-    if (this.y < 0 || this.y > h) this.vy *= -1;
+    if (this.x < 0 || this.x > w) { this.vx *= -1; }
+    if (this.y < 0 || this.y > h) { this.vy *= -1; }
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -119,10 +119,10 @@ export function ParticleBackground({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) { return; }
 
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) { return; }
 
     const factory = new ParticleFactory();
     const particles: ParticleContext[] = [];

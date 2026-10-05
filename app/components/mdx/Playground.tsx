@@ -1,6 +1,6 @@
 "use client";
 
-import { Sandpack, SandpackProps } from "@codesandbox/sandpack-react";
+import { Sandpack, type SandpackProps } from "@codesandbox/sandpack-react";
 
 interface PlaygroundProps extends Omit<SandpackProps, "template"> {
   /**

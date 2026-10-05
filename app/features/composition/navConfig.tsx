@@ -48,7 +48,7 @@ export function isNavItemActive(
   pathname: string,
   activeTab?: string
 ): boolean {
-  if (activeTab) return item.id === activeTab;
+  if (activeTab) { return item.id === activeTab; }
 
   if (item.isActivePath) {
     return item.isActivePath(pathname);

@@ -32,9 +32,8 @@ export const useBooksStore = create<BooksState>()(
         const isFav = state.favorites.some((fav) => fav.id === book.id);
         if (isFav) {
           return { favorites: state.favorites.filter((fav) => fav.id !== book.id) };
-        } else {
-          return { favorites: [...state.favorites, book] };
         }
+          return { favorites: [...state.favorites, book] };
       }),
     }),
     {

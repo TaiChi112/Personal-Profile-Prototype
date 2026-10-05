@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { useDealStore } from "@/app/projects/(micro-apps)/smart-deal/store/useDealStore";
 import DealCalc from "@/app/projects/(micro-apps)/smart-deal/components/DealCalc";

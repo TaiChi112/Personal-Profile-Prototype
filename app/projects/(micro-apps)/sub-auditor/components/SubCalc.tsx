@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import { useSubStore } from '../store/useSubStore';
 
 export default function SubCalc() {

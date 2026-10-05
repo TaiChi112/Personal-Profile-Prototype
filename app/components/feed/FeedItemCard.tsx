@@ -110,10 +110,10 @@ export function FeedItemCard({
   return (
     <div className={`${style.getCardClass()} h-full min-h-50 overflow-hidden group`}>
       <div className="p-6 opacity-20 blur-sm select-none pointer-events-none filter grayscale">
-        <div className="h-6 w-3/4 bg-gray-400 rounded mb-4"></div>
-        <div className="h-4 w-full bg-gray-300 rounded mb-2"></div>
-        <div className="h-4 w-5/6 bg-gray-300 rounded mb-2"></div>
-        <div className="h-4 w-4/6 bg-gray-300 rounded"></div>
+        <div className="h-6 w-3/4 bg-gray-400 rounded mb-4" />
+        <div className="h-4 w-full bg-gray-300 rounded mb-2" />
+        <div className="h-4 w-5/6 bg-gray-300 rounded mb-2" />
+        <div className="h-4 w-4/6 bg-gray-300 rounded" />
       </div>
       <div className={style.getLockedOverlayClass()}>
         <div className={`p-4 rounded-full mb-3 ${style.name === 'Future' ? 'bg-cyan-900 text-cyan-400' : 'bg-gray-100 text-gray-600'}`}>

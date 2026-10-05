@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render } from "@testing-library/react";
 import ParkPinPage from "@/app/projects/(micro-apps)/park-pin/page";
 import { useParkStore } from "@/app/projects/(micro-apps)/park-pin/store/useParkStore";

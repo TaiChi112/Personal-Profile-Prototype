@@ -1,12 +1,11 @@
 "use client";
-import React from 'react';
 import { useSleepStore } from '../store/useSleepStore';
 
 export default function SleepCalc() {
   const { wakeTime, setWakeTime } = useSleepStore() as any;
 
   const calculateTimes = (timeStr: string) => {
-    if (!timeStr) return [];
+    if (!timeStr) { return []; }
     const [h, m] = timeStr.split(':').map(Number);
     const wakeDate = new Date();
     wakeDate.setHours(h, m, 0, 0);
@@ -14,7 +13,7 @@ export default function SleepCalc() {
     // 90 min cycles = 5400000 ms. We calculate 6, 5, 4, 3 cycles. +15 mins to fall asleep (900000 ms)
     const cycles = [6, 5, 4, 3];
     return cycles.map(c => {
-      const sleepDate = new Date(wakeDate.getTime() - (c * 5400000) - 900000);
+      const sleepDate = new Date(wakeDate.getTime() - (c * 5_400_000) - 900_000);
       return { 
         cycles: c, 
         time: sleepDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),

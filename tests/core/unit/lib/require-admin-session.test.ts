@@ -1,5 +1,4 @@
 import { expect, test, describe, mock, beforeEach } from 'bun:test';
-import { NextResponse } from 'next/server';
 
 // Create mock function for auth
 const mockAuth = mock(() => Promise.resolve(null));

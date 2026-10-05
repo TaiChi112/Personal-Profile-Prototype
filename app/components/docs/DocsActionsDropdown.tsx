@@ -119,7 +119,7 @@ export function DocsActionsDropdown({ markdownContent, githubEditUrl, githubRawU
                   View as Markdown
                 </button>
 
-                <div className="h-px bg-fd-border my-1"></div>
+                <div className="h-px bg-fd-border my-1" />
 
                 <button
                   onClick={handleOpenScira}
@@ -157,7 +157,7 @@ export function DocsActionsDropdown({ markdownContent, githubEditUrl, githubRawU
                   Open in Cursor
                 </button>
 
-                <div className="h-px bg-fd-border my-1"></div>
+                <div className="h-px bg-fd-border my-1" />
 
                 <button
                   onClick={handlePrint}

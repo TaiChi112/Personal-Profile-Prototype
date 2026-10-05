@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import CryptoCard, { Coin } from './components/CryptoCard';
+import CryptoCard, { type Coin } from './components/CryptoCard';
 import CryptoMarketChart from './components/CryptoMarketChart';
 
 export default function CryptoDashboard() {
@@ -58,7 +58,7 @@ export default function CryptoDashboard() {
         <div>
           {loading && (
             <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
             </div>
           )}
           {!loading && !error && (

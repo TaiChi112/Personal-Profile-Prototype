@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from 'bun:test';
-import React from 'react';
 import { render, fireEvent, act } from '@testing-library/react';
 import Packer from '@/app/projects/(micro-apps)/pack-mate/components/Packer';
 import Page from '@/app/projects/(micro-apps)/pack-mate/page';

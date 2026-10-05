@@ -37,7 +37,7 @@ export function CommandPalette({ commands, isOpen, onClose, style }: CommandPale
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!isOpen) return;
+      if (!isOpen) { return; }
 
       if (event.key === 'ArrowDown') {
         event.preventDefault();
@@ -60,7 +60,7 @@ export function CommandPalette({ commands, isOpen, onClose, style }: CommandPale
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, filteredCommands, selectedIndex, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen) { return null; }
 
   return (
     <div className="fixed inset-0 z-100 flex items-start justify-center pt-[20vh] px-4 bg-black/50 backdrop-blur-sm transition-opacity">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import PomodoroTimer from './components/PomodoroTimer';
 import ActivityHeatmap from './components/ActivityHeatmap';
@@ -17,7 +17,8 @@ export default function FocusFlowApp() {
   const totalSessions = history.length;
   const totalMinutes = history.reduce((acc, curr) => acc + curr.durationMinutes, 0);
 
-  if (!mounted) return null; // Avoid hydration mismatch for LocalStorage
+  if (!mounted) { return null; // Avoid hydration mismatch for LocalStorage
+}
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
@@ -27,7 +28,7 @@ export default function FocusFlowApp() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/projects" className="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             </Link>
             <div>
               <h1 className="text-3xl font-black text-gray-900 dark:text-white flex items-center gap-2">
@@ -96,7 +97,7 @@ export default function FocusFlowApp() {
                   {[...history].sort((a, b) => b.timestamp - a.timestamp).slice(0, 5).map((session) => (
                     <li key={session.id} className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-700/50">
                       <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-rose-500"></div>
+                        <div className="w-2 h-2 rounded-full bg-rose-500" />
                         <span className="font-medium text-gray-900 dark:text-white">{session.date}</span>
                       </div>
                       <span className="text-sm font-bold text-gray-600 dark:text-gray-300">

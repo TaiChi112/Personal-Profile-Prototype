@@ -1,5 +1,4 @@
 import { expect, test, describe, mock, beforeEach } from 'bun:test';
-import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import { ThemeControls } from '../../../../../app/components/system/ThemeControls';
 

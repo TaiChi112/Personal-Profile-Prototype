@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import { useSortStore } from '../store/useSortStore';
 
 export default function Visualizer() {
@@ -7,11 +6,11 @@ export default function Visualizer() {
 
   const bubbleSort = async () => {
     setIsSorting(true);
-    let arr = [...array];
+    const arr = [...array];
     for (let i = 0; i < arr.length; i++) {
       for (let j = 0; j < arr.length - i - 1; j++) {
         if (arr[j] > arr[j + 1]) {
-          let temp = arr[j];
+          const temp = arr[j];
           arr[j] = arr[j + 1];
           arr[j + 1] = temp;
           setArray([...arr]);
@@ -30,7 +29,7 @@ export default function Visualizer() {
       </div>
       <div className="flex items-end h-64 gap-1 w-full justify-center">
         {array.map((val, idx) => (
-          <div key={idx} className="w-4 bg-blue-500 rounded-t-md transition-all duration-75" style={{ height: `${val}%` }}></div>
+          <div key={idx} className="w-4 bg-blue-500 rounded-t-md transition-all duration-75" style={{ height: `${val}%` }} />
         ))}
       </div>
     </div>

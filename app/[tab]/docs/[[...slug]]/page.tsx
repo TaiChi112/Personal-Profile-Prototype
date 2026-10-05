@@ -47,7 +47,7 @@ export default async function Page(props: Readonly<{
   console.log("DEBUG /docs route:", { slug: params.slug, lang: params.tab, found: !!page });
 
   // ถ้าไม่เจอไฟล์ .md ที่ตรงกับ URL ให้แสดงหน้า 404
-  if (!page) notFound();
+  if (!page) { notFound(); }
 
   const Mdx = page.data.body;
 

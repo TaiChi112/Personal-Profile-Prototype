@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { addHabitAction, completeHabitAction } from '../actions';
 
 interface Habit {
@@ -13,7 +13,7 @@ export default function RpgGame({ level, exp, habits }: { level: number, exp: nu
   const [newTitle, setNewTitle] = useState('');
 
   const handleAdd = () => {
-    if (!newTitle.trim()) return;
+    if (!newTitle.trim()) { return; }
     startTransition(() => {
       addHabitAction(newTitle);
       setNewTitle('');
@@ -32,7 +32,7 @@ export default function RpgGame({ level, exp, habits }: { level: number, exp: nu
         <div className="w-24 h-24 bg-indigo-100 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl">🧙‍♂️</div>
         <h2 className="text-2xl font-bold">Level {level} Hero</h2>
         <div className="mt-4 bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden relative">
-          <div className="bg-green-500 h-full transition-all duration-500" style={{ width: `${exp}%` }}></div>
+          <div className="bg-green-500 h-full transition-all duration-500" style={{ width: `${exp}%` }} />
           <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">{exp} / 100 EXP</span>
         </div>
       </div>

@@ -66,8 +66,8 @@ const createStyleFactory = (data: ThemeStyleData): StyleFactory => ({
   getMainLayoutClass: () => data.mainLayoutClass,
   getCardClass: () => data.cardClass,
   getButtonClass: (variant) => {
-    if (variant === 'primary') return data.buttonClasses.primary;
-    if (variant === 'text') return data.buttonClasses.text;
+    if (variant === 'primary') { return data.buttonClasses.primary; }
+    if (variant === 'text') { return data.buttonClasses.text; }
     return data.buttonClasses.secondary;
   },
   getNavbarClass: () => data.navbarClass,

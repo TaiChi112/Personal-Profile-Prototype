@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import WealthDashboard from "@/app/projects/(micro-apps)/wealth-viz/components/WealthDashboard";
 import Page from "@/app/projects/(micro-apps)/wealth-viz/page";
@@ -9,12 +8,12 @@ describe("WealthDashboard Component & Page", () => {
   beforeEach(() => {
     useWealthStore.setState({
       assets: [
-        { id: 1, name: "Cash", value: 50000, color: "#10B981" },
-        { id: 2, name: "Stocks", value: 120000, color: "#3B82F6" },
-        { id: 3, name: "Crypto", value: 30000, color: "#F59E0B" },
+        { id: 1, name: "Cash", value: 50_000, color: "#10B981" },
+        { id: 2, name: "Stocks", value: 120_000, color: "#3B82F6" },
+        { id: 3, name: "Crypto", value: 30_000, color: "#F59E0B" },
       ],
       liabilities: [
-        { id: 4, name: "Car Loan", value: 45000, color: "#EF4444" },
+        { id: 4, name: "Car Loan", value: 45_000, color: "#EF4444" },
       ],
     });
   });

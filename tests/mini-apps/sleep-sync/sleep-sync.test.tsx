@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { useSleepStore } from "@/app/projects/(micro-apps)/sleep-sync/store/useSleepStore";
 import SleepCalc from "@/app/projects/(micro-apps)/sleep-sync/components/SleepCalc";

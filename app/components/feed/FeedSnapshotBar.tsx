@@ -45,7 +45,7 @@ export function FeedSnapshotBar({
         >
           <Save size={12} /> {labels.saveButton}
         </button>
-        <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
+        <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1" />
         <div className="relative">
           <button
             onClick={onToggleSnapshots}

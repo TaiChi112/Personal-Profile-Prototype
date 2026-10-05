@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 import Macro from "@/app/projects/(micro-apps)/macro-calc/components/Macro";
 import { useMacroStore } from "@/app/projects/(micro-apps)/macro-calc/store/useMacroStore";

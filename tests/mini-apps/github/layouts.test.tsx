@@ -1,5 +1,4 @@
 import { describe, it, expect, mock } from "bun:test";
-import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 
 // Mock next/image to avoid optimization loader requirements in test DOM
@@ -43,15 +42,15 @@ describe("GitHub Explorer Layouts and Components", () => {
     location: "Portland, OR",
     blog: "https://kernel.org",
     twitter_username: "torvalds",
-    followers: 195000,
+    followers: 195_000,
     following: 0,
     public_repos: 7,
     created_at: "2011-09-03T15:26:22Z",
   };
 
   const dummyReposData = [
-    { id: 1, name: "linux", language: "C", stargazers_count: 175000, forks_count: 53000, updated_at: "2026-10-01" },
-    { id: 2, name: "git", language: "C", stargazers_count: 50000, forks_count: 26000, updated_at: "2026-09-20" },
+    { id: 1, name: "linux", language: "C", stargazers_count: 175_000, forks_count: 53_000, updated_at: "2026-10-01" },
+    { id: 2, name: "git", language: "C", stargazers_count: 50_000, forks_count: 26_000, updated_at: "2026-09-20" },
     { id: 3, name: "subsurface", language: "C++", stargazers_count: 2500, forks_count: 500, updated_at: "2026-08-15" },
     { id: 4, name: "tools-ts", language: "TypeScript", stargazers_count: 1200, forks_count: 100, updated_at: "2026-07-10" },
     { id: 5, name: "script-py", language: "Python", stargazers_count: 900, forks_count: 50, updated_at: "2026-06-01" },

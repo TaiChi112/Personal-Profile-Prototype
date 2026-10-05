@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 import Highlighter from "@/app/projects/(micro-apps)/regex-lab/components/Highlighter";
 import { useRegexStore } from "@/app/projects/(micro-apps)/regex-lab/store/useRegexStore";

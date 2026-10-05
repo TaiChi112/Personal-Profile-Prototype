@@ -1,5 +1,4 @@
 import { describe, it, expect, mock, beforeEach } from 'bun:test';
-import React from 'react';
 import { render, fireEvent, act } from '@testing-library/react';
 
 // Mock framer-motion to avoid exit animation delays in unit tests

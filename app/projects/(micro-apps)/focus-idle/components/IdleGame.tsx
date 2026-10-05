@@ -1,12 +1,12 @@
 "use client";
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useFocusIdleStore } from '../store/useFocusIdleStore';
 
 export default function IdleGame() {
   const { timeLeft, isRunning, coins, buildings, tick, toggle, buyBuilding } = useFocusIdleStore() as any;
 
   useEffect(() => {
-    if (!isRunning) return;
+    if (!isRunning) { return; }
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [isRunning, tick]);

@@ -1,5 +1,4 @@
 import { describe, it, expect, mock, beforeEach } from "bun:test";
-import React from "react";
 
 const mockAuth = mock();
 const mockNoteRepo = {

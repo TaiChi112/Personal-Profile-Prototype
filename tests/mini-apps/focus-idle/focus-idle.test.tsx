@@ -1,5 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from "bun:test";
-import React from "react";
+import { describe, it, expect, beforeEach, } from "bun:test";
 import { render, fireEvent, act } from "@testing-library/react";
 import { useFocusIdleStore } from "../../../app/projects/(micro-apps)/focus-idle/store/useFocusIdleStore";
 import IdleGame from "../../../app/projects/(micro-apps)/focus-idle/components/IdleGame";

@@ -93,7 +93,7 @@ export const authConfig = {
         const adminPassword = process.env.ADMIN_TEST_PASSWORD ?? 'admin123';
         const viewerPassword = process.env.VIEWER_TEST_PASSWORD ?? 'viewer123';
 
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.email || !credentials?.password) { return null; }
 
         // credentials.email / .password are `string | undefined` in v5
         const inputEmail = credentials.email as string;
@@ -102,13 +102,13 @@ export const authConfig = {
         const isAdminLogin = inputEmail === adminEmail && inputPassword === adminPassword;
         const isViewerLogin = inputEmail !== adminEmail && inputPassword === viewerPassword;
 
-        if (!isAdminLogin && !isViewerLogin) return null;
+        if (!isAdminLogin && !isViewerLogin) { return null; }
 
         const dbUser = await safeFindUserByEmail(inputEmail);
 
         if (dbUser) {
-          if (isAdminLogin && dbUser.role !== 'admin') return null;
-          if (isViewerLogin && dbUser.role !== 'viewer') return null;
+          if (isAdminLogin && dbUser.role !== 'admin') { return null; }
+          if (isViewerLogin && dbUser.role !== 'viewer') { return null; }
           return { id: dbUser.id, email: dbUser.email, name: dbUser.name };
         }
 
@@ -126,7 +126,7 @@ export const authConfig = {
      * Returning `false` blocks the sign-in.
      */
     async signIn({ user, account }) {
-      if (!user.email || !account?.provider) return false;
+      if (!user.email || !account?.provider) { return false; }
       const providerAccountId = account.providerAccountId ?? user.email;
       await safeUpsertUser(user.email, user.name, user.image);
       return true;

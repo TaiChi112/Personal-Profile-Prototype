@@ -1,5 +1,4 @@
 import { describe, it, expect, mock } from "bun:test";
-import React from "react";
 import { render, fireEvent, waitFor } from "@testing-library/react";
 
 // Mock next/cache

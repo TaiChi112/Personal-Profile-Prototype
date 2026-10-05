@@ -1,4 +1,4 @@
-import { type FormEvent, useState, useRef } from "react";
+import { type FormEvent, useState, } from "react";
 
 import { Check, CheckCircle, Plus, X, Pencil, Trash2 } from "lucide-react";
 

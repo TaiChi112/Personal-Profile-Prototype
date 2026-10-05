@@ -3,8 +3,8 @@ import { useFinanceStore } from "@/app/projects/(micro-apps)/finance-flow/store/
 
 describe("useFinanceStore Zustand Store", () => {
   const initialDefaultTransactions = [
-    { id: 1, type: "income", amount: 50000, label: "Salary" },
-    { id: 2, type: "expense", amount: 15000, label: "Rent" },
+    { id: 1, type: "income", amount: 50_000, label: "Salary" },
+    { id: 2, type: "expense", amount: 15_000, label: "Rent" },
     { id: 3, type: "expense", amount: 500, label: "Coffee" },
   ];
 
@@ -23,7 +23,7 @@ describe("useFinanceStore Zustand Store", () => {
 
   describe("addTx", () => {
     it("should prepend a new transaction with a timestamp id", () => {
-      const now = 1700000000000;
+      const now = 1_700_000_000_000;
       const originalDateNow = Date.now;
       Date.now = () => now;
 
@@ -86,7 +86,7 @@ describe("useFinanceStore Zustand Store", () => {
     });
 
     it("should delete a newly added transaction", () => {
-      const customId = 987654;
+      const customId = 987_654;
       const originalDateNow = Date.now;
       Date.now = () => customId;
 

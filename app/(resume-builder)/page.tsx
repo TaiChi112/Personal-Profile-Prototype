@@ -8,7 +8,7 @@ import { ResumePreviewModal } from "@/features/resume-builder/components/dashboa
 
 import { useResumeBuilder } from "@/features/resume-builder/state/use-resume-builder";
 
-import { Calendar, Eye, FileText, User as UserIcon } from "lucide-react";
+import { Eye, FileText, User as UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -111,7 +111,7 @@ export default function PublicFeedPage() {
 
         {loading ? (
           <div className="py-12 flex justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
         ) : resumes.length === 0 ? (
           <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm">

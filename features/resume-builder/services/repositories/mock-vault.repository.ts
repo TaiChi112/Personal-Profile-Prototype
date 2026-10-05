@@ -136,7 +136,7 @@ export class MockVaultRepository implements VaultRepository {
     const snapshot = this.readSnapshot();
     const projectIndex = snapshot.vault.projects.findIndex((p) => p.id === projectId);
     
-    if (projectIndex === -1) throw new Error("Project not found");
+    if (projectIndex === -1) { throw new Error("Project not found"); }
 
     const updatedProject: VaultProject = {
       ...snapshot.vault.projects[projectIndex],
@@ -175,7 +175,7 @@ export class MockVaultRepository implements VaultRepository {
   async updateExperience(id: ExperienceId, input: NewExperienceDraft): Promise<VaultExperience> {
     const snapshot = this.readSnapshot();
     const idx = snapshot.vault.experience.findIndex((e) => e.id === id);
-    if (idx === -1) throw new Error("Experience not found");
+    if (idx === -1) { throw new Error("Experience not found"); }
     const updated = {
       ...snapshot.vault.experience[idx],
       company: input.company.trim(),
@@ -211,7 +211,7 @@ export class MockVaultRepository implements VaultRepository {
   async updateCertificate(id: CertificateId, input: NewCertificateDraft): Promise<VaultCertificate> {
     const snapshot = this.readSnapshot();
     const idx = snapshot.vault.certificates.findIndex((c) => c.id === id);
-    if (idx === -1) throw new Error("Certificate not found");
+    if (idx === -1) { throw new Error("Certificate not found"); }
     const updated = {
       ...snapshot.vault.certificates[idx],
       name: input.name.trim(),
@@ -245,7 +245,7 @@ export class MockVaultRepository implements VaultRepository {
   async updateAward(id: AwardId, input: NewAwardDraft): Promise<VaultAward> {
     const snapshot = this.readSnapshot();
     const idx = snapshot.vault.awards.findIndex((a) => a.id === id);
-    if (idx === -1) throw new Error("Award not found");
+    if (idx === -1) { throw new Error("Award not found"); }
     const updated = {
       ...snapshot.vault.awards[idx],
       name: input.name.trim(),
@@ -268,7 +268,7 @@ export class MockVaultRepository implements VaultRepository {
     const snapshot = this.readSnapshot();
     const skillIndex = snapshot.vault.skills.findIndex((s) => s.id === skillId);
     
-    if (skillIndex === -1) throw new Error("Skill not found");
+    if (skillIndex === -1) { throw new Error("Skill not found"); }
 
     const updatedSkill: VaultSkill = {
       ...snapshot.vault.skills[skillIndex],

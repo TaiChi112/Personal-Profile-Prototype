@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { useTypeStore } from '../store/useTypeStore';
 
 export default function TypingGame() {
@@ -11,8 +11,8 @@ export default function TypingGame() {
   }, []);
 
   const getCharClass = (char: string, index: number) => {
-    if (index >= input.length) return 'text-gray-400';
-    if (char === input[index]) return 'text-green-500 bg-green-500/10';
+    if (index >= input.length) { return 'text-gray-400'; }
+    if (char === input[index]) { return 'text-green-500 bg-green-500/10'; }
     return 'text-red-500 bg-red-500/20 underline';
   };
 
