@@ -1,0 +1,12 @@
+{
+  "title": "รูปแบบการออกแบบ (Design Patterns)",
+  "pages": [
+    "index",
+    "DS",
+    "Creational",
+    "Structural",
+    "Behavioral",
+    "other",
+    "labs"
+  ]
+}
