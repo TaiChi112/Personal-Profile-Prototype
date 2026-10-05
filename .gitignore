@@ -55,4 +55,5 @@ secrets
 
 # generated reports and logs
 /reports/
-/logs/
+/logs//public/sw.js
+/public/workbox-*.js
