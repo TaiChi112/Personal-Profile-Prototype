@@ -1,0 +1,43 @@
+---
+title: "The Biased Sample"
+description: "Data Cleaning Bias Lab"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+# Act 1: The Hook
+
+Imagine you are a data scientist working for a tech startup that has developed a new fitness tracker. You are tasked with analyzing the sleep data collected from users over the first month. The goal is to find patterns that correlate with high-quality sleep.
+
+You notice that 15% of the users have missing data for several nights. To clean the dataset, you decide to simply remove these users from your analysis, leaving only those with complete data. The remaining dataset looks clean and perfect.
+
+<Callout title="Socratic AI Prompt" type="info">
+Why might removing users with incomplete data introduce a problem in our analysis? Consider who might be more likely to forget to charge or wear their device at night.
+</Callout>
+
+# Act 2: Mental Model
+
+When we clean data, we make choices. If data is missing at random (MAR), removing it might just reduce our sample size. But if the missingness is related to the data itself - known as Missing Not At Random (MNAR) - removing those records changes the shape of our data.
+
+Think of it like conducting a survey on job satisfaction but deciding to ignore all responses that were submitted after hours. You might accidentally exclude all the overworked employees, completely skewing your results to look more positive than reality.
+
+<Callout title="Socratic AI Prompt" type="info">
+If the users with missing sleep data were actually people with irregular sleep schedules or new parents, how would our "clean" dataset misrepresent the average user's sleep quality?
+</Callout>
+
+# Act 3: The Rabbit Hole
+
+Now, let us dig deeper. What if instead of dropping the rows with missing data, you decided to fill in the missing sleep hours with the average sleep hours of all users? This is called mean imputation. 
+
+At first glance, you keep all your users, and there are no missing values!
+
+<Callout title="Socratic AI Prompt" type="info">
+How does replacing missing values with the average affect the variance of your data? What happens if you try to find correlations between sleep and other variables after doing this?
+</Callout>
+
+<Callout title="Socratic AI Prompt" type="info">
+What alternative methods could you use to handle the missing data that might be less biased than dropping rows or filling with the overall mean?
+</Callout>

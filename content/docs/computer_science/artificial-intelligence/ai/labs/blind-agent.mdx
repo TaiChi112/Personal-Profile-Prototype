@@ -1,0 +1,43 @@
+---
+title: "The Blind Agent: A* Search"
+description: "A Socratic Problem-Based Learning Lab on A* Search"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+# Lab: The Blind Agent
+
+## Act 1: The Hook
+
+Imagine a robot dropped into a maze. It has no map, but it has a compass and a distance sensor that can measure the straight-line distance to its goal. The robot can only see the spaces immediately adjacent to it. How does the robot decide which step to take next when every path looks the same? If it only relies on the compass, it might run into walls. If it only explores nearby open spaces, it might wander endlessly.
+
+<Callout title="Socratic Inquiry" type="info">
+If you were the robot, how would you balance the urge to move directly toward the goal with the necessity of navigating around obstacles? What information is most valuable when choosing your next move?
+</Callout>
+
+## Act 2: Mental Model
+
+To solve this, we give the agent a scoring system to evaluate each possible move. This is the core of the A* Search algorithm. 
+
+The score for any given position is calculated using two values:
+1. **The Cost So Far (g-cost):** How many steps it took to get from the start to the current position.
+2. **The Estimated Cost to Goal (h-cost):** The straight-line distance (heuristic) from the current position to the target.
+
+The total score (f-cost) is simply the sum of these two: Total Score = Cost So Far + Estimated Cost to Goal. The agent always chooses to explore the path with the lowest total score.
+
+<Callout title="Socratic Inquiry" type="info">
+What happens if the agent only considers the 'Cost So Far'? What if it only considers the 'Estimated Cost to Goal'? How does combining them prevent the agent from making short-sighted decisions?
+</Callout>
+
+## Act 3: The Rabbit Hole
+
+The efficiency of A* Search heavily depends on the heuristic (the h-cost). A good heuristic guides the agent quickly to the goal. A bad heuristic might cause the agent to check too many unnecessary paths.
+
+Consider a scenario where the heuristic overestimates the distance to the goal. The agent might avoid a truly optimal path because its estimated score looks worse than a suboptimal path that is currently closer.
+
+<Callout title="Socratic Inquiry" type="info">
+Can you design a scenario or a maze layout where a straight-line distance heuristic would severely mislead the agent? If the heuristic must never overestimate the true cost to guarantee the shortest path, how might you design a better heuristic for a grid with walls?
+</Callout>
