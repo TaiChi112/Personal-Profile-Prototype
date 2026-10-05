@@ -1,0 +1,51 @@
+---
+title: "The Overconfident Classifier (Overfitting)"
+description: "A Problem-Based Learning Lab on Machine Learning Bias"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+# Lab: The Overconfident Classifier (Overfitting)
+
+## Act 1: The Hook
+
+Imagine you are studying for a math exam. Instead of learning the principles of algebra, you decide to memorize every single question and answer in the practice test. When you take the practice test again, you score 100%. You feel incredibly confident.
+
+However, when you take the actual exam, the numbers in the questions are slightly different. Because you only memorized the specific examples and didn't learn the underlying concepts, you fail the exam.
+
+In machine learning, this phenomenon is called overfitting. Your model becomes the overconfident student who memorized the practice test but cannot handle real-world problems.
+
+<Callout title="Socratic AI Prompt" type="info">
+Ask the AI: "Can you give me another real-world analogy for overfitting, perhaps related to sports or music?"
+</Callout>
+
+## Act 2: Mental Model
+
+To understand overfitting, we need to think about two types of data:
+1. Training Data: The practice test. The data the model learns from.
+2. Test Data: The actual exam. New, unseen data used to evaluate the model.
+
+A good model finds the general pattern (the signal) in the training data. An overfitted model memorizes the noise (random fluctuations, specific quirks) of the training data.
+
+When a model is too complex (like a polynomial with too many degrees), it can bend and twist to pass through every single point in the training data. Its error on the training data becomes zero. But when presented with test data, its predictions are wildly inaccurate.
+
+<Callout title="Socratic AI Prompt" type="info">
+Ask the AI: "If making a model more complex leads to overfitting, should I just make my model as simple as possible? What is the risk of doing that?"
+</Callout>
+
+## Act 3: The Rabbit Hole
+
+How do we prevent our classifier from becoming too overconfident? We use techniques called regularization.
+
+Think of regularization as a penalty for complexity. We force the model to prefer simpler explanations over complex, twisted ones, unless the complex explanation is significantly better.
+
+Some common methods include:
+- Cross-validation: Splitting the data into multiple folds to test the model on different subsets.
+- Early stopping: Stopping the training process before the model starts memorizing the noise.
+- L1/L2 Regularization: Adding a mathematical penalty to the model's weights.
+
+<Callout title="Socratic AI Prompt" type="info">
+Ask the AI: "I understand the concept of early stopping, but how do I know exactly when to stop training before it starts overfitting?"
+</Callout>
