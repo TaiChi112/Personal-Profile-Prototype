@@ -1,0 +1,39 @@
+---
+title: "The Vanishing Signal"
+description: "A Socratic Lab on the Vanishing Gradient Problem"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+# Act 1: The Hook
+
+Imagine playing a game of "Telephone" with 100 people. You whisper a complex message to the first person, and they whisper it to the next, and so on. By the time it reaches the 100th person, the message is often entirely lost or garbled. 
+
+In deep neural networks, a similar phenomenon occurs when we try to train networks with many layers using certain activation functions. The "signal" telling the earlier layers how to update their weights becomes increasingly faint as it travels backwards from the output layer to the input layer.
+
+<Callout title="Socratic Prompt: The Telephone Game" type="info">
+  If you were the 100th person in the Telephone game and realized the message was garbled, how would you instruct the 1st person to fix their communication, knowing your instructions also have to pass back through the 99 people before them?
+</Callout>
+
+# Act 2: Mental Model
+
+To understand why the signal vanishes, we need to look at the math behind backpropagation. During backpropagation, we calculate gradients using the chain rule. This involves multiplying many derivatives together. 
+
+If we use an activation function like the Sigmoid function, its derivative has a maximum value of 0.25. When we multiply numbers smaller than 1 together many times, the result shrinks exponentially towards zero.
+
+<Callout title="Socratic Prompt: The Chain Rule" type="info">
+  What happens when you multiply 0.25 by itself 10 times? How does this mathematical property explain why early layers in a deep network learn much slower than later layers when using Sigmoid activations?
+</Callout>
+
+# Act 3: The Rabbit Hole
+
+If Sigmoid functions cause the gradient to vanish, we need alternative activation functions or architectural changes to preserve the signal.
+
+Modern deep learning utilizes functions like ReLU (Rectified Linear Unit) and architectures like ResNets (Residual Networks) to combat this issue. ReLU has a derivative of 1 for positive inputs, preventing the exponential decay of the gradient during multiplication. ResNets introduce "skip connections" that allow the gradient to bypass certain layers entirely.
+
+<Callout title="Socratic Prompt: Designing Solutions" type="info">
+  If ReLU solves the vanishing gradient by having a derivative of 1 for positive inputs, what new problems might it introduce if the input is negative? Furthermore, how do skip connections in ResNets fundamentally change the "Telephone game" analogy we started with?
+</Callout>
