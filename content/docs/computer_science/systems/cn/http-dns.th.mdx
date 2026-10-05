@@ -1,0 +1,30 @@
+---
+title: "HTTP & DNS"
+description: "กลไกการทำงานของ Web Protocols เบื้องต้น"
+---
+
+# HTTP & DNS (สรุปด่วน)
+
+## 1. HTTP (HyperText Transfer Protocol)
+ทำงานอยู่บน **L7 (Application Layer)** เป็น Protocol หลักที่ใช้บน World Wide Web แบบ Request-Response
+- **Stateless:** Server ไม่จดจำสถานะของ Client ใน Request ก่อนหน้า (จึงต้องใช้ `Cookies` หรือ `Tokens` เพื่อยืนยันตัวตน)
+- **HTTP Methods:**
+  - `GET`: ขอข้อมูล (Read)
+  - `POST`: ส่งข้อมูลไปสร้างใหม่ (Create)
+  - `PUT/PATCH`: อัปเดตข้อมูล (Update)
+  - `DELETE`: ลบข้อมูล (Delete)
+- **Status Codes หลัก:**
+  - `2xx`: Success (เช่น `200 OK`, `201 Created`)
+  - `3xx`: Redirection (เช่น `301 Moved Permanently`)
+  - `4xx`: Client Error (เช่น `400 Bad Request`, `401 Unauthorized`, `404 Not Found`)
+  - `5xx`: Server Error (เช่น `500 Internal Server Error`, `502 Bad Gateway`)
+
+## 2. DNS (Domain Name System)
+สมุดโทรศัพท์ของ Internet
+- **หน้าที่:** แปลง Human-Readable Domain (เช่น `google.com`) ไปเป็น IP Address (เช่น `142.250.190.46`) ที่ Computer ใช้คุยกันผ่าน L3 (Network Layer)
+- **DNS Resolution Flow:**
+  1. Browser Cache (เช็คเครื่องตัวเองก่อน)
+  2. OS Cache (ไฟล์ `hosts`)
+  3. Router Cache
+  4. ISP Recursive DNS Server
+  5. วิ่งไปถาม Root Server -> TLD Server (`.com`) -> Authoritative Server จนได้ IP กลับมา

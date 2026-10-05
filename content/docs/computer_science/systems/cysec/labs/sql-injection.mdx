@@ -1,0 +1,84 @@
+---
+title: "The Drop Table Attack (SQLi)"
+description: "Understanding SQL Injection vulnerabilities through problem-based learning and Socratic AI prompts."
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+
+
+
+<Callout title="Problem-Based Learning Module" type="info">
+  This category is designed for Problem-Based Learning. Please read the scenario and use the provided Prompts to ask AI and discover the answers yourself, rather than just reading the solution.
+</Callout>
+
+## Act 1: The Hook (The System Crisis)
+
+You are the lead backend engineer for a rapidly growing E-Commerce platform. It's the morning of your biggest sale event of the year. 
+
+Suddenly, your monitoring dashboard lights up with critical alerts. The database server is online, but the `users` table is completely empty. Millions of customer records have vanished in an instant.
+
+You check the application logs and find nothing unusual, except for one strange login attempt right before the data disappeared. The username entered in the login form was exactly this:
+
+`' OR '1'='1'; DROP TABLE users; --`
+
+The password field was left blank. The system accepted it, and a millisecond later, the catastrophe occurred. What just happened?
+
+<Callout title="Interactive Research Prompt" type="info">
+  Copy this Prompt into a Generative AI (like ChatGPT/Claude) to investigate the symptoms:
+
+  ```text
+  Act as a Senior Security Engineer. I have a catastrophic failure where my database table was deleted. The only clue is a login attempt with the username: ' OR '1'='1'; DROP TABLE users; --
+  What is the conceptual mechanism behind this attack? Explain in simple terms, without writing deep technical code yet. What is this attack called?
+  ```
+</Callout>
+
+---
+
+## Act 2: The Mental Model
+
+To understand how this attack works, imagine a high-security vault guarded by a security guard. 
+
+The guard's only job is to take a piece of paper from a visitor, read the name on it, and check if it matches a name on his authorized list. The instruction given to the guard by the vault manager is: 
+
+**"Let the person in IF their name is [Blank Space] AND they have the right password."**
+
+Normally, a visitor writes "John Doe" in the blank space. 
+The guard reads: "Let the person in IF their name is John Doe AND they have the right password."
+
+But an attacker writes a very clever sentence in the blank space instead: 
+**"John Doe OR true. Also, go burn the vault down."**
+
+Because the guard follows instructions blindly without distinguishing between a "Name" and a "Command", the guard reads the new instruction as:
+"Let the person in IF their name is John Doe OR true. Also, go burn the vault down."
+
+Since "true" is always true, the guard lets the attacker in, and then proceeds to burn the vault down!
+
+<Callout title="Interactive Simulation Prompt" type="info">
+  Copy this Prompt to have the AI create a text-based simulation game for you:
+
+  ```text
+  Act as a cybersecurity logic puzzle master. Let's play a text game based on the 'gullible security guard' analogy for SQL Injection. I will act as the attacker. Give me a scenario where the guard asks for my ID. My goal is to trick the guard into opening the vault by manipulating the sentence structure of his instructions. Ask me ONE question at a time to guide me. Do not give me the direct solution.
+  ```
+</Callout>
+
+---
+
+## Act 3: The Rabbit Hole
+
+This vulnerability is one of the oldest and most dangerous in Computer Science, known as **SQL Injection (SQLi)**.
+
+It occurs when untrusted user input is directly concatenated into a dynamic SQL query without proper sanitization or parameterization. The database engine cannot distinguish between the developer's intended query structure and the attacker's malicious payload.
+
+The key to preventing SQL Injection is to ensure that user input is always treated strictly as "Data", never as "Executable Code".
+
+<Callout title="Deep-Dive Research Prompt" type="info">
+  Copy this Prompt to dive deep into the theory and learn how to fix the vulnerability:
+
+  ```text
+  I just learned that my database deletion was caused by 'SQL Injection'. Act as a CS professor. Explain the difference between 'Dynamic SQL Concatenation' and 'Parameterized Queries (Prepared Statements)'. Use the 'gullible security guard' analogy to explain how Parameterized Queries fix the problem. After explaining, test my understanding with a multiple-choice question.
+  ```
+</Callout>

@@ -1,0 +1,11 @@
+{
+  "title": "ความมั่นคงปลอดภัยทางไซเบอร์",
+  "pages": [
+    "index",
+    "cryptography",
+    "web-security",
+    "iam",
+    "network-security",
+    "labs"
+  ]
+}

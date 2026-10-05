@@ -1,0 +1,65 @@
+---
+title: "The Missing Cycle (Pipelining Hazard)"
+description: "A Problem-Based Learning Lab on Computer Architecture Pipelining"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+# The Missing Cycle: Pipelining Hazards Lab
+
+Welcome to the Computer Architecture Lab on Pipelining Hazards. We will explore what happens when the processor's assembly line gets disrupted.
+
+## Act 1: The Hook
+
+Imagine you are running a factory assembly line making cars. Everything is flowing smoothly, one car moving to the next station every hour. Suddenly, the worker installing the steering wheel realizes they do not have the steering wheel for the current car. It is still being manufactured in the previous station.
+
+What happens to the assembly line? Does it stop? Does it skip a car?
+
+<Callout title="Socratic Prompt: The Stalled Line" type="info">
+If the steering wheel worker stops to wait, what happens to the worker behind them who is installing the engine? Can they keep working indefinitely? How does this relate to an instruction needing the result of the previous instruction in a CPU?
+</Callout>
+
+This is the essence of a pipelining hazard. In a CPU, we call this a "data hazard". The CPU expects to execute one instruction per cycle, but sometimes, a "missing cycle" appears when an instruction has to wait.
+
+## Act 2: Mental Model
+
+Let us translate our factory into a 5-stage RISC pipeline: Fetch, Decode, Execute, Memory, Writeback.
+
+Consider this assembly code:
+```asm
+ADD R1, R2, R3
+SUB R4, R1, R5
+```
+The `SUB` instruction needs the value in `R1` to perform its calculation. However, the `ADD` instruction does not actually write its result into `R1` until the Writeback stage.
+
+<Callout title="Socratic Prompt: Tracing the Hazard" type="info">
+Draw out the 5 stages for both instructions. In which stage does `SUB` need to read `R1`? In which stage does `ADD` write to `R1`? How many cycles would the `SUB` instruction need to wait (stall) if no other optimizations are present?
+</Callout>
+
+To resolve this without stalling, architects introduced "Data Forwarding" (or Bypassing). Instead of waiting for Writeback, the CPU passes the result directly from the Execute stage of `ADD` to the Execute stage of `SUB`.
+
+<Callout title="Socratic Prompt: The Forwarding Path" type="info">
+If forwarding solves the problem, why do we still have "Load-Use" data hazards where a stall is unavoidable? Think about what stage a `LOAD` instruction gets its data from memory.
+</Callout>
+
+## Act 3: The Rabbit Hole
+
+Data hazards are not the only things that can disrupt the pipeline. What happens when the processor encounters a branch instruction?
+
+```asm
+BEQ R1, R2, Target
+ADD R3, R4, R5
+...
+Target:
+SUB R6, R7, R8
+```
+
+When the CPU fetches the `BEQ` (Branch if Equal) instruction, it does not know if it should fetch `ADD` or `SUB` next until it evaluates the condition.
+
+<Callout title="Socratic Prompt: The Cost of Guessing" type="info">
+If the CPU guesses wrong and fetches the `ADD` instruction, what must it do with the partially executed `ADD` instruction when it realizes the branch should have been taken to `Target`? How does this impact performance?
+</Callout>
+
+This is a Control Hazard. Modern processors use complex Branch Prediction to guess the right path. Dive into the history of branch prediction and how modern CPUs guess correctly over ninety percent of the time!

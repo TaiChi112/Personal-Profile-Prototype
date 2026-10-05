@@ -1,0 +1,11 @@
+{
+  "title": "Cyber Security",
+  "pages": [
+    "index",
+    "cryptography",
+    "web-security",
+    "iam",
+    "network-security",
+    "labs"
+  ]
+}

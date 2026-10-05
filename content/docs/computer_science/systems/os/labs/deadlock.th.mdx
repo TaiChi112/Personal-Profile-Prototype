@@ -1,0 +1,81 @@
+---
+title: "The Infinite Freeze (สภาวะทางตัน)"
+description: "สำรวจปัญหา Deadlock ในระบบปฏิบัติการผ่าน Problem-Based Learning"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+
+
+
+
+
+<Callout title="Problem-Based Learning Module" type="info">
+  หมวดหมู่นี้ออกแบบมาเพื่อให้คุณได้ฝึกคิดแก้ปัญหา (Problem-Based) กรุณาอ่านสถานการณ์และลองใช้ Prompt ด้านล่างนำไปถาม AI เพื่อค้นหาคำตอบด้วยตัวเอง แทนที่จะอ่านเฉลยเพียงอย่างเดียว
+</Callout>
+
+## Act 1: The Hook (The System Crisis)
+
+คุณเพิ่งปล่อยอัปเดตระบบแอปพลิเคชันตู้ ATM ตอนเที่ยงคืนตรง จู่ๆ ระบบก็หยุดประมวลผลดื้อๆ
+
+CPU วิ่งแค่ 1% Memory ปกติ ไม่มี Error Logs ไม่มี Crash Reports ระบบเพียงแค่ "ถูกแช่แข็ง" ไปเฉยๆ 
+
+เมื่อคุณเข้าไปตรวจสอบ Process ที่กำลังทำงานอยู่ คุณพบว่ามี Thread สำหรับโอนเงิน 2 ตัวที่ทำงานในเสี้ยววินาทีเดียวกัน:
+- Thread A พยายามโอนเงินจากบัญชีที่ 1 ไปบัญชีที่ 2
+- Thread B พยายามโอนเงินจากบัญชีที่ 2 ไปบัญชีที่ 1
+
+แล้วทุกอย่างก็ค้างอยู่ตรงนั้น... เกิดอะไรขึ้น?
+
+<Callout title="Interactive Research Prompt" type="info">
+  Copy Prompt นี้ไปวางใน Generative AI (เช่น ChatGPT/Claude) เพื่อสืบสวนอาการที่เกิดขึ้น:
+
+  ```text
+  Act as a Senior System Administrator. I have a software system that suddenly froze completely. CPU usage is very low, and no errors are thrown. Two processes were trying to interact with each other at the exact same time. What are the top 3 conceptual reasons this "freeze" could happen? Explain in simple terms, without using deep technical jargon yet.
+  ```
+</Callout>
+
+---
+
+## Act 2: The Mental Model
+
+เพื่อให้เห็นภาพสิ่งที่เกิดขึ้นใน CPU ลองจินตนาการถึงสี่แยกวัดใจที่ไม่มีไฟแดง 
+
+มีรถ 4 คันวิ่งมาถึงสี่แยกพร้อมกันพอดี กฎหมายจราจรระบุไว้ว่า: "คุณต้องให้ทางแก่รถที่อยู่ทางขวามือของคุณไปก่อนเสมอ"
+
+- คันที่ 1 จอดให้คันที่ 2 ไปก่อน
+- คันที่ 2 จอดให้คันที่ 3 ไปก่อน
+- คันที่ 3 จอดให้คันที่ 4 ไปก่อน
+- คันที่ 4 จอดให้คันที่ 1 ไปก่อน!
+
+ไม่มีใครขยับได้ สี่แยกนี้ปลอดภัย 100% (ไม่มีรถชนกัน) แต่ทุกอย่างหยุดนิ่ง ทรัพยากร (พื้นที่กลางสี่แยก) ถูกจับจองไว้แต่ไม่มีใครได้ใช้จริง
+
+<Callout title="Interactive Simulation Prompt" type="info">
+  Copy Prompt นี้ไปให้ AI สร้าง Simulation เกมจำลองสถานการณ์ให้คุณเล่น:
+
+  ```text
+  Act as a logic puzzle master. Let's play a text game based on the '4 cars at an intersection' traffic jam analogy. I will act as a traffic cop. Give me a scenario where the cars are completely stuck waiting for each other. Ask me ONE question at a time to guide me on how I can break this rule so the traffic flows again. Do not give me the direct solution.
+  ```
+</Callout>
+
+---
+
+## Act 3: The Rabbit Hole
+
+สถานการณ์รถติดแหง็กเป็นวงกลมนี้ ในทาง Computer Science เราเรียกมันว่า **Deadlock** (สภาวะทางตัน)
+
+สำหรับการเกิด Deadlock จะต้องมีเงื่อนไข 4 ข้อเกิดขึ้นพร้อมกัน (เรียกว่า Coffman Conditions):
+1. **Mutual Exclusion:** ทรัพยากรใช้งานได้ทีละคน
+2. **Hold and Wait:** ถือของเก่าไว้ แล้วรอของใหม่
+3. **No Preemption:** แย่งของคืนไม่ได้
+4. **Circular Wait:** การรอคอยเป็นวงกลม
+
+การแก้ปัญหาและป้องกันไม่ให้แอปธนาคารของคุณค้าง คือการเขียนโค้ดเพื่อทำลายเงื่อนไขข้อใดข้อหนึ่งทิ้งไป
+
+<Callout title="Deep-Dive Research Prompt" type="info">
+  Copy Prompt นี้เพื่อเจาะลึกทฤษฎีเชิงลึกและทดสอบความเข้าใจของคุณ:
+
+  ```text
+  I just learned that my system freeze is caused by a concept called 'Deadlock' in Operating Systems. Act as a CS professor. Explain the 4 necessary conditions for a Deadlock (Coffman conditions) using the 'traffic jam' analogy. After explaining, test my understanding with a multiple-choice question.
+  ```
+</Callout>

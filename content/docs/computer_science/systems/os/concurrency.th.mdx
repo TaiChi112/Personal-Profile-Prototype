@@ -1,0 +1,26 @@
+---
+title: "Concurrency & Synchronization"
+description: "สรุปเรื่อง Race Condition, Mutex, Semaphore และ Deadlock"
+---
+
+# Concurrency & Synchronization (สรุปด่วน)
+
+## 1. Race Condition
+สถานการณ์ที่ Thread หรือ Process หลายตัวพยายามอ่านและเขียน Shared Data พร้อมกัน ทำให้ผลลัพธ์สุดท้ายผิดเพี้ยนและคาดเดาไม่ได้ (Unpredictable)
+- **Critical Section:** ส่วนของ Code ที่มีการเข้าถึง Shared Resources ซึ่งต้องได้รับการปกป้องไม่ให้ทำงานซ้อนทับกัน
+
+## 2. Synchronization Mechanisms
+กลไกที่ OS หรือ Language Runtime นำมาใช้ควบคุมการเข้าถึง Critical Section
+- **Mutex (Mutual Exclusion):** ตัวล็อก (Lock) แบบ 1:1 อนุญาตให้ Thread เดียวเท่านั้นที่เข้าสู่ Critical Section ได้ (เจ้าของ Lock ต้องเป็นคนปลด Lock เท่านั้น)
+- **Semaphore:** กลไกแบบนับ (Signaling Mechanism) กำหนดจำนวน Thread ที่สามารถเข้าถึง Resource ได้พร้อมกัน 
+  - *Binary Semaphore:* มีค่า 0 กับ 1 (คล้าย Mutex แต่ใครปลด Lock ก็ได้)
+  - *Counting Semaphore:* ยอมให้เข้าถึงได้ N ตัวพร้อมกัน (เช่น การเชื่อมต่อ Database Connection Pool)
+
+## 3. Deadlock
+สภาวะที่ Process/Thread มากกว่า 2 ตัวขึ้นไป ติดล็อกถาวร เพราะต่างฝ่ายต่างรอ Resource ที่อีกฝ่ายถือครองอยู่
+- **4 เงื่อนไขของการเกิด Deadlock (Coffman Conditions):**
+  1. `Mutual Exclusion`: Resource ถูกครอบครองแบบผูกขาด
+  2. `Hold and Wait`: ถือ Resource A ไว้ แล้วไปรอขอ Resource B
+  3. `No Preemption`: OS ไม่สามารถแย่ง Resource คืนจาก Process ได้
+  4. `Circular Wait`: วนลูปการรอเป็นวงกลม
+- **การแก้ปัญหา:** ต้องทำลายเงื่อนไขใดเงื่อนไขหนึ่งทิ้ง (เช่น บังคับให้ขอ Resource ตามลำดับเสมอ เพื่อป้องกัน Circular Wait)

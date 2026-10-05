@@ -1,0 +1,52 @@
+---
+title: "ความมั่นคงปลอดภัยทางไซเบอร์ (CySec)"
+description: "สรุปคอนเซปต์ด้านความปลอดภัย ช่องโหว่ และกลไกการป้องกันระบบ"
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+
+import { Shield, GlobeLock, KeyRound, Network, TerminalSquare } from 'lucide-react';
+
+<Callout title="Quick Review" type="info">
+  หมวดหมู่นี้ออกแบบมาเพื่อเป็นบทสรุป (Cheat Sheet) ทบทวนทฤษฎีความปลอดภัยทางไซเบอร์ที่เป็นรากฐานสำคัญของการออกแบบสถาปัตยกรรมระบบและการเขียนโปรแกรมฝั่ง Backend
+</Callout>
+
+# ความมั่นคงปลอดภัยทางไซเบอร์ (CySec)
+
+ความมั่นคงปลอดภัยทางไซเบอร์ (Cyber Security) คือแนวทางปฏิบัติในการปกป้องระบบ เครือข่าย และโปรแกรมจากการโจมตีทางดิจิทัล ซึ่งมักมีเป้าหมายเพื่อเข้าถึง เปลี่ยนแปลง หรือทำลายข้อมูลสำคัญ เรียกค่าไถ่ หรือขัดขวางกระบวนการทางธุรกิจ
+
+เลือกหัวข้อที่ต้องการทบทวน:
+
+<Cards>
+  <Card 
+    href="/th/docs/computer_science/systems/cysec/web-security" 
+    title="Web Security" 
+    icon={<GlobeLock />}
+    description="เรียนรู้ช่องโหว่ OWASP Top 10, SQL Injection, XSS, และ CSRF" 
+  />
+  <Card 
+    href="/th/docs/computer_science/systems/cysec/cryptography" 
+    title="Cryptography" 
+    icon={<Shield />}
+    description="การเข้ารหัสแบบ Symmetric/Asymmetric, Hashing, และ CIA Triad" 
+  />
+  <Card 
+    href="/th/docs/computer_science/systems/cysec/iam" 
+    title="Identity & Access Management" 
+    icon={<KeyRound />}
+    description="ระบบ Authentication, Authorization, JWT, OAuth, และ RBAC" 
+  />
+  <Card 
+    href="/th/docs/computer_science/systems/cysec/network-security" 
+    title="Network Security" 
+    icon={<Network />}
+    description="การป้องกันเครือข่ายด้วย Firewalls, DDoS, MitM, และ WAF" 
+  />
+  <Card 
+    href="/th/docs/computer_science/systems/cysec/labs/sql-injection" 
+    title="ห้องทดลอง (Interactive Labs)" 
+    icon={<TerminalSquare />}
+    description="ฝึกแก้ปัญหาจากสถานการณ์จำลอง (Problem-Based) ด้วย Socratic AI Prompts" 
+  />
+</Cards>
