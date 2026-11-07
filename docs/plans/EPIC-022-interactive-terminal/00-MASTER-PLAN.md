@@ -63,15 +63,18 @@ flowchart TD
 
 ## 4. แผนการดำเนินงานย่อย (Sub-Phases Roadmap)
 
-1. **[Phase 1.1: Fullscreen Terminal UI](01-fullscreen-terminal-ui.md)**
+1. **[Phase 1.1: Fullscreen Terminal UI](01-fullscreen-terminal-ui.md) - [STATUS: COMPLETED]**
    - สร้าง Component `TerminalModal.tsx` พร้อมปุ่ม Trigger ในหน้าเว็บ
    - จำลองหน้าจอ CRT Scanline, ประวัติคำสั่งย้อนหลัง (History), และการเลื่อนหน้าจออัตโนมัติ
-2. **[Phase 1.2: Static Command Parser](02-static-command-parser.md)**
+2. **[Phase 1.2: Static Command Parser](02-static-command-parser.md) - [STATUS: COMPLETED]**
    - สร้าง `command-parser.ts` รองรับคำสั่ง: `help`, `whoami`, `skills`, `projects`, `resume`, `contact`, `clear`, `date`, `echo`, `theme`
    - รันในเบราว์เซอร์ทันทีด้วย Zero Network Latency
-3. **[Phase 2.1: Terminal AI Agent](03-terminal-ai-agent.md)**
+3. **[Phase 2.1: Terminal AI Agent](03-terminal-ai-agent.md) - [STATUS: COMPLETED]**
    - สร้าง Route Handler `app/api/terminal/route.ts` พร้อม SysAdmin Persona
    - รองรับ Fallback Response เมื่อไม่ได้เชื่อมต่ออินเทอร์เน็ตหรือไม่มี API Key
-4. **[Phase 2.2: Hybrid Command Router](04-hybrid-command-router.md)**
+4. **[Phase 2.2: Hybrid Command Router](04-hybrid-command-router.md) - [STATUS: COMPLETED]**
    - เชื่อมโยง Parser และ AI เข้าด้วยกันใน `command-router.ts`
    - แสดงผลแบบ Typewriter Effect สำหรับข้อความจาก AI
+5. **[QA & Security Audit Verification] - [STATUS: COMPLETED]**
+   - ผ่านการทดสอบ Unit Tests 43/43 ข้อ (100% Pass Rate) ใน `tests/core/unit/terminal/`
+   - ผ่าน Security Audit 100%: ไม่มีช่องโหว่ `eval()`, ไม่มี `child_process`, ป้องกัน Prototype Pollution และ Sanitization ปลอดภัย

@@ -1,14 +1,14 @@
 # Phase 1.2: Static Command Parser
 
-**สถานะ:** Backlog
+**สถานะ:** COMPLETED
 **ความเชื่อมโยง:** Problem Statement
 
 ## 1. Milestone Goal
 ผู้ใช้พิมพ์คำสั่งพื้นฐานแล้วต้องทำงานทันทีแบบไม่หน่วง
 
 ## 2. Acceptance Criteria
-- [ ] เขียน Logic ดักคำสั่งพื้นฐาน (switch-case) เช่น `help`, `date`, `whoami`
-- [ ] คำสั่งพื้นฐานต้องประมวลผลฝั่ง Client ทันทีโดยไม่ยิง API
+- [x] เขียน Logic ดักคำสั่งพื้นฐาน เช่น `help`, `date`, `whoami`, `skills`, `projects`, `resume`, `contact`, `clear`, `echo`, `theme` (`command-parser.ts`)
+- [x] คำสั่งพื้นฐานต้องประมวลผลฝั่ง Client ทันทีโดยไม่ยิง API (Zero Network Latency)
 
 ---
 ## 3. Technical Implementation Context

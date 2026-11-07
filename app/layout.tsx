@@ -1,7 +1,8 @@
+import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
+import { TerminalTrigger } from "./components/terminal/TerminalTrigger";
 import { Providers } from "./providers";
 import { defaultMetadata } from "./seo.config";
 
@@ -29,6 +30,7 @@ export default function RootLayout({
       >
         <Providers>
           {children}
+          <TerminalTrigger />
           <Analytics />
         </Providers>
       </body>

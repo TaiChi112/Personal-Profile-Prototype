@@ -1,14 +1,14 @@
 # Phase 2.1: Terminal AI Agent
 
-**สถานะ:** Backlog
+**สถานะ:** COMPLETED
 **ความเชื่อมโยง:** Problem Statement
 
 ## 1. Milestone Goal
 ผู้ใช้อยากถามคำถามแปลกๆ ที่ไม่มีในคำสั่งพื้นฐาน และคาดหวังคำตอบที่ฉลาด
 
 ## 2. Acceptance Criteria
-- [ ] Create an endpoint to process terminal chat queries
-- [ ] กำหนด Prompt ให้ AI สวมบทบาทเป็น JARVIS หรือ Hacker System ตอบสั้น กระชับ มีกิมมิค
+- [x] Create an endpoint to process terminal chat queries (`app/api/terminal/route.ts`)
+- [x] กำหนด Prompt ให้ AI สวมบทบาทเป็น JARVIS หรือ Cyberpunk SysAdmin Operator ตอบสั้น กระชับ มีกิมมิค พร้อม Offline Fallback
 
 ---
 ## 3. Technical Implementation Context

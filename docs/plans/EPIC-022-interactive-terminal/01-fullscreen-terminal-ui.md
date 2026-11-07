@@ -1,14 +1,14 @@
 # Phase 1.1: Fullscreen Terminal UI
 
-**สถานะ:** Backlog
+**สถานะ:** COMPLETED
 **ความเชื่อมโยง:** Problem Statement
 
 ## 1. Milestone Goal
 สร้างหน้าต่างแบบแฮกเกอร์ที่ดูสมจริง และพิมพ์โต้ตอบได้
 
 ## 2. Acceptance Criteria
-- [ ] Develop a core terminal UI component มีพื้นหลังสีดำทึบ หรือเบลอฉากหลัง (Backdrop Blur)
-- [ ] รองรับการพิมพ์และเก็บประวัติ (History) คำสั่งบนหน้าจอ
+- [x] Develop a core terminal UI component มีพื้นหลังสีดำทึบ หรือเบลอฉากหลัง (Backdrop Blur) (`TerminalModal.tsx`)
+- [x] รองรับการพิมพ์และเก็บประวัติ (History) คำสั่งบนหน้าจอ พร้อมการเลื่อนปุ่มลูกศรขึ้น/ลง (`TerminalModal.tsx`)
 
 ---
 ## 3. Technical Implementation Context
