@@ -9,6 +9,7 @@ import {
   Rocket,
   Sparkles,
   Square,
+  Undo2,
   Zap,
 } from "lucide-react";
 import { WORKFLOW_PRESETS } from "../store/presets";
@@ -69,16 +70,38 @@ export function LeftOrchestratorSidebar({
               {sample.label}
             </button>
           ))}
+          <button
+            type="button"
+            onClick={() =>
+              setPromptInput("เพิ่มขั้นตอน e-KYC สแกนหน้า แล้วเพิ่มระบบเช็คสต็อกคลังสินค้า")
+            }
+            className="shrink-0 text-[10px] bg-indigo-950/70 hover:bg-indigo-900/70 text-cyan-300 px-2 py-1 rounded-md border border-cyan-500/30 cursor-pointer"
+          >
+            + Compound Chain
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={handleRunIntent}
-          className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-lg shadow-cyan-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
-        >
-          <Bot className="w-4 h-4" />
-          <span>สั่ง AI Agent อัปเดต State SSOT</span>
-        </button>
+        <div className="flex gap-1.5">
+          <button
+            type="button"
+            onClick={handleRunIntent}
+            className="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-lg shadow-cyan-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+          >
+            <Bot className="w-4 h-4" />
+            <span>สั่ง AI Agent อัปเดต State SSOT</span>
+          </button>
+          {state.undoSnapshot && (
+            <button
+              type="button"
+              onClick={() => state.undoLastGraphChange()}
+              title="ย้อนกลับการแก้ไขกราฟล่าสุด (Undo)"
+              className="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-medium inline-flex items-center gap-1 cursor-pointer shrink-0"
+            >
+              <Undo2 className="w-3.5 h-3.5" />
+              <span>Undo</span>
+            </button>
+          )}
+        </div>
 
         {state.aiIntentStatus && (
           <div className="mt-2 text-[11px] text-cyan-300 font-mono bg-slate-950/90 p-2 rounded-lg border border-cyan-500/30">

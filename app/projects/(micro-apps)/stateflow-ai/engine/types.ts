@@ -83,3 +83,49 @@ export interface ParsedIntentResult {
   edges: StateEdge[];
   summary: string;
 }
+
+export interface CompoundIntentResult {
+  nodes: StateNode[];
+  edges: StateEdge[];
+  summary: string;
+}
+
+export interface OptimizationResult {
+  applied: boolean;
+  beforePoints: number;
+  afterPoints: number;
+  beforeCost: number;
+  afterCost: number;
+  savingsThb: number;
+  removedFallbackIds: string[];
+  addedNode?: StateNode;
+  addedEdges?: StateEdge[];
+  summary: string;
+  nextNodes: StateNode[];
+  nextEdges: StateEdge[];
+}
+
+export interface GraphSnapshot {
+  baseNodes: StateNode[];
+  baseEdges: StateEdge[];
+  activeAddons: string[];
+  customNodes: StateNode[];
+  customEdges: StateEdge[];
+  selectedNodeId: string;
+}
+
+export type McpToolName =
+  | "read_ssot_graph"
+  | "mutate_state_graph"
+  | "evaluate_nxn_matrix"
+  | "generate_qa_playwright"
+  | "optimize_topology";
+
+export interface IntentParserAdapter {
+  id: string;
+  parse(
+    promptText: string,
+    existingNodes: StateNode[],
+    customSeqNumber: number,
+  ): Promise<CompoundIntentResult> | CompoundIntentResult;
+}

@@ -1,11 +1,19 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import {
+  generateMermaidStateDiagram,
+  generatePlaywrightMbtSpec,
+} from "../engine/codegenEngine";
+import {
+  applyWebhookCostOptimization,
   calculateComplexityMetrics,
-  parseNaturalLanguageIntent,
+  parseCompoundNaturalLanguageIntent,
   validateAndParseAstJson,
 } from "../engine/complexityEngine";
 import type {
+  GraphSnapshot,
+  McpToolName,
+  OptimizationResult,
   RolePerspective,
   SimulationMode,
   StateEdge,
@@ -31,6 +39,7 @@ interface StateFlowState {
   customNodes: StateNode[];
   customEdges: StateEdge[];
   isCustomAstOverride: boolean;
+  undoSnapshot: GraphSnapshot | null;
 
   // Simulation & UI state
   simMode: SimulationMode;
@@ -49,15 +58,16 @@ interface StateFlowState {
   addCustomState: (payload: CustomStatePayload) => void;
   executeAiIntention: (promptText: string) => { ok: boolean; summary: string };
   applyJsonAst: (rawJson: string) => { valid: boolean; error?: string };
+  optimizeGraphCost: () => OptimizationResult;
+  undoLastGraphChange: () => boolean;
   startSimulation: (mode: Exclude<SimulationMode, null>) => void;
   stepSimulation: () => void;
   stopSimulation: () => void;
-  triggerMcpTool: (
-    toolName:
-      | "mutate_state_graph"
-      | "evaluate_nxn_matrix"
-      | "generate_qa_playwright",
-  ) => void;
+  runMcpToolWithParams: (
+    toolName: McpToolName,
+    rawArgsJson?: string,
+  ) => { ok: boolean; log: string; generatedCode?: string };
+  triggerMcpTool: (toolName: McpToolName) => void;
   resetWorkflow: () => void;
 }
 
@@ -110,6 +120,17 @@ export function composeGraph(state: {
   return { nodes, edges };
 }
 
+function captureSnapshot(state: StateFlowState): GraphSnapshot {
+  return {
+    baseNodes: state.baseNodes.map((n) => ({ ...n })),
+    baseEdges: state.baseEdges.map((e) => ({ ...e })),
+    activeAddons: [...state.activeAddons],
+    customNodes: state.customNodes.map((n) => ({ ...n })),
+    customEdges: state.customEdges.map((e) => ({ ...e })),
+    selectedNodeId: state.selectedNodeId,
+  };
+}
+
 function getInitialSlice(presetId: WorkflowPresetId) {
   const preset = WORKFLOW_PRESETS[presetId];
   return {
@@ -121,6 +142,7 @@ function getInitialSlice(presetId: WorkflowPresetId) {
     customNodes: [] as StateNode[],
     customEdges: [] as StateEdge[],
     isCustomAstOverride: false,
+    undoSnapshot: null as GraphSnapshot | null,
     simMode: null as SimulationMode,
     simStepIndex: 0,
     highlightedNodeId: null as string | null,
@@ -236,6 +258,7 @@ export const useStateFlowStore = create<StateFlowState>()(
         }
 
         set({
+          undoSnapshot: captureSnapshot(state),
           customNodes: [...state.customNodes, newNode],
           customEdges: [...state.customEdges, ...newEdges],
           selectedNodeId: newId,
@@ -253,16 +276,18 @@ export const useStateFlowStore = create<StateFlowState>()(
           WORKFLOW_PRESETS[state.presetId].samplePrompts[0]?.prompt ||
           "แทรกขั้นตอนตรวจสอบเพิ่มเติม";
 
-        const parsed = parseNaturalLanguageIntent(
+        const parsed = parseCompoundNaturalLanguageIntent(
           text,
           nodes,
           state.customNodes.length,
         );
 
         set({
-          customNodes: [...state.customNodes, parsed.node],
+          undoSnapshot: captureSnapshot(state),
+          customNodes: [...state.customNodes, ...parsed.nodes],
           customEdges: [...state.customEdges, ...parsed.edges],
-          selectedNodeId: parsed.node.id,
+          selectedNodeId:
+            parsed.nodes[parsed.nodes.length - 1]?.id || state.selectedNodeId,
           aiIntentStatus: parsed.summary,
           simMode: null,
           highlightedNodeId: null,
@@ -273,12 +298,14 @@ export const useStateFlowStore = create<StateFlowState>()(
       },
 
       applyJsonAst: (rawJson) => {
+        const state = get();
         const result = validateAndParseAstJson(rawJson);
         if (!result.valid || !result.nodes || !result.edges) {
           return { valid: false, error: result.error || "Invalid JSON AST" };
         }
 
         set({
+          undoSnapshot: captureSnapshot(state),
           baseNodes: result.nodes,
           baseEdges: result.edges,
           activeAddons: [],
@@ -292,6 +319,60 @@ export const useStateFlowStore = create<StateFlowState>()(
         });
 
         return { valid: true };
+      },
+
+      optimizeGraphCost: () => {
+        const state = get();
+        const preset = WORKFLOW_PRESETS[state.presetId];
+        const { nodes, edges } = composeGraph(state);
+        const result = applyWebhookCostOptimization(
+          nodes,
+          edges,
+          preset.quotaLimit,
+          preset.baseCost,
+        );
+
+        if (!result.applied) {
+          set({ aiIntentStatus: result.summary });
+          return result;
+        }
+
+        set({
+          undoSnapshot: captureSnapshot(state),
+          baseNodes: result.nextNodes,
+          baseEdges: result.nextEdges,
+          activeAddons: [],
+          customNodes: [],
+          customEdges: [],
+          isCustomAstOverride: true,
+          selectedNodeId: result.addedNode?.id || state.selectedNodeId,
+          aiIntentStatus: result.summary,
+          simMode: null,
+          highlightedNodeId: null,
+          highlightedEdgeIds: [],
+        });
+
+        return result;
+      },
+
+      undoLastGraphChange: () => {
+        const state = get();
+        if (!state.undoSnapshot) return false;
+        const snap = state.undoSnapshot;
+        set({
+          baseNodes: snap.baseNodes,
+          baseEdges: snap.baseEdges,
+          activeAddons: snap.activeAddons,
+          customNodes: snap.customNodes,
+          customEdges: snap.customEdges,
+          selectedNodeId: snap.selectedNodeId,
+          undoSnapshot: null,
+          simMode: null,
+          highlightedNodeId: null,
+          highlightedEdgeIds: [],
+          aiIntentStatus: "ย้อนกลับการเปลี่ยนแปลงล่าสุดเรียบร้อยแล้ว (Undo)",
+        });
+        return true;
       },
 
       startSimulation: (mode) => {
@@ -366,9 +447,55 @@ export const useStateFlowStore = create<StateFlowState>()(
           highlightedEdgeIds: [],
         }),
 
-      triggerMcpTool: (toolName) => {
+      runMcpToolWithParams: (toolName, rawArgsJson) => {
         const state = get();
         const preset = WORKFLOW_PRESETS[state.presetId];
+
+        let parsedArgs: Record<string, unknown> = {};
+        if (rawArgsJson && rawArgsJson.trim()) {
+          try {
+            const candidate = JSON.parse(rawArgsJson);
+            if (
+              !candidate ||
+              typeof candidate !== "object" ||
+              Array.isArray(candidate)
+            ) {
+              const errLog = JSON.stringify(
+                {
+                  jsonrpc: "2.0",
+                  error: {
+                    code: -32602,
+                    message:
+                      "Invalid params: MCP tool arguments must be a JSON object",
+                  },
+                },
+                null,
+                2,
+              );
+              set({ mcpLog: errLog });
+              return { ok: false, log: errLog };
+            }
+            parsedArgs = candidate as Record<string, unknown>;
+          } catch (err) {
+            const errLog = JSON.stringify(
+              {
+                jsonrpc: "2.0",
+                error: {
+                  code: -32700,
+                  message:
+                    err instanceof Error
+                      ? err.message
+                      : "Malformed JSON arguments",
+                },
+              },
+              null,
+              2,
+            );
+            set({ mcpLog: errLog });
+            return { ok: false, log: errLog };
+          }
+        }
+
         const { nodes, edges } = composeGraph(state);
         const metrics = calculateComplexityMetrics(
           nodes,
@@ -377,11 +504,37 @@ export const useStateFlowStore = create<StateFlowState>()(
           preset.baseCost,
         );
 
-        if (toolName === "mutate_state_graph") {
-          const samplePrompt =
-            preset.samplePrompts[preset.samplePrompts.length - 1]?.prompt ||
-            "แทรกขั้นตอนตรวจสอบสต็อกคลังสินค้า";
-          const res = get().executeAiIntention(samplePrompt);
+        let log = "";
+        let generatedCode: string | undefined;
+
+        if (toolName === "read_ssot_graph") {
+          const includeMetrics = parsedArgs.includeMetrics !== false;
+          log = JSON.stringify(
+            {
+              jsonrpc: "2.0",
+              method: "tools/call",
+              params: {
+                name: "read_ssot_graph",
+                arguments: { includeMetrics },
+              },
+              result: {
+                workflowSlug: preset.workflowSlug,
+                nodeCount: nodes.length,
+                edgeCount: edges.length,
+                ...(includeMetrics ? { metrics } : {}),
+                nodes: nodes.map((n) => ({ id: n.id, label: n.label })),
+              },
+            },
+            null,
+            2,
+          );
+        } else if (toolName === "mutate_state_graph") {
+          const intentArg =
+            typeof parsedArgs.intent === "string" && parsedArgs.intent.trim()
+              ? parsedArgs.intent
+              : preset.samplePrompts[preset.samplePrompts.length - 1]?.prompt ||
+                "แทรกขั้นตอนตรวจสอบสต็อกคลังสินค้า";
+          const res = get().executeAiIntention(intentArg);
           const nextGraph = composeGraph(get());
           const nextMetrics = calculateComplexityMetrics(
             nextGraph.nodes,
@@ -389,56 +542,93 @@ export const useStateFlowStore = create<StateFlowState>()(
             preset.quotaLimit,
             preset.baseCost,
           );
-
-          set({
-            mcpLog: JSON.stringify(
-              {
-                jsonrpc: "2.0",
-                method: "tools/call",
-                params: {
-                  name: "mutate_state_graph",
-                  arguments: {
-                    intent: samplePrompt,
-                    autoCalculateCost: true,
-                  },
-                },
-                result: {
-                  status: "AST_UPDATED",
-                  summary: res.summary,
-                  newQuotaPoints: nextMetrics.points,
-                  estimatedCostTHB: nextMetrics.cost,
-                },
+          log = JSON.stringify(
+            {
+              jsonrpc: "2.0",
+              method: "tools/call",
+              params: {
+                name: "mutate_state_graph",
+                arguments: { intent: intentArg, autoCalculateCost: true },
               },
-              null,
-              2,
-            ),
-          });
+              result: {
+                status: "AST_UPDATED",
+                summary: res.summary,
+                newQuotaPoints: nextMetrics.points,
+                estimatedCostTHB: nextMetrics.cost,
+              },
+            },
+            null,
+            2,
+          );
         } else if (toolName === "evaluate_nxn_matrix") {
-          set({
-            mcpLog: JSON.stringify(
-              {
-                jsonrpc: "2.0",
-                method: "tools/call",
-                params: { name: "evaluate_nxn_matrix" },
-                result: {
-                  matrixSize: `${metrics.nodeCount}x${metrics.nodeCount}`,
-                  cyclomaticComplexity: metrics.cyclomatic,
-                  combinatorialTestPaths: metrics.possiblePaths,
-                  quotaPoints: metrics.points,
-                  estimatedCostTHB: metrics.cost,
-                },
+          const includePaths = parsedArgs.includePaths !== false;
+          log = JSON.stringify(
+            {
+              jsonrpc: "2.0",
+              method: "tools/call",
+              params: {
+                name: "evaluate_nxn_matrix",
+                arguments: { includePaths },
               },
-              null,
-              2,
-            ),
-          });
+              result: {
+                matrixSize: `${metrics.nodeCount}x${metrics.nodeCount}`,
+                cyclomaticComplexity: metrics.cyclomatic,
+                combinatorialTestPaths: metrics.possiblePaths,
+                quotaPoints: metrics.points,
+                estimatedCostTHB: metrics.cost,
+                ...(includePaths
+                  ? {
+                      breakdown: {
+                        forward: metrics.forwardCount,
+                        loop: metrics.loopCount,
+                        fallback: metrics.fallbackCount,
+                        leapfrog: metrics.leapfrogCount,
+                      },
+                    }
+                  : {}),
+              },
+            },
+            null,
+            2,
+          );
         } else if (toolName === "generate_qa_playwright") {
-          const first = nodes[0]?.id || "start";
-          const second = nodes[1]?.id || first;
-          set({
-            mcpLog: `// Generated by MCP Tool: generate_qa_playwright()\ntest('Worst Case Loop & Fallback Path (${preset.workflowSlug})', async ({ page }) => {\n  await page.goto('/${preset.id}');\n  await triggerTransition('${first}', '${second}');\n  await simulateLoopCondition('${second}', 2);\n  await expectStateToFallback('${first}');\n});`,
-          });
+          const format =
+            parsedArgs.format === "mermaid" ? "mermaid" : "playwright";
+          generatedCode =
+            format === "mermaid"
+              ? generateMermaidStateDiagram(preset.workflowSlug, nodes, edges)
+              : generatePlaywrightMbtSpec(preset, nodes, edges, metrics);
+          log = generatedCode;
+        } else if (toolName === "optimize_topology") {
+          const opt = get().optimizeGraphCost();
+          log = JSON.stringify(
+            {
+              jsonrpc: "2.0",
+              method: "tools/call",
+              params: {
+                name: "optimize_topology",
+                arguments: { mode: "webhook_queue" },
+              },
+              result: {
+                applied: opt.applied,
+                beforePoints: opt.beforePoints,
+                afterPoints: opt.afterPoints,
+                savingsThb: opt.savingsThb,
+                removedFallbackCount: opt.removedFallbackIds.length,
+                summary: opt.summary,
+              },
+            },
+            null,
+            2,
+          );
         }
+
+        set({ mcpLog: log });
+        return { ok: true, log, generatedCode };
+      },
+
+      triggerMcpTool: (toolName) => {
+        get().runMcpToolWithParams(toolName);
       },
 
       resetWorkflow: () => {

@@ -1,9 +1,17 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 import {
+  generateMermaidStateDiagram,
+  generatePlaywrightMbtSpec,
+  generateQuotationReportMarkdown,
+} from "../../app/projects/(micro-apps)/stateflow-ai/engine/codegenEngine";
+import {
   ARCHITECTURAL_BASE_FEE_THB,
   COMPLEXITY_WEIGHTS,
   COST_PER_POINT_THB,
+  applyWebhookCostOptimization,
   calculateComplexityMetrics,
+  localDeterministicIntentAdapter,
+  parseCompoundNaturalLanguageIntent,
   parseNaturalLanguageIntent,
   validateAndParseAstJson,
 } from "../../app/projects/(micro-apps)/stateflow-ai/engine/complexityEngine";
@@ -276,6 +284,180 @@ describe("StateFlow AI Complexity Engine & Store", () => {
 
     store.triggerMcpTool("generate_qa_playwright");
     state = useStateFlowStore.getState();
-    expect(state.mcpLog).toContain("generate_qa_playwright");
+    expect(state.mcpLog).toContain("@playwright/test");
+    expect(state.mcpLog).toContain("StateFlow SSOT MBT Suite");
+  });
+
+  it("parses compound multi-clause intents cleanly via localDeterministicIntentAdapter", () => {
+    const store = useStateFlowStore.getState();
+    const initialGraph = composeGraph(store);
+
+    const compound = parseCompoundNaturalLanguageIntent(
+      "เพิ่มขั้นตอน e-KYC สแกนหน้า แล้วเพิ่มระบบเช็คสต็อกคลังสินค้า",
+      initialGraph.nodes,
+      0,
+    );
+    expect(compound.nodes.length).toBe(2);
+    expect(compound.nodes[0].label).toContain("e-KYC Verify");
+    expect(compound.nodes[1].label).toContain("Warehouse Lock");
+    expect(compound.edges.length).toBe(8);
+
+    const uniqueEdgeIds = new Set(compound.edges.map((e) => e.id));
+    expect(uniqueEdgeIds.size).toBe(8);
+
+    const adapterResult = localDeterministicIntentAdapter.parse(
+      "เพิ่ม Fast Lane VIP แล้วตรวจสอบเครดิตบูโร",
+      initialGraph.nodes,
+      2,
+    ) as ReturnType<typeof parseCompoundNaturalLanguageIntent>;
+    expect(adapterResult.nodes.length).toBe(2);
+
+    const storeExec = store.executeAiIntention(
+      "เพิ่มขั้นตอน e-KYC สแกนหน้า แล้วเพิ่มระบบเช็คสต็อกคลังสินค้า",
+    );
+    expect(storeExec.ok).toBe(true);
+    expect(useStateFlowStore.getState().customNodes.length).toBe(2);
+  });
+
+  it("applies executable Webhook Queue cost optimization and supports 1-click undo", () => {
+    const store = useStateFlowStore.getState();
+    const beforeGraph = composeGraph(store);
+    const beforeMetrics = calculateComplexityMetrics(
+      beforeGraph.nodes,
+      beforeGraph.edges,
+      WORKFLOW_PRESETS.ecommerce.quotaLimit,
+      WORKFLOW_PRESETS.ecommerce.baseCost,
+    );
+
+    const preview = applyWebhookCostOptimization(
+      beforeGraph.nodes,
+      beforeGraph.edges,
+      WORKFLOW_PRESETS.ecommerce.quotaLimit,
+      WORKFLOW_PRESETS.ecommerce.baseCost,
+    );
+    expect(preview.applied).toBe(true);
+    expect(preview.savingsThb).toBeGreaterThan(0);
+    expect(preview.afterPoints).toBeLessThan(preview.beforePoints);
+
+    const result = store.optimizeGraphCost();
+    expect(result.applied).toBe(true);
+    const optimizedState = useStateFlowStore.getState();
+    expect(optimizedState.undoSnapshot).not.toBeNull();
+    expect(optimizedState.baseNodes.some((n) => n.id === "webhook_queue")).toBe(
+      true,
+    );
+
+    // Calling optimize a second time skips safely
+    const secondRun = optimizedState.optimizeGraphCost();
+    expect(secondRun.applied).toBe(false);
+
+    // Undo restores exact prior metrics
+    const undone = useStateFlowStore.getState().undoLastGraphChange();
+    expect(undone).toBe(true);
+    const restoredGraph = composeGraph(useStateFlowStore.getState());
+    const restoredMetrics = calculateComplexityMetrics(
+      restoredGraph.nodes,
+      restoredGraph.edges,
+      WORKFLOW_PRESETS.ecommerce.quotaLimit,
+      WORKFLOW_PRESETS.ecommerce.baseCost,
+    );
+    expect(restoredMetrics.points).toBe(beforeMetrics.points);
+    expect(restoredMetrics.cost).toBe(beforeMetrics.cost);
+  });
+
+  it("synthesizes Playwright MBT specs, Mermaid stateDiagram-v2, and Markdown quotation reports", () => {
+    const store = useStateFlowStore.getState();
+    store.toggleAddon("vip");
+    const state = useStateFlowStore.getState();
+    const preset = WORKFLOW_PRESETS[state.presetId];
+    const { nodes, edges } = composeGraph(state);
+    const metrics = calculateComplexityMetrics(
+      nodes,
+      edges,
+      preset.quotaLimit,
+      preset.baseCost,
+    );
+
+    const pwSpec = generatePlaywrightMbtSpec(preset, nodes, edges, metrics);
+    expect(pwSpec).toContain('import { test, expect } from "@playwright/test"');
+    expect(pwSpec).toContain("1. Happy Path");
+    expect(pwSpec).toContain("2. Leapfrog Bypass Paths");
+    expect(pwSpec).toContain("3. Retry Loop Boundaries");
+    expect(pwSpec).toContain("4. Fallback Rollbacks");
+
+    const mermaid = generateMermaidStateDiagram(
+      preset.workflowSlug,
+      nodes,
+      edges,
+    );
+    expect(mermaid).toContain("stateDiagram-v2");
+    expect(mermaid).toContain("[*] --> draft");
+    expect(mermaid).toContain("[LEAPFROG]");
+
+    const report = generateQuotationReportMarkdown(
+      preset,
+      nodes,
+      edges,
+      metrics,
+    );
+    expect(report).toContain(
+      "# StateFlow AI Executive Quotation & Complexity Report",
+    );
+    expect(report).toContain("143,000 THB");
+    expect(report).toContain("380 / 500 Pts");
+  });
+
+  it("runs all 5 interactive MCP tools with argument validation", () => {
+    const store = useStateFlowStore.getState();
+
+    // Invalid JSON rejected
+    const badJson = store.runMcpToolWithParams("read_ssot_graph", "{ broken");
+    expect(badJson.ok).toBe(false);
+    expect(badJson.log).toContain("-32700");
+
+    // Non-object params rejected
+    const arrayJson = store.runMcpToolWithParams("read_ssot_graph", "[1,2]");
+    expect(arrayJson.ok).toBe(false);
+    expect(arrayJson.log).toContain("-32602");
+
+    // read_ssot_graph
+    const readRes = store.runMcpToolWithParams(
+      "read_ssot_graph",
+      JSON.stringify({ includeMetrics: true }),
+    );
+    expect(readRes.ok).toBe(true);
+    expect(readRes.log).toContain("ecommerce_checkout_ssot");
+
+    // mutate_state_graph with custom intent
+    const mutateRes = store.runMcpToolWithParams(
+      "mutate_state_graph",
+      JSON.stringify({ intent: "เพิ่มตรวจเครดิตบูโร", autoCalculateCost: true }),
+    );
+    expect(mutateRes.ok).toBe(true);
+    expect(mutateRes.log).toContain("AST_UPDATED");
+
+    // evaluate_nxn_matrix
+    const matrixRes = store.runMcpToolWithParams(
+      "evaluate_nxn_matrix",
+      JSON.stringify({ includePaths: true }),
+    );
+    expect(matrixRes.ok).toBe(true);
+    expect(matrixRes.log).toContain("combinatorialTestPaths");
+
+    // generate_qa_playwright (mermaid mode)
+    const mermaidRes = store.runMcpToolWithParams(
+      "generate_qa_playwright",
+      JSON.stringify({ format: "mermaid" }),
+    );
+    expect(mermaidRes.ok).toBe(true);
+    expect(mermaidRes.generatedCode).toContain("stateDiagram-v2");
+
+    // optimize_topology
+    const optRes = store.runMcpToolWithParams(
+      "optimize_topology",
+      JSON.stringify({ mode: "webhook_queue" }),
+    );
+    expect(optRes.ok).toBe(true);
+    expect(optRes.log).toContain('"applied": true');
   });
 });

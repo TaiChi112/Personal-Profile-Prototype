@@ -1,5 +1,8 @@
 import type {
   ComplexityMetrics,
+  CompoundIntentResult,
+  IntentParserAdapter,
+  OptimizationResult,
   ParsedIntentResult,
   StateEdge,
   StateNode,
@@ -134,7 +137,7 @@ export function parseNaturalLanguageIntent(
       nodeIds.length >= 4 ? nodeIds[nodeIds.length - 2] : endAnchorId;
     const edges: StateEdge[] = [
       {
-        id: `ai_${ts}_1`,
+        id: `ai_${ts}_${suffix}_1`,
         from: midAnchorId,
         to: bypassNode.id,
         label: "เข้าเงื่อนไขทางด่วน",
@@ -142,7 +145,7 @@ export function parseNaturalLanguageIntent(
         prob: "12%",
       },
       {
-        id: `ai_${ts}_2`,
+        id: `ai_${ts}_${suffix}_2`,
         from: bypassNode.id,
         to: targetId,
         label: "อนุมัติข้ามขั้นตอน",
@@ -150,7 +153,7 @@ export function parseNaturalLanguageIntent(
         prob: "92%",
       },
       {
-        id: `ai_${ts}_3`,
+        id: `ai_${ts}_${suffix}_3`,
         from: bypassNode.id,
         to: fallbackStartId,
         label: "สิทธิ์หมดอายุ (กลับเริ่มต้น)",
@@ -213,7 +216,7 @@ export function parseNaturalLanguageIntent(
 
   const edges: StateEdge[] = [
     {
-      id: `ai_${ts}_1`,
+      id: `ai_${ts}_${suffix}_1`,
       from: fromId,
       to: newNode.id,
       label: `เข้าสู่ ${label}`,
@@ -221,7 +224,7 @@ export function parseNaturalLanguageIntent(
       prob: "14%",
     },
     {
-      id: `ai_${ts}_2`,
+      id: `ai_${ts}_${suffix}_2`,
       from: newNode.id,
       to: toId,
       label: forwardLabel,
@@ -229,7 +232,7 @@ export function parseNaturalLanguageIntent(
       prob: "75%",
     },
     {
-      id: `ai_${ts}_3`,
+      id: `ai_${ts}_${suffix}_3`,
       from: newNode.id,
       to: newNode.id,
       label: loopLabel,
@@ -237,7 +240,7 @@ export function parseNaturalLanguageIntent(
       prob: "18%",
     },
     {
-      id: `ai_${ts}_4`,
+      id: `ai_${ts}_${suffix}_4`,
       from: newNode.id,
       to: fallbackStartId,
       label: fallbackLabel,
@@ -331,4 +334,164 @@ export function validateAndParseAstJson(rawJson: string): {
       error: err instanceof Error ? err.message : "Invalid JSON AST",
     };
   }
+}
+
+/**
+ * Multi-clause NLP intention parser splitting compound prompts cleanly while preserving single-clause parity.
+ */
+export function parseCompoundNaturalLanguageIntent(
+  promptText: string,
+  existingNodes: StateNode[],
+  customSeqNumber: number,
+): CompoundIntentResult {
+  const clauses = promptText
+    .split(/(?:แล้ว|ต่อด้วย|พร้อมทั้ง|\band\b|\bthen\b|;|,)/i)
+    .map((part) => part.trim())
+    .filter((part) => part.length > 1);
+
+  const effectiveClauses =
+    clauses.length > 0 ? clauses.slice(0, 4) : [promptText.trim()];
+
+  const addedNodes: StateNode[] = [];
+  const addedEdges: StateEdge[] = [];
+  let runningNodes = [...existingNodes];
+  let seq = customSeqNumber;
+
+  for (const clause of effectiveClauses) {
+    const parsed = parseNaturalLanguageIntent(clause, runningNodes, seq);
+    addedNodes.push(parsed.node);
+    addedEdges.push(...parsed.edges);
+    runningNodes = [...runningNodes, parsed.node];
+    seq += 1;
+  }
+
+  const summary =
+    addedNodes.length === 1
+      ? `AI แปลงคำสั่งสำเร็จ: เพิ่มโหนด ${addedNodes[0].label} (${addedEdges.length} เส้นทาง)`
+      : `AI แปลงคำสั่งแบบต่อเนื่อง (${addedNodes.length} ขั้นตอน): ${addedNodes.map((n) => n.label).join(" -> ")}`;
+
+  return {
+    nodes: addedNodes,
+    edges: addedEdges,
+    summary,
+  };
+}
+
+/**
+ * Adapter seam matching external AI SDK / Server intent engines without UI coupling.
+ */
+export const localDeterministicIntentAdapter: IntentParserAdapter = {
+  id: "local-deterministic-nlp-v2",
+  parse(promptText, existingNodes, customSeqNumber) {
+    return parseCompoundNaturalLanguageIntent(
+      promptText,
+      existingNodes,
+      customSeqNumber,
+    );
+  },
+};
+
+/**
+ * Executable Topology Cost Optimizer: replaces cyclic backward fallbacks (>= 2) with
+ * a unidirectional Webhook Dead-Letter Queue sink to reduce test explosion and THB cost.
+ */
+export function applyWebhookCostOptimization(
+  nodes: StateNode[],
+  edges: StateEdge[],
+  quotaLimit = 500,
+  referenceBaseCost = 125000,
+): OptimizationResult {
+  const before = calculateComplexityMetrics(
+    nodes,
+    edges,
+    quotaLimit,
+    referenceBaseCost,
+  );
+
+  const fallbackEdges = edges.filter((e) => e.type === "fallback");
+  const alreadyHasWebhook = nodes.some((n) => n.id === "webhook_queue");
+
+  if (fallbackEdges.length < 2 || alreadyHasWebhook) {
+    return {
+      applied: false,
+      beforePoints: before.points,
+      afterPoints: before.points,
+      beforeCost: before.cost,
+      afterCost: before.cost,
+      savingsThb: 0,
+      removedFallbackIds: [],
+      summary: alreadyHasWebhook
+        ? "ระบบเปิดใช้งาน Webhook Queue อยู่แล้ว ไม่พบเส้น Fallback ซ้ำซ้อนเพิ่มเติม"
+        : "กราฟปัจจุบันมีเส้น Fallback น้อยกว่า 2 เส้น จึงยังคุ้มค่ากว่าการใช้ Webhook Queue",
+      nextNodes: nodes.map((n) => ({ ...n })),
+      nextEdges: edges.map((e) => ({ ...e })),
+    };
+  }
+
+  const removedIds = fallbackEdges.map((e) => e.id);
+  const removedSet = new Set(removedIds);
+  const uniqueSources = Array.from(new Set(fallbackEdges.map((e) => e.from)));
+
+  const webhookNode: StateNode = {
+    id: "webhook_queue",
+    label: "Webhook Dead-Letter Queue",
+    sub: "พักงานอัตโนมัติทางเดียว (Async)",
+    x: 490,
+    y: 500,
+    traffic: "8%",
+    isAddon: true,
+  };
+
+  const forwardSinkEdges: StateEdge[] = uniqueSources.map((sourceId, idx) => ({
+    id: `opt_wh_${idx + 1}`,
+    from: sourceId,
+    to: webhookNode.id,
+    label: "ส่งเข้า Webhook Queue",
+    type: "forward",
+    prob: "5%",
+  }));
+
+  const nextNodes = [...nodes.map((n) => ({ ...n })), webhookNode];
+  const nextEdges = [
+    ...edges.filter((e) => !removedSet.has(e.id)).map((e) => ({ ...e })),
+    ...forwardSinkEdges,
+  ];
+
+  const after = calculateComplexityMetrics(
+    nextNodes,
+    nextEdges,
+    quotaLimit,
+    referenceBaseCost,
+  );
+
+  const savingsThb = before.cost - after.cost;
+  if (after.points >= before.points || savingsThb <= 0) {
+    return {
+      applied: false,
+      beforePoints: before.points,
+      afterPoints: before.points,
+      beforeCost: before.cost,
+      afterCost: before.cost,
+      savingsThb: 0,
+      removedFallbackIds: [],
+      summary: "โครงสร้างกราฟปัจจุบันคุ้มค่ากว่าการแยก Webhook Queue แล้ว",
+      nextNodes: nodes.map((n) => ({ ...n })),
+      nextEdges: edges.map((e) => ({ ...e })),
+    };
+  }
+
+  return {
+    applied: true,
+    beforePoints: before.points,
+    afterPoints: after.points,
+    beforeCost: before.cost,
+    afterCost: after.cost,
+    savingsThb,
+    removedFallbackIds: removedIds,
+    addedNode: webhookNode,
+    addedEdges: forwardSinkEdges,
+    summary: `รวบ ${removedIds.length} เส้น Fallback เป็น Webhook Queue ลดความซับซ้อนลง ${before.points - after.points} Pts ประหยัดงบได้ ${savingsThb.toLocaleString()} THB`,
+    nextNodes,
+    nextEdges,
+  };
 }

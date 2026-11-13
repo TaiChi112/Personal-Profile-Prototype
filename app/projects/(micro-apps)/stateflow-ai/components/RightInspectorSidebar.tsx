@@ -7,21 +7,45 @@ import {
   Check,
   CheckCircle2,
   Copy,
+  Download,
+  FileCode2,
+  GitBranch,
   Lightbulb,
   Play,
   Plug,
   Rocket,
   Terminal,
+  Undo2,
   Zap,
 } from "lucide-react";
+import {
+  generateMermaidStateDiagram,
+  generatePlaywrightMbtSpec,
+  generateQuotationReportMarkdown,
+} from "../engine/codegenEngine";
 import {
   ARCHITECTURAL_BASE_FEE_THB,
   COMPLEXITY_WEIGHTS,
   COST_PER_POINT_THB,
+  applyWebhookCostOptimization,
   calculateComplexityMetrics,
 } from "../engine/complexityEngine";
+import type { McpToolName } from "../engine/types";
 import { WORKFLOW_PRESETS } from "../store/presets";
 import { composeGraph, useStateFlowStore } from "../store/useStateFlowStore";
+
+function downloadTextFile(filename: string, content: string, mimeType: string) {
+  if (typeof window === "undefined") return;
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
 
 export function RightInspectorSidebar() {
   const state = useStateFlowStore();
@@ -97,6 +121,34 @@ export function RightInspectorSidebar() {
   const [devJsonInput, setDevJsonInput] = useState(astPayloadString);
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [qaSubTab, setQaSubTab] = useState<"paths" | "playwright" | "mermaid">(
+    "paths",
+  );
+  const [qaCopied, setQaCopied] = useState(false);
+  const [mcpArgsInput, setMcpArgsInput] = useState(
+    '{\n  "includeMetrics": true,\n  "format": "playwright"\n}',
+  );
+
+  const optimizationPreview = useMemo(
+    () =>
+      applyWebhookCostOptimization(
+        nodes,
+        edges,
+        preset.quotaLimit,
+        preset.baseCost,
+      ),
+    [nodes, edges, preset.quotaLimit, preset.baseCost],
+  );
+
+  const playwrightCode = useMemo(
+    () => generatePlaywrightMbtSpec(preset, nodes, edges, metrics),
+    [preset, nodes, edges, metrics],
+  );
+
+  const mermaidCode = useMemo(
+    () => generateMermaidStateDiagram(preset.workflowSlug, nodes, edges),
+    [preset.workflowSlug, nodes, edges],
+  );
 
   useEffect(() => {
     setDevJsonInput(astPayloadString);
@@ -112,15 +164,20 @@ export function RightInspectorSidebar() {
     }
   };
 
-  const handleCopyJson = async () => {
+  const handleCopyText = async (
+    text: string,
+    setFlag: (val: boolean) => void,
+  ) => {
     try {
-      await navigator.clipboard.writeText(devJsonInput);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      await navigator.clipboard.writeText(text);
+      setFlag(true);
+      setTimeout(() => setFlag(false), 1500);
     } catch {
-      setCopied(false);
+      setFlag(false);
     }
   };
+
+  const handleCopyJson = () => handleCopyText(devJsonInput, setCopied);
 
   const getRoleHeader = () => {
     switch (state.activeRole) {
@@ -246,19 +303,87 @@ export function RightInspectorSidebar() {
                 </p>
               </div>
 
-              {(metrics.fallbackCount >= 3 || state.customNodes.length > 0) && (
-                <div className="mt-3 p-2.5 rounded-lg bg-slate-950/90 border border-emerald-500/30">
-                  <div className="text-[11px] font-bold text-emerald-400 mb-1 flex items-center gap-1.5">
+              {optimizationPreview.applied ? (
+                <div className="mt-3 p-2.5 rounded-lg bg-slate-950/90 border border-emerald-500/30 space-y-2">
+                  <div className="text-[11px] font-bold text-emerald-400 flex items-center gap-1.5">
                     <Lightbulb className="w-3.5 h-3.5" />
                     <span>AI แนะนำทางเลือกที่ถูกกว่า (Cost Optimization):</span>
                   </div>
                   <p className="text-[11px] text-slate-300">
-                    แทนที่จะสร้างลูปย้อนกลับไปมาหลาย State แนะนำให้ใช้{" "}
-                    <strong>Webhook Queue แบบทางเดียว</strong> จะช่วยลดเส้น
-                    Fallback ลงได้ 2-3 เส้น ประหยัดงบได้ <strong>28,500 THB</strong>
+                    แทนที่จะสร้างลูป Fallback ย้อนกลับหลายเส้น แนะนำให้รวบ{" "}
+                    <strong>
+                      {optimizationPreview.removedFallbackIds.length} เส้น
+                    </strong>{" "}
+                    เข้า <strong>Webhook Queue ทางเดียว</strong> ลดลงเหลือ{" "}
+                    <strong>{optimizationPreview.afterPoints} Pts</strong>{" "}
+                    ประหยัดงบได้{" "}
+                    <strong>
+                      {optimizationPreview.savingsThb.toLocaleString()} THB
+                    </strong>
                   </p>
+                  <button
+                    type="button"
+                    onClick={() => state.optimizeGraphCost()}
+                    className="w-full py-1.5 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>Apply Webhook Optimization Now</span>
+                  </button>
                 </div>
+              ) : (
+                state.undoSnapshot && (
+                  <div className="mt-3 p-2.5 rounded-lg bg-slate-950/90 border border-amber-500/30 flex items-center justify-between gap-2">
+                    <span className="text-[11px] text-amber-300">
+                      ปรับโครงสร้างกราฟล่าสุดแล้ว
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => state.undoLastGraphChange()}
+                      className="text-[11px] bg-slate-800 hover:bg-slate-700 text-amber-300 px-2.5 py-1 rounded-md border border-slate-700 inline-flex items-center gap-1 cursor-pointer shrink-0"
+                    >
+                      <Undo2 className="w-3 h-3" />
+                      <span>Undo</span>
+                    </button>
+                  </div>
+                )
               )}
+            </div>
+
+            {/* Executive Export Actions */}
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  downloadTextFile(
+                    `${preset.workflowSlug}-quotation.md`,
+                    generateQuotationReportMarkdown(
+                      preset,
+                      nodes,
+                      edges,
+                      metrics,
+                    ),
+                    "text/markdown;charset=utf-8",
+                  )
+                }
+                className="py-2 px-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-[11px] font-medium text-indigo-300 flex items-center justify-center gap-1.5 cursor-pointer transition"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Export Report (.md)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  downloadTextFile(
+                    `${preset.workflowSlug}-ssot.json`,
+                    astPayloadString,
+                    "application/json;charset=utf-8",
+                  )
+                }
+                className="py-2 px-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-[11px] font-medium text-emerald-300 flex items-center justify-center gap-1.5 cursor-pointer transition"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Export AST (.json)</span>
+              </button>
             </div>
 
             {/* Graph-Driven Transparent Cost Breakdown */}
@@ -360,59 +485,148 @@ export function RightInspectorSidebar() {
 
         {state.activeRole === "qa" && (
           <>
-            <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/30">
-              <div className="text-xs font-bold text-emerald-300 mb-1 flex items-center gap-1.5">
-                <Rocket className="w-3.5 h-3.5" />
-                <span>1. Best Case (Happy Path)</span>
-              </div>
-              <div className="text-[11px] font-mono text-slate-300 bg-slate-950 p-2 rounded">
-                {nodes.map((n) => n.label).join(" -> ")}
-              </div>
+            <div className="flex bg-slate-950 p-1 rounded-lg border border-slate-800 gap-1">
+              {(
+                [
+                  { id: "paths", label: "Test Paths", Icon: Rocket },
+                  { id: "playwright", label: "Playwright", Icon: FileCode2 },
+                  { id: "mermaid", label: "Mermaid", Icon: GitBranch },
+                ] as const
+              ).map(({ id, label, Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setQaSubTab(id)}
+                  className={`flex-1 py-1.5 px-2 rounded-md text-[11px] font-medium inline-flex items-center justify-center gap-1 cursor-pointer transition ${
+                    qaSubTab === id
+                      ? "bg-indigo-600 text-white"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
+                  }`}
+                >
+                  <Icon className="w-3 h-3" />
+                  <span>{label}</span>
+                </button>
+              ))}
             </div>
 
-            <div className="p-3 rounded-xl bg-purple-950/20 border border-purple-500/30">
-              <div className="text-xs font-bold text-purple-300 mb-1 flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5" />
-                <span>2. Leapfrog / Bypass Cases ({leapfrogEdges.length})</span>
-              </div>
-              <div className="text-[11px] font-mono text-slate-300 bg-slate-950 p-2 rounded space-y-1">
-                {leapfrogEdges.length > 0 ? (
-                  leapfrogEdges.map((le) => (
-                    <div key={le.id}>
-                      {le.from} -&gt; [{le.label}] -&gt; {le.to}
-                    </div>
-                  ))
-                ) : (
-                  <span className="text-slate-400">
-                    ยังไม่ได้เปิดใช้งานเงื่อนไขข้าม State (Leapfrog)
+            {qaSubTab === "paths" && (
+              <>
+                <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/30">
+                  <div className="text-xs font-bold text-emerald-300 mb-1 flex items-center gap-1.5">
+                    <Rocket className="w-3.5 h-3.5" />
+                    <span>1. Best Case (Happy Path)</span>
+                  </div>
+                  <div className="text-[11px] font-mono text-slate-300 bg-slate-950 p-2 rounded">
+                    {nodes.map((n) => n.label).join(" -> ")}
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-purple-950/20 border border-purple-500/30">
+                  <div className="text-xs font-bold text-purple-300 mb-1 flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>
+                      2. Leapfrog / Bypass Cases ({leapfrogEdges.length})
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-mono text-slate-300 bg-slate-950 p-2 rounded space-y-1">
+                    {leapfrogEdges.length > 0 ? (
+                      leapfrogEdges.map((le) => (
+                        <div key={le.id}>
+                          {le.from} -&gt; [{le.label}] -&gt; {le.to}
+                        </div>
+                      ))
+                    ) : (
+                      <span className="text-slate-400">
+                        ยังไม่ได้เปิดใช้งานเงื่อนไขข้าม State (Leapfrog)
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-rose-950/20 border border-rose-500/30">
+                  <div className="text-xs font-bold text-rose-300 mb-1 flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    <span>
+                      3. Worst / Edge Cases ({loopAndFallbackEdges.length})
+                    </span>
+                  </div>
+                  <ul className="text-[11px] font-mono text-slate-300 space-y-1.5 bg-slate-950 p-2.5 rounded">
+                    {loopAndFallbackEdges.map((edge) => (
+                      <li
+                        key={edge.id}
+                        className={
+                          edge.type === "fallback"
+                            ? "text-rose-300"
+                            : "text-amber-300"
+                        }
+                      >
+                        [{edge.type.toUpperCase()}] {edge.from} -&gt; {edge.to}{" "}
+                        ({edge.label})
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
+
+            {qaSubTab !== "paths" && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-semibold text-slate-300">
+                    {qaSubTab === "playwright"
+                      ? "Generated Playwright MBT (.spec.ts)"
+                      : "Generated Mermaid stateDiagram-v2"}
                   </span>
-                )}
+                  <div className="flex gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleCopyText(
+                          qaSubTab === "playwright"
+                            ? playwrightCode
+                            : mermaidCode,
+                          setQaCopied,
+                        )
+                      }
+                      className="text-[11px] bg-slate-800 hover:bg-slate-700 text-indigo-300 px-2 py-1 rounded-lg inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      {qaCopied ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-400" />
+                          <span>คัดลอกแล้ว</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          <span>คัดลอก</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        downloadTextFile(
+                          qaSubTab === "playwright"
+                            ? `${preset.workflowSlug}.spec.ts`
+                            : `${preset.workflowSlug}.mmd`,
+                          qaSubTab === "playwright"
+                            ? playwrightCode
+                            : mermaidCode,
+                          "text/plain;charset=utf-8",
+                        )
+                      }
+                      className="text-[11px] bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded-lg inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>Download</span>
+                    </button>
+                  </div>
+                </div>
+                <pre className="text-[10px] font-mono bg-slate-950 p-3 rounded-xl border border-slate-800 text-emerald-300 overflow-x-auto max-h-80 leading-relaxed">
+                  {qaSubTab === "playwright" ? playwrightCode : mermaidCode}
+                </pre>
               </div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-rose-950/20 border border-rose-500/30">
-              <div className="text-xs font-bold text-rose-300 mb-1 flex items-center gap-1.5">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                <span>
-                  3. Worst / Edge Cases ({loopAndFallbackEdges.length})
-                </span>
-              </div>
-              <ul className="text-[11px] font-mono text-slate-300 space-y-1.5 bg-slate-950 p-2.5 rounded">
-                {loopAndFallbackEdges.map((edge) => (
-                  <li
-                    key={edge.id}
-                    className={
-                      edge.type === "fallback"
-                        ? "text-rose-300"
-                        : "text-amber-300"
-                    }
-                  >
-                    [{edge.type.toUpperCase()}] {edge.from} -&gt; {edge.to} (
-                    {edge.label})
-                  </li>
-                ))}
-              </ul>
-            </div>
+            )}
           </>
         )}
 
@@ -489,65 +703,100 @@ export function RightInspectorSidebar() {
               </p>
             </div>
 
+            <div>
+              <label
+                htmlFor="mcp-args-input"
+                className="text-[11px] font-semibold text-slate-300 block mb-1"
+              >
+                Tool Arguments (JSON):
+              </label>
+              <textarea
+                id="mcp-args-input"
+                rows={3}
+                value={mcpArgsInput}
+                onChange={(e) => setMcpArgsInput(e.target.value)}
+                className="w-full text-[10px] font-mono bg-slate-950 p-2 rounded-xl border border-slate-800 text-indigo-300 focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+
             <div className="space-y-2">
               <div className="text-xs font-bold text-slate-300">
-                Exposed MCP Tools (คลิกเพื่อจำลองการยิงคำสั่ง):
+                Exposed MCP Tools (คลิกเพื่อรันด้วย JSON Arguments ด้านบน):
               </div>
 
-              <button
-                type="button"
-                onClick={() => state.triggerMcpTool("mutate_state_graph")}
-                className="w-full text-left p-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-indigo-500/50 cursor-pointer transition-all"
-              >
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-mono font-bold text-indigo-400">
-                    1. mutate_state_graph()
-                  </span>
-                  <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded inline-flex items-center gap-1">
-                    Run <Play className="w-2.5 h-2.5" />
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  แปลง Human Intention เป็น JSON Node &amp; Edges
-                  ใหม่โดยไม่ต้องวาดมือ
-                </p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => state.triggerMcpTool("evaluate_nxn_matrix")}
-                className="w-full text-left p-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-amber-500/50 cursor-pointer transition-all"
-              >
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-mono font-bold text-amber-400">
-                    2. evaluate_nxn_matrix()
-                  </span>
-                  <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded inline-flex items-center gap-1">
-                    Run <Play className="w-2.5 h-2.5" />
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  คำนวณผลกระทบ N x N, หา Loop Risk และประเมินราคาส่วนเพิ่ม
-                </p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => state.triggerMcpTool("generate_qa_playwright")}
-                className="w-full text-left p-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all"
-              >
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-mono font-bold text-emerald-400">
-                    3. generate_qa_playwright()
-                  </span>
-                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded inline-flex items-center gap-1">
-                    Run <Play className="w-2.5 h-2.5" />
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  ให้ QA Agent ดึง JSON AST ไปสร้างโค้ด Automated Test ทันที
-                </p>
-              </button>
+              {(
+                [
+                  {
+                    tool: "read_ssot_graph",
+                    title: "1. read_ssot_graph()",
+                    desc: "อ่าน Canonical AST Nodes, Edges และ Complexity Metrics ปัจจุบัน",
+                    colorClass:
+                      "hover:border-cyan-500/50 text-cyan-400 bg-cyan-500/20 text-cyan-300",
+                  },
+                  {
+                    tool: "mutate_state_graph",
+                    title: "2. mutate_state_graph()",
+                    desc: "แปลง Human Intention (ใส่คีย์ intent ใน JSON) เป็น Node & Edges ใหม่",
+                    colorClass:
+                      "hover:border-indigo-500/50 text-indigo-400 bg-indigo-500/20 text-indigo-300",
+                  },
+                  {
+                    tool: "evaluate_nxn_matrix",
+                    title: "3. evaluate_nxn_matrix()",
+                    desc: "คำนวณผลกระทบ N x N, Cyclomatic Complexity และประมาณการต้นทุน THB",
+                    colorClass:
+                      "hover:border-amber-500/50 text-amber-400 bg-amber-500/20 text-amber-300",
+                  },
+                  {
+                    tool: "generate_qa_playwright",
+                    title: "4. generate_qa_playwright()",
+                    desc: 'สังเคราะห์ Playwright .spec.ts หรือ Mermaid (format: "mermaid")',
+                    colorClass:
+                      "hover:border-emerald-500/50 text-emerald-400 bg-emerald-500/20 text-emerald-300",
+                  },
+                  {
+                    tool: "optimize_topology",
+                    title: "5. optimize_topology()",
+                    desc: "รวบเส้น Fallback ซ้ำซ้อนเป็น Webhook Queue ลดความซับซ้อนอัตโนมัติ",
+                    colorClass:
+                      "hover:border-purple-500/50 text-purple-400 bg-purple-500/20 text-purple-300",
+                  },
+                ] as {
+                  tool: McpToolName;
+                  title: string;
+                  desc: string;
+                  colorClass: string;
+                }[]
+              ).map((item) => {
+                const [borderHover, titleColor, badgeBg, badgeText] =
+                  item.colorClass.split(" ");
+                return (
+                  <button
+                    key={item.tool}
+                    type="button"
+                    onClick={() =>
+                      state.runMcpToolWithParams(item.tool, mcpArgsInput)
+                    }
+                    className={`w-full text-left p-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 ${borderHover} cursor-pointer transition-all`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span
+                        className={`text-xs font-mono font-bold ${titleColor}`}
+                      >
+                        {item.title}
+                      </span>
+                      <span
+                        className={`text-[10px] ${badgeBg} ${badgeText} px-1.5 py-0.5 rounded inline-flex items-center gap-1`}
+                      >
+                        Run <Play className="w-2.5 h-2.5" />
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      {item.desc}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
 
             <div>
