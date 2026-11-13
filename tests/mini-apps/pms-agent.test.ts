@@ -1,5 +1,10 @@
 import { describe, expect, it, beforeEach } from "bun:test";
 import {
+  analyzeManagerBias,
+  buildCalibrationQueue,
+  computeBellCurveDistribution,
+} from "../../app/projects/(micro-apps)/pms-agent/engine/calibrationEngine";
+import {
   buildCheckInBotPrompt,
   computeGoalProgressAndDrift,
 } from "../../app/projects/(micro-apps)/pms-agent/engine/driftEngine";
@@ -247,5 +252,74 @@ describe("PMS AI Agent Micro-App Store & State Machine", () => {
     expect(appealed?.status).toBe("DISPUTED");
     expect(state.auditLogs.length).toBeGreaterThan(INITIAL_AUDIT_LOGS.length);
     expect(state.auditLogs[0].action).toBe("EMPLOYEE_APPEAL_RAISED");
+  });
+
+  it("computes BU Bell Curve distribution and detects Manager Leniency/Strictness skew", () => {
+    const store = usePmsStore.getState();
+
+    // Force Engineering manager override +0.8 (3.1 -> 3.9 => LENIENCY_SKEW)
+    store.endorseEvaluation("eval-goal-eng-01", 3.9, "Manual bump");
+    // Force Sales manager override -0.7 (2.2 -> 1.5 => STRICTNESS_SKEW)
+    usePmsStore
+      .getState()
+      .endorseEvaluation("eval-goal-sal-01", 1.5, "Strict legal penalty");
+
+    const updated = usePmsStore.getState();
+    const biasList = analyzeManagerBias(
+      updated.evaluations,
+      MOCK_EMPLOYEES,
+      "ALL",
+    );
+    const engBias = biasList.find((b) => b.department === "Engineering");
+    const salBias = biasList.find((b) => b.department === "Sales");
+    expect(engBias?.skewStatus).toBe("LENIENCY_SKEW");
+    expect(salBias?.skewStatus).toBe("STRICTNESS_SKEW");
+
+    const buckets = computeBellCurveDistribution(
+      updated.evaluations,
+      MOCK_EMPLOYEES,
+      "ALL",
+      updated.calibrationDecisions,
+    );
+    const totalCount = buckets.reduce((sum, b) => sum + b.count, 0);
+    expect(totalCount).toBe(3);
+
+    const maskedQueue = buildCalibrationQueue(
+      updated.evaluations,
+      MOCK_EMPLOYEES,
+      updated.calibrationDecisions,
+      true,
+      "ALL",
+    );
+    expect(maskedQueue.length).toBeGreaterThanOrEqual(2);
+    expect(maskedQueue[0].displayIdentity).toContain("ANON");
+  });
+
+  it("resolves Executive Calibration Committee cases with BU filter and audit logging", () => {
+    const store = usePmsStore.getState();
+    store.setActiveStage("PHASE_4_CALIBRATION");
+    store.setCalibrationBuFilter("Sales");
+    expect(usePmsStore.getState().calibrationBuFilter).toBe("Sales");
+
+    store.resolveCalibrationCase(
+      "goal-sal-01",
+      2.8,
+      "COMMITTEE_ADJUSTED",
+      "Adjusted upward due to external legal bottleneck.",
+    );
+
+    const updated = usePmsStore.getState();
+    expect(updated.calibrationDecisions["goal-sal-01"]?.status).toBe(
+      "COMMITTEE_ADJUSTED",
+    );
+    expect(updated.calibrationDecisions["goal-sal-01"]?.calibratedScore).toBe(
+      2.8,
+    );
+    const updatedEval = updated.evaluations.find(
+      (ev) => ev.goalId === "goal-sal-01",
+    );
+    expect(updatedEval?.managerScore).toBe(2.8);
+    expect(updatedEval?.endorsedBy).toContain("Calibration Committee");
+    expect(updated.auditLogs[0].action).toBe("CALIBRATION_COMMITTEE_DECIDED");
   });
 });

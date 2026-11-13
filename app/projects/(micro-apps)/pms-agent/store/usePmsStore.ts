@@ -4,12 +4,16 @@ import { buildCheckInBotPrompt, buildDriftAlert } from "../engine/driftEngine";
 import { synthesizeEvaluationRecord } from "../engine/evaluationEngine";
 import {
   type AuditLogEntry,
+  type BusinessUnitScope,
+  type CalibrationDecision,
+  type CalibrationDecisionStatus,
   type CheckInChannel,
   type DriftAlert,
   type EvaluationRecord,
   type EvidenceItem,
   type GoalDraft,
   INITIAL_AUDIT_LOGS,
+  INITIAL_CALIBRATION_DECISIONS,
   INITIAL_CHECKINS,
   INITIAL_DRIFT_ALERTS,
   INITIAL_EVALUATIONS,
@@ -28,7 +32,8 @@ export type FilterStatus =
 export type PmsLifecycleStage =
   | "PHASE_1_GOALS"
   | "PHASE_2_IN_CYCLE"
-  | "PHASE_3_EVALUATION";
+  | "PHASE_3_EVALUATION"
+  | "PHASE_4_CALIBRATION";
 
 interface PmsState {
   selectedEmployeeId: string;
@@ -47,6 +52,10 @@ interface PmsState {
   // Phase 3: Evidence-Grounded Evaluation & Self-Review Assistant
   evaluations: EvaluationRecord[];
   auditLogs: AuditLogEntry[];
+
+  // Phase 4: Calibration Analytics & Bias Detection
+  calibrationBuFilter: BusinessUnitScope;
+  calibrationDecisions: Record<string, CalibrationDecision>;
 
   setSelectedEmployeeId: (id: string) => void;
   setFilterStatus: (status: FilterStatus) => void;
@@ -84,6 +93,13 @@ interface PmsState {
     managerNote?: string,
   ) => void;
   submitEvaluationAppeal: (evaluationId: string, appealNote: string) => void;
+  setCalibrationBuFilter: (scope: BusinessUnitScope) => void;
+  resolveCalibrationCase: (
+    goalId: string,
+    calibratedScore: number,
+    decisionStatus: Exclude<CalibrationDecisionStatus, "FLAGGED">,
+    committeeNote: string,
+  ) => void;
   resetToDefaults: () => void;
 }
 
@@ -129,6 +145,8 @@ export const usePmsStore = create<PmsState>()(
       driftAlerts: INITIAL_DRIFT_ALERTS,
       evaluations: INITIAL_EVALUATIONS,
       auditLogs: INITIAL_AUDIT_LOGS,
+      calibrationBuFilter: "ALL",
+      calibrationDecisions: INITIAL_CALIBRATION_DECISIONS,
 
       setSelectedEmployeeId: (id: string) => {
         set({ selectedEmployeeId: id });
@@ -536,6 +554,68 @@ export const usePmsStore = create<PmsState>()(
         });
       },
 
+      setCalibrationBuFilter: (calibrationBuFilter: BusinessUnitScope) => {
+        set({ calibrationBuFilter });
+      },
+
+      resolveCalibrationCase: (
+        goalId: string,
+        calibratedScore: number,
+        decisionStatus: Exclude<CalibrationDecisionStatus, "FLAGGED">,
+        committeeNote: string,
+      ) => {
+        const state = get();
+        const targetEval = state.evaluations.find((ev) => ev.goalId === goalId);
+        if (!targetEval) return;
+
+        const boundedScore = Math.max(
+          1.0,
+          Math.min(5.0, Math.round(calibratedScore * 10) / 10),
+        );
+        const cleanNote =
+          committeeNote.trim() ||
+          "Calibration Committee aligned score against BU Bell Curve.";
+        const now = new Date().toISOString();
+
+        const decision: CalibrationDecision = {
+          goalId,
+          status: decisionStatus,
+          calibratedScore: boundedScore,
+          committeeNote: cleanNote,
+          updatedAt: now,
+        };
+
+        const logEntry: AuditLogEntry = {
+          id: `audit-cal-${Date.now().toString().slice(-5)}`,
+          goalId,
+          employeeId: targetEval.employeeId,
+          actorRole: "EXECUTIVE",
+          action: "CALIBRATION_COMMITTEE_DECIDED",
+          detail: `${decisionStatus}: Final calibrated score ${boundedScore.toFixed(1)}/5.0 (AI proposed ${targetEval.proposedScore.toFixed(1)}) - ${cleanNote}`,
+          timestamp: now,
+        };
+
+        set({
+          calibrationDecisions: {
+            ...state.calibrationDecisions,
+            [goalId]: decision,
+          },
+          evaluations: state.evaluations.map((ev) =>
+            ev.goalId === goalId
+              ? {
+                  ...ev,
+                  managerScore: boundedScore,
+                  managerNote: cleanNote,
+                  status: "ENDORSED_MANAGER",
+                  endorsedBy: "Calibration Committee (Executive HITL)",
+                  updatedAt: now,
+                }
+              : ev,
+          ),
+          auditLogs: [logEntry, ...state.auditLogs],
+        });
+      },
+
       resetToDefaults: () => {
         set({
           selectedEmployeeId: MOCK_EMPLOYEES[0].id,
@@ -550,6 +630,8 @@ export const usePmsStore = create<PmsState>()(
           driftAlerts: INITIAL_DRIFT_ALERTS,
           evaluations: INITIAL_EVALUATIONS,
           auditLogs: INITIAL_AUDIT_LOGS,
+          calibrationBuFilter: "ALL",
+          calibrationDecisions: INITIAL_CALIBRATION_DECISIONS,
         });
       },
     }),

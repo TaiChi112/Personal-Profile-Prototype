@@ -120,15 +120,71 @@ export interface AuditLogEntry {
   id: string;
   goalId: string;
   employeeId: string;
-  actorRole: "AI_AGENT" | "EMPLOYEE" | "MANAGER";
+  actorRole: "AI_AGENT" | "EMPLOYEE" | "MANAGER" | "EXECUTIVE";
   action:
     | "AI_EVALUATION_DRAFTED"
     | "SELF_REVIEW_SUBMITTED"
     | "MANAGER_SCORE_ENDORSED"
     | "MANAGER_SCORE_OVERRIDDEN"
-    | "EMPLOYEE_APPEAL_RAISED";
+    | "EMPLOYEE_APPEAL_RAISED"
+    | "CALIBRATION_COMMITTEE_DECIDED";
   detail: string;
   timestamp: string;
+}
+
+export type BusinessUnitScope = "ALL" | "Engineering" | "Sales" | "Operations";
+
+export type CalibrationDecisionStatus =
+  | "FLAGGED"
+  | "EXECUTIVE_APPROVED"
+  | "COMMITTEE_ADJUSTED";
+
+export type ManagerSkewStatus =
+  | "BALANCED"
+  | "LENIENCY_SKEW"
+  | "STRICTNESS_SKEW";
+
+export interface CalibrationDecision {
+  goalId: string;
+  status: CalibrationDecisionStatus;
+  calibratedScore: number | null;
+  committeeNote: string;
+  updatedAt: string;
+}
+
+export interface BellCurveBucket {
+  key: "EXCEEDS" | "STRONG" | "MEETS" | "BELOW";
+  label: string;
+  rangeLabel: string;
+  targetPct: number;
+  actualPct: number;
+  count: number;
+  deltaPct: number;
+}
+
+export interface ManagerBiasSummary {
+  department: EmployeeProfile["department"];
+  evaluatedCount: number;
+  meanDelta: number;
+  skewStatus: ManagerSkewStatus;
+  flaggedExceptions: number;
+  recommendation: string;
+}
+
+export interface CalibrationAnomalyCase {
+  evaluationId: string;
+  goalId: string;
+  employeeId: string;
+  displayIdentity: string;
+  department: EmployeeProfile["department"];
+  proposedScore: number;
+  managerScore: number | null;
+  effectiveScore: number;
+  deltaFromAi: number;
+  anomalyReason: string;
+  decisionStatus: CalibrationDecisionStatus;
+  calibratedScore: number | null;
+  committeeNote: string;
 }
 
 export interface GoalDraft {
@@ -562,3 +618,8 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     timestamp: "2026-11-13T18:00:00.000Z",
   },
 ];
+
+export const INITIAL_CALIBRATION_DECISIONS: Record<
+  string,
+  CalibrationDecision
+> = {};

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useTransition } from "react";
+import { CalibrationBoard } from "./components/CalibrationBoard";
 import { EmployeeSelector } from "./components/EmployeeSelector";
 import { EvaluationStudio } from "./components/EvaluationStudio";
 import { GoalCard } from "./components/GoalCard";
@@ -170,13 +171,27 @@ export default function PmsAgentPage() {
 
             <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
 
-            {/* Phase 4 */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-400 dark:text-slate-500">
-              <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center text-[10px]">
+            {/* Phase 4: Calibration */}
+            <button
+              type="button"
+              onClick={() => setActiveStage("PHASE_4_CALIBRATION")}
+              className={`flex items-center gap-2.5 px-3.5 py-2 rounded-xl border font-semibold transition-all cursor-pointer ${
+                activeStage === "PHASE_4_CALIBRATION"
+                  ? "bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 shadow-xs"
+                  : "border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+            >
+              <span
+                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  activeStage === "PHASE_4_CALIBRATION"
+                    ? "bg-amber-600 text-white"
+                    : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                }`}
+              >
                 4
               </span>
-              <span>Calibration</span>
-            </div>
+              <span>Phase 4: Calibration</span>
+            </button>
 
             <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
 
@@ -248,6 +263,8 @@ export default function PmsAgentPage() {
           <InCycleTracker />
         ) : activeStage === "PHASE_3_EVALUATION" ? (
           <EvaluationStudio />
+        ) : activeStage === "PHASE_4_CALIBRATION" ? (
+          <CalibrationBoard />
         ) : (
           /* Step 2: Goal Studio Board */
           <section className="flex flex-col gap-4">
@@ -342,7 +359,7 @@ export default function PmsAgentPage() {
             </span>
           </div>
           <div className="font-mono">
-            EPIC-032 · Zero-DB Prototype (Phase 1-3 Active · Evidences:{" "}
+            EPIC-032 · Zero-DB Prototype (Phase 1-4 Active · Evidences:{" "}
             {evidences.length} · Alerts:{" "}
             {driftAlerts.filter((a) => a.severity !== "ON_TRACK").length} ·
             Evaluations: {evaluations.length})

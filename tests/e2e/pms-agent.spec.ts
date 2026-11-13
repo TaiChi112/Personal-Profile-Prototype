@@ -84,6 +84,29 @@ test.describe("PMS AI Agent Phase 2 In-Cycle E2E", () => {
       page.getByText("MANAGER_SCORE_ENDORSED").first(),
     ).toBeVisible();
 
+    // Switch Swimlane to Phase 4 Calibration & finalize Executive Committee decision
+    await page.getByRole("button", { name: /Phase 4: Calibration/ }).click();
+    await expect(
+      page.getByRole("heading", {
+        name: /กระดานสอบเทียบผลประเมิน \(BU Bell Curve\)/,
+      }),
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: "Sales", exact: true }).click();
+    await page.getByLabel("Calibrated score for goal-sal-01").fill("2.8");
+    await page
+      .getByLabel("Committee note for goal-sal-01")
+      .fill("Reconciled external legal SLA delay in committee.");
+    await page
+      .getByRole("button", { name: "Finalize Calibration (HITL)" })
+      .first()
+      .click();
+
+    await expect(page.getByText("COMMITTEE_ADJUSTED").first()).toBeVisible();
+    await expect(
+      page.getByText("Calibration Decisions Logged: 1"),
+    ).toBeVisible();
+
     expect(pageErrors).toEqual([]);
   });
 });
