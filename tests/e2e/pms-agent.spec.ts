@@ -107,6 +107,36 @@ test.describe("PMS AI Agent Phase 2 In-Cycle E2E", () => {
       page.getByText("Calibration Decisions Logged: 1"),
     ).toBeVisible();
 
+    // Switch Swimlane to Phase 5 Publish & IDP Feedback Loop
+    await page.getByRole("button", { name: /Phase 5: Publish & IDP/ }).click();
+    await expect(
+      page.getByRole("heading", {
+        name: /ส่งมอบ Feedback ตาม Tone องค์กร/,
+      }),
+    ).toBeVisible();
+
+    await page
+      .getByRole("button", { name: "Executive Direct & Outcome-Focused" })
+      .click();
+    await expect(
+      page.getByText("Tone: EXECUTIVE_DIRECT").first(),
+    ).toBeVisible();
+
+    await page
+      .getByRole("button", { name: "Approve & Publish Feedback (HR HITL)" })
+      .click();
+    await expect(page.getByText("PUBLISHED").first()).toBeVisible();
+
+    await page
+      .getByRole("button", { name: "Feed IDP into Next Cycle Goals" })
+      .click();
+    await expect(page.getByText("IDP Seeded in Next Cycle")).toBeVisible();
+
+    await page
+      .getByRole("button", { name: "View Next-Cycle Goal in Phase 1" })
+      .click();
+    await expect(page.getByText(/\[IDP Next-Cycle\]/).first()).toBeVisible();
+
     expect(pageErrors).toEqual([]);
   });
 });

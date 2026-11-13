@@ -6,6 +6,7 @@ import { EmployeeSelector } from "./components/EmployeeSelector";
 import { EvaluationStudio } from "./components/EvaluationStudio";
 import { GoalCard } from "./components/GoalCard";
 import { InCycleTracker } from "./components/InCycleTracker";
+import { PublishStudio } from "./components/PublishStudio";
 import { usePmsStore, type FilterStatus } from "./store/usePmsStore";
 import {
   Sparkles,
@@ -195,13 +196,27 @@ export default function PmsAgentPage() {
 
             <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
 
-            {/* Phase 5 */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-400 dark:text-slate-500">
-              <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center text-[10px]">
+            {/* Phase 5: Publish & IDP */}
+            <button
+              type="button"
+              onClick={() => setActiveStage("PHASE_5_PUBLISH")}
+              className={`flex items-center gap-2.5 px-3.5 py-2 rounded-xl border font-semibold transition-all cursor-pointer ${
+                activeStage === "PHASE_5_PUBLISH"
+                  ? "bg-teal-50 dark:bg-teal-950/60 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300 shadow-xs"
+                  : "border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+            >
+              <span
+                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  activeStage === "PHASE_5_PUBLISH"
+                    ? "bg-teal-600 text-white"
+                    : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                }`}
+              >
                 5
               </span>
-              <span>Publish &amp; IDP</span>
-            </div>
+              <span>Phase 5: Publish &amp; IDP</span>
+            </button>
           </div>
         </div>
 
@@ -265,6 +280,8 @@ export default function PmsAgentPage() {
           <EvaluationStudio />
         ) : activeStage === "PHASE_4_CALIBRATION" ? (
           <CalibrationBoard />
+        ) : activeStage === "PHASE_5_PUBLISH" ? (
+          <PublishStudio />
         ) : (
           /* Step 2: Goal Studio Board */
           <section className="flex flex-col gap-4">
@@ -359,7 +376,7 @@ export default function PmsAgentPage() {
             </span>
           </div>
           <div className="font-mono">
-            EPIC-032 · Zero-DB Prototype (Phase 1-4 Active · Evidences:{" "}
+            EPIC-032 · Zero-DB Prototype (Phase 1-5 Complete · Evidences:{" "}
             {evidences.length} · Alerts:{" "}
             {driftAlerts.filter((a) => a.severity !== "ON_TRACK").length} ·
             Evaluations: {evaluations.length})

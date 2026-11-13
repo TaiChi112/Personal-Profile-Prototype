@@ -2,12 +2,14 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { buildCheckInBotPrompt, buildDriftAlert } from "../engine/driftEngine";
 import { synthesizeEvaluationRecord } from "../engine/evaluationEngine";
+import { synthesizePublishPackage } from "../engine/publishEngine";
 import {
   type AuditLogEntry,
   type BusinessUnitScope,
   type CalibrationDecision,
   type CalibrationDecisionStatus,
   type CheckInChannel,
+  type CorporateTone,
   type DriftAlert,
   type EvaluationRecord,
   type EvidenceItem,
@@ -19,8 +21,10 @@ import {
   INITIAL_EVALUATIONS,
   INITIAL_EVIDENCES,
   INITIAL_GOAL_DRAFTS,
+  INITIAL_PUBLISH_PACKAGES,
   MOCK_EMPLOYEES,
   type MonthlyCheckIn,
+  type PublishPackageRecord,
 } from "./mockData";
 
 export type FilterStatus =
@@ -33,7 +37,8 @@ export type PmsLifecycleStage =
   | "PHASE_1_GOALS"
   | "PHASE_2_IN_CYCLE"
   | "PHASE_3_EVALUATION"
-  | "PHASE_4_CALIBRATION";
+  | "PHASE_4_CALIBRATION"
+  | "PHASE_5_PUBLISH";
 
 interface PmsState {
   selectedEmployeeId: string;
@@ -56,6 +61,9 @@ interface PmsState {
   // Phase 4: Calibration Analytics & Bias Detection
   calibrationBuFilter: BusinessUnitScope;
   calibrationDecisions: Record<string, CalibrationDecision>;
+
+  // Phase 5: Publishing, Tone-of-Voice Feedback & Continuous IDP Loop
+  publishPackages: PublishPackageRecord[];
 
   setSelectedEmployeeId: (id: string) => void;
   setFilterStatus: (status: FilterStatus) => void;
@@ -100,6 +108,14 @@ interface PmsState {
     decisionStatus: Exclude<CalibrationDecisionStatus, "FLAGGED">,
     committeeNote: string,
   ) => void;
+  generatePublishPackage: (employeeId: string, tone: CorporateTone) => void;
+  updatePublishPackage: (
+    packageId: string,
+    feedbackText: string,
+    idpActionPlan: string,
+  ) => void;
+  publishFeedbackPackage: (packageId: string) => void;
+  feedIdpToNextCycleGoal: (packageId: string) => GoalDraft | null;
   resetToDefaults: () => void;
 }
 
@@ -147,6 +163,7 @@ export const usePmsStore = create<PmsState>()(
       auditLogs: INITIAL_AUDIT_LOGS,
       calibrationBuFilter: "ALL",
       calibrationDecisions: INITIAL_CALIBRATION_DECISIONS,
+      publishPackages: INITIAL_PUBLISH_PACKAGES,
 
       setSelectedEmployeeId: (id: string) => {
         set({ selectedEmployeeId: id });
@@ -616,6 +633,166 @@ export const usePmsStore = create<PmsState>()(
         });
       },
 
+      generatePublishPackage: (employeeId: string, tone: CorporateTone) => {
+        const state = get();
+        const employee = MOCK_EMPLOYEES.find((e) => e.id === employeeId);
+        if (!employee) return;
+
+        const empGoals = state.goals.filter((g) => g.employeeId === employeeId);
+        if (empGoals.length === 0) return;
+
+        const nextPackages = [...state.publishPackages];
+        for (const goal of empGoals) {
+          const evalRecord = state.evaluations.find(
+            (ev) => ev.goalId === goal.id,
+          );
+          if (!evalRecord) continue;
+
+          const drift = state.driftAlerts.find((d) => d.goalId === goal.id);
+          const prev = nextPackages.find((p) => p.goalId === goal.id);
+          const synthesized = synthesizePublishPackage(
+            goal,
+            employee,
+            evalRecord,
+            state.calibrationDecisions,
+            drift,
+            tone,
+            state.maskPii,
+            prev,
+          );
+
+          const idx = nextPackages.findIndex((p) => p.goalId === goal.id);
+          if (idx >= 0) {
+            nextPackages[idx] = synthesized;
+          } else {
+            nextPackages.unshift(synthesized);
+          }
+        }
+
+        set({ publishPackages: nextPackages });
+      },
+
+      updatePublishPackage: (
+        packageId: string,
+        feedbackText: string,
+        idpActionPlan: string,
+      ) => {
+        const now = new Date().toISOString();
+        set((state) => ({
+          publishPackages: state.publishPackages.map((pkg) =>
+            pkg.id === packageId
+              ? {
+                  ...pkg,
+                  hrEditedFeedback: feedbackText,
+                  idpActionPlan,
+                  updatedAt: now,
+                }
+              : pkg,
+          ),
+        }));
+      },
+
+      publishFeedbackPackage: (packageId: string) => {
+        const state = get();
+        const target = state.publishPackages.find((p) => p.id === packageId);
+        if (!target) return;
+
+        const now = new Date().toISOString();
+        const logEntry: AuditLogEntry = {
+          id: `audit-pub-${Date.now().toString().slice(-5)}`,
+          goalId: target.goalId,
+          employeeId: target.employeeId,
+          actorRole: "HR",
+          action: "FEEDBACK_PUBLISHED_HR",
+          detail: `HR People Partner published ${target.tone} feedback & IDP (Score ${target.calibratedScore.toFixed(1)}/5.0).`,
+          timestamp: now,
+        };
+
+        set({
+          publishPackages: state.publishPackages.map((pkg) =>
+            pkg.id === packageId
+              ? {
+                  ...pkg,
+                  status: "PUBLISHED",
+                  publishedBy: "HR People Partner (HITL)",
+                  updatedAt: now,
+                }
+              : pkg,
+          ),
+          auditLogs: [logEntry, ...state.auditLogs],
+        });
+      },
+
+      feedIdpToNextCycleGoal: (packageId: string) => {
+        const state = get();
+        const target = state.publishPackages.find((p) => p.id === packageId);
+        if (!target) return null;
+
+        const parentGoal = state.goals.find((g) => g.id === target.goalId);
+        if (!parentGoal) return null;
+
+        const nextGoalId = `goal-next-${target.goalId}`;
+        const alreadyExists = state.goals.some((g) => g.id === nextGoalId);
+        const now = new Date().toISOString();
+
+        const seededGoal: GoalDraft = alreadyExists
+          ? state.goals.find((g) => g.id === nextGoalId)!
+          : {
+              id: nextGoalId,
+              employeeId: target.employeeId,
+              title: target.nextCycleGoalTitle,
+              description: `Seeded continuously from Cycle 1 IDP (${target.idpFocusSkill}): ${target.idpActionPlan}`,
+              okrAlignment: parentGoal.okrAlignment,
+              departmentProblem: `Continuous IDP carryover after Cycle 1 calibrated score ${target.calibratedScore.toFixed(1)}/5.0`,
+              kpiBinding: {
+                kpiId: `kpi-next-${parentGoal.kpiBinding.kpiId}`,
+                metricName: parentGoal.kpiBinding.metricName,
+                baselineValue: parentGoal.kpiBinding.targetValue,
+                targetValue: target.nextCycleTargetValue,
+                unit: parentGoal.kpiBinding.unit,
+                dataSourceType: parentGoal.kpiBinding.dataSourceType,
+                dataSourceUri: `${parentGoal.kpiBinding.dataSourceUri}#next-cycle`,
+              },
+              smartValidation: {
+                specific: true,
+                measurable: true,
+                achievable: true,
+                relevant: true,
+                timeBound: true,
+                score: 94,
+                critique: [
+                  "Generated from previous cycle IDP & calibrated outcome.",
+                  "Bound to next-cycle quantitative KPI target and verified URI.",
+                ],
+              },
+              confidenceScore: 0.93,
+              status: "DRAFT_AI",
+              updatedAt: now,
+            };
+
+        const logEntry: AuditLogEntry = {
+          id: `audit-idp-${Date.now().toString().slice(-5)}`,
+          goalId: seededGoal.id,
+          employeeId: target.employeeId,
+          actorRole: "HR",
+          action: "IDP_FED_TO_NEXT_CYCLE",
+          detail: `Fed IDP (${target.idpFocusSkill}) into Phase 1 Next-Cycle Goal Studio [${seededGoal.id}].`,
+          timestamp: now,
+        };
+
+        set({
+          goals: alreadyExists ? state.goals : [seededGoal, ...state.goals],
+          publishPackages: state.publishPackages.map((pkg) =>
+            pkg.id === packageId
+              ? { ...pkg, fedToNextCycle: true, updatedAt: now }
+              : pkg,
+          ),
+          auditLogs: [logEntry, ...state.auditLogs],
+        });
+
+        return seededGoal;
+      },
+
       resetToDefaults: () => {
         set({
           selectedEmployeeId: MOCK_EMPLOYEES[0].id,
@@ -632,6 +809,7 @@ export const usePmsStore = create<PmsState>()(
           auditLogs: INITIAL_AUDIT_LOGS,
           calibrationBuFilter: "ALL",
           calibrationDecisions: INITIAL_CALIBRATION_DECISIONS,
+          publishPackages: INITIAL_PUBLISH_PACKAGES,
         });
       },
     }),

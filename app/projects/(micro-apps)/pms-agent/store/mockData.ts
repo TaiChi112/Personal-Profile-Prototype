@@ -120,14 +120,16 @@ export interface AuditLogEntry {
   id: string;
   goalId: string;
   employeeId: string;
-  actorRole: "AI_AGENT" | "EMPLOYEE" | "MANAGER" | "EXECUTIVE";
+  actorRole: "AI_AGENT" | "EMPLOYEE" | "MANAGER" | "EXECUTIVE" | "HR";
   action:
     | "AI_EVALUATION_DRAFTED"
     | "SELF_REVIEW_SUBMITTED"
     | "MANAGER_SCORE_ENDORSED"
     | "MANAGER_SCORE_OVERRIDDEN"
     | "EMPLOYEE_APPEAL_RAISED"
-    | "CALIBRATION_COMMITTEE_DECIDED";
+    | "CALIBRATION_COMMITTEE_DECIDED"
+    | "FEEDBACK_PUBLISHED_HR"
+    | "IDP_FED_TO_NEXT_CYCLE";
   detail: string;
   timestamp: string;
 }
@@ -185,6 +187,32 @@ export interface CalibrationAnomalyCase {
   decisionStatus: CalibrationDecisionStatus;
   calibratedScore: number | null;
   committeeNote: string;
+}
+
+export type CorporateTone =
+  | "COACHING_GROWTH"
+  | "EXECUTIVE_DIRECT"
+  | "EMPATHETIC_SUPPORT";
+
+export type PublishStatus = "DRAFT_AI" | "PUBLISHED";
+
+export interface PublishPackageRecord {
+  id: string;
+  goalId: string;
+  employeeId: string;
+  calibratedScore: number;
+  tone: CorporateTone;
+  aiFeedbackDraft: string;
+  hrEditedFeedback: string;
+  idpFocusSkill: string;
+  idpActionPlan: string;
+  nextCycleGoalTitle: string;
+  nextCycleTargetValue: number;
+  status: PublishStatus;
+  publishedBy: string | null;
+  fedToNextCycle: boolean;
+  piiMaskedSnapshot: boolean;
+  updatedAt: string;
 }
 
 export interface GoalDraft {
@@ -623,3 +651,72 @@ export const INITIAL_CALIBRATION_DECISIONS: Record<
   string,
   CalibrationDecision
 > = {};
+
+export const INITIAL_PUBLISH_PACKAGES: PublishPackageRecord[] = [
+  {
+    id: "pub-goal-eng-01",
+    goalId: "goal-eng-01",
+    employeeId: "emp-eng-01",
+    calibratedScore: 3.1,
+    tone: "COACHING_GROWTH",
+    aiFeedbackDraft:
+      "เรียน ENG_ANON_8832 (Lead Software Engineer)\n\nขอบคุณสำหรับความมุ่งมั่นตลอดรอบที่ผ่านมา ผลลัพธ์จากข้อมูลจริงสะท้อนพัฒนาการที่วัดผลได้ดังนี้\n\nเป้าหมายหลัก: Reduce Average PR Cycle Time by 50%\n\nคะแนนสุทธิหลัง Calibration: 3.1/5.0 | สถานะการติดตามล่าสุด: ON_TRACK (60% เทียบเป้าหมายรอบ)\n\nข้อมูลตัวชี้วัด Average PR Cycle Time: Baseline 48 Hours -> Target 18 Hours (อ้างอิง github://rsxyz/core-repo/metrics/cycle-time)\n\nแผนพัฒนาเฉพาะบุคคล (IDP Focus - Automated Code Review & CI Pipeline Optimization): จัดทำ Pair-Review Rotation + แยก PR ขนาดเล็ก (< 250 LOC) พร้อม Automate Static Checks เพื่อลด Cycle Time ต่อเนื่อง\n\nในรอบถัดไป ทีมและ HR จะสนับสนุนแผนพัฒนา IDP ด้านล่างเพื่อต่อยอดศักยภาพสู่เป้าหมายที่สูงขึ้น",
+    hrEditedFeedback:
+      "เรียน ENG_ANON_8832 (Lead Software Engineer)\n\nขอบคุณสำหรับความมุ่งมั่นตลอดรอบที่ผ่านมา ผลลัพธ์จากข้อมูลจริงสะท้อนพัฒนาการที่วัดผลได้ดังนี้\n\nเป้าหมายหลัก: Reduce Average PR Cycle Time by 50%\n\nคะแนนสุทธิหลัง Calibration: 3.1/5.0 | สถานะการติดตามล่าสุด: ON_TRACK (60% เทียบเป้าหมายรอบ)\n\nข้อมูลตัวชี้วัด Average PR Cycle Time: Baseline 48 Hours -> Target 18 Hours (อ้างอิง github://rsxyz/core-repo/metrics/cycle-time)\n\nแผนพัฒนาเฉพาะบุคคล (IDP Focus - Automated Code Review & CI Pipeline Optimization): จัดทำ Pair-Review Rotation + แยก PR ขนาดเล็ก (< 250 LOC) พร้อม Automate Static Checks เพื่อลด Cycle Time ต่อเนื่อง\n\nในรอบถัดไป ทีมและ HR จะสนับสนุนแผนพัฒนา IDP ด้านล่างเพื่อต่อยอดศักยภาพสู่เป้าหมายที่สูงขึ้น",
+    idpFocusSkill: "Automated Code Review & CI Pipeline Optimization",
+    idpActionPlan:
+      "จัดทำ Pair-Review Rotation + แยก PR ขนาดเล็ก (< 250 LOC) พร้อม Automate Static Checks เพื่อลด Cycle Time ต่อเนื่อง",
+    nextCycleGoalTitle:
+      "[IDP Next-Cycle] Sustain Elite Engineering Delivery (< 14h PR Cycle)",
+    nextCycleTargetValue: 14.4,
+    status: "DRAFT_AI",
+    publishedBy: null,
+    fedToNextCycle: false,
+    piiMaskedSnapshot: true,
+    updatedAt: "2026-11-13T19:00:00.000Z",
+  },
+  {
+    id: "pub-goal-sal-01",
+    goalId: "goal-sal-01",
+    employeeId: "emp-sal-02",
+    calibratedScore: 2.2,
+    tone: "EMPATHETIC_SUPPORT",
+    aiFeedbackDraft:
+      "เรียน SAL_ANON_4419 (Senior Account Executive)\n\nองค์กรรับทราบถึงความท้าทายและอุปสรรคเชิงระบบในรอบที่ผ่านมา พร้อมขอชื่นชมความพยายามในการผลักดันงานอย่างเต็มที่\n\nเป้าหมายหลัก: Expand Tier-1 Enterprise Accounts & Accelerate Contract Velocity\n\nคะแนนสุทธิหลัง Calibration: 2.2/5.0 | สถานะการติดตามล่าสุด: CRITICAL_DRIFT (22% เทียบเป้าหมายรอบ)\n\nแผนพัฒนาเฉพาะบุคคล (IDP Focus - Executive Legal Playbook & Deal Desk Acceleration): เข้าร่วม Workshop Pre-Approved MSA Clause กับทีม Legal เพื่อลดคอขวดขั้นตอนตรวจสัญญา Enterprise\n\nหัวหน้าและทีม People จะร่วมปลดล็อกคอขวดและจัดสรร Mentor ตามแผน IDP นี้ตั้งแต่สัปดาห์แรกของรอบใหม่",
+    hrEditedFeedback:
+      "เรียน SAL_ANON_4419 (Senior Account Executive)\n\nองค์กรรับทราบถึงความท้าทายและอุปสรรคเชิงระบบในรอบที่ผ่านมา พร้อมขอชื่นชมความพยายามในการผลักดันงานอย่างเต็มที่\n\nเป้าหมายหลัก: Expand Tier-1 Enterprise Accounts & Accelerate Contract Velocity\n\nคะแนนสุทธิหลัง Calibration: 2.2/5.0 | สถานะการติดตามล่าสุด: CRITICAL_DRIFT (22% เทียบเป้าหมายรอบ)\n\nแผนพัฒนาเฉพาะบุคคล (IDP Focus - Executive Legal Playbook & Deal Desk Acceleration): เข้าร่วม Workshop Pre-Approved MSA Clause กับทีม Legal เพื่อลดคอขวดขั้นตอนตรวจสัญญา Enterprise\n\nหัวหน้าและทีม People จะร่วมปลดล็อกคอขวดและจัดสรร Mentor ตามแผน IDP นี้ตั้งแต่สัปดาห์แรกของรอบใหม่",
+    idpFocusSkill: "Executive Legal Playbook & Deal Desk Acceleration",
+    idpActionPlan:
+      "เข้าร่วม Workshop Pre-Approved MSA Clause กับทีม Legal เพื่อลดคอขวดขั้นตอนตรวจสัญญา Enterprise",
+    nextCycleGoalTitle:
+      "[IDP Next-Cycle] Standardize Enterprise Closing Below 28 Days",
+    nextCycleTargetValue: 28,
+    status: "DRAFT_AI",
+    publishedBy: null,
+    fedToNextCycle: false,
+    piiMaskedSnapshot: true,
+    updatedAt: "2026-11-13T19:00:00.000Z",
+  },
+  {
+    id: "pub-goal-ops-01",
+    goalId: "goal-ops-01",
+    employeeId: "emp-ops-03",
+    calibratedScore: 2.6,
+    tone: "COACHING_GROWTH",
+    aiFeedbackDraft:
+      "เรียน OPS_ANON_1120 (Logistics Fulfillment Specialist)\n\nขอบคุณสำหรับความมุ่งมั่นตลอดรอบที่ผ่านมา ผลลัพธ์จากข้อมูลจริงสะท้อนพัฒนาการที่วัดผลได้ดังนี้\n\nเป้าหมายหลัก: Elevate Warehouse On-Time Dispatch SLA to 98%\n\nคะแนนสุทธิหลัง Calibration: 2.6/5.0 | สถานะการติดตามล่าสุด: AT_RISK (35% เทียบเป้าหมายรอบ)\n\nแผนพัฒนาเฉพาะบุคคล (IDP Focus - Predictive Dispatch Load Balancing & Warehouse Automation): ใช้ Peak-Volume Cutoff Dashboard วางแผนจัดกะล่วงหน้า 48 ชม. ก่อนปิดรอบบัญชีปลายเดือน\n\nในรอบถัดไป ทีมและ HR จะสนับสนุนแผนพัฒนา IDP ด้านล่างเพื่อต่อยอดศักยภาพสู่เป้าหมายที่สูงขึ้น",
+    hrEditedFeedback:
+      "เรียน OPS_ANON_1120 (Logistics Fulfillment Specialist)\n\nขอบคุณสำหรับความมุ่งมั่นตลอดรอบที่ผ่านมา ผลลัพธ์จากข้อมูลจริงสะท้อนพัฒนาการที่วัดผลได้ดังนี้\n\nเป้าหมายหลัก: Elevate Warehouse On-Time Dispatch SLA to 98%\n\nคะแนนสุทธิหลัง Calibration: 2.6/5.0 | สถานะการติดตามล่าสุด: AT_RISK (35% เทียบเป้าหมายรอบ)\n\nแผนพัฒนาเฉพาะบุคคล (IDP Focus - Predictive Dispatch Load Balancing & Warehouse Automation): ใช้ Peak-Volume Cutoff Dashboard วางแผนจัดกะล่วงหน้า 48 ชม. ก่อนปิดรอบบัญชีปลายเดือน\n\nในรอบถัดไป ทีมและ HR จะสนับสนุนแผนพัฒนา IDP ด้านล่างเพื่อต่อยอดศักยภาพสู่เป้าหมายที่สูงขึ้น",
+    idpFocusSkill: "Predictive Dispatch Load Balancing & Warehouse Automation",
+    idpActionPlan:
+      "ใช้ Peak-Volume Cutoff Dashboard วางแผนจัดกะล่วงหน้า 48 ชม. ก่อนปิดรอบบัญชีปลายเดือน",
+    nextCycleGoalTitle:
+      "[IDP Next-Cycle] Lock 99% Peak-Day Dispatch Reliability",
+    nextCycleTargetValue: 99,
+    status: "DRAFT_AI",
+    publishedBy: null,
+    fedToNextCycle: false,
+    piiMaskedSnapshot: true,
+    updatedAt: "2026-11-13T19:00:00.000Z",
+  },
+];

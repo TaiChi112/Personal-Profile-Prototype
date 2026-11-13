@@ -12,6 +12,7 @@ import {
   computeGoalRatingProposal,
   mapProgressToRatingScore,
 } from "../../app/projects/(micro-apps)/pms-agent/engine/evaluationEngine";
+import { synthesizePublishPackage } from "../../app/projects/(micro-apps)/pms-agent/engine/publishEngine";
 import { usePmsStore } from "../../app/projects/(micro-apps)/pms-agent/store/usePmsStore";
 import {
   INITIAL_AUDIT_LOGS,
@@ -321,5 +322,61 @@ describe("PMS AI Agent Micro-App Store & State Machine", () => {
     expect(updatedEval?.managerScore).toBe(2.8);
     expect(updatedEval?.endorsedBy).toContain("Calibration Committee");
     expect(updated.auditLogs[0].action).toBe("CALIBRATION_COMMITTEE_DECIDED");
+  });
+
+  it("synthesizes Tone-of-Voice feedback drafts respecting PII masking and calibrated scores", () => {
+    const store = usePmsStore.getState();
+    store.resolveCalibrationCase(
+      "goal-eng-01",
+      4.4,
+      "COMMITTEE_ADJUSTED",
+      "Strong engineering leadership",
+    );
+    const updated = usePmsStore.getState();
+    const pkg = synthesizePublishPackage(
+      updated.goals[0],
+      MOCK_EMPLOYEES[0],
+      updated.evaluations[0],
+      updated.calibrationDecisions,
+      updated.driftAlerts[0],
+      "EXECUTIVE_DIRECT",
+      true,
+    );
+    expect(pkg.calibratedScore).toBe(4.4);
+    expect(pkg.hrEditedFeedback).toContain(MOCK_EMPLOYEES[0].anonymizedId);
+    expect(pkg.hrEditedFeedback).not.toContain(MOCK_EMPLOYEES[0].name);
+    expect(pkg.hrEditedFeedback).toContain("4.4/5.0");
+  });
+
+  it("executes HR HITL publish and feeds IDP back into Phase 1 next-cycle Goal Studio", () => {
+    const store = usePmsStore.getState();
+    store.setActiveStage("PHASE_5_PUBLISH");
+    store.generatePublishPackage("emp-eng-01", "COACHING_GROWTH");
+
+    const initialGoalCount = usePmsStore.getState().goals.length;
+    const pkg = usePmsStore
+      .getState()
+      .publishPackages.find((p) => p.goalId === "goal-eng-01");
+    expect(pkg).toBeDefined();
+
+    usePmsStore.getState().publishFeedbackPackage(pkg!.id);
+    expect(
+      usePmsStore.getState().publishPackages.find((p) => p.id === pkg!.id)
+        ?.status,
+    ).toBe("PUBLISHED");
+    expect(usePmsStore.getState().auditLogs[0].action).toBe(
+      "FEEDBACK_PUBLISHED_HR",
+    );
+
+    const seededGoal = usePmsStore.getState().feedIdpToNextCycleGoal(pkg!.id);
+    expect(seededGoal).not.toBeNull();
+    expect(seededGoal?.title).toContain("[IDP Next-Cycle]");
+
+    const afterState = usePmsStore.getState();
+    expect(afterState.goals.length).toBe(initialGoalCount + 1);
+    expect(
+      afterState.publishPackages.find((p) => p.id === pkg!.id)?.fedToNextCycle,
+    ).toBe(true);
+    expect(afterState.auditLogs[0].action).toBe("IDP_FED_TO_NEXT_CYCLE");
   });
 });
