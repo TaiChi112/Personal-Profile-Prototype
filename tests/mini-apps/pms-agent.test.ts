@@ -1,8 +1,20 @@
 import { describe, expect, it, beforeEach } from "bun:test";
+import {
+  buildCheckInBotPrompt,
+  computeGoalProgressAndDrift,
+} from "../../app/projects/(micro-apps)/pms-agent/engine/driftEngine";
+import {
+  computeGoalRatingProposal,
+  mapProgressToRatingScore,
+} from "../../app/projects/(micro-apps)/pms-agent/engine/evaluationEngine";
 import { usePmsStore } from "../../app/projects/(micro-apps)/pms-agent/store/usePmsStore";
 import {
-  MOCK_EMPLOYEES,
+  INITIAL_AUDIT_LOGS,
+  INITIAL_CHECKINS,
+  INITIAL_EVALUATIONS,
+  INITIAL_EVIDENCES,
   INITIAL_GOAL_DRAFTS,
+  MOCK_EMPLOYEES,
 } from "../../app/projects/(micro-apps)/pms-agent/store/mockData";
 
 describe("PMS AI Agent Micro-App Store & State Machine", () => {
@@ -73,5 +85,167 @@ describe("PMS AI Agent Micro-App Store & State Machine", () => {
       .goals.find((g) => g.id === targetGoal.id);
     expect(updated?.title).toBe("Refactored Title");
     expect(updated?.description).toBe("Refactored Description");
+  });
+
+  it("computes bidirectional KPI progress and drift classifications accurately", () => {
+    // Lower-is-better KPI: Engineering PR Cycle Time (48 -> 18 Hours)
+    const engGoal = INITIAL_GOAL_DRAFTS[0];
+    const engOnTrack = computeGoalProgressAndDrift(engGoal, 30, 3);
+    expect(engOnTrack.progressPct).toBe(60);
+    expect(engOnTrack.expectedPct).toBe(50);
+    expect(engOnTrack.severity).toBe("ON_TRACK");
+
+    // Higher-is-better KPI: Operations Dispatch SLA (88 -> 98 %)
+    const opsGoal = INITIAL_GOAL_DRAFTS[2];
+    const opsAtRisk = computeGoalProgressAndDrift(opsGoal, 91.5, 3);
+    expect(opsAtRisk.progressPct).toBe(35);
+    expect(opsAtRisk.severity).toBe("AT_RISK");
+
+    const opsCritical = computeGoalProgressAndDrift(opsGoal, 88.5, 3);
+    expect(opsCritical.progressPct).toBe(5);
+    expect(opsCritical.severity).toBe("CRITICAL_DRIFT");
+  });
+
+  it("enforces PII redaction in Slack/LINE bot check-in prompts", () => {
+    const emp = MOCK_EMPLOYEES[0];
+    const goal = INITIAL_GOAL_DRAFTS[0];
+
+    const maskedPrompt = buildCheckInBotPrompt(emp, goal, 3, "SLACK", true);
+    expect(maskedPrompt).toContain(emp.anonymizedId);
+    expect(maskedPrompt).not.toContain(emp.name);
+
+    const revealedPrompt = buildCheckInBotPrompt(emp, goal, 3, "LINE", false);
+    expect(revealedPrompt).toContain(emp.name);
+    expect(revealedPrompt).toContain("LINE OA Bot");
+  });
+
+  it("supports monthly bot check-ins, telemetry ingestion, and HITL drift acknowledgment", () => {
+    const store = usePmsStore.getState();
+    store.setActiveStage("PHASE_2_IN_CYCLE");
+    expect(usePmsStore.getState().activeStage).toBe("PHASE_2_IN_CYCLE");
+
+    // Trigger Slack bot ping for Engineering goal
+    const ping = store.triggerBotCheckIn("goal-eng-01", "SLACK");
+    expect(ping).not.toBeNull();
+    expect(ping?.status).toBe("PENDING");
+    expect(usePmsStore.getState().checkIns.length).toBe(
+      INITIAL_CHECKINS.length + 1,
+    );
+
+    // Submit reply pushing KPI further down (worse cycle time = 45h -> CRITICAL_DRIFT at M3)
+    store.submitEmployeeCheckIn(ping!.id, "Review queue blocked", 45);
+    let updated = usePmsStore.getState();
+    expect(updated.evidences.length).toBe(INITIAL_EVIDENCES.length + 1);
+    const updatedAlert = updated.driftAlerts.find(
+      (a) => a.goalId === "goal-eng-01",
+    );
+    expect(updatedAlert?.severity).toBe("CRITICAL_DRIFT");
+    expect(updatedAlert?.acknowledged).toBe(false);
+
+    // Manager HITL acknowledge
+    updated.acknowledgeDriftAlert(updatedAlert!.id);
+    updated = usePmsStore.getState();
+    const ackedAlert = updated.driftAlerts.find(
+      (a) => a.goalId === "goal-eng-01",
+    );
+    expect(ackedAlert?.acknowledged).toBe(true);
+
+    // Ingest good telemetry recovery -> ON_TRACK
+    updated.ingestSourceTelemetry("goal-eng-01", 24, "CI fast-track shipped");
+    const recoveredAlert = usePmsStore
+      .getState()
+      .driftAlerts.find((a) => a.goalId === "goal-eng-01");
+    expect(recoveredAlert?.severity).toBe("ON_TRACK");
+    expect(recoveredAlert?.progressPct).toBe(80);
+  });
+
+  it("synthesizes evidence-grounded rating proposals and PII-safe self-review drafts", () => {
+    expect(mapProgressToRatingScore(0)).toBe(1.5);
+    expect(mapProgressToRatingScore(100)).toBe(4.2);
+
+    const eng = MOCK_EMPLOYEES[0];
+    const engGoal = INITIAL_GOAL_DRAFTS[0];
+    const maskedProposal = computeGoalRatingProposal(
+      engGoal,
+      eng,
+      INITIAL_EVIDENCES,
+      INITIAL_CHECKINS,
+      true,
+    );
+    expect(maskedProposal.confidenceTier).toBe("HIGH");
+    expect(maskedProposal.aiSelfReviewDraft).toContain(eng.anonymizedId);
+    expect(maskedProposal.aiSelfReviewDraft).not.toContain(eng.name);
+    expect(maskedProposal.citedEvidences.length).toBeGreaterThan(0);
+
+    const sales = MOCK_EMPLOYEES[1];
+    const salesGoal = INITIAL_GOAL_DRAFTS[1];
+    const lowConfidenceProposal = computeGoalRatingProposal(
+      salesGoal,
+      sales,
+      INITIAL_EVIDENCES,
+      INITIAL_CHECKINS,
+      false,
+    );
+    expect(lowConfidenceProposal.confidenceTier).toBe("LOW");
+    expect(lowConfidenceProposal.aiSelfReviewDraft).toContain(sales.name);
+  });
+
+  it("connects live Phase 2 telemetry into Phase 3 evaluation, HITL endorse/override, appeal, and audit ledger", () => {
+    const store = usePmsStore.getState();
+    store.setActiveStage("PHASE_3_EVALUATION");
+    expect(usePmsStore.getState().activeStage).toBe("PHASE_3_EVALUATION");
+    expect(usePmsStore.getState().evaluations.length).toBe(
+      INITIAL_EVALUATIONS.length,
+    );
+
+    // Hit 100% target (18 Hours) in Phase 2 telemetry and re-synthesize Phase 3
+    store.ingestSourceTelemetry("goal-eng-01", 18, "Reached 18h PR SLA target");
+    usePmsStore.getState().synthesizeEmployeeEvaluation("emp-eng-01");
+
+    let state = usePmsStore.getState();
+    const resynthesized = state.evaluations.find(
+      (ev) => ev.goalId === "goal-eng-01",
+    );
+    expect(resynthesized?.progressPct).toBe(100);
+    expect(resynthesized?.proposedScore).toBe(4.2);
+    expect(resynthesized?.citedEvidenceIds.length).toBe(2);
+
+    // Employee saves & submits self-review
+    state.saveEmployeeSelfReview(
+      resynthesized!.id,
+      "Updated self-review citing 18h PR target achievement.",
+      true,
+    );
+    state = usePmsStore.getState();
+    expect(
+      state.evaluations.find((ev) => ev.id === resynthesized!.id)?.status,
+    ).toBe("SELF_REVIEW_SUBMITTED");
+
+    // Manager HITL override score with rationale
+    state.endorseEvaluation(
+      resynthesized!.id,
+      4.5,
+      "Delivered ahead of Q2 deadline",
+    );
+    state = usePmsStore.getState();
+    const endorsed = state.evaluations.find(
+      (ev) => ev.id === resynthesized!.id,
+    );
+    expect(endorsed?.status).toBe("ENDORSED_MANAGER");
+    expect(endorsed?.managerScore).toBe(4.5);
+    expect(state.auditLogs[0].action).toBe("MANAGER_SCORE_OVERRIDDEN");
+
+    // Employee appeal verification
+    state.submitEvaluationAppeal(
+      "eval-goal-sal-01",
+      "Legal SLA blocked deals; requesting recalibration.",
+    );
+    state = usePmsStore.getState();
+    const appealed = state.evaluations.find(
+      (ev) => ev.id === "eval-goal-sal-01",
+    );
+    expect(appealed?.status).toBe("DISPUTED");
+    expect(state.auditLogs.length).toBeGreaterThan(INITIAL_AUDIT_LOGS.length);
+    expect(state.auditLogs[0].action).toBe("EMPLOYEE_APPEAL_RAISED");
   });
 });

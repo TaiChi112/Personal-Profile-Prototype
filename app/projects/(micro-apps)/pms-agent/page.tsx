@@ -2,7 +2,9 @@
 
 import React, { useTransition } from "react";
 import { EmployeeSelector } from "./components/EmployeeSelector";
+import { EvaluationStudio } from "./components/EvaluationStudio";
 import { GoalCard } from "./components/GoalCard";
+import { InCycleTracker } from "./components/InCycleTracker";
 import { usePmsStore, type FilterStatus } from "./store/usePmsStore";
 import {
   Sparkles,
@@ -21,6 +23,11 @@ export default function PmsAgentPage() {
     goals,
     filterStatus,
     setFilterStatus,
+    activeStage,
+    setActiveStage,
+    driftAlerts,
+    evidences,
+    evaluations,
     isGenerating,
     generateDraftGoals,
     resetToDefaults,
@@ -88,55 +95,97 @@ export default function PmsAgentPage() {
           </div>
         </header>
 
-        {/* PMS Swimlane Cycle Progress */}
+        {/* PMS Swimlane Cycle Progress (Interactive Phase 1 & Phase 2 Switcher) */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs overflow-x-auto">
-          <div className="flex items-center min-w-[620px] justify-between gap-2 text-xs">
+          <div className="flex items-center min-w-[660px] justify-between gap-2 text-xs">
             {/* Phase 1 */}
-            <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 font-semibold shadow-xs">
-              <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold">
+            <button
+              type="button"
+              onClick={() => setActiveStage("PHASE_1_GOALS")}
+              className={`flex items-center gap-2.5 px-3.5 py-2 rounded-xl border font-semibold transition-all cursor-pointer ${
+                activeStage === "PHASE_1_GOALS"
+                  ? "bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 shadow-xs"
+                  : "border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+            >
+              <span
+                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  activeStage === "PHASE_1_GOALS"
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                }`}
+              >
                 1
               </span>
-              <span>Phase 1: Goal & KPI Binding (Active)</span>
-            </div>
+              <span>Phase 1: Goal &amp; KPI Binding</span>
+            </button>
 
             <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
 
-            {/* In-Cycle */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-400 dark:text-slate-500">
-              <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center text-[10px]">
+            {/* Phase 2: In-Cycle */}
+            <button
+              type="button"
+              onClick={() => setActiveStage("PHASE_2_IN_CYCLE")}
+              className={`flex items-center gap-2.5 px-3.5 py-2 rounded-xl border font-semibold transition-all cursor-pointer ${
+                activeStage === "PHASE_2_IN_CYCLE"
+                  ? "bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 shadow-xs"
+                  : "border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+            >
+              <span
+                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  activeStage === "PHASE_2_IN_CYCLE"
+                    ? "bg-indigo-600 text-white"
+                    : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                }`}
+              >
                 2
               </span>
-              <span>ระหว่าง Cycle: ติดตามผล</span>
-            </div>
+              <span>Phase 2: ระหว่าง Cycle (ติดตามผล)</span>
+            </button>
 
             <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
 
-            {/* Phase 2 */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-400 dark:text-slate-500">
-              <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center text-[10px]">
+            {/* Phase 3: Evaluation */}
+            <button
+              type="button"
+              onClick={() => setActiveStage("PHASE_3_EVALUATION")}
+              className={`flex items-center gap-2.5 px-3.5 py-2 rounded-xl border font-semibold transition-all cursor-pointer ${
+                activeStage === "PHASE_3_EVALUATION"
+                  ? "bg-purple-50 dark:bg-purple-950/60 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 shadow-xs"
+                  : "border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+            >
+              <span
+                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  activeStage === "PHASE_3_EVALUATION"
+                    ? "bg-purple-600 text-white"
+                    : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                }`}
+              >
                 3
               </span>
-              <span>Phase 2: Evaluation</span>
-            </div>
-
-            <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
-
-            {/* Phase 3 */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-400 dark:text-slate-500">
-              <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center text-[10px]">
-                4
-              </span>
-              <span>Phase 3: Calibration</span>
-            </div>
+              <span>Phase 3: Evaluation &amp; Self-Review</span>
+            </button>
 
             <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
 
             {/* Phase 4 */}
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-400 dark:text-slate-500">
               <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center text-[10px]">
+                4
+              </span>
+              <span>Calibration</span>
+            </div>
+
+            <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
+
+            {/* Phase 5 */}
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-400 dark:text-slate-500">
+              <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center text-[10px]">
                 5
               </span>
-              <span>Phase 4: Publish & IDP</span>
+              <span>Publish &amp; IDP</span>
             </div>
           </div>
         </div>
@@ -195,88 +244,94 @@ export default function PmsAgentPage() {
         {/* Step 1: Employee Selector */}
         <EmployeeSelector />
 
-        {/* Step 2: Goal Studio Board */}
-        <section className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <span className="text-xs font-mono uppercase tracking-wider text-blue-600 dark:text-blue-400 font-semibold">
-                Step 2: AI Synthesis & Human Endorsement
-              </span>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-0.5">
-                เป้าหมายที่ได้รับการร่างและผูกตัวชี้วัด
-              </h2>
-            </div>
-
-            {/* Actions: Trigger AI Generation & Status Filter */}
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex rounded-xl bg-slate-200/60 dark:bg-slate-800 p-1 text-xs">
-                {(
-                  [
-                    "ALL",
-                    "DRAFT_AI",
-                    "ENDORSED_MANAGER",
-                    "CONFIRMED_EMPLOYEE",
-                  ] as FilterStatus[]
-                ).map((st) => (
-                  <button
-                    key={st}
-                    type="button"
-                    onClick={() => setFilterStatus(st)}
-                    className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
-                      filterStatus === st
-                        ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs font-semibold"
-                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
-                    }`}
-                  >
-                    {st === "ALL" && "ทั้งหมด"}
-                    {st === "DRAFT_AI" && "รอหัวหน้ารับรอง"}
-                    {st === "ENDORSED_MANAGER" && "รับรองแล้ว"}
-                    {st === "CONFIRMED_EMPLOYEE" && "ยืนยันแล้ว"}
-                  </button>
-                ))}
+        {activeStage === "PHASE_2_IN_CYCLE" ? (
+          <InCycleTracker />
+        ) : activeStage === "PHASE_3_EVALUATION" ? (
+          <EvaluationStudio />
+        ) : (
+          /* Step 2: Goal Studio Board */
+          <section className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-wider text-blue-600 dark:text-blue-400 font-semibold">
+                  Step 2: AI Synthesis & Human Endorsement
+                </span>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+                  เป้าหมายที่ได้รับการร่างและผูกตัวชี้วัด
+                </h2>
               </div>
 
-              <button
-                type="button"
-                onClick={handleGenerate}
-                disabled={isGenerating || isPending}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all disabled:opacity-50 cursor-pointer"
-              >
-                <Sparkles
-                  className={`w-4 h-4 ${isGenerating || isPending ? "animate-spin" : ""}`}
-                />
-                <span>
-                  {isGenerating || isPending
-                    ? "กำลังสังเคราะห์..."
-                    : "Generate AI Draft"}
-                </span>
-              </button>
-            </div>
-          </div>
+              {/* Actions: Trigger AI Generation & Status Filter */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex rounded-xl bg-slate-200/60 dark:bg-slate-800 p-1 text-xs">
+                  {(
+                    [
+                      "ALL",
+                      "DRAFT_AI",
+                      "ENDORSED_MANAGER",
+                      "CONFIRMED_EMPLOYEE",
+                    ] as FilterStatus[]
+                  ).map((st) => (
+                    <button
+                      key={st}
+                      type="button"
+                      onClick={() => setFilterStatus(st)}
+                      className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
+                        filterStatus === st
+                          ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs font-semibold"
+                          : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+                      }`}
+                    >
+                      {st === "ALL" && "ทั้งหมด"}
+                      {st === "DRAFT_AI" && "รอหัวหน้ารับรอง"}
+                      {st === "ENDORSED_MANAGER" && "รับรองแล้ว"}
+                      {st === "CONFIRMED_EMPLOYEE" && "ยืนยันแล้ว"}
+                    </button>
+                  ))}
+                </div>
 
-          {/* Goal Cards Grid */}
-          <div className="grid grid-cols-1 gap-5">
-            {filteredGoals.length > 0 ? (
-              filteredGoals.map((goal) => (
-                <GoalCard key={goal.id} goal={goal} />
-              ))
-            ) : (
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-3">
-                <ShieldCheck className="w-8 h-8 text-slate-300 dark:text-slate-600" />
-                <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-                  ไม่พบเป้าหมายในสถานะที่เลือก
-                </p>
                 <button
                   type="button"
-                  onClick={() => setFilterStatus("ALL")}
-                  className="text-xs font-medium text-blue-600 hover:underline cursor-pointer"
+                  onClick={handleGenerate}
+                  disabled={isGenerating || isPending}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all disabled:opacity-50 cursor-pointer"
                 >
-                  ดูเป้าหมายทั้งหมด
+                  <Sparkles
+                    className={`w-4 h-4 ${isGenerating || isPending ? "animate-spin" : ""}`}
+                  />
+                  <span>
+                    {isGenerating || isPending
+                      ? "กำลังสังเคราะห์..."
+                      : "Generate AI Draft"}
+                  </span>
                 </button>
               </div>
-            )}
-          </div>
-        </section>
+            </div>
+
+            {/* Goal Cards Grid */}
+            <div className="grid grid-cols-1 gap-5">
+              {filteredGoals.length > 0 ? (
+                filteredGoals.map((goal) => (
+                  <GoalCard key={goal.id} goal={goal} />
+                ))
+              ) : (
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-3">
+                  <ShieldCheck className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+                    ไม่พบเป้าหมายในสถานะที่เลือก
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setFilterStatus("ALL")}
+                    className="text-xs font-medium text-blue-600 hover:underline cursor-pointer"
+                  >
+                    ดูเป้าหมายทั้งหมด
+                  </button>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
         {/* Footer Reference */}
         <footer className="border-t border-slate-200 dark:border-slate-800 pt-6 text-xs text-slate-500 dark:text-slate-400 flex flex-wrap items-center justify-between gap-4">
@@ -287,7 +342,10 @@ export default function PmsAgentPage() {
             </span>
           </div>
           <div className="font-mono">
-            EPIC-032 · Zero-DB Prototype Version 1.0.0
+            EPIC-032 · Zero-DB Prototype (Phase 1-3 Active · Evidences:{" "}
+            {evidences.length} · Alerts:{" "}
+            {driftAlerts.filter((a) => a.severity !== "ON_TRACK").length} ·
+            Evaluations: {evaluations.length})
           </div>
         </footer>
       </div>
