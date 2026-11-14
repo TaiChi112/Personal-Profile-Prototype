@@ -1,14 +1,7 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it } from "bun:test";
+import { mockGenerateObject, registerAiSdkMocks } from "./helpers/aiSdkMock";
 
-const mockGenerateObject = mock();
-
-mock.module("ai", () => ({
-  generateObject: mockGenerateObject,
-}));
-
-mock.module("@ai-sdk/google", () => ({
-  google: mock().mockReturnValue("mock-gemini-2.5-flash"),
-}));
+registerAiSdkMocks();
 
 import {
   BridgeCircuitBreaker,

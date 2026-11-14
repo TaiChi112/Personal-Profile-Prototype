@@ -227,20 +227,21 @@ export type ExecuteGeminiBridgeResult<T> =
       latencyMs: number;
     };
 
-export async function executeGeminiBridge<
-  TSchema extends z.ZodTypeAny,
->(params: {
+/**
+ * Shared circuit breaker + timeout executor for streaming/chat/external LLM handlers.
+ * Handles missing API keys, open circuits, AbortController timeouts, and outcome recording.
+ */
+export async function runWithCircuitGuard<T>(params: {
   routeKey: string;
-  schema: TSchema;
-  system: string;
-  prompt: string;
+  hasKey?: boolean;
   timeoutMs?: number;
-  modelName?: string;
-}): Promise<ExecuteGeminiBridgeResult<z.infer<TSchema>>> {
+  execute: (abortSignal: AbortSignal) => Promise<T>;
+}): Promise<ExecuteGeminiBridgeResult<T>> {
   const startedAt = Date.now();
   const breaker = getRouteCircuitBreaker(params.routeKey);
+  const keyAvailable = params.hasKey ?? hasGoogleGeminiKey();
 
-  if (!hasGoogleGeminiKey()) {
+  if (!keyAvailable) {
     return {
       ok: false,
       source: "FALLBACK_TRIGGERED",
@@ -269,14 +270,8 @@ export async function executeGeminiBridge<
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const result = await Promise.race([
-      generateObject({
-        model: google(params.modelName ?? "gemini-2.5-flash"),
-        schema: params.schema,
-        system: params.system,
-        prompt: params.prompt,
-        abortSignal: controller.signal,
-      }),
+    const data = await Promise.race([
+      params.execute(controller.signal),
       new Promise<never>((_, reject) => {
         controller.signal.addEventListener(
           "abort",
@@ -290,7 +285,7 @@ export async function executeGeminiBridge<
     return {
       ok: true,
       source: "LIVE_GEMINI",
-      data: result.object as z.infer<TSchema>,
+      data,
       circuitState: "CLOSED",
       latencyMs: Date.now() - startedAt,
     };
@@ -312,4 +307,30 @@ export async function executeGeminiBridge<
   } finally {
     clearTimeout(timer);
   }
+}
+
+export async function executeGeminiBridge<
+  TSchema extends z.ZodTypeAny,
+>(params: {
+  routeKey: string;
+  schema: TSchema;
+  system: string;
+  prompt: string;
+  timeoutMs?: number;
+  modelName?: string;
+}): Promise<ExecuteGeminiBridgeResult<z.infer<TSchema>>> {
+  return runWithCircuitGuard({
+    routeKey: params.routeKey,
+    timeoutMs: params.timeoutMs,
+    execute: async (abortSignal) => {
+      const result = await generateObject({
+        model: google(params.modelName ?? "gemini-2.5-flash"),
+        schema: params.schema,
+        system: params.system,
+        prompt: params.prompt,
+        abortSignal,
+      });
+      return result.object as z.infer<TSchema>;
+    },
+  });
 }

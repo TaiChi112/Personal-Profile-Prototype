@@ -5,13 +5,20 @@ import { render, screen, fireEvent } from "@testing-library/react";
 // Mock @xyflow/react
 mock.module("@xyflow/react", () => ({
   ReactFlow: ({ children, nodes, edges }: any) => (
-    <div data-testid="react-flow" data-nodes={JSON.stringify(nodes?.map((n: any) => n.id))}>
+    <div
+      data-testid="react-flow"
+      data-nodes={JSON.stringify(nodes?.map((n: any) => n.id))}
+    >
       {children}
     </div>
   ),
   Controls: () => <div data-testid="rf-controls" />,
   Background: () => <div data-testid="rf-background" />,
-  Panel: ({ children, className }: any) => <div className={className} data-testid="rf-panel">{children}</div>,
+  Panel: ({ children, className }: any) => (
+    <div className={className} data-testid="rf-panel">
+      {children}
+    </div>
+  ),
   applyNodeChanges: (changes: any, nodes: any) => nodes,
   applyEdgeChanges: (changes: any, edges: any) => edges,
   MarkerType: { ArrowClosed: "ArrowClosed" },
@@ -20,7 +27,11 @@ mock.module("@xyflow/react", () => ({
 // Mock framer-motion
 mock.module("framer-motion", () => ({
   motion: {
-    div: ({ children, className, ...props }: any) => <div className={className} {...props}>{children}</div>,
+    div: ({ children, className, ...props }: any) => (
+      <div className={className} {...props}>
+        {children}
+      </div>
+    ),
   },
   AnimatePresence: ({ children }: any) => <>{children}</>,
 }));
@@ -68,9 +79,13 @@ describe("AgenticTestingPage Component", () => {
 
     render(<AgenticTestingPage />);
 
-    const input = screen.getByPlaceholderText(/Instruct AI to modify workflow/i);
+    const input = screen.getByPlaceholderText(
+      /Instruct AI to modify workflow/i,
+    );
 
-    fireEvent.change(input, { target: { value: "Add 2FA check before checkout" } });
+    fireEvent.change(input, {
+      target: { value: "Add 2FA check before checkout" },
+    });
 
     const executeBtn = screen.getByText("Execute");
     await act(async () => {
@@ -81,7 +96,11 @@ describe("AgenticTestingPage Component", () => {
     expect(global.fetch).toHaveBeenCalled();
 
     // Check that AI action log was added
-    expect(screen.getByText(/AI Action: Inserted 2FA step between Payment and Fulfillment/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /AI Action: Inserted 2FA step between Payment and Fulfillment/i,
+      ),
+    ).toBeInTheDocument();
 
     // Metrics should have updated: testCases (8 + 5 = 13), complexity (15 + 20 = 35)
     expect(screen.getAllByText("13").length).toBeGreaterThanOrEqual(1);
@@ -94,11 +113,15 @@ describe("AgenticTestingPage Component", () => {
   });
 
   it("should handle API failure gracefully and log error", async () => {
-    global.fetch = mock().mockRejectedValueOnce(new Error("Network failed")) as any;
+    global.fetch = mock().mockRejectedValueOnce(
+      new Error("Network failed"),
+    ) as any;
 
     render(<AgenticTestingPage />);
 
-    const input = screen.getByPlaceholderText(/Instruct AI to modify workflow/i);
+    const input = screen.getByPlaceholderText(
+      /Instruct AI to modify workflow/i,
+    );
 
     fireEvent.change(input, { target: { value: "Trigger failure" } });
     const executeBtn = screen.getByText("Execute");
@@ -106,7 +129,9 @@ describe("AgenticTestingPage Component", () => {
       fireEvent.click(executeBtn);
     });
 
-    expect(screen.getByText("Error communicating with AI Backend")).toBeInTheDocument();
+    expect(
+      screen.getByText("Error communicating with AI Backend"),
+    ).toBeInTheDocument();
   });
 
   it("should toggle versions between v1.0 and v2.0", async () => {
@@ -128,7 +153,9 @@ describe("AgenticTestingPage Component", () => {
 
     render(<AgenticTestingPage />);
 
-    const input = screen.getByPlaceholderText(/Instruct AI to modify workflow/i);
+    const input = screen.getByPlaceholderText(
+      /Instruct AI to modify workflow/i,
+    );
     fireEvent.change(input, { target: { value: "Add 2FA" } });
     const executeBtn = screen.getByText("Execute");
     await act(async () => {
@@ -146,12 +173,41 @@ describe("AgenticTestingPage Component", () => {
     expect(v2Btn).toBeInTheDocument();
   });
 
+  it("should execute deterministic patch in LOCAL_ONLY mode without calling fetch", async () => {
+    const fetchMock = mock();
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    render(<AgenticTestingPage />);
+
+    fireEvent.click(screen.getByText("LOCAL_ONLY"));
+    expect(
+      screen.getByTestId("agentic-testing-ai-source-badge").textContent,
+    ).toBe("LOCAL_ONLY");
+
+    const input = screen.getByPlaceholderText(
+      /Instruct AI to modify workflow/i,
+    );
+    fireEvent.change(input, { target: { value: "Add OTP timeout check" } });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText("Execute"));
+    });
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("agentic-testing-ai-source-badge").textContent,
+    ).toBe("LOCAL_ONLY");
+    expect(screen.getByText(/AI Action:/i)).toBeDefined();
+  });
+
   it("should trigger export alert when Export to PMS button is clicked", () => {
     render(<AgenticTestingPage />);
 
     const exportBtn = screen.getByText("Export to PMS");
     fireEvent.click(exportBtn);
 
-    expect(mockAlert).toHaveBeenCalledWith("Exporting QA Performance Data to HR/PMS System...");
+    expect(mockAlert).toHaveBeenCalledWith(
+      "Exporting QA Performance Data to HR/PMS System...",
+    );
   });
 });

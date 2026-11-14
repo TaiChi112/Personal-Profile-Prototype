@@ -1,6 +1,10 @@
 import { google } from "@ai-sdk/google";
 import { streamText } from "ai";
 import type { NextRequest } from "next/server";
+import {
+  redactPiiString,
+  runWithCircuitGuard,
+} from "@/app/lib/ai/bridgeRuntime";
 
 export const maxDuration = 30;
 
@@ -180,32 +184,38 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Attempt live Gemini streaming if API key is provided
+  // Attempt live Gemini streaming guarded by shared Circuit Breaker + Server PII Firewall
   const hasApiKey = Boolean(
-    process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY,
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim() ||
+      process.env.GEMINI_API_KEY?.trim(),
   );
+  const { sanitized: safePrompt } = redactPiiString(prompt);
+  const { sanitized: safePath } = redactPiiString(body.currentPath || "~");
 
-  if (hasApiKey) {
-    try {
-      const abortController = new AbortController();
-      const timeoutId = setTimeout(() => abortController.abort(), 20000);
-
+  const bridge = await runWithCircuitGuard({
+    routeKey: "terminal:stream",
+    hasKey: hasApiKey,
+    timeoutMs: 20_000,
+    execute: async (abortSignal) => {
       const result = await streamText({
         model: google("gemini-2.5-flash"),
         system: CYBERPUNK_SYSADMIN_SYSTEM_PROMPT,
-        prompt: `User terminal prompt: "${prompt}". Current terminal path: "${body.currentPath || "~"}"`,
-        abortSignal: abortController.signal,
-        onFinish: () => clearTimeout(timeoutId),
+        prompt: `User terminal prompt: "${safePrompt}". Current terminal path: "${safePath}"`,
+        abortSignal,
       });
 
       return result.toTextStreamResponse({
         headers: {
           "Content-Type": "text/plain; charset=utf-8",
+          "X-AI-Bridge-Source": "LIVE_GEMINI",
+          "X-AI-Circuit-State": "CLOSED",
         },
       });
-    } catch {
-      // Fallback to deterministic streaming on API failure
-    }
+    },
+  });
+
+  if (bridge.ok) {
+    return bridge.data;
   }
 
   // Autonomous fallback stream
@@ -217,6 +227,9 @@ export async function POST(req: NextRequest) {
       "Content-Type": "text/plain; charset=utf-8",
       "Transfer-Encoding": "chunked",
       "Cache-Control": "no-cache",
+      "X-AI-Bridge-Source": bridge.source,
+      "X-AI-Fallback-Reason": bridge.reason,
+      "X-AI-Circuit-State": bridge.circuitState,
     },
   });
 }
