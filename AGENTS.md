@@ -107,6 +107,12 @@ An explicit user task targeting authentication, runtime/deployment, CI/CD, or fr
 
 Never read, expose, or modify real secret values unless the user provides a specific, security-conscious instruction and the action is strictly necessary.
 
+### AI Bridge, Circuit Breaker & PII Firewall (Mandatory for LLM Routes)
+
+- All new LLM API endpoints under `app/api/` must use `executeGeminiBridge` and `redactPiiPayload` from `@/app/lib/ai/bridgeRuntime.ts` instead of bare `generateObject` calls.
+- Never send unredacted emails, phone numbers, Thai 13-digit IDs, or personal names (`knownSensitiveNames`) into external LLM prompts; preserve the optional-whitespace Thai honorific regex (`/(?:นาย|นางสาว|นาง)\s*[\u0E01-\u0E4EA-Za-z]{2,}(?:[ \t]+[\u0E01-\u0E4EA-Za-z]{2,})?/g`).
+- Return HTTP `200` structured `FALLBACK_TRIGGERED` envelopes on missing API keys, timeouts, or open circuits, and pair client `fetch` calls with an `8_000ms` `AbortController` timeout plus `AUTO` / `LOCAL_ONLY` mode toggles.
+
 ### Database Schema Changes
 
 **Approved workflow:**
