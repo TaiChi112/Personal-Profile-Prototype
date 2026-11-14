@@ -50,7 +50,8 @@ export class AIService {
       routeKey: "chat:assistant",
       hasKey: hasGoogleGeminiKey(),
       timeoutMs: 25_000,
-      execute: async (abortSignal) => {
+      modelName: "gemini-2.5-flash",
+      execute: async (abortSignal, helpers) => {
         const result = await streamText({
           model: google("gemini-2.5-flash"),
           system: systemPrompt,
@@ -97,6 +98,24 @@ export class AIService {
             }),
           },
         });
+
+        if ("usage" in result && result.usage) {
+          void Promise.resolve(result.usage)
+            .then((u) => {
+              if (u) {
+                helpers.reportUsage(
+                  u as {
+                    promptTokens?: number;
+                    completionTokens?: number;
+                    totalTokens?: number;
+                    inputTokens?: number;
+                    outputTokens?: number;
+                  },
+                );
+              }
+            })
+            .catch(() => undefined);
+        }
 
         return result.toUIMessageStreamResponse({
           headers: {

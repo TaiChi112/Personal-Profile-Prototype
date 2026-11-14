@@ -129,8 +129,9 @@ export async function POST(request: Request) {
         routeKey: "webhooks:line-ai",
         hasKey: hasGlmKey,
         timeoutMs: 12_000,
-        execute: async (abortSignal) =>
-          ai.chat.completions.create(
+        modelName: "glm-5.3-flash",
+        execute: async (abortSignal, helpers) => {
+          const completion = await ai.chat.completions.create(
             {
               model: "glm-5.3-flash",
               messages: [
@@ -191,14 +192,25 @@ export async function POST(request: Request) {
               ],
             },
             { signal: abortSignal },
-          ),
+          );
+          if (completion.usage) {
+            helpers.reportUsage({
+              promptTokens: completion.usage.prompt_tokens,
+              completionTokens: completion.usage.completion_tokens,
+              totalTokens: completion.usage.total_tokens,
+            });
+          }
+          return completion;
+        },
       });
 
       if (!bridge.ok) {
         const fallbackMsg =
           bridge.reason === "CIRCUIT_OPEN"
             ? "ขออภัยครับ ระบบ AI กำลังพักชั่วคราว (Circuit Breaker Active) กรุณาลองใหม่อีกครั้งในอีก 1 นาที"
-            : "ขออภัยครับ ระบบ AI ไม่พร้อมใช้งานชั่วคราว สามารถใช้งานผ่านหน้าเว็บได้ตามปกติครับ";
+            : bridge.reason === "BUDGET_EXCEEDED"
+              ? "ขออภัยครับ โควตาการใช้งาน AI รายวันเต็มชั่วคราว สามารถบันทึกข้อมูลผ่านหน้าเว็บได้ตามปกติครับ"
+              : "ขออภัยครับ ระบบ AI ไม่พร้อมใช้งานชั่วคราว สามารถใช้งานผ่านหน้าเว็บได้ตามปกติครับ";
         await replyMessage(replyToken, fallbackMsg, channelAccessToken);
         continue;
       }

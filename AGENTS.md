@@ -113,14 +113,14 @@ Never read, expose, or modify real secret values unless the user provides a spec
 - Register every route key in `KNOWN_AI_BRIDGE_ROUTES` (`@/app/lib/ai/healthContract.ts`) and pass `{ routeKey }` as the 3rd argument to `redactPiiPayload` / `redactPiiString` so `/api/health/ai-bridge` tracks per-route PII redactions and circuit states in bounded O(routes) memory.
 - Never send unredacted emails, phone numbers, Thai 13-digit IDs, or personal names (`knownSensitiveNames`) into external LLM prompts; preserve the optional-whitespace Thai honorific regex (`/(?:นาย|นางสาว|นาง)\s*[\u0E01-\u0E4EA-Za-z]{2,}(?:[ \t]+[\u0E01-\u0E4EA-Za-z]{2,})?/g`).
 - Return HTTP `200` structured `FALLBACK_TRIGGERED` envelopes (or fallback streams with `X-AI-Bridge-Source`, `X-AI-Fallback-Reason`, `X-AI-Circuit-State` headers) on missing API keys, timeouts, or open circuits, and pair client `fetch` calls with an `8_000ms` `AbortController` timeout plus `AUTO` / `LOCAL_ONLY` mode toggles.
-- Coordinate durable circuit state and zero-raw-PII audit logs via `app/lib/ai/stateStore.ts` (`MemoryBridgeStateStore` default + fail-open `RedisBridgeStateStore` using `ioredis`). Strictly forbid Bun-only runtime imports (such as `bun:sqlite`) in `app/lib/ai/` so Next.js Node.js runtime stays compatible, scrub every audit detail with `sanitizeAuditDetail`, and call async health/reset helpers (`getAiBridgeHealthSnapshotAsync`, `resetRouteBridgeCircuitAsync`, `resetBridgeTelemetryAsync`) inside API Route Handlers.
-- In Bun unit tests under `tests/mini-apps/`, always import `{ mockGenerateObject, mockStreamText, registerAiSdkMocks }` from `tests/mini-apps/helpers/aiSdkMock.ts` instead of defining per-file `mock.module("ai", ...)` closures, and inject test stores via `setBridgeStateStore(...)` (restoring `setBridgeStateStore(null)` in `afterEach`) to prevent cross-file mock collisions.
+- Coordinate durable circuit state, FinOps daily integer `costUsdMicros` quotas, and zero-raw-PII audit logs via `app/lib/ai/stateStore.ts` (`MemoryBridgeStateStore` + fail-open `RedisBridgeStateStore`) and `app/lib/ai/auditArchive.ts` (`AiBridgeArchiveRepository` + fail-open `PrismaBridgeArchiveRepository`). Strictly forbid Bun-only runtime imports (such as `bun:sqlite`) in `app/lib/ai/`, report token usage inside `runWithCircuitGuard` `execute(abortSignal, helpers)` via `helpers.reportUsage(...)` to preserve generic type inference, classify `BUDGET_EXCEEDED` global status as `DEGRADED`, scrub every audit detail with `sanitizeAuditDetail`, and call async health/reset helpers inside API Route Handlers.
+- In Bun unit tests under `tests/mini-apps/`, always import `{ mockGenerateObject, mockStreamText, registerAiSdkMocks }` from `tests/mini-apps/helpers/aiSdkMock.ts` instead of defining per-file `mock.module("ai", ...)` closures, and inject test stores/archives via `setBridgeStateStore(...)` and `setBridgeArchiveRepository(...)` (restoring both to `null` in `afterEach`) to prevent cross-file mock collisions.
 
 ### Database Schema Changes
 
 **Approved workflow:**
 1. Edit `prisma/schema.prisma` with your changes
-2. Run `bun run prisma:migrate:dev`
+2. Validate and regenerate using the local pinned Prisma `5.22.0` binary (`./node_modules/.bin/prisma validate && ./node_modules/.bin/prisma generate` inside `workspaces/Personal-Profile-Prototype/`, never root `bunx prisma`) and run `bun run prisma:migrate:dev` when Postgres is online
 3. Prisma CLI prompts for migration name; confirm
 4. Review generated `.sql` migration file
 5. Run `bun run build` to verify TypeScript

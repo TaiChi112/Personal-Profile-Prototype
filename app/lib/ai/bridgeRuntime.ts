@@ -1,17 +1,25 @@
 import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import type { z } from "zod";
+import { getBridgeArchiveRepository } from "@/app/lib/ai/auditArchive";
 import {
   KNOWN_AI_BRIDGE_ROUTES,
+  calculateModelCostMicros,
+  getAiBridgeFinOpsPolicy,
+  getUtcDateKey,
   isAiBridgeAdminGuardEnforced,
+  microsToUsd,
+  type AiBridgeArchiveStatus,
   type AiBridgeAuditEvent,
   type AiBridgeAuditEventType,
+  type AiBridgeFinOpsSummary,
   type AiBridgeGlobalStatus,
   type AiBridgeHealthSnapshot,
   type AiBridgeRouteHealthEntry,
 } from "@/app/lib/ai/healthContract";
 import {
   getBridgeStateStore,
+  type DailyBudgetUsage,
   type PersistedCircuitState,
 } from "@/app/lib/ai/stateStore";
 
@@ -28,8 +36,27 @@ export type BridgeCircuitState = "CLOSED" | "OPEN";
 export type BridgeFallbackReason =
   | "MISSING_API_KEY"
   | "CIRCUIT_OPEN"
+  | "BUDGET_EXCEEDED"
   | "UPSTREAM_ERROR"
   | "TIMEOUT";
+
+export interface TokenUsageInput {
+  promptTokens?: number;
+  completionTokens?: number;
+  totalTokens?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+}
+
+export interface NormalizedTokenUsage {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+}
+
+export interface BridgeExecuteHelpers {
+  reportUsage: (usage: TokenUsageInput) => void;
+}
 
 export interface CircuitBreakerOptions {
   failureThreshold?: number;
@@ -136,8 +163,11 @@ interface RouteTelemetryRecord {
   timeoutCount: number;
   missingKeyCount: number;
   circuitOpenRejectedCount: number;
+  budgetExceededCount: number;
   upstreamErrorCount: number;
   piiRedactedCount: number;
+  totalTokens: number;
+  costUsdMicros: number;
   totalLatencyMs: number;
   lastLatencyMs: number | null;
   lastOutcome: "IDLE" | "LIVE_GEMINI" | "FALLBACK_TRIGGERED";
@@ -156,8 +186,11 @@ function createEmptyTelemetryRecord(): RouteTelemetryRecord {
     timeoutCount: 0,
     missingKeyCount: 0,
     circuitOpenRejectedCount: 0,
+    budgetExceededCount: 0,
     upstreamErrorCount: 0,
     piiRedactedCount: 0,
+    totalTokens: 0,
+    costUsdMicros: 0,
     totalLatencyMs: 0,
     lastLatencyMs: null,
     lastOutcome: "IDLE",
@@ -191,6 +224,10 @@ function buildAuditEvent(params: {
   fallbackReason?: BridgeFallbackReason | null;
   latencyMs?: number;
   piiRedactedCount?: number;
+  promptTokens?: number;
+  completionTokens?: number;
+  totalTokens?: number;
+  costUsdMicros?: number;
   actor?: string;
   detail?: string;
 }): AiBridgeAuditEvent {
@@ -207,6 +244,10 @@ function buildAuditEvent(params: {
     fallbackReason: params.fallbackReason,
     latencyMs: params.latencyMs,
     piiRedactedCount: params.piiRedactedCount,
+    promptTokens: params.promptTokens,
+    completionTokens: params.completionTokens,
+    totalTokens: params.totalTokens,
+    costUsdMicros: params.costUsdMicros,
     actor: params.actor,
     detail: params.detail,
   };
@@ -217,6 +258,7 @@ export function resetAllBridgeCircuits(): void {
   routeTelemetry.clear();
   const store = getBridgeStateStore();
   store.clearAllSync();
+  getBridgeArchiveRepository().clearSync?.();
 }
 
 export function resetRouteBridgeCircuit(
@@ -511,6 +553,32 @@ export type ExecuteGeminiBridgeResult<T> =
       latencyMs: number;
     };
 
+function normalizeTokenUsage(
+  input?: TokenUsageInput | null,
+): NormalizedTokenUsage | null {
+  if (!input) return null;
+  const promptTokens = Math.max(
+    0,
+    Math.round(input.promptTokens ?? input.inputTokens ?? 0),
+  );
+  const completionTokens = Math.max(
+    0,
+    Math.round(input.completionTokens ?? input.outputTokens ?? 0),
+  );
+  const totalTokens = Math.max(
+    promptTokens + completionTokens,
+    Math.round(input.totalTokens ?? promptTokens + completionTokens),
+  );
+  if (totalTokens === 0 && promptTokens === 0 && completionTokens === 0) {
+    return null;
+  }
+  return {
+    promptTokens,
+    completionTokens,
+    totalTokens,
+  };
+}
+
 function recordBridgeOutcome(params: {
   routeKey: string;
   outcome: "LIVE_GEMINI" | "FALLBACK_TRIGGERED";
@@ -536,6 +604,8 @@ function recordBridgeOutcome(params: {
     record.missingKeyCount += 1;
   } else if (params.reason === "CIRCUIT_OPEN") {
     record.circuitOpenRejectedCount += 1;
+  } else if (params.reason === "BUDGET_EXCEEDED") {
+    record.budgetExceededCount += 1;
   } else if (params.reason === "TIMEOUT") {
     record.timeoutCount += 1;
   } else {
@@ -543,18 +613,69 @@ function recordBridgeOutcome(params: {
   }
 }
 
+async function persistTokenAccounting(params: {
+  routeKey: string;
+  modelName?: string;
+  usage: NormalizedTokenUsage;
+  outcome: "LIVE_GEMINI" | "FALLBACK_TRIGGERED";
+}): Promise<number> {
+  const costUsdMicros = calculateModelCostMicros({
+    modelName: params.modelName,
+    promptTokens: params.usage.promptTokens,
+    completionTokens: params.usage.completionTokens,
+  });
+
+  const record = getOrCreateTelemetryRecord(params.routeKey);
+  record.totalTokens += params.usage.totalTokens;
+  record.costUsdMicros += costUsdMicros;
+
+  const dateKey = getUtcDateKey();
+  const store = getBridgeStateStore();
+  const archive = getBridgeArchiveRepository();
+
+  await store.recordDailyUsage({
+    dateKey,
+    routeKey: params.routeKey,
+    promptTokens: params.usage.promptTokens,
+    completionTokens: params.usage.completionTokens,
+    totalTokens: params.usage.totalTokens,
+    costUsdMicros,
+  });
+
+  void archive.upsertDailyUsage({
+    dateKey,
+    routeKey: params.routeKey,
+    requestCount: 1,
+    liveSuccessCount: params.outcome === "LIVE_GEMINI" ? 1 : 0,
+    fallbackCount: params.outcome === "FALLBACK_TRIGGERED" ? 1 : 0,
+    promptTokens: params.usage.promptTokens,
+    completionTokens: params.usage.completionTokens,
+    totalTokens: params.usage.totalTokens,
+    costUsdMicros,
+  });
+
+  return costUsdMicros;
+}
+
 /**
- * Shared circuit breaker + timeout executor for streaming/chat/external LLM handlers.
- * Handles missing API keys, open circuits, AbortController timeouts, and outcome recording.
+ * Shared circuit breaker + FinOps quota + timeout executor for all LLM routes.
+ * Handles missing API keys, open circuits, daily token/USD budget caps, timeouts,
+ * fail-open Redis/PostgreSQL archival, and deterministic fallback telemetry.
  */
 export async function runWithCircuitGuard<T>(params: {
   routeKey: string;
   hasKey?: boolean;
   timeoutMs?: number;
-  execute: (abortSignal: AbortSignal) => Promise<T>;
+  modelName?: string;
+  extractUsage?: (data: NoInfer<T>) => TokenUsageInput | null | undefined;
+  execute: (
+    abortSignal: AbortSignal,
+    helpers: BridgeExecuteHelpers,
+  ) => Promise<T>;
 }): Promise<ExecuteGeminiBridgeResult<T>> {
   const startedAt = Date.now();
   const store = getBridgeStateStore();
+  const archive = getBridgeArchiveRepository();
   const breaker = getRouteCircuitBreaker(params.routeKey);
   const remoteState = await store.loadRouteCircuit(params.routeKey);
   if (remoteState) {
@@ -570,16 +691,16 @@ export async function runWithCircuitGuard<T>(params: {
       reason: "MISSING_API_KEY",
       latencyMs,
     });
-    await store.appendAuditEvent(
-      buildAuditEvent({
-        routeKey: params.routeKey,
-        eventType: "REQUEST_COMPLETED",
-        outcome: "FALLBACK_TRIGGERED",
-        fallbackReason: "MISSING_API_KEY",
-        latencyMs,
-        detail: "Served local deterministic fallback (no upstream key)",
-      }),
-    );
+    const ev = buildAuditEvent({
+      routeKey: params.routeKey,
+      eventType: "REQUEST_COMPLETED",
+      outcome: "FALLBACK_TRIGGERED",
+      fallbackReason: "MISSING_API_KEY",
+      latencyMs,
+      detail: "Served local deterministic fallback (no upstream key)",
+    });
+    await store.appendAuditEvent(ev);
+    void archive.archiveEvents([ev]);
     return {
       ok: false,
       source: "FALLBACK_TRIGGERED",
@@ -599,16 +720,16 @@ export async function runWithCircuitGuard<T>(params: {
       reason: "CIRCUIT_OPEN",
       latencyMs,
     });
-    await store.appendAuditEvent(
-      buildAuditEvent({
-        routeKey: params.routeKey,
-        eventType: "REQUEST_COMPLETED",
-        outcome: "FALLBACK_TRIGGERED",
-        fallbackReason: "CIRCUIT_OPEN",
-        latencyMs,
-        detail: "Short-circuited via OPEN circuit breaker",
-      }),
-    );
+    const ev = buildAuditEvent({
+      routeKey: params.routeKey,
+      eventType: "REQUEST_COMPLETED",
+      outcome: "FALLBACK_TRIGGERED",
+      fallbackReason: "CIRCUIT_OPEN",
+      latencyMs,
+      detail: "Short-circuited via OPEN circuit breaker",
+    });
+    await store.appendAuditEvent(ev);
+    void archive.archiveEvents([ev]);
     return {
       ok: false,
       source: "FALLBACK_TRIGGERED",
@@ -620,13 +741,85 @@ export async function runWithCircuitGuard<T>(params: {
     };
   }
 
+  const policy = getAiBridgeFinOpsPolicy();
+  const dateKey = getUtcDateKey(new Date(startedAt));
+  const dailyUsage = await store.getDailyUsage(dateKey);
+  const exceededTokens =
+    policy.dailyTokenLimit > 0 &&
+    dailyUsage.totalTokens >= policy.dailyTokenLimit;
+  const exceededCost =
+    policy.dailyCostMicrosLimit > 0 &&
+    dailyUsage.costUsdMicros >= policy.dailyCostMicrosLimit;
+
+  if (policy.enforced && (exceededTokens || exceededCost)) {
+    const latencyMs = Date.now() - startedAt;
+    recordBridgeOutcome({
+      routeKey: params.routeKey,
+      outcome: "FALLBACK_TRIGGERED",
+      reason: "BUDGET_EXCEEDED",
+      latencyMs,
+    });
+    const ev = buildAuditEvent({
+      routeKey: params.routeKey,
+      eventType: "BUDGET_EXCEEDED",
+      outcome: "FALLBACK_TRIGGERED",
+      fallbackReason: "BUDGET_EXCEEDED",
+      latencyMs,
+      totalTokens: dailyUsage.totalTokens,
+      costUsdMicros: dailyUsage.costUsdMicros,
+      detail: exceededCost
+        ? `Daily cost quota reached ($${microsToUsd(dailyUsage.costUsdMicros)} / $${policy.dailyCostUsdLimit})`
+        : `Daily token quota reached (${dailyUsage.totalTokens} / ${policy.dailyTokenLimit})`,
+    });
+    await store.appendAuditEvent(ev);
+    void archive.archiveEvents([ev]);
+    void archive.upsertDailyUsage({
+      dateKey,
+      routeKey: params.routeKey,
+      requestCount: 1,
+      liveSuccessCount: 0,
+      fallbackCount: 1,
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0,
+      costUsdMicros: 0,
+    });
+    return {
+      ok: false,
+      source: "FALLBACK_TRIGGERED",
+      reason: "BUDGET_EXCEEDED",
+      detail:
+        "Daily AI Bridge FinOps budget cap reached; serving deterministic local fallback.",
+      circuitState: breaker.getState(startedAt),
+      latencyMs,
+    };
+  }
+
   const timeoutMs = params.timeoutMs ?? 12_000;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
+  let reportedUsage: NormalizedTokenUsage | null = null;
+  let usagePersisted = false;
+  let usagePromise: Promise<number> | null = null;
+  const helpers: BridgeExecuteHelpers = {
+    reportUsage: (usageInput) => {
+      const normalized = normalizeTokenUsage(usageInput);
+      if (!normalized || usagePersisted) return;
+      reportedUsage = normalized;
+      usagePersisted = true;
+      usagePromise = persistTokenAccounting({
+        routeKey: params.routeKey,
+        modelName: params.modelName,
+        usage: normalized,
+        outcome: "LIVE_GEMINI",
+      });
+    },
+  };
+
   try {
     const data = await Promise.race([
-      params.execute(controller.signal),
+      params.execute(controller.signal, helpers),
       new Promise<never>((_, reject) => {
         controller.signal.addEventListener(
           "abort",
@@ -648,16 +841,50 @@ export async function runWithCircuitGuard<T>(params: {
       outcome: "LIVE_GEMINI",
       latencyMs,
     });
-    await store.appendAuditEvent(
-      buildAuditEvent({
+
+    const extracted =
+      reportedUsage ?? normalizeTokenUsage(params.extractUsage?.(data));
+    let costUsdMicros: number | undefined;
+    if (usagePromise) {
+      costUsdMicros = await usagePromise;
+    } else if (extracted && !usagePersisted) {
+      usagePersisted = true;
+      costUsdMicros = await persistTokenAccounting({
         routeKey: params.routeKey,
-        eventType: "REQUEST_COMPLETED",
+        modelName: params.modelName,
+        usage: extracted,
         outcome: "LIVE_GEMINI",
-        fallbackReason: null,
-        latencyMs,
-        detail: "Upstream inference completed",
-      }),
-    );
+      });
+    } else if (!extracted) {
+      void archive.upsertDailyUsage({
+        dateKey,
+        routeKey: params.routeKey,
+        requestCount: 1,
+        liveSuccessCount: 1,
+        fallbackCount: 0,
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: 0,
+        costUsdMicros: 0,
+      });
+    }
+
+    const ev = buildAuditEvent({
+      routeKey: params.routeKey,
+      eventType: "REQUEST_COMPLETED",
+      outcome: "LIVE_GEMINI",
+      fallbackReason: null,
+      latencyMs,
+      promptTokens: extracted?.promptTokens,
+      completionTokens: extracted?.completionTokens,
+      totalTokens: extracted?.totalTokens,
+      costUsdMicros,
+      detail: extracted
+        ? `Upstream inference completed (${extracted.totalTokens} tokens)`
+        : "Upstream inference completed",
+    });
+    await store.appendAuditEvent(ev);
+    void archive.archiveEvents([ev]);
     return {
       ok: true,
       source: "LIVE_GEMINI",
@@ -687,20 +914,31 @@ export async function runWithCircuitGuard<T>(params: {
       reason,
       latencyMs,
     });
-    await store.appendAuditEvent(
-      buildAuditEvent({
-        routeKey: params.routeKey,
-        eventType:
-          circuitState === "OPEN" ? "CIRCUIT_OPENED" : "REQUEST_COMPLETED",
-        outcome: "FALLBACK_TRIGGERED",
-        fallbackReason: reason,
-        latencyMs,
-        detail:
-          circuitState === "OPEN"
-            ? `Circuit tripped OPEN after ${reason}`
-            : `Fallback triggered due to ${reason}`,
-      }),
-    );
+    const ev = buildAuditEvent({
+      routeKey: params.routeKey,
+      eventType:
+        circuitState === "OPEN" ? "CIRCUIT_OPENED" : "REQUEST_COMPLETED",
+      outcome: "FALLBACK_TRIGGERED",
+      fallbackReason: reason,
+      latencyMs,
+      detail:
+        circuitState === "OPEN"
+          ? `Circuit tripped OPEN after ${reason}`
+          : `Fallback triggered due to ${reason}`,
+    });
+    await store.appendAuditEvent(ev);
+    void archive.archiveEvents([ev]);
+    void archive.upsertDailyUsage({
+      dateKey,
+      routeKey: params.routeKey,
+      requestCount: 1,
+      liveSuccessCount: 0,
+      fallbackCount: 1,
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0,
+      costUsdMicros: 0,
+    });
 
     return {
       ok: false,
@@ -725,20 +963,112 @@ export async function executeGeminiBridge<
   timeoutMs?: number;
   modelName?: string;
 }): Promise<ExecuteGeminiBridgeResult<z.infer<TSchema>>> {
+  const modelName = params.modelName ?? "gemini-2.5-flash";
+  let capturedUsage: TokenUsageInput | null = null;
+
   return runWithCircuitGuard({
     routeKey: params.routeKey,
     timeoutMs: params.timeoutMs,
+    modelName,
+    extractUsage: () => capturedUsage,
     execute: async (abortSignal) => {
       const result = await generateObject({
-        model: google(params.modelName ?? "gemini-2.5-flash"),
+        model: google(modelName),
         schema: params.schema,
         system: params.system,
         prompt: params.prompt,
         abortSignal,
       });
+      const rawUsage = (result as { usage?: TokenUsageInput }).usage;
+      const normalized = normalizeTokenUsage(rawUsage);
+      if (normalized) {
+        capturedUsage = normalized;
+      } else {
+        const promptChars = params.system.length + params.prompt.length;
+        const outputChars = JSON.stringify(result.object ?? "").length;
+        capturedUsage = {
+          promptTokens: Math.max(1, Math.ceil(promptChars / 4)),
+          completionTokens: Math.max(1, Math.ceil(outputChars / 4)),
+        };
+      }
       return result.object as z.infer<TSchema>;
     },
   });
+}
+
+export async function flushBridgeAuditArchiveAsync(
+  actor?: string,
+): Promise<number> {
+  const store = getBridgeStateStore();
+  const archive = getBridgeArchiveRepository();
+  const hotEvents = await store.listAuditEvents(100);
+  const archivedCount = await archive.archiveEvents(hotEvents);
+  const marker = buildAuditEvent({
+    routeKey: "ALL",
+    eventType: "AUDIT_ARCHIVED",
+    actor: actor ?? "SYSTEM",
+    detail: `Flushed ${archivedCount} event(s) to cold archive`,
+  });
+  await store.appendAuditEvent(marker);
+  await archive.archiveEvents([marker]);
+  return archivedCount;
+}
+
+export async function resetBridgeDailyBudgetAsync(
+  actor?: string,
+): Promise<string[]> {
+  const store = getBridgeStateStore();
+  const archive = getBridgeArchiveRepository();
+  const dateKey = getUtcDateKey();
+  await store.resetDailyUsage(dateKey);
+  const ev = buildAuditEvent({
+    routeKey: "ALL",
+    eventType: "ADMIN_RESET",
+    actor: actor ?? "SYSTEM",
+    detail: `RESET_DAILY_BUDGET (${dateKey})`,
+  });
+  await store.appendAuditEvent(ev);
+  void archive.archiveEvents([ev]);
+  return [dateKey];
+}
+
+function buildFinOpsSummary(usage: DailyBudgetUsage): AiBridgeFinOpsSummary {
+  const policy = getAiBridgeFinOpsPolicy();
+  const estimatedCostUsd = microsToUsd(usage.costUsdMicros);
+  const remainingTokens =
+    policy.dailyTokenLimit > 0
+      ? Math.max(0, policy.dailyTokenLimit - usage.totalTokens)
+      : 0;
+  const tokenPct =
+    policy.dailyTokenLimit > 0
+      ? (usage.totalTokens / policy.dailyTokenLimit) * 100
+      : 0;
+  const costPct =
+    policy.dailyCostUsdLimit > 0
+      ? (estimatedCostUsd / policy.dailyCostUsdLimit) * 100
+      : 0;
+  const budgetUtilizationPct = Math.max(
+    0,
+    Number(Math.max(tokenPct, costPct).toFixed(1)),
+  );
+  const isBudgetExceeded =
+    policy.enforced &&
+    ((policy.dailyTokenLimit > 0 &&
+      usage.totalTokens >= policy.dailyTokenLimit) ||
+      (policy.dailyCostMicrosLimit > 0 &&
+        usage.costUsdMicros >= policy.dailyCostMicrosLimit));
+
+  return {
+    dateKey: usage.dateKey,
+    enforced: policy.enforced,
+    dailyTokenLimit: policy.dailyTokenLimit,
+    tokensUsed: usage.totalTokens,
+    remainingTokens,
+    dailyCostUsdLimit: policy.dailyCostUsdLimit,
+    estimatedCostUsd,
+    budgetUtilizationPct,
+    isBudgetExceeded,
+  };
 }
 
 function buildAiBridgeSnapshotCore(params: {
@@ -748,8 +1078,10 @@ function buildAiBridgeSnapshotCore(params: {
     includeAudit?: boolean;
   };
   recentAuditEvents: AiBridgeAuditEvent[];
+  dailyUsage: DailyBudgetUsage;
+  archiveStatus: AiBridgeArchiveStatus;
 }): AiBridgeHealthSnapshot {
-  const { filters, recentAuditEvents } = params;
+  const { filters, recentAuditEvents, dailyUsage, archiveStatus } = params;
   const now = Date.now();
   const store = getBridgeStateStore();
   const knownMap = new Map(
@@ -793,8 +1125,11 @@ function buildAiBridgeSnapshotCore(params: {
         timeoutCount: telemetry.timeoutCount,
         missingKeyCount: telemetry.missingKeyCount,
         circuitOpenRejectedCount: telemetry.circuitOpenRejectedCount,
+        budgetExceededCount: telemetry.budgetExceededCount,
         upstreamErrorCount: telemetry.upstreamErrorCount,
         piiRedactedCount: telemetry.piiRedactedCount,
+        totalTokens: telemetry.totalTokens,
+        estimatedCostUsd: microsToUsd(telemetry.costUsdMicros),
         avgLatencyMs,
         lastLatencyMs: telemetry.lastLatencyMs,
         lastOutcome: telemetry.lastOutcome,
@@ -804,6 +1139,7 @@ function buildAiBridgeSnapshotCore(params: {
     });
   }
 
+  const finops = buildFinOpsSummary(dailyUsage);
   const openCircuitsAll = allEntries.filter(
     (entry) => entry.circuit.state === "OPEN",
   ).length;
@@ -816,7 +1152,12 @@ function buildAiBridgeSnapshotCore(params: {
   let status: AiBridgeGlobalStatus = "HEALTHY";
   if (openCircuitsAll > 0) {
     status = "CRITICAL";
-  } else if (!geminiKeyConfigured || !glmKeyConfigured || hasRecentFallback) {
+  } else if (
+    !geminiKeyConfigured ||
+    !glmKeyConfigured ||
+    hasRecentFallback ||
+    finops.isBudgetExceeded
+  ) {
     status = "DEGRADED";
   }
 
@@ -838,6 +1179,8 @@ function buildAiBridgeSnapshotCore(params: {
   let liveSuccessCount = 0;
   let fallbackCount = 0;
   let totalPiiRedacted = 0;
+  let totalTokens = 0;
+  let totalCostUsd = 0;
   let weightedLatencySum = 0;
 
   for (const entry of filteredEntries) {
@@ -845,6 +1188,8 @@ function buildAiBridgeSnapshotCore(params: {
     liveSuccessCount += entry.telemetry.liveSuccessCount;
     fallbackCount += entry.telemetry.fallbackCount;
     totalPiiRedacted += entry.telemetry.piiRedactedCount;
+    totalTokens += entry.telemetry.totalTokens;
+    totalCostUsd += entry.telemetry.estimatedCostUsd;
     weightedLatencySum +=
       entry.telemetry.avgLatencyMs * entry.telemetry.totalRequests;
   }
@@ -866,6 +1211,8 @@ function buildAiBridgeSnapshotCore(params: {
       nodeEnv: process.env.NODE_ENV ?? "development",
     },
     persistence: store.getPersistenceStatus(),
+    finops,
+    archive: archiveStatus,
     summary: {
       totalRoutes: filteredEntries.length,
       openCircuits,
@@ -874,6 +1221,8 @@ function buildAiBridgeSnapshotCore(params: {
       liveSuccessCount,
       fallbackCount,
       totalPiiRedacted,
+      totalTokens,
+      estimatedCostUsd: Number(totalCostUsd.toFixed(6)),
       avgLatencyMs,
     },
     routes: filteredEntries,
@@ -887,19 +1236,30 @@ export function getAiBridgeHealthSnapshot(filters?: {
   includeAudit?: boolean;
 }): AiBridgeHealthSnapshot {
   const store = getBridgeStateStore();
+  const archive = getBridgeArchiveRepository();
   const recentAuditEvents =
     filters?.includeAudit === false
       ? []
       : store.getCachedAuditEvents(50, filters?.routeKey);
-  return buildAiBridgeSnapshotCore({ filters, recentAuditEvents });
+  return buildAiBridgeSnapshotCore({
+    filters,
+    recentAuditEvents,
+    dailyUsage: store.getCachedDailyUsage(getUtcDateKey()),
+    archiveStatus: archive.getCachedArchiveStatus(),
+  });
 }
 
 export async function getAiBridgeHealthSnapshotAsync(filters?: {
   routeKey?: string;
   status?: "ALL" | "OPEN" | "CLOSED";
   includeAudit?: boolean;
+  auditSource?: "hot" | "archive";
+  limit?: number;
 }): Promise<AiBridgeHealthSnapshot> {
   const store = getBridgeStateStore();
+  const archive = getBridgeArchiveRepository();
+  const limit = filters?.limit ?? 50;
+
   if (store.getPersistenceStatus().driver === "redis") {
     const keysToSync = filters?.routeKey
       ? [filters.routeKey]
@@ -920,10 +1280,23 @@ export async function getAiBridgeHealthSnapshotAsync(filters?: {
     );
   }
 
-  const recentAuditEvents =
+  const [dailyUsage, archiveStatus, recentAuditEvents] = await Promise.all([
+    store.getDailyUsage(getUtcDateKey()),
+    archive.getArchiveStatus(),
     filters?.includeAudit === false
-      ? []
-      : await store.listAuditEvents(50, filters?.routeKey);
+      ? Promise.resolve([])
+      : filters?.auditSource === "archive"
+        ? archive.listArchivedEvents({
+            limit,
+            routeKey: filters?.routeKey,
+          })
+        : store.listAuditEvents(limit, filters?.routeKey),
+  ]);
 
-  return buildAiBridgeSnapshotCore({ filters, recentAuditEvents });
+  return buildAiBridgeSnapshotCore({
+    filters,
+    recentAuditEvents,
+    dailyUsage,
+    archiveStatus,
+  });
 }

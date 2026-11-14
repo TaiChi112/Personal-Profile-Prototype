@@ -200,13 +200,32 @@ export async function POST(req: NextRequest) {
     routeKey: "terminal:stream",
     hasKey: hasApiKey,
     timeoutMs: 20_000,
-    execute: async (abortSignal) => {
+    modelName: "gemini-2.5-flash",
+    execute: async (abortSignal, helpers) => {
       const result = await streamText({
         model: google("gemini-2.5-flash"),
         system: CYBERPUNK_SYSADMIN_SYSTEM_PROMPT,
         prompt: `User terminal prompt: "${safePrompt}". Current terminal path: "${safePath}"`,
         abortSignal,
       });
+
+      if ("usage" in result && result.usage) {
+        void Promise.resolve(result.usage)
+          .then((u) => {
+            if (u) {
+              helpers.reportUsage(
+                u as {
+                  promptTokens?: number;
+                  completionTokens?: number;
+                  totalTokens?: number;
+                  inputTokens?: number;
+                  outputTokens?: number;
+                },
+              );
+            }
+          })
+          .catch(() => undefined);
+      }
 
       return result.toTextStreamResponse({
         headers: {

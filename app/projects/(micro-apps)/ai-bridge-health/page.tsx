@@ -4,9 +4,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   Activity,
   AlertTriangle,
+  Archive,
   CheckCircle2,
   Clock,
   Database,
+  DollarSign,
   History,
   KeyRound,
   RefreshCw,
@@ -18,11 +20,18 @@ import {
 import type { AiBridgeHealthSnapshot } from "@/app/lib/ai/healthContract";
 
 type StatusFilter = "ALL" | "OPEN" | "CLOSED";
+type AuditSource = "hot" | "archive";
+type BridgeControlAction =
+  | "RESET_CIRCUIT"
+  | "RESET_TELEMETRY"
+  | "ARCHIVE_FLUSH"
+  | "RESET_DAILY_BUDGET";
 
 export default function AiBridgeHealthDashboardPage() {
   const [snapshot, setSnapshot] = useState<AiBridgeHealthSnapshot | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [auditRouteFilter, setAuditRouteFilter] = useState<string>("ALL");
+  const [auditSource, setAuditSource] = useState<AuditSource>("hot");
   const [autoRefresh, setAutoRefresh] = useState<boolean>(false);
   const [adminToken, setAdminToken] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -30,46 +39,51 @@ export default function AiBridgeHealthDashboardPage() {
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [lastActionNote, setLastActionNote] = useState<string | null>(null);
 
-  const fetchSnapshot = useCallback(async (filter: StatusFilter) => {
-    setIsLoading(true);
-    setErrorBanner(null);
-    try {
-      const response = await fetch(
-        `/api/health/ai-bridge?status=${encodeURIComponent(filter)}`,
-        {
-          method: "GET",
-          cache: "no-store",
-        },
-      );
-      if (!response.ok) {
-        const problem = (await response.json()) as { detail?: string };
-        throw new Error(problem.detail ?? `HTTP ${response.status}`);
+  const fetchSnapshot = useCallback(
+    async (filter: StatusFilter, source: AuditSource) => {
+      setIsLoading(true);
+      setErrorBanner(null);
+      try {
+        const response = await fetch(
+          `/api/health/ai-bridge?status=${encodeURIComponent(filter)}&auditSource=${encodeURIComponent(source)}`,
+          {
+            method: "GET",
+            cache: "no-store",
+          },
+        );
+        if (!response.ok) {
+          const problem = (await response.json()) as { detail?: string };
+          throw new Error(problem.detail ?? `HTTP ${response.status}`);
+        }
+        const data = (await response.json()) as AiBridgeHealthSnapshot;
+        setSnapshot(data);
+      } catch (err) {
+        setErrorBanner(
+          err instanceof Error
+            ? err.message
+            : "Failed to fetch AI Bridge health",
+        );
+      } finally {
+        setIsLoading(false);
       }
-      const data = (await response.json()) as AiBridgeHealthSnapshot;
-      setSnapshot(data);
-    } catch (err) {
-      setErrorBanner(
-        err instanceof Error ? err.message : "Failed to fetch AI Bridge health",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    [],
+  );
 
   useEffect(() => {
-    void fetchSnapshot(statusFilter);
-  }, [fetchSnapshot, statusFilter]);
+    void fetchSnapshot(statusFilter, auditSource);
+  }, [fetchSnapshot, statusFilter, auditSource]);
 
   useEffect(() => {
     if (!autoRefresh) return;
     const timer = setInterval(() => {
-      void fetchSnapshot(statusFilter);
+      void fetchSnapshot(statusFilter, auditSource);
     }, 5_000);
     return () => clearInterval(timer);
-  }, [autoRefresh, fetchSnapshot, statusFilter]);
+  }, [autoRefresh, fetchSnapshot, statusFilter, auditSource]);
 
   const executeControlAction = async (
-    action: "RESET_CIRCUIT" | "RESET_TELEMETRY",
+    action: BridgeControlAction,
     routeKey?: string,
   ) => {
     setIsMutating(true);
@@ -94,15 +108,20 @@ export default function AiBridgeHealthDashboardPage() {
         actionApplied: string;
         authorizedBy?: string;
         affectedRouteKeys: string[];
+        archivedCount?: number;
         snapshot: AiBridgeHealthSnapshot;
       };
+      const archivedSuffix =
+        typeof result.archivedCount === "number"
+          ? ` | ${result.archivedCount} archived`
+          : "";
       setLastActionNote(
-        `${result.actionApplied} applied to ${routeKey ?? `${result.affectedRouteKeys.length} routes`}${result.authorizedBy ? ` (${result.authorizedBy})` : ""}`,
+        `${result.actionApplied} applied to ${routeKey ?? `${result.affectedRouteKeys.length} routes`}${result.authorizedBy ? ` (${result.authorizedBy})` : ""}${archivedSuffix}`,
       );
-      if (statusFilter === "ALL") {
+      if (statusFilter === "ALL" && auditSource === "hot") {
         setSnapshot(result.snapshot);
       } else {
-        await fetchSnapshot(statusFilter);
+        await fetchSnapshot(statusFilter, auditSource);
       }
     } catch (err) {
       setErrorBanner(
@@ -147,7 +166,7 @@ export default function AiBridgeHealthDashboardPage() {
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => void fetchSnapshot(statusFilter)}
+            onClick={() => void fetchSnapshot(statusFilter, auditSource)}
             disabled={isLoading}
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 transition disabled:opacity-50"
           >
@@ -187,6 +206,28 @@ export default function AiBridgeHealthDashboardPage() {
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white transition disabled:opacity-50"
           >
             Reset Telemetry
+          </button>
+
+          <button
+            type="button"
+            data-testid="flush-archive-btn"
+            onClick={() => void executeControlAction("ARCHIVE_FLUSH")}
+            disabled={isMutating}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white transition disabled:opacity-50"
+          >
+            <Archive className="w-3.5 h-3.5" />
+            Flush Archive
+          </button>
+
+          <button
+            type="button"
+            data-testid="reset-budget-btn"
+            onClick={() => void executeControlAction("RESET_DAILY_BUDGET")}
+            disabled={isMutating}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white transition disabled:opacity-50"
+          >
+            <DollarSign className="w-3.5 h-3.5" />
+            Reset Daily Budget
           </button>
         </div>
       </div>
@@ -266,6 +307,30 @@ export default function AiBridgeHealthDashboardPage() {
                 : "MEMORY_RING_BUFFER"}
             </span>
           </div>
+
+          <div className="inline-flex items-center gap-1.5 font-mono">
+            <Archive className="w-3.5 h-3.5 text-slate-500" />
+            <span>Cold Archive:</span>
+            <span
+              data-testid="env-archive-status"
+              className={
+                snapshot?.archive.driver === "prisma" &&
+                snapshot.archive.connected
+                  ? "text-emerald-600 font-semibold"
+                  : snapshot?.archive.driver === "prisma"
+                    ? "text-amber-600 font-semibold"
+                    : "text-slate-700 dark:text-slate-300 font-semibold"
+              }
+            >
+              {snapshot?.archive.driver === "prisma"
+                ? snapshot.archive.connected
+                  ? "PRISMA_ARCHIVE_SYNCED"
+                  : "PRISMA_FAIL_OPEN"
+                : snapshot?.archive.driver === "memory"
+                  ? "MEMORY_ARCHIVE"
+                  : "ARCHIVE_DISABLED"}
+            </span>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -313,6 +378,65 @@ export default function AiBridgeHealthDashboardPage() {
           <span>{lastActionNote}</span>
         </div>
       )}
+
+      {/* FinOps Daily Budget Quota Card */}
+      <div
+        data-testid="finops-budget-card"
+        className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3 shadow-sm"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <DollarSign className="w-4 h-4 text-emerald-600" />
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+              FinOps Daily Budget Guardrail ({snapshot?.finops.dateKey ?? "UTC"}
+              )
+            </h2>
+            <span
+              className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-semibold border ${
+                snapshot?.finops.isBudgetExceeded
+                  ? "bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-700"
+                  : snapshot?.finops.enforced
+                    ? "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700"
+                    : "bg-slate-100 text-slate-600 border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-700"
+              }`}
+            >
+              {snapshot?.finops.isBudgetExceeded
+                ? "BUDGET_EXCEEDED"
+                : snapshot?.finops.enforced
+                  ? "GUARD_ACTIVE"
+                  : "UNENFORCED"}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-slate-600 dark:text-slate-300">
+            <span data-testid="finops-tokens-used">
+              Tokens: {(snapshot?.finops.tokensUsed ?? 0).toLocaleString()} /{" "}
+              {(snapshot?.finops.dailyTokenLimit ?? 0).toLocaleString()}
+            </span>
+            <span data-testid="finops-estimated-cost">
+              Est. Cost: ${(snapshot?.finops.estimatedCostUsd ?? 0).toFixed(4)}{" "}
+              / ${(snapshot?.finops.dailyCostUsdLimit ?? 0).toFixed(2)}
+            </span>
+            <span>{snapshot?.finops.budgetUtilizationPct ?? 0}% used</span>
+          </div>
+        </div>
+
+        <div className="w-full h-2.5 rounded-full bg-slate-100 dark:bg-slate-900 overflow-hidden">
+          <div
+            data-testid="finops-usage-bar"
+            className={`h-full transition-all ${
+              (snapshot?.finops.budgetUtilizationPct ?? 0) >= 100
+                ? "bg-rose-600"
+                : (snapshot?.finops.budgetUtilizationPct ?? 0) >= 70
+                  ? "bg-amber-500"
+                  : "bg-emerald-500"
+            }`}
+            style={{
+              width: `${Math.min(100, Math.max(0, snapshot?.finops.budgetUtilizationPct ?? 0))}%`,
+            }}
+          />
+        </div>
+      </div>
 
       {/* Summary KPI Strip */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -438,8 +562,9 @@ export default function AiBridgeHealthDashboardPage() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-slate-400">Avg Latency</div>
+                  <div className="text-slate-400">Tokens / Latency</div>
                   <div className="font-semibold">
+                    {route.telemetry.totalTokens.toLocaleString()} /{" "}
                     {route.telemetry.avgLatencyMs} ms
                   </div>
                 </div>
@@ -495,23 +620,37 @@ export default function AiBridgeHealthDashboardPage() {
               data-testid="audit-event-count"
               className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[11px] font-mono text-slate-600 dark:text-slate-300"
             >
-              {snapshot?.persistence.auditEventCount ?? 0} total buffered
+              {auditSource === "archive"
+                ? `${snapshot?.archive.archivedEventCount ?? 0} archived`
+                : `${snapshot?.persistence.auditEventCount ?? 0} total buffered`}
             </span>
           </div>
 
-          <select
-            data-testid="audit-route-filter"
-            value={auditRouteFilter}
-            onChange={(e) => setAuditRouteFilter(e.target.value)}
-            className="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 font-mono text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="ALL">ALL ROUTES</option>
-            {snapshot?.routes.map((route) => (
-              <option key={route.routeKey} value={route.routeKey}>
-                {route.routeKey}
-              </option>
-            ))}
-          </select>
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              data-testid="audit-source-select"
+              value={auditSource}
+              onChange={(e) => setAuditSource(e.target.value as AuditSource)}
+              className="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 font-mono text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="hot">HOT BUFFER</option>
+              <option value="archive">COLD ARCHIVE</option>
+            </select>
+
+            <select
+              data-testid="audit-route-filter"
+              value={auditRouteFilter}
+              onChange={(e) => setAuditRouteFilter(e.target.value)}
+              className="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 font-mono text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="ALL">ALL ROUTES</option>
+              {snapshot?.routes.map((route) => (
+                <option key={route.routeKey} value={route.routeKey}>
+                  {route.routeKey}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {(() => {
@@ -535,6 +674,7 @@ export default function AiBridgeHealthDashboardPage() {
                     <th className="py-2 pr-3">Event</th>
                     <th className="py-2 pr-3">Route</th>
                     <th className="py-2 pr-3">Outcome / PII</th>
+                    <th className="py-2 pr-3">Tokens</th>
                     <th className="py-2 pr-3">Actor</th>
                     <th className="py-2">Detail</th>
                   </tr>
@@ -556,6 +696,12 @@ export default function AiBridgeHealthDashboardPage() {
                           : ev.piiRedactedCount
                             ? `${ev.piiRedactedCount} redacted`
                             : "-"}
+                      </td>
+                      <td className="py-2 pr-3">
+                        {typeof ev.totalTokens === "number" &&
+                        ev.totalTokens > 0
+                          ? ev.totalTokens.toLocaleString()
+                          : "-"}
                       </td>
                       <td className="py-2 pr-3">{ev.actor ?? "SYSTEM"}</td>
                       <td className="py-2 text-slate-500">

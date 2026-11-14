@@ -12,6 +12,7 @@ export const BridgeOutcomeSchema = z.enum([
 export const BridgeFallbackReasonSchema = z.enum([
   "MISSING_API_KEY",
   "CIRCUIT_OPEN",
+  "BUDGET_EXCEEDED",
   "UPSTREAM_ERROR",
   "TIMEOUT",
 ]);
@@ -91,10 +92,17 @@ export const AiBridgeHealthQuerySchema = z.object({
     .optional(),
   status: z.enum(["ALL", "OPEN", "CLOSED"]).default("ALL"),
   includeAudit: z.enum(["true", "false"]).optional(),
+  auditSource: z.enum(["hot", "archive"]).default("hot"),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
 });
 
 export const AiBridgeHealthActionSchema = z.object({
-  action: z.enum(["RESET_CIRCUIT", "RESET_TELEMETRY"]),
+  action: z.enum([
+    "RESET_CIRCUIT",
+    "RESET_TELEMETRY",
+    "ARCHIVE_FLUSH",
+    "RESET_DAILY_BUDGET",
+  ]),
   routeKey: z
     .string()
     .trim()
@@ -111,8 +119,11 @@ export const RouteTelemetrySummarySchema = z.object({
   timeoutCount: z.number().int().nonnegative(),
   missingKeyCount: z.number().int().nonnegative(),
   circuitOpenRejectedCount: z.number().int().nonnegative(),
+  budgetExceededCount: z.number().int().nonnegative(),
   upstreamErrorCount: z.number().int().nonnegative(),
   piiRedactedCount: z.number().int().nonnegative(),
+  totalTokens: z.number().int().nonnegative(),
+  estimatedCostUsd: z.number().nonnegative(),
   avgLatencyMs: z.number().nonnegative(),
   lastLatencyMs: z.number().nonnegative().nullable(),
   lastOutcome: BridgeOutcomeSchema,
@@ -141,8 +152,10 @@ export type AiBridgeRouteHealthEntry = z.infer<
 export const AiBridgeAuditEventTypeSchema = z.enum([
   "REQUEST_COMPLETED",
   "CIRCUIT_OPENED",
+  "BUDGET_EXCEEDED",
   "PII_REDACTED",
   "ADMIN_RESET",
+  "AUDIT_ARCHIVED",
 ]);
 
 export type AiBridgeAuditEventType = z.infer<
@@ -158,6 +171,10 @@ export const AiBridgeAuditEventSchema = z.object({
   fallbackReason: BridgeFallbackReasonSchema.nullable().optional(),
   latencyMs: z.number().nonnegative().optional(),
   piiRedactedCount: z.number().int().nonnegative().optional(),
+  promptTokens: z.number().int().nonnegative().optional(),
+  completionTokens: z.number().int().nonnegative().optional(),
+  totalTokens: z.number().int().nonnegative().optional(),
+  costUsdMicros: z.number().int().nonnegative().optional(),
   actor: z.string().optional(),
   detail: z.string().optional(),
 });
@@ -180,6 +197,37 @@ export type AiBridgePersistenceStatus = z.infer<
   typeof AiBridgePersistenceStatusSchema
 >;
 
+export const AiBridgeFinOpsSummarySchema = z.object({
+  dateKey: z.string(),
+  enforced: z.boolean(),
+  dailyTokenLimit: z.number().int().nonnegative(),
+  tokensUsed: z.number().int().nonnegative(),
+  remainingTokens: z.number().int().nonnegative(),
+  dailyCostUsdLimit: z.number().nonnegative(),
+  estimatedCostUsd: z.number().nonnegative(),
+  budgetUtilizationPct: z.number().min(0),
+  isBudgetExceeded: z.boolean(),
+});
+
+export type AiBridgeFinOpsSummary = z.infer<typeof AiBridgeFinOpsSummarySchema>;
+
+export const AiBridgeArchiveDriverSchema = z.enum([
+  "disabled",
+  "memory",
+  "prisma",
+]);
+
+export type AiBridgeArchiveDriver = z.infer<typeof AiBridgeArchiveDriverSchema>;
+
+export const AiBridgeArchiveStatusSchema = z.object({
+  driver: AiBridgeArchiveDriverSchema,
+  connected: z.boolean(),
+  archivedEventCount: z.number().int().nonnegative(),
+  lastArchivedAt: z.string().nullable(),
+});
+
+export type AiBridgeArchiveStatus = z.infer<typeof AiBridgeArchiveStatusSchema>;
+
 export const AiBridgeHealthResponseSchema = z.object({
   version: z.literal("1.0"),
   status: AiBridgeGlobalStatusSchema,
@@ -191,6 +239,8 @@ export const AiBridgeHealthResponseSchema = z.object({
     nodeEnv: z.string(),
   }),
   persistence: AiBridgePersistenceStatusSchema,
+  finops: AiBridgeFinOpsSummarySchema,
+  archive: AiBridgeArchiveStatusSchema,
   summary: z.object({
     totalRoutes: z.number().int().nonnegative(),
     openCircuits: z.number().int().nonnegative(),
@@ -199,6 +249,8 @@ export const AiBridgeHealthResponseSchema = z.object({
     liveSuccessCount: z.number().int().nonnegative(),
     fallbackCount: z.number().int().nonnegative(),
     totalPiiRedacted: z.number().int().nonnegative(),
+    totalTokens: z.number().int().nonnegative(),
+    estimatedCostUsd: z.number().nonnegative(),
     avgLatencyMs: z.number().nonnegative(),
   }),
   routes: z.array(AiBridgeRouteHealthEntrySchema),
@@ -302,4 +354,94 @@ export function buildRfc7807Response(problem: Rfc7807Problem): Response {
       "Cache-Control": "no-store, max-age=0",
     },
   });
+}
+
+export const DEFAULT_DAILY_TOKEN_LIMIT = 500_000;
+export const DEFAULT_DAILY_COST_USD_LIMIT = 2.0;
+
+export interface ModelPricingRates {
+  inputPerMillionMicros: number;
+  outputPerMillionMicros: number;
+}
+
+export const AI_BRIDGE_MODEL_PRICING_MICROS: Record<string, ModelPricingRates> =
+  {
+    "gemini-2.5-flash": {
+      inputPerMillionMicros: 300_000,
+      outputPerMillionMicros: 2_500_000,
+    },
+    "gemini-2.5-pro": {
+      inputPerMillionMicros: 1_250_000,
+      outputPerMillionMicros: 10_000_000,
+    },
+    "glm-5.3-flash": {
+      inputPerMillionMicros: 140_000,
+      outputPerMillionMicros: 1_400_000,
+    },
+    default: {
+      inputPerMillionMicros: 300_000,
+      outputPerMillionMicros: 2_500_000,
+    },
+  };
+
+export interface AiBridgeFinOpsPolicy {
+  enforced: boolean;
+  dailyTokenLimit: number;
+  dailyCostUsdLimit: number;
+  dailyCostMicrosLimit: number;
+}
+
+export function getUtcDateKey(date = new Date()): string {
+  return date.toISOString().slice(0, 10);
+}
+
+export function microsToUsd(micros: number): number {
+  return Number((Math.max(0, micros) / 1_000_000).toFixed(6));
+}
+
+export function calculateModelCostMicros(params: {
+  modelName?: string;
+  promptTokens: number;
+  completionTokens: number;
+}): number {
+  const safePrompt = Math.max(0, Math.round(params.promptTokens));
+  const safeCompletion = Math.max(0, Math.round(params.completionTokens));
+  if (safePrompt === 0 && safeCompletion === 0) return 0;
+
+  const rate =
+    (params.modelName
+      ? AI_BRIDGE_MODEL_PRICING_MICROS[params.modelName]
+      : undefined) ?? AI_BRIDGE_MODEL_PRICING_MICROS.default;
+
+  const rawMicros =
+    (safePrompt * rate.inputPerMillionMicros +
+      safeCompletion * rate.outputPerMillionMicros) /
+    1_000_000;
+  return Math.max(1, Math.ceil(rawMicros));
+}
+
+export function getAiBridgeFinOpsPolicy(): AiBridgeFinOpsPolicy {
+  const rawTokenLimit = Number(process.env.AI_BRIDGE_DAILY_TOKEN_LIMIT);
+  const dailyTokenLimit =
+    Number.isFinite(rawTokenLimit) && rawTokenLimit >= 0
+      ? Math.floor(rawTokenLimit)
+      : DEFAULT_DAILY_TOKEN_LIMIT;
+
+  const rawCostLimit = Number(process.env.AI_BRIDGE_DAILY_COST_USD_LIMIT);
+  const dailyCostUsdLimit =
+    Number.isFinite(rawCostLimit) && rawCostLimit >= 0
+      ? Number(rawCostLimit.toFixed(6))
+      : DEFAULT_DAILY_COST_USD_LIMIT;
+
+  const guardFlag =
+    process.env.AI_BRIDGE_ENFORCE_BUDGET_GUARD?.trim().toLowerCase();
+  const enforced =
+    guardFlag !== "false" && (dailyTokenLimit > 0 || dailyCostUsdLimit > 0);
+
+  return {
+    enforced,
+    dailyTokenLimit,
+    dailyCostUsdLimit,
+    dailyCostMicrosLimit: Math.round(dailyCostUsdLimit * 1_000_000),
+  };
 }

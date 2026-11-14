@@ -19,6 +19,23 @@ const mockSnapshot: AiBridgeHealthSnapshot = {
     connected: true,
     auditEventCount: 2,
   },
+  finops: {
+    dateKey: "2026-11-14",
+    enforced: true,
+    dailyTokenLimit: 500_000,
+    tokensUsed: 1200,
+    remainingTokens: 498_800,
+    dailyCostUsdLimit: 2.0,
+    estimatedCostUsd: 0.0012,
+    budgetUtilizationPct: 0.2,
+    isBudgetExceeded: false,
+  },
+  archive: {
+    driver: "memory",
+    connected: true,
+    archivedEventCount: 2,
+    lastArchivedAt: "2026-11-14T05:00:00.000Z",
+  },
   summary: {
     totalRoutes: 2,
     openCircuits: 1,
@@ -27,6 +44,8 @@ const mockSnapshot: AiBridgeHealthSnapshot = {
     liveSuccessCount: 2,
     fallbackCount: 5,
     totalPiiRedacted: 4,
+    totalTokens: 1200,
+    estimatedCostUsd: 0.0012,
     avgLatencyMs: 28,
   },
   routes: [
@@ -48,8 +67,11 @@ const mockSnapshot: AiBridgeHealthSnapshot = {
         timeoutCount: 0,
         missingKeyCount: 1,
         circuitOpenRejectedCount: 0,
+        budgetExceededCount: 0,
         upstreamErrorCount: 0,
         piiRedactedCount: 4,
+        totalTokens: 1200,
+        estimatedCostUsd: 0.0012,
         avgLatencyMs: 32,
         lastLatencyMs: 14,
         lastOutcome: "LIVE_GEMINI",
@@ -75,8 +97,11 @@ const mockSnapshot: AiBridgeHealthSnapshot = {
         timeoutCount: 0,
         missingKeyCount: 0,
         circuitOpenRejectedCount: 1,
+        budgetExceededCount: 0,
         upstreamErrorCount: 3,
         piiRedactedCount: 0,
+        totalTokens: 0,
+        estimatedCostUsd: 0,
         avgLatencyMs: 25,
         lastLatencyMs: 10,
         lastOutcome: "FALLBACK_TRIGGERED",
@@ -159,6 +184,14 @@ describe("AiBridgeHealthDashboardPage", () => {
     expect(screen.getByTestId("env-persistence-status").textContent).toBe(
       "MEMORY_RING_BUFFER",
     );
+    expect(screen.getByTestId("env-archive-status").textContent).toBe(
+      "MEMORY_ARCHIVE",
+    );
+    expect(screen.getByTestId("finops-budget-card")).toBeDefined();
+    expect(screen.getByTestId("finops-tokens-used").textContent).toContain(
+      "1,200 / 500,000",
+    );
+    expect(screen.getByTestId("audit-source-select")).toBeDefined();
     expect(screen.getByTestId("ai-bridge-audit-section")).toBeDefined();
     expect(screen.getByTestId("audit-event-count").textContent).toContain("2");
     expect(screen.getByTestId("kpi-open-circuits").textContent).toBe("1");

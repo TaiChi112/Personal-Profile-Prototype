@@ -1,8 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "@/auth";
 import {
+  flushBridgeAuditArchiveAsync,
   getAiBridgeHealthSnapshot,
   getAiBridgeHealthSnapshotAsync,
+  resetBridgeDailyBudgetAsync,
   resetBridgeTelemetryAsync,
   resetRouteBridgeCircuitAsync,
 } from "@/app/lib/ai/bridgeRuntime";
@@ -26,11 +28,15 @@ export async function GET(request: NextRequest) {
   const rawRouteKey = searchParams.get("routeKey");
   const rawStatus = searchParams.get("status");
   const rawIncludeAudit = searchParams.get("includeAudit");
+  const rawAuditSource = searchParams.get("auditSource");
+  const rawLimit = searchParams.get("limit");
 
   const parsed = AiBridgeHealthQuerySchema.safeParse({
     routeKey: rawRouteKey === null ? undefined : rawRouteKey,
     status: rawStatus === null ? undefined : rawStatus,
     includeAudit: rawIncludeAudit === null ? undefined : rawIncludeAudit,
+    auditSource: rawAuditSource === null ? undefined : rawAuditSource,
+    limit: rawLimit === null ? undefined : rawLimit,
   });
 
   if (!parsed.success) {
@@ -44,7 +50,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const { routeKey, status, includeAudit } = parsed.data;
+  const { routeKey, status, includeAudit, auditSource, limit } = parsed.data;
   if (routeKey) {
     const currentSnapshot = getAiBridgeHealthSnapshot();
     const existsInRuntime = currentSnapshot.routes.some(
@@ -65,6 +71,8 @@ export async function GET(request: NextRequest) {
     routeKey,
     status,
     includeAudit: includeAudit !== "false",
+    auditSource,
+    limit,
   });
   return NextResponse.json(snapshot, {
     status: 200,
@@ -141,10 +149,19 @@ export async function POST(request: NextRequest) {
   }
 
   const actor = access.authorizedBy ?? "LOCAL_DEV_BYPASS";
-  const affectedRouteKeys =
-    action === "RESET_CIRCUIT"
-      ? await resetRouteBridgeCircuitAsync(routeKey, actor)
-      : await resetBridgeTelemetryAsync(routeKey, actor);
+  let affectedRouteKeys: string[];
+  let archivedCount: number | undefined;
+
+  if (action === "RESET_CIRCUIT") {
+    affectedRouteKeys = await resetRouteBridgeCircuitAsync(routeKey, actor);
+  } else if (action === "RESET_TELEMETRY") {
+    affectedRouteKeys = await resetBridgeTelemetryAsync(routeKey, actor);
+  } else if (action === "ARCHIVE_FLUSH") {
+    archivedCount = await flushBridgeAuditArchiveAsync(actor);
+    affectedRouteKeys = ["ALL"];
+  } else {
+    affectedRouteKeys = await resetBridgeDailyBudgetAsync(actor);
+  }
 
   const snapshot = await getAiBridgeHealthSnapshotAsync();
 
@@ -154,6 +171,7 @@ export async function POST(request: NextRequest) {
       actionApplied: action,
       authorizedBy: access.authorizedBy ?? "LOCAL_DEV_BYPASS",
       affectedRouteKeys,
+      ...(typeof archivedCount === "number" ? { archivedCount } : {}),
       snapshot,
     },
     {

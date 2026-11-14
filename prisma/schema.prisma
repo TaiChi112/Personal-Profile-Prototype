@@ -185,3 +185,45 @@ model Trip {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("trips")
 }
+
+// --- EPIC-035 Phase 2: Durable AI Bridge Cold Audit Archive & FinOps Rollups ---
+model AiBridgeAuditLog {
+  id               String   @id
+  eventTimestamp   DateTime
+  routeKey         String
+  eventType        String
+  outcome          String?
+  fallbackReason   String?
+  latencyMs        Int?
+  piiRedactedCount Int?
+  promptTokens     Int      @default(0)
+  completionTokens Int      @default(0)
+  totalTokens      Int      @default(0)
+  costUsdMicros    Int      @default(0)
+  actor            String?
+  detail           String?
+  createdAt        DateTime @default(now())
+
+  @@index([eventTimestamp(sort: Desc)])
+  @@index([routeKey, eventTimestamp(sort: Desc)])
+  @@index([eventType])
+  @@map("ai_bridge_audit_logs")
+}
+
+model AiBridgeDailyUsage {
+  id               String   @id @default(cuid())
+  dateKey          String
+  routeKey         String
+  requestCount     Int      @default(0)
+  liveSuccessCount Int      @default(0)
+  fallbackCount    Int      @default(0)
+  promptTokens     Int      @default(0)
+  completionTokens Int      @default(0)
+  totalTokens      Int      @default(0)
+  costUsdMicros    Int      @default(0)
+  updatedAt        DateTime @updatedAt
+
+  @@unique([dateKey, routeKey])
+  @@index([dateKey])
+  @@map("ai_bridge_daily_usage")
+}

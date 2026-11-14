@@ -41,6 +41,11 @@ test.describe("AI Bridge Health Observatory E2E", () => {
     await expect(page.getByTestId("env-persistence-status")).toHaveText(
       /MEMORY_RING_BUFFER|REDIS_SYNCED|REDIS_FAIL_OPEN/,
     );
+    await expect(page.getByTestId("env-archive-status")).toHaveText(
+      /ARCHIVE_DISABLED|MEMORY_ARCHIVE|PRISMA_ARCHIVE_SYNCED|PRISMA_FAIL_OPEN/,
+    );
+    await expect(page.getByTestId("finops-budget-card")).toBeVisible();
+    await expect(page.getByTestId("audit-source-select")).toBeVisible();
     await expect(page.getByTestId("ai-bridge-audit-section")).toBeVisible();
     await expect(page.getByTestId("ai-bridge-audit-section")).not.toContainText(
       "customer@example.com",
