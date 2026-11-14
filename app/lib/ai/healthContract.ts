@@ -90,6 +90,7 @@ export const AiBridgeHealthQuerySchema = z.object({
     .regex(/^[a-z0-9:_-]+$/i, "routeKey must contain only [a-z0-9:_-]")
     .optional(),
   status: z.enum(["ALL", "OPEN", "CLOSED"]).default("ALL"),
+  includeAudit: z.enum(["true", "false"]).optional(),
 });
 
 export const AiBridgeHealthActionSchema = z.object({
@@ -137,6 +138,48 @@ export type AiBridgeRouteHealthEntry = z.infer<
   typeof AiBridgeRouteHealthEntrySchema
 >;
 
+export const AiBridgeAuditEventTypeSchema = z.enum([
+  "REQUEST_COMPLETED",
+  "CIRCUIT_OPENED",
+  "PII_REDACTED",
+  "ADMIN_RESET",
+]);
+
+export type AiBridgeAuditEventType = z.infer<
+  typeof AiBridgeAuditEventTypeSchema
+>;
+
+export const AiBridgeAuditEventSchema = z.object({
+  id: z.string(),
+  timestamp: z.string(),
+  routeKey: z.string(),
+  eventType: AiBridgeAuditEventTypeSchema,
+  outcome: BridgeOutcomeSchema.optional(),
+  fallbackReason: BridgeFallbackReasonSchema.nullable().optional(),
+  latencyMs: z.number().nonnegative().optional(),
+  piiRedactedCount: z.number().int().nonnegative().optional(),
+  actor: z.string().optional(),
+  detail: z.string().optional(),
+});
+
+export type AiBridgeAuditEvent = z.infer<typeof AiBridgeAuditEventSchema>;
+
+export const AiBridgePersistenceDriverSchema = z.enum(["memory", "redis"]);
+
+export type AiBridgePersistenceDriver = z.infer<
+  typeof AiBridgePersistenceDriverSchema
+>;
+
+export const AiBridgePersistenceStatusSchema = z.object({
+  driver: AiBridgePersistenceDriverSchema,
+  connected: z.boolean(),
+  auditEventCount: z.number().int().nonnegative(),
+});
+
+export type AiBridgePersistenceStatus = z.infer<
+  typeof AiBridgePersistenceStatusSchema
+>;
+
 export const AiBridgeHealthResponseSchema = z.object({
   version: z.literal("1.0"),
   status: AiBridgeGlobalStatusSchema,
@@ -147,6 +190,7 @@ export const AiBridgeHealthResponseSchema = z.object({
     adminGuardEnforced: z.boolean(),
     nodeEnv: z.string(),
   }),
+  persistence: AiBridgePersistenceStatusSchema,
   summary: z.object({
     totalRoutes: z.number().int().nonnegative(),
     openCircuits: z.number().int().nonnegative(),
@@ -158,6 +202,7 @@ export const AiBridgeHealthResponseSchema = z.object({
     avgLatencyMs: z.number().nonnegative(),
   }),
   routes: z.array(AiBridgeRouteHealthEntrySchema),
+  recentAuditEvents: z.array(AiBridgeAuditEventSchema),
 });
 
 export type AiBridgeHealthSnapshot = z.infer<

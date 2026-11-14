@@ -2,8 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "@/auth";
 import {
   getAiBridgeHealthSnapshot,
-  resetBridgeTelemetry,
-  resetRouteBridgeCircuit,
+  getAiBridgeHealthSnapshotAsync,
+  resetBridgeTelemetryAsync,
+  resetRouteBridgeCircuitAsync,
 } from "@/app/lib/ai/bridgeRuntime";
 import {
   AiBridgeHealthActionSchema,
@@ -24,10 +25,12 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const rawRouteKey = searchParams.get("routeKey");
   const rawStatus = searchParams.get("status");
+  const rawIncludeAudit = searchParams.get("includeAudit");
 
   const parsed = AiBridgeHealthQuerySchema.safeParse({
     routeKey: rawRouteKey === null ? undefined : rawRouteKey,
     status: rawStatus === null ? undefined : rawStatus,
+    includeAudit: rawIncludeAudit === null ? undefined : rawIncludeAudit,
   });
 
   if (!parsed.success) {
@@ -41,7 +44,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const { routeKey, status } = parsed.data;
+  const { routeKey, status, includeAudit } = parsed.data;
   if (routeKey) {
     const currentSnapshot = getAiBridgeHealthSnapshot();
     const existsInRuntime = currentSnapshot.routes.some(
@@ -58,7 +61,11 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const snapshot = getAiBridgeHealthSnapshot({ routeKey, status });
+  const snapshot = await getAiBridgeHealthSnapshotAsync({
+    routeKey,
+    status,
+    includeAudit: includeAudit !== "false",
+  });
   return NextResponse.json(snapshot, {
     status: 200,
     headers: NO_STORE_HEADERS,
@@ -133,12 +140,13 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  const actor = access.authorizedBy ?? "LOCAL_DEV_BYPASS";
   const affectedRouteKeys =
     action === "RESET_CIRCUIT"
-      ? resetRouteBridgeCircuit(routeKey)
-      : resetBridgeTelemetry(routeKey);
+      ? await resetRouteBridgeCircuitAsync(routeKey, actor)
+      : await resetBridgeTelemetryAsync(routeKey, actor);
 
-  const snapshot = getAiBridgeHealthSnapshot();
+  const snapshot = await getAiBridgeHealthSnapshotAsync();
 
   return NextResponse.json(
     {

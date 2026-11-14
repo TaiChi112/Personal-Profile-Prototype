@@ -38,6 +38,16 @@ test.describe("AI Bridge Health Observatory E2E", () => {
     await expect(page.getByTestId("env-admin-guard-status")).toHaveText(
       /LOCAL_DEV_OPEN|ENFORCED/,
     );
+    await expect(page.getByTestId("env-persistence-status")).toHaveText(
+      /MEMORY_RING_BUFFER|REDIS_SYNCED|REDIS_FAIL_OPEN/,
+    );
+    await expect(page.getByTestId("ai-bridge-audit-section")).toBeVisible();
+    await expect(page.getByTestId("ai-bridge-audit-section")).not.toContainText(
+      "customer@example.com",
+    );
+    await expect(page.getByTestId("ai-bridge-audit-section")).not.toContainText(
+      "0812345678",
+    );
 
     await expect(page.getByTestId("kpi-total-routes")).toHaveText("8");
     await expect(page.getByTestId("route-card-stateflow:intent")).toBeVisible();

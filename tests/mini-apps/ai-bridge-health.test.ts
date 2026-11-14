@@ -301,4 +301,57 @@ describe("AI Bridge Health Telemetry API (/api/health/ai-bridge)", () => {
     expect(sessionAdminBody.ok).toBe(true);
     expect(sessionAdminBody.authorizedBy).toBe("SESSION_ADMIN");
   });
+
+  it("includes zero-raw-PII audit events on GET and supports includeAudit=false", async () => {
+    redactPiiPayload(
+      { prompt: "Customer secret@corp.co.th phone 0891234567" },
+      [],
+      { routeKey: "pms:draft-goal" },
+    );
+    await POST(
+      new NextRequest("http://localhost:3000/api/health/ai-bridge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "RESET_CIRCUIT",
+          routeKey: "pms:draft-goal",
+        }),
+      }),
+    );
+
+    const withAuditRes = await GET(
+      new NextRequest(
+        "http://localhost:3000/api/health/ai-bridge?routeKey=pms:draft-goal",
+      ),
+    );
+    const withAuditJson = AiBridgeHealthResponseSchema.parse(
+      await withAuditRes.json(),
+    );
+    expect(withAuditJson.persistence.driver).toBe("memory");
+    expect(withAuditJson.persistence.connected).toBe(true);
+    expect(withAuditJson.recentAuditEvents.length).toBeGreaterThanOrEqual(2);
+    const serialized = JSON.stringify(withAuditJson.recentAuditEvents);
+    expect(serialized).not.toContain("secret@corp.co.th");
+    expect(serialized).not.toContain("0891234567");
+    expect(
+      withAuditJson.recentAuditEvents.some(
+        (ev) => ev.eventType === "ADMIN_RESET",
+      ),
+    ).toBe(true);
+    expect(
+      withAuditJson.recentAuditEvents.some(
+        (ev) => ev.eventType === "PII_REDACTED",
+      ),
+    ).toBe(true);
+
+    const withoutAuditRes = await GET(
+      new NextRequest(
+        "http://localhost:3000/api/health/ai-bridge?includeAudit=false",
+      ),
+    );
+    const withoutAuditJson = AiBridgeHealthResponseSchema.parse(
+      await withoutAuditRes.json(),
+    );
+    expect(withoutAuditJson.recentAuditEvents).toEqual([]);
+  });
 });

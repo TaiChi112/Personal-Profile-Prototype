@@ -6,6 +6,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   Clock,
+  Database,
+  History,
   KeyRound,
   RefreshCw,
   RotateCcw,
@@ -20,6 +22,7 @@ type StatusFilter = "ALL" | "OPEN" | "CLOSED";
 export default function AiBridgeHealthDashboardPage() {
   const [snapshot, setSnapshot] = useState<AiBridgeHealthSnapshot | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+  const [auditRouteFilter, setAuditRouteFilter] = useState<string>("ALL");
   const [autoRefresh, setAutoRefresh] = useState<boolean>(false);
   const [adminToken, setAdminToken] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -241,6 +244,28 @@ export default function AiBridgeHealthDashboardPage() {
                 : "LOCAL_DEV_OPEN"}
             </span>
           </div>
+
+          <div className="inline-flex items-center gap-1.5 font-mono">
+            <Database className="w-3.5 h-3.5 text-slate-500" />
+            <span>State Store:</span>
+            <span
+              data-testid="env-persistence-status"
+              className={
+                snapshot?.persistence.driver === "redis" &&
+                snapshot.persistence.connected
+                  ? "text-emerald-600 font-semibold"
+                  : snapshot?.persistence.driver === "redis"
+                    ? "text-amber-600 font-semibold"
+                    : "text-slate-700 dark:text-slate-300 font-semibold"
+              }
+            >
+              {snapshot?.persistence.driver === "redis"
+                ? snapshot.persistence.connected
+                  ? "REDIS_SYNCED"
+                  : "REDIS_FAIL_OPEN"
+                : "MEMORY_RING_BUFFER"}
+            </span>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -454,6 +479,96 @@ export default function AiBridgeHealthDashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Zero-Raw-PII Recent Audit Trail */}
+      <section
+        data-testid="ai-bridge-audit-section"
+        className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4 shadow-sm"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <History className="w-4 h-4 text-indigo-600" />
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+              Recent Audit Trail (Zero Raw PII)
+            </h2>
+            <span
+              data-testid="audit-event-count"
+              className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[11px] font-mono text-slate-600 dark:text-slate-300"
+            >
+              {snapshot?.persistence.auditEventCount ?? 0} total buffered
+            </span>
+          </div>
+
+          <select
+            data-testid="audit-route-filter"
+            value={auditRouteFilter}
+            onChange={(e) => setAuditRouteFilter(e.target.value)}
+            className="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 font-mono text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="ALL">ALL ROUTES</option>
+            {snapshot?.routes.map((route) => (
+              <option key={route.routeKey} value={route.routeKey}>
+                {route.routeKey}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {(() => {
+          const auditRows = (snapshot?.recentAuditEvents ?? []).filter((ev) =>
+            auditRouteFilter === "ALL"
+              ? true
+              : ev.routeKey === auditRouteFilter,
+          );
+          if (auditRows.length === 0) {
+            return (
+              <div className="text-center py-6 text-xs font-mono text-slate-500">
+                No audit events recorded yet for this filter.
+              </div>
+            );
+          }
+          return (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs font-mono">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500">
+                    <th className="py-2 pr-3">Event</th>
+                    <th className="py-2 pr-3">Route</th>
+                    <th className="py-2 pr-3">Outcome / PII</th>
+                    <th className="py-2 pr-3">Actor</th>
+                    <th className="py-2">Detail</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-900">
+                  {auditRows.slice(0, 20).map((ev) => (
+                    <tr
+                      key={ev.id}
+                      data-testid={`audit-row-${ev.eventType}`}
+                      className="text-slate-700 dark:text-slate-300"
+                    >
+                      <td className="py-2 pr-3 font-semibold">
+                        {ev.eventType}
+                      </td>
+                      <td className="py-2 pr-3">{ev.routeKey}</td>
+                      <td className="py-2 pr-3">
+                        {ev.outcome
+                          ? `${ev.outcome}${ev.fallbackReason ? ` (${ev.fallbackReason})` : ""}`
+                          : ev.piiRedactedCount
+                            ? `${ev.piiRedactedCount} redacted`
+                            : "-"}
+                      </td>
+                      <td className="py-2 pr-3">{ev.actor ?? "SYSTEM"}</td>
+                      <td className="py-2 text-slate-500">
+                        {ev.detail ?? "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        })()}
+      </section>
     </div>
   );
 }

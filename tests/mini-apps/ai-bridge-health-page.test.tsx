@@ -14,6 +14,11 @@ const mockSnapshot: AiBridgeHealthSnapshot = {
     adminGuardEnforced: true,
     nodeEnv: "test",
   },
+  persistence: {
+    driver: "memory",
+    connected: true,
+    auditEventCount: 2,
+  },
   summary: {
     totalRoutes: 2,
     openCircuits: 1,
@@ -80,6 +85,26 @@ const mockSnapshot: AiBridgeHealthSnapshot = {
       },
     },
   ],
+  recentAuditEvents: [
+    {
+      id: "ev-1",
+      timestamp: "2026-11-14T05:00:00.000Z",
+      routeKey: "stateflow:intent",
+      eventType: "PII_REDACTED",
+      piiRedactedCount: 2,
+      detail: "Scrubbed 2 sensitive token(s) pre-egress",
+    },
+    {
+      id: "ev-2",
+      timestamp: "2026-11-14T05:00:01.000Z",
+      routeKey: "agentic-testing:intent",
+      eventType: "CIRCUIT_OPENED",
+      outcome: "FALLBACK_TRIGGERED",
+      fallbackReason: "UPSTREAM_ERROR",
+      latencyMs: 25,
+      detail: "Circuit tripped OPEN after UPSTREAM_ERROR",
+    },
+  ],
 };
 
 describe("AiBridgeHealthDashboardPage", () => {
@@ -131,6 +156,11 @@ describe("AiBridgeHealthDashboardPage", () => {
     expect(screen.getByTestId("env-admin-guard-status").textContent).toBe(
       "ENFORCED",
     );
+    expect(screen.getByTestId("env-persistence-status").textContent).toBe(
+      "MEMORY_RING_BUFFER",
+    );
+    expect(screen.getByTestId("ai-bridge-audit-section")).toBeDefined();
+    expect(screen.getByTestId("audit-event-count").textContent).toContain("2");
     expect(screen.getByTestId("kpi-open-circuits").textContent).toBe("1");
     expect(screen.getByTestId("kpi-pii-redacted").textContent).toBe("4");
     expect(screen.getByTestId("route-card-stateflow:intent")).toBeDefined();

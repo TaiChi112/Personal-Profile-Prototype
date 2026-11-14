@@ -4,10 +4,16 @@ import type { z } from "zod";
 import {
   KNOWN_AI_BRIDGE_ROUTES,
   isAiBridgeAdminGuardEnforced,
+  type AiBridgeAuditEvent,
+  type AiBridgeAuditEventType,
   type AiBridgeGlobalStatus,
   type AiBridgeHealthSnapshot,
   type AiBridgeRouteHealthEntry,
 } from "@/app/lib/ai/healthContract";
+import {
+  getBridgeStateStore,
+  type PersistedCircuitState,
+} from "@/app/lib/ai/stateStore";
 
 export type AiExecutionMode = "AUTO" | "LOCAL_ONLY";
 
@@ -99,6 +105,28 @@ export class BridgeCircuitBreaker {
     this.failures = 0;
     this.openedAt = null;
   }
+
+  getCooldownMs(): number {
+    return this.cooldownMs;
+  }
+
+  exportState(now = Date.now()): PersistedCircuitState {
+    return {
+      failures: this.failures,
+      openedAt: this.openedAt,
+      updatedAtMs: now,
+    };
+  }
+
+  hydrate(state: PersistedCircuitState, now = Date.now()): void {
+    if (state.openedAt !== null && now - state.openedAt >= this.cooldownMs) {
+      this.failures = Math.max(0, this.failureThreshold - 1);
+      this.openedAt = null;
+      return;
+    }
+    this.failures = Math.max(0, state.failures);
+    this.openedAt = state.openedAt;
+  }
 }
 
 interface RouteTelemetryRecord {
@@ -156,43 +184,173 @@ export function getRouteCircuitBreaker(routeKey: string): BridgeCircuitBreaker {
   return breaker;
 }
 
+function buildAuditEvent(params: {
+  routeKey: string;
+  eventType: AiBridgeAuditEventType;
+  outcome?: "IDLE" | "LIVE_GEMINI" | "FALLBACK_TRIGGERED";
+  fallbackReason?: BridgeFallbackReason | null;
+  latencyMs?: number;
+  piiRedactedCount?: number;
+  actor?: string;
+  detail?: string;
+}): AiBridgeAuditEvent {
+  const id =
+    typeof globalThis.crypto?.randomUUID === "function"
+      ? globalThis.crypto.randomUUID()
+      : `audit-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return {
+    id,
+    timestamp: new Date().toISOString(),
+    routeKey: params.routeKey,
+    eventType: params.eventType,
+    outcome: params.outcome,
+    fallbackReason: params.fallbackReason,
+    latencyMs: params.latencyMs,
+    piiRedactedCount: params.piiRedactedCount,
+    actor: params.actor,
+    detail: params.detail,
+  };
+}
+
 export function resetAllBridgeCircuits(): void {
   routeCircuits.clear();
   routeTelemetry.clear();
+  const store = getBridgeStateStore();
+  store.clearAllSync();
 }
 
-export function resetRouteBridgeCircuit(routeKey?: string): string[] {
-  if (routeKey) {
-    getRouteCircuitBreaker(routeKey).reset();
-    return [routeKey];
-  }
+export function resetRouteBridgeCircuit(
+  routeKey?: string,
+  actor?: string,
+): string[] {
+  const store = getBridgeStateStore();
+  const affected = routeKey
+    ? [routeKey]
+    : Array.from(
+        new Set<string>([
+          ...KNOWN_AI_BRIDGE_ROUTES.map((route) => route.routeKey),
+          ...routeCircuits.keys(),
+        ]),
+      );
 
-  const affected = new Set<string>(
-    KNOWN_AI_BRIDGE_ROUTES.map((route) => route.routeKey),
-  );
-  for (const key of routeCircuits.keys()) {
-    affected.add(key);
-  }
   for (const key of affected) {
     getRouteCircuitBreaker(key).reset();
+    void store.deleteRouteCircuit(key);
   }
-  return Array.from(affected);
+
+  void store.appendAuditEvent(
+    buildAuditEvent({
+      routeKey: routeKey ?? "ALL",
+      eventType: "ADMIN_RESET",
+      actor: actor ?? "SYSTEM",
+      detail: `RESET_CIRCUIT (${routeKey ?? "ALL"})`,
+    }),
+  );
+
+  return affected;
 }
 
-export function resetBridgeTelemetry(routeKey?: string): string[] {
+export async function resetRouteBridgeCircuitAsync(
+  routeKey?: string,
+  actor?: string,
+): Promise<string[]> {
+  const store = getBridgeStateStore();
+  const affected = routeKey
+    ? [routeKey]
+    : Array.from(
+        new Set<string>([
+          ...KNOWN_AI_BRIDGE_ROUTES.map((route) => route.routeKey),
+          ...routeCircuits.keys(),
+        ]),
+      );
+
+  for (const key of affected) {
+    getRouteCircuitBreaker(key).reset();
+    await store.deleteRouteCircuit(key);
+  }
+
+  await store.appendAuditEvent(
+    buildAuditEvent({
+      routeKey: routeKey ?? "ALL",
+      eventType: "ADMIN_RESET",
+      actor: actor ?? "SYSTEM",
+      detail: `RESET_CIRCUIT (${routeKey ?? "ALL"})`,
+    }),
+  );
+
+  return affected;
+}
+
+export function resetBridgeTelemetry(
+  routeKey?: string,
+  actor?: string,
+): string[] {
+  const store = getBridgeStateStore();
   if (routeKey) {
     routeTelemetry.set(routeKey, createEmptyTelemetryRecord());
+    void store.appendAuditEvent(
+      buildAuditEvent({
+        routeKey,
+        eventType: "ADMIN_RESET",
+        actor: actor ?? "SYSTEM",
+        detail: `RESET_TELEMETRY (${routeKey})`,
+      }),
+    );
     return [routeKey];
   }
 
-  const affected = new Set<string>(
-    KNOWN_AI_BRIDGE_ROUTES.map((route) => route.routeKey),
+  const affected = Array.from(
+    new Set<string>([
+      ...KNOWN_AI_BRIDGE_ROUTES.map((route) => route.routeKey),
+      ...routeTelemetry.keys(),
+    ]),
   );
-  for (const key of routeTelemetry.keys()) {
-    affected.add(key);
-  }
   routeTelemetry.clear();
-  return Array.from(affected);
+  void store.appendAuditEvent(
+    buildAuditEvent({
+      routeKey: "ALL",
+      eventType: "ADMIN_RESET",
+      actor: actor ?? "SYSTEM",
+      detail: "RESET_TELEMETRY (ALL)",
+    }),
+  );
+  return affected;
+}
+
+export async function resetBridgeTelemetryAsync(
+  routeKey?: string,
+  actor?: string,
+): Promise<string[]> {
+  const store = getBridgeStateStore();
+  if (routeKey) {
+    routeTelemetry.set(routeKey, createEmptyTelemetryRecord());
+    await store.appendAuditEvent(
+      buildAuditEvent({
+        routeKey,
+        eventType: "ADMIN_RESET",
+        actor: actor ?? "SYSTEM",
+        detail: `RESET_TELEMETRY (${routeKey})`,
+      }),
+    );
+    return [routeKey];
+  }
+
+  const affected = Array.from(
+    new Set<string>([
+      ...KNOWN_AI_BRIDGE_ROUTES.map((route) => route.routeKey),
+      ...routeTelemetry.keys(),
+    ]),
+  );
+  routeTelemetry.clear();
+  await store.appendAuditEvent(
+    buildAuditEvent({
+      routeKey: "ALL",
+      eventType: "ADMIN_RESET",
+      actor: actor ?? "SYSTEM",
+      detail: "RESET_TELEMETRY (ALL)",
+    }),
+  );
+  return affected;
 }
 
 export function recordBridgePiiRedactions(
@@ -203,6 +361,14 @@ export function recordBridgePiiRedactions(
   const record = getOrCreateTelemetryRecord(routeKey);
   record.piiRedactedCount += redactionCount;
   record.lastUpdatedAt = new Date().toISOString();
+  void getBridgeStateStore().appendAuditEvent(
+    buildAuditEvent({
+      routeKey,
+      eventType: "PII_REDACTED",
+      piiRedactedCount: redactionCount,
+      detail: `Scrubbed ${redactionCount} sensitive token(s) pre-egress`,
+    }),
+  );
 }
 
 export function hasGoogleGeminiKey(): boolean {
@@ -388,7 +554,12 @@ export async function runWithCircuitGuard<T>(params: {
   execute: (abortSignal: AbortSignal) => Promise<T>;
 }): Promise<ExecuteGeminiBridgeResult<T>> {
   const startedAt = Date.now();
+  const store = getBridgeStateStore();
   const breaker = getRouteCircuitBreaker(params.routeKey);
+  const remoteState = await store.loadRouteCircuit(params.routeKey);
+  if (remoteState) {
+    breaker.hydrate(remoteState, startedAt);
+  }
   const keyAvailable = params.hasKey ?? hasGoogleGeminiKey();
 
   if (!keyAvailable) {
@@ -399,6 +570,16 @@ export async function runWithCircuitGuard<T>(params: {
       reason: "MISSING_API_KEY",
       latencyMs,
     });
+    await store.appendAuditEvent(
+      buildAuditEvent({
+        routeKey: params.routeKey,
+        eventType: "REQUEST_COMPLETED",
+        outcome: "FALLBACK_TRIGGERED",
+        fallbackReason: "MISSING_API_KEY",
+        latencyMs,
+        detail: "Served local deterministic fallback (no upstream key)",
+      }),
+    );
     return {
       ok: false,
       source: "FALLBACK_TRIGGERED",
@@ -418,6 +599,16 @@ export async function runWithCircuitGuard<T>(params: {
       reason: "CIRCUIT_OPEN",
       latencyMs,
     });
+    await store.appendAuditEvent(
+      buildAuditEvent({
+        routeKey: params.routeKey,
+        eventType: "REQUEST_COMPLETED",
+        outcome: "FALLBACK_TRIGGERED",
+        fallbackReason: "CIRCUIT_OPEN",
+        latencyMs,
+        detail: "Short-circuited via OPEN circuit breaker",
+      }),
+    );
     return {
       ok: false,
       source: "FALLBACK_TRIGGERED",
@@ -447,11 +638,26 @@ export async function runWithCircuitGuard<T>(params: {
 
     breaker.recordSuccess();
     const latencyMs = Date.now() - startedAt;
+    await store.saveRouteCircuit(
+      params.routeKey,
+      breaker.exportState(),
+      breaker.getCooldownMs(),
+    );
     recordBridgeOutcome({
       routeKey: params.routeKey,
       outcome: "LIVE_GEMINI",
       latencyMs,
     });
+    await store.appendAuditEvent(
+      buildAuditEvent({
+        routeKey: params.routeKey,
+        eventType: "REQUEST_COMPLETED",
+        outcome: "LIVE_GEMINI",
+        fallbackReason: null,
+        latencyMs,
+        detail: "Upstream inference completed",
+      }),
+    );
     return {
       ok: true,
       source: "LIVE_GEMINI",
@@ -470,12 +676,31 @@ export async function runWithCircuitGuard<T>(params: {
       : "UPSTREAM_ERROR";
     const latencyMs = Date.now() - startedAt;
 
+    await store.saveRouteCircuit(
+      params.routeKey,
+      breaker.exportState(),
+      breaker.getCooldownMs(),
+    );
     recordBridgeOutcome({
       routeKey: params.routeKey,
       outcome: "FALLBACK_TRIGGERED",
       reason,
       latencyMs,
     });
+    await store.appendAuditEvent(
+      buildAuditEvent({
+        routeKey: params.routeKey,
+        eventType:
+          circuitState === "OPEN" ? "CIRCUIT_OPENED" : "REQUEST_COMPLETED",
+        outcome: "FALLBACK_TRIGGERED",
+        fallbackReason: reason,
+        latencyMs,
+        detail:
+          circuitState === "OPEN"
+            ? `Circuit tripped OPEN after ${reason}`
+            : `Fallback triggered due to ${reason}`,
+      }),
+    );
 
     return {
       ok: false,
@@ -516,11 +741,17 @@ export async function executeGeminiBridge<
   });
 }
 
-export function getAiBridgeHealthSnapshot(filters?: {
-  routeKey?: string;
-  status?: "ALL" | "OPEN" | "CLOSED";
+function buildAiBridgeSnapshotCore(params: {
+  filters?: {
+    routeKey?: string;
+    status?: "ALL" | "OPEN" | "CLOSED";
+    includeAudit?: boolean;
+  };
+  recentAuditEvents: AiBridgeAuditEvent[];
 }): AiBridgeHealthSnapshot {
+  const { filters, recentAuditEvents } = params;
   const now = Date.now();
+  const store = getBridgeStateStore();
   const knownMap = new Map(
     KNOWN_AI_BRIDGE_ROUTES.map((descriptor) => [
       descriptor.routeKey,
@@ -634,6 +865,7 @@ export function getAiBridgeHealthSnapshot(filters?: {
       adminGuardEnforced: isAiBridgeAdminGuardEnforced(),
       nodeEnv: process.env.NODE_ENV ?? "development",
     },
+    persistence: store.getPersistenceStatus(),
     summary: {
       totalRoutes: filteredEntries.length,
       openCircuits,
@@ -645,5 +877,53 @@ export function getAiBridgeHealthSnapshot(filters?: {
       avgLatencyMs,
     },
     routes: filteredEntries,
+    recentAuditEvents,
   };
+}
+
+export function getAiBridgeHealthSnapshot(filters?: {
+  routeKey?: string;
+  status?: "ALL" | "OPEN" | "CLOSED";
+  includeAudit?: boolean;
+}): AiBridgeHealthSnapshot {
+  const store = getBridgeStateStore();
+  const recentAuditEvents =
+    filters?.includeAudit === false
+      ? []
+      : store.getCachedAuditEvents(50, filters?.routeKey);
+  return buildAiBridgeSnapshotCore({ filters, recentAuditEvents });
+}
+
+export async function getAiBridgeHealthSnapshotAsync(filters?: {
+  routeKey?: string;
+  status?: "ALL" | "OPEN" | "CLOSED";
+  includeAudit?: boolean;
+}): Promise<AiBridgeHealthSnapshot> {
+  const store = getBridgeStateStore();
+  if (store.getPersistenceStatus().driver === "redis") {
+    const keysToSync = filters?.routeKey
+      ? [filters.routeKey]
+      : Array.from(
+          new Set([
+            ...KNOWN_AI_BRIDGE_ROUTES.map((route) => route.routeKey),
+            ...routeCircuits.keys(),
+          ]),
+        );
+
+    await Promise.all(
+      keysToSync.map(async (routeKey) => {
+        const remote = await store.loadRouteCircuit(routeKey);
+        if (remote) {
+          getRouteCircuitBreaker(routeKey).hydrate(remote);
+        }
+      }),
+    );
+  }
+
+  const recentAuditEvents =
+    filters?.includeAudit === false
+      ? []
+      : await store.listAuditEvents(50, filters?.routeKey);
+
+  return buildAiBridgeSnapshotCore({ filters, recentAuditEvents });
 }
