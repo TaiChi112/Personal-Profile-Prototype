@@ -2,7 +2,6 @@ import { google } from "@ai-sdk/google";
 import { streamText, tool, type ModelMessage } from "ai";
 import { z } from "zod";
 import {
-  getRouteCircuitBreaker,
   hasGoogleGeminiKey,
   redactPiiPayload,
   runWithCircuitGuard,
@@ -13,14 +12,9 @@ export class AIService {
   static async generateChatResponse(
     messages: ModelMessage[],
   ): Promise<Response> {
-    const breaker = getRouteCircuitBreaker("chat:assistant");
-
-    if (!hasGoogleGeminiKey() || !breaker.canAttempt()) {
-      const reason = !hasGoogleGeminiKey() ? "MISSING_API_KEY" : "CIRCUIT_OPEN";
-      return AIService.getFallbackResponse(reason, breaker.getState());
-    }
-
-    const { sanitized: sanitizedMessages } = redactPiiPayload(messages);
+    const { sanitized: sanitizedMessages } = redactPiiPayload(messages, [], {
+      routeKey: "chat:assistant",
+    });
     const lastMessage = sanitizedMessages[sanitizedMessages.length - 1];
     const query =
       typeof lastMessage?.content === "string"

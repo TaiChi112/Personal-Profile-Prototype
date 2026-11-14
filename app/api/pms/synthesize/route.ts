@@ -90,9 +90,16 @@ export async function POST(req: Request) {
   }
 
   const sensitiveTokens = parsed.data.knownSensitiveNames ?? [];
+  const pmsRouteKey =
+    parsed.data.action === "DRAFT_GOAL"
+      ? "pms:draft-goal"
+      : parsed.data.action === "SYNTHESIZE_EVALUATION"
+        ? "pms:evaluation"
+        : "pms:feedback";
   const { sanitized, redactionCount } = redactPiiPayload(
     parsed.data,
     sensitiveTokens,
+    { routeKey: pmsRouteKey },
   );
 
   const baseSystemPrompt =

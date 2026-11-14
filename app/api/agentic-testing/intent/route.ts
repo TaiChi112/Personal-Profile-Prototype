@@ -89,6 +89,7 @@ export async function POST(req: Request) {
   const { sanitized, redactionCount } = redactPiiPayload(
     parsed.data,
     parsed.data.knownSensitiveNames,
+    { routeKey: "agentic-testing:intent" },
   );
 
   const normalizedNodes = sanitized.currentNodes.map((node) => ({

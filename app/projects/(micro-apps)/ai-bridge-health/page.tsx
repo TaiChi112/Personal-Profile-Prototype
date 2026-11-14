@@ -1,0 +1,423 @@
+"use client";
+
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  Activity,
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  KeyRound,
+  RefreshCw,
+  RotateCcw,
+  Server,
+  ShieldAlert,
+  ShieldCheck,
+} from "lucide-react";
+import type { AiBridgeHealthSnapshot } from "@/app/lib/ai/healthContract";
+
+type StatusFilter = "ALL" | "OPEN" | "CLOSED";
+
+export default function AiBridgeHealthDashboardPage() {
+  const [snapshot, setSnapshot] = useState<AiBridgeHealthSnapshot | null>(null);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+  const [autoRefresh, setAutoRefresh] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isMutating, setIsMutating] = useState<boolean>(false);
+  const [errorBanner, setErrorBanner] = useState<string | null>(null);
+  const [lastActionNote, setLastActionNote] = useState<string | null>(null);
+
+  const fetchSnapshot = useCallback(async (filter: StatusFilter) => {
+    setIsLoading(true);
+    setErrorBanner(null);
+    try {
+      const response = await fetch(
+        `/api/health/ai-bridge?status=${encodeURIComponent(filter)}`,
+        {
+          method: "GET",
+          cache: "no-store",
+        },
+      );
+      if (!response.ok) {
+        const problem = (await response.json()) as { detail?: string };
+        throw new Error(problem.detail ?? `HTTP ${response.status}`);
+      }
+      const data = (await response.json()) as AiBridgeHealthSnapshot;
+      setSnapshot(data);
+    } catch (err) {
+      setErrorBanner(
+        err instanceof Error ? err.message : "Failed to fetch AI Bridge health",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void fetchSnapshot(statusFilter);
+  }, [fetchSnapshot, statusFilter]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const timer = setInterval(() => {
+      void fetchSnapshot(statusFilter);
+    }, 5_000);
+    return () => clearInterval(timer);
+  }, [autoRefresh, fetchSnapshot, statusFilter]);
+
+  const executeControlAction = async (
+    action: "RESET_CIRCUIT" | "RESET_TELEMETRY",
+    routeKey?: string,
+  ) => {
+    setIsMutating(true);
+    setErrorBanner(null);
+    try {
+      const response = await fetch("/api/health/ai-bridge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(routeKey ? { action, routeKey } : { action }),
+      });
+      if (!response.ok) {
+        const problem = (await response.json()) as { detail?: string };
+        throw new Error(problem.detail ?? `HTTP ${response.status}`);
+      }
+      const result = (await response.json()) as {
+        actionApplied: string;
+        affectedRouteKeys: string[];
+        snapshot: AiBridgeHealthSnapshot;
+      };
+      setLastActionNote(
+        `${result.actionApplied} applied to ${routeKey ?? `${result.affectedRouteKeys.length} routes`}`,
+      );
+      if (statusFilter === "ALL") {
+        setSnapshot(result.snapshot);
+      } else {
+        await fetchSnapshot(statusFilter);
+      }
+    } catch (err) {
+      setErrorBanner(
+        err instanceof Error ? err.message : "Failed to execute bridge action",
+      );
+    } finally {
+      setIsMutating(false);
+    }
+  };
+
+  const globalStatus = snapshot?.status ?? "DEGRADED";
+  const statusStyles =
+    globalStatus === "HEALTHY"
+      ? "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700"
+      : globalStatus === "CRITICAL"
+        ? "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-700"
+        : "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-700";
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {/* Header & Global Controls */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <Activity className="w-6 h-6 text-blue-600" />
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              AI Bridge Health Observatory
+            </h1>
+            <span
+              data-testid="ai-bridge-global-status"
+              className={`px-3 py-1 rounded-full text-xs font-mono font-semibold border ${statusStyles}`}
+            >
+              {globalStatus}
+            </span>
+          </div>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Real-time Circuit Breaker state, Fallback diagnostics, Server PII
+            Firewall metrics, and latency across all registered LLM routes.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void fetchSnapshot(statusFilter)}
+            disabled={isLoading}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 transition disabled:opacity-50"
+          >
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`}
+            />
+            Refresh Snapshot
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setAutoRefresh((prev) => !prev)}
+            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border transition ${
+              autoRefresh
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700"
+            }`}
+          >
+            <Clock className="w-3.5 h-3.5" />
+            Auto-Refresh (5s): {autoRefresh ? "ON" : "OFF"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => void executeControlAction("RESET_CIRCUIT")}
+            disabled={isMutating}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition disabled:opacity-50"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Reset All Circuits
+          </button>
+
+          <button
+            type="button"
+            onClick={() => void executeControlAction("RESET_TELEMETRY")}
+            disabled={isMutating}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white transition disabled:opacity-50"
+          >
+            Reset Telemetry
+          </button>
+        </div>
+      </div>
+
+      {/* Environment Readiness & Feedback */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-5 py-3 text-xs">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="inline-flex items-center gap-1.5 font-mono">
+            <KeyRound className="w-3.5 h-3.5 text-slate-500" />
+            <span>Gemini API Key:</span>
+            <span
+              data-testid="env-gemini-status"
+              className={
+                snapshot?.environment.geminiKeyConfigured
+                  ? "text-emerald-600 font-semibold"
+                  : "text-amber-600 font-semibold"
+              }
+            >
+              {snapshot?.environment.geminiKeyConfigured
+                ? "CONFIGURED"
+                : "MISSING (FALLBACK READY)"}
+            </span>
+          </div>
+
+          <div className="inline-flex items-center gap-1.5 font-mono">
+            <KeyRound className="w-3.5 h-3.5 text-slate-500" />
+            <span>LINE GLM Key:</span>
+            <span
+              data-testid="env-glm-status"
+              className={
+                snapshot?.environment.glmKeyConfigured
+                  ? "text-emerald-600 font-semibold"
+                  : "text-amber-600 font-semibold"
+              }
+            >
+              {snapshot?.environment.glmKeyConfigured
+                ? "CONFIGURED"
+                : "MISSING (FALLBACK READY)"}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
+          {(["ALL", "OPEN", "CLOSED"] as const).map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setStatusFilter(tab)}
+              className={`px-3 py-1 rounded-md font-mono text-xs transition ${
+                statusFilter === tab
+                  ? "bg-blue-600 text-white font-semibold"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {errorBanner && (
+        <div className="flex items-center gap-2 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-sm">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          <span>{errorBanner}</span>
+        </div>
+      )}
+
+      {lastActionNote && (
+        <div
+          data-testid="ai-bridge-action-note"
+          className="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-mono"
+        >
+          <CheckCircle2 className="w-4 h-4 shrink-0" />
+          <span>{lastActionNote}</span>
+        </div>
+      )}
+
+      {/* Summary KPI Strip */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
+          <div className="text-xs text-slate-500">Tracked Routes</div>
+          <div
+            data-testid="kpi-total-routes"
+            className="text-2xl font-bold mt-1 font-mono"
+          >
+            {snapshot?.summary.totalRoutes ?? 0}
+          </div>
+        </div>
+        <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
+          <div className="text-xs text-slate-500">Open Circuits</div>
+          <div
+            data-testid="kpi-open-circuits"
+            className={`text-2xl font-bold mt-1 font-mono ${
+              (snapshot?.summary.openCircuits ?? 0) > 0
+                ? "text-rose-600"
+                : "text-emerald-600"
+            }`}
+          >
+            {snapshot?.summary.openCircuits ?? 0}
+          </div>
+        </div>
+        <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
+          <div className="text-xs text-slate-500">Total Requests</div>
+          <div
+            data-testid="kpi-total-requests"
+            className="text-2xl font-bold mt-1 font-mono"
+          >
+            {snapshot?.summary.totalRequests ?? 0}
+          </div>
+        </div>
+        <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
+          <div className="text-xs text-slate-500">PII Tokens Redacted</div>
+          <div
+            data-testid="kpi-pii-redacted"
+            className="text-2xl font-bold mt-1 font-mono text-indigo-600"
+          >
+            {snapshot?.summary.totalPiiRedacted ?? 0}
+          </div>
+        </div>
+        <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
+          <div className="text-xs text-slate-500">Avg Latency</div>
+          <div
+            data-testid="kpi-avg-latency"
+            className="text-2xl font-bold mt-1 font-mono"
+          >
+            {snapshot?.summary.avgLatencyMs ?? 0} ms
+          </div>
+        </div>
+      </div>
+
+      {/* Per-Route Health Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {snapshot?.routes.map((route) => {
+          const isOpen = route.circuit.state === "OPEN";
+          return (
+            <div
+              key={route.routeKey}
+              data-testid={`route-card-${route.routeKey}`}
+              className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4 shadow-sm"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Server className="w-4 h-4 text-blue-600" />
+                    <span className="font-mono font-bold text-sm text-slate-900 dark:text-slate-100">
+                      {route.routeKey}
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[11px] font-mono text-slate-600 dark:text-slate-300">
+                      {route.provider}
+                    </span>
+                  </div>
+                  <div className="text-xs font-mono text-slate-500">
+                    {route.endpoint}
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    {route.description}
+                  </p>
+                </div>
+
+                <span
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono font-semibold border shrink-0 ${
+                    isOpen
+                      ? "bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-700"
+                      : "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700"
+                  }`}
+                >
+                  {isOpen ? (
+                    <ShieldAlert className="w-3.5 h-3.5" />
+                  ) : (
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                  )}
+                  {route.circuit.state}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-4 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs font-mono">
+                <div>
+                  <div className="text-slate-400">Requests</div>
+                  <div className="font-semibold text-slate-900 dark:text-slate-100">
+                    {route.telemetry.totalRequests}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400">Live / Fallback</div>
+                  <div className="font-semibold">
+                    <span className="text-emerald-600">
+                      {route.telemetry.liveSuccessCount}
+                    </span>
+                    {" / "}
+                    <span className="text-amber-600">
+                      {route.telemetry.fallbackCount}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400">PII Masked</div>
+                  <div className="font-semibold text-indigo-600">
+                    {route.telemetry.piiRedactedCount}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400">Avg Latency</div>
+                  <div className="font-semibold">
+                    {route.telemetry.avgLatencyMs} ms
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] font-mono text-slate-500">
+                <div>
+                  Failures: {route.circuit.failures}/
+                  {route.circuit.failureThreshold}
+                  {route.circuit.remainingCooldownMs > 0
+                    ? ` | Cooldown: ${Math.ceil(route.circuit.remainingCooldownMs / 1000)}s`
+                    : ""}
+                  {route.telemetry.lastFallbackReason
+                    ? ` | Last Reason: ${route.telemetry.lastFallbackReason}`
+                    : ""}
+                </div>
+                <button
+                  type="button"
+                  data-testid={`reset-circuit-${route.routeKey}`}
+                  onClick={() =>
+                    void executeControlAction("RESET_CIRCUIT", route.routeKey)
+                  }
+                  disabled={isMutating}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition disabled:opacity-50"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  Reset Circuit
+                </button>
+              </div>
+            </div>
+          );
+        })}
+
+        {snapshot && snapshot.routes.length === 0 && (
+          <div className="col-span-full text-center py-12 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm text-slate-500">
+            No routes match filter status {statusFilter}.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

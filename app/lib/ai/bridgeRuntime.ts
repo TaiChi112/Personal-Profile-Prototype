@@ -1,6 +1,12 @@
 import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import type { z } from "zod";
+import {
+  KNOWN_AI_BRIDGE_ROUTES,
+  type AiBridgeGlobalStatus,
+  type AiBridgeHealthSnapshot,
+  type AiBridgeRouteHealthEntry,
+} from "@/app/lib/ai/healthContract";
 
 export type AiExecutionMode = "AUTO" | "LOCAL_ONLY";
 
@@ -94,7 +100,51 @@ export class BridgeCircuitBreaker {
   }
 }
 
+interface RouteTelemetryRecord {
+  totalRequests: number;
+  liveSuccessCount: number;
+  fallbackCount: number;
+  timeoutCount: number;
+  missingKeyCount: number;
+  circuitOpenRejectedCount: number;
+  upstreamErrorCount: number;
+  piiRedactedCount: number;
+  totalLatencyMs: number;
+  lastLatencyMs: number | null;
+  lastOutcome: "IDLE" | "LIVE_GEMINI" | "FALLBACK_TRIGGERED";
+  lastFallbackReason: BridgeFallbackReason | null;
+  lastUpdatedAt: string | null;
+}
+
 const routeCircuits = new Map<string, BridgeCircuitBreaker>();
+const routeTelemetry = new Map<string, RouteTelemetryRecord>();
+
+function createEmptyTelemetryRecord(): RouteTelemetryRecord {
+  return {
+    totalRequests: 0,
+    liveSuccessCount: 0,
+    fallbackCount: 0,
+    timeoutCount: 0,
+    missingKeyCount: 0,
+    circuitOpenRejectedCount: 0,
+    upstreamErrorCount: 0,
+    piiRedactedCount: 0,
+    totalLatencyMs: 0,
+    lastLatencyMs: null,
+    lastOutcome: "IDLE",
+    lastFallbackReason: null,
+    lastUpdatedAt: null,
+  };
+}
+
+function getOrCreateTelemetryRecord(routeKey: string): RouteTelemetryRecord {
+  let record = routeTelemetry.get(routeKey);
+  if (!record) {
+    record = createEmptyTelemetryRecord();
+    routeTelemetry.set(routeKey, record);
+  }
+  return record;
+}
 
 export function getRouteCircuitBreaker(routeKey: string): BridgeCircuitBreaker {
   let breaker = routeCircuits.get(routeKey);
@@ -107,11 +157,67 @@ export function getRouteCircuitBreaker(routeKey: string): BridgeCircuitBreaker {
 
 export function resetAllBridgeCircuits(): void {
   routeCircuits.clear();
+  routeTelemetry.clear();
+}
+
+export function resetRouteBridgeCircuit(routeKey?: string): string[] {
+  if (routeKey) {
+    getRouteCircuitBreaker(routeKey).reset();
+    return [routeKey];
+  }
+
+  const affected = new Set<string>(
+    KNOWN_AI_BRIDGE_ROUTES.map((route) => route.routeKey),
+  );
+  for (const key of routeCircuits.keys()) {
+    affected.add(key);
+  }
+  for (const key of affected) {
+    getRouteCircuitBreaker(key).reset();
+  }
+  return Array.from(affected);
+}
+
+export function resetBridgeTelemetry(routeKey?: string): string[] {
+  if (routeKey) {
+    routeTelemetry.set(routeKey, createEmptyTelemetryRecord());
+    return [routeKey];
+  }
+
+  const affected = new Set<string>(
+    KNOWN_AI_BRIDGE_ROUTES.map((route) => route.routeKey),
+  );
+  for (const key of routeTelemetry.keys()) {
+    affected.add(key);
+  }
+  routeTelemetry.clear();
+  return Array.from(affected);
+}
+
+export function recordBridgePiiRedactions(
+  routeKey: string,
+  redactionCount: number,
+): void {
+  if (redactionCount <= 0) return;
+  const record = getOrCreateTelemetryRecord(routeKey);
+  record.piiRedactedCount += redactionCount;
+  record.lastUpdatedAt = new Date().toISOString();
 }
 
 export function hasGoogleGeminiKey(): boolean {
-  const key = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-  return typeof key === "string" && key.trim().length > 0;
+  const key =
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim() ||
+    process.env.GEMINI_API_KEY?.trim();
+  return typeof key === "string" && key.length > 0;
+}
+
+export function hasGlmLineKey(): boolean {
+  const key = (
+    process.env.GLM_API_KEY ||
+    process.env.gGLM_API_KEY ||
+    ""
+  ).trim();
+  return key.length > 0 && key !== "dummy_key_for_build";
 }
 
 function escapeRegExp(value: string): string {
@@ -125,6 +231,7 @@ function escapeRegExp(value: string): string {
 export function redactPiiString(
   input: string,
   extraSensitiveTokens: string[] = [],
+  options?: { routeKey?: string },
 ): { sanitized: string; redactions: number } {
   let sanitized = input;
   let redactions = 0;
@@ -170,6 +277,10 @@ export function redactPiiString(
     "[REDACTED_NAME]",
   );
 
+  if (options?.routeKey && redactions > 0) {
+    recordBridgePiiRedactions(options.routeKey, redactions);
+  }
+
   return { sanitized, redactions };
 }
 
@@ -179,6 +290,7 @@ export function redactPiiString(
 export function redactPiiPayload<T>(
   value: T,
   extraSensitiveTokens: string[] = [],
+  options?: { routeKey?: string },
 ): { sanitized: T; redactionCount: number } {
   let total = 0;
 
@@ -204,8 +316,13 @@ export function redactPiiPayload<T>(
     return node;
   };
 
+  const sanitizedPayload = walk(value) as T;
+  if (options?.routeKey && total > 0) {
+    recordBridgePiiRedactions(options.routeKey, total);
+  }
+
   return {
-    sanitized: walk(value) as T,
+    sanitized: sanitizedPayload,
     redactionCount: total,
   };
 }
@@ -227,6 +344,38 @@ export type ExecuteGeminiBridgeResult<T> =
       latencyMs: number;
     };
 
+function recordBridgeOutcome(params: {
+  routeKey: string;
+  outcome: "LIVE_GEMINI" | "FALLBACK_TRIGGERED";
+  latencyMs: number;
+  reason?: BridgeFallbackReason;
+}): void {
+  const record = getOrCreateTelemetryRecord(params.routeKey);
+  record.totalRequests += 1;
+  record.totalLatencyMs += Math.max(0, params.latencyMs);
+  record.lastLatencyMs = Math.max(0, params.latencyMs);
+  record.lastOutcome = params.outcome;
+  record.lastUpdatedAt = new Date().toISOString();
+
+  if (params.outcome === "LIVE_GEMINI") {
+    record.liveSuccessCount += 1;
+    record.lastFallbackReason = null;
+    return;
+  }
+
+  record.fallbackCount += 1;
+  record.lastFallbackReason = params.reason ?? "UPSTREAM_ERROR";
+  if (params.reason === "MISSING_API_KEY") {
+    record.missingKeyCount += 1;
+  } else if (params.reason === "CIRCUIT_OPEN") {
+    record.circuitOpenRejectedCount += 1;
+  } else if (params.reason === "TIMEOUT") {
+    record.timeoutCount += 1;
+  } else {
+    record.upstreamErrorCount += 1;
+  }
+}
+
 /**
  * Shared circuit breaker + timeout executor for streaming/chat/external LLM handlers.
  * Handles missing API keys, open circuits, AbortController timeouts, and outcome recording.
@@ -242,6 +391,13 @@ export async function runWithCircuitGuard<T>(params: {
   const keyAvailable = params.hasKey ?? hasGoogleGeminiKey();
 
   if (!keyAvailable) {
+    const latencyMs = Date.now() - startedAt;
+    recordBridgeOutcome({
+      routeKey: params.routeKey,
+      outcome: "FALLBACK_TRIGGERED",
+      reason: "MISSING_API_KEY",
+      latencyMs,
+    });
     return {
       ok: false,
       source: "FALLBACK_TRIGGERED",
@@ -249,11 +405,18 @@ export async function runWithCircuitGuard<T>(params: {
       detail:
         "GOOGLE_GENERATIVE_AI_API_KEY is not configured; using deterministic local engine.",
       circuitState: breaker.getState(startedAt),
-      latencyMs: Date.now() - startedAt,
+      latencyMs,
     };
   }
 
   if (!breaker.canAttempt(startedAt)) {
+    const latencyMs = Date.now() - startedAt;
+    recordBridgeOutcome({
+      routeKey: params.routeKey,
+      outcome: "FALLBACK_TRIGGERED",
+      reason: "CIRCUIT_OPEN",
+      latencyMs,
+    });
     return {
       ok: false,
       source: "FALLBACK_TRIGGERED",
@@ -261,7 +424,7 @@ export async function runWithCircuitGuard<T>(params: {
       detail:
         "Circuit breaker is OPEN due to repeated upstream failures; serving local fallback.",
       circuitState: "OPEN",
-      latencyMs: Date.now() - startedAt,
+      latencyMs,
     };
   }
 
@@ -282,12 +445,18 @@ export async function runWithCircuitGuard<T>(params: {
     ]);
 
     breaker.recordSuccess();
+    const latencyMs = Date.now() - startedAt;
+    recordBridgeOutcome({
+      routeKey: params.routeKey,
+      outcome: "LIVE_GEMINI",
+      latencyMs,
+    });
     return {
       ok: true,
       source: "LIVE_GEMINI",
       data,
       circuitState: "CLOSED",
-      latencyMs: Date.now() - startedAt,
+      latencyMs,
     };
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err);
@@ -295,14 +464,25 @@ export async function runWithCircuitGuard<T>(params: {
     const isTimeout =
       detail.includes("BRIDGE_TIMEOUT") ||
       detail.toLowerCase().includes("abort");
+    const reason: BridgeFallbackReason = isTimeout
+      ? "TIMEOUT"
+      : "UPSTREAM_ERROR";
+    const latencyMs = Date.now() - startedAt;
+
+    recordBridgeOutcome({
+      routeKey: params.routeKey,
+      outcome: "FALLBACK_TRIGGERED",
+      reason,
+      latencyMs,
+    });
 
     return {
       ok: false,
       source: "FALLBACK_TRIGGERED",
-      reason: isTimeout ? "TIMEOUT" : "UPSTREAM_ERROR",
+      reason,
       detail,
       circuitState,
-      latencyMs: Date.now() - startedAt,
+      latencyMs,
     };
   } finally {
     clearTimeout(timer);
@@ -333,4 +513,135 @@ export async function executeGeminiBridge<
       return result.object as z.infer<TSchema>;
     },
   });
+}
+
+export function getAiBridgeHealthSnapshot(filters?: {
+  routeKey?: string;
+  status?: "ALL" | "OPEN" | "CLOSED";
+}): AiBridgeHealthSnapshot {
+  const now = Date.now();
+  const knownMap = new Map(
+    KNOWN_AI_BRIDGE_ROUTES.map((descriptor) => [
+      descriptor.routeKey,
+      descriptor,
+    ]),
+  );
+
+  const orderedRouteKeys = new Set<string>(
+    KNOWN_AI_BRIDGE_ROUTES.map((route) => route.routeKey),
+  );
+  for (const key of routeCircuits.keys()) {
+    orderedRouteKeys.add(key);
+  }
+  for (const key of routeTelemetry.keys()) {
+    orderedRouteKeys.add(key);
+  }
+
+  const allEntries: AiBridgeRouteHealthEntry[] = [];
+  for (const routeKey of orderedRouteKeys) {
+    const meta = knownMap.get(routeKey);
+    const circuitStats = getRouteCircuitBreaker(routeKey).getStats(now);
+    const telemetry =
+      routeTelemetry.get(routeKey) ?? createEmptyTelemetryRecord();
+    const avgLatencyMs =
+      telemetry.totalRequests > 0
+        ? Math.round(telemetry.totalLatencyMs / telemetry.totalRequests)
+        : 0;
+
+    allEntries.push({
+      routeKey,
+      endpoint: meta?.endpoint ?? `/api/custom/${routeKey}`,
+      provider: meta?.provider ?? "gemini",
+      description: meta?.description ?? "Dynamic AI bridge route handler",
+      circuit: circuitStats,
+      telemetry: {
+        totalRequests: telemetry.totalRequests,
+        liveSuccessCount: telemetry.liveSuccessCount,
+        fallbackCount: telemetry.fallbackCount,
+        timeoutCount: telemetry.timeoutCount,
+        missingKeyCount: telemetry.missingKeyCount,
+        circuitOpenRejectedCount: telemetry.circuitOpenRejectedCount,
+        upstreamErrorCount: telemetry.upstreamErrorCount,
+        piiRedactedCount: telemetry.piiRedactedCount,
+        avgLatencyMs,
+        lastLatencyMs: telemetry.lastLatencyMs,
+        lastOutcome: telemetry.lastOutcome,
+        lastFallbackReason: telemetry.lastFallbackReason,
+        lastUpdatedAt: telemetry.lastUpdatedAt,
+      },
+    });
+  }
+
+  const openCircuitsAll = allEntries.filter(
+    (entry) => entry.circuit.state === "OPEN",
+  ).length;
+  const geminiKeyConfigured = hasGoogleGeminiKey();
+  const glmKeyConfigured = hasGlmLineKey();
+  const hasRecentFallback = allEntries.some(
+    (entry) => entry.telemetry.fallbackCount > 0,
+  );
+
+  let status: AiBridgeGlobalStatus = "HEALTHY";
+  if (openCircuitsAll > 0) {
+    status = "CRITICAL";
+  } else if (!geminiKeyConfigured || !glmKeyConfigured || hasRecentFallback) {
+    status = "DEGRADED";
+  }
+
+  const filteredEntries = allEntries.filter((entry) => {
+    if (filters?.routeKey && entry.routeKey !== filters.routeKey) {
+      return false;
+    }
+    if (
+      filters?.status &&
+      filters.status !== "ALL" &&
+      entry.circuit.state !== filters.status
+    ) {
+      return false;
+    }
+    return true;
+  });
+
+  let totalRequests = 0;
+  let liveSuccessCount = 0;
+  let fallbackCount = 0;
+  let totalPiiRedacted = 0;
+  let weightedLatencySum = 0;
+
+  for (const entry of filteredEntries) {
+    totalRequests += entry.telemetry.totalRequests;
+    liveSuccessCount += entry.telemetry.liveSuccessCount;
+    fallbackCount += entry.telemetry.fallbackCount;
+    totalPiiRedacted += entry.telemetry.piiRedactedCount;
+    weightedLatencySum +=
+      entry.telemetry.avgLatencyMs * entry.telemetry.totalRequests;
+  }
+
+  const openCircuits = filteredEntries.filter(
+    (entry) => entry.circuit.state === "OPEN",
+  ).length;
+  const avgLatencyMs =
+    totalRequests > 0 ? Math.round(weightedLatencySum / totalRequests) : 0;
+
+  return {
+    version: "1.0",
+    status,
+    timestamp: new Date(now).toISOString(),
+    environment: {
+      geminiKeyConfigured,
+      glmKeyConfigured,
+      nodeEnv: process.env.NODE_ENV ?? "development",
+    },
+    summary: {
+      totalRoutes: filteredEntries.length,
+      openCircuits,
+      closedCircuits: filteredEntries.length - openCircuits,
+      totalRequests,
+      liveSuccessCount,
+      fallbackCount,
+      totalPiiRedacted,
+      avgLatencyMs,
+    },
+    routes: filteredEntries,
+  };
 }

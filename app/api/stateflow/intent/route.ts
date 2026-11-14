@@ -86,7 +86,9 @@ export async function POST(req: Request) {
     );
   }
 
-  const { sanitized } = redactPiiPayload(parsed.data);
+  const { sanitized } = redactPiiPayload(parsed.data, [], {
+    routeKey: "stateflow:intent",
+  });
 
   const systemPrompt =
     "You are StateFlow AI, a strict finite state machine architect. Convert the user request into valid additive StateNode and StateEdge patches anchored within x:[80,920], y:[50,560]. Connect new nodes using existing node IDs or newly proposed node IDs. Respond concisely in Thai/English matching the domain without any emojis.";

@@ -122,6 +122,7 @@ export async function POST(request: Request) {
       const { sanitized: safeUserText } = redactPiiString(
         text,
         user.name ? [user.name] : [],
+        { routeKey: "webhooks:line-ai" },
       );
 
       const bridge = await runWithCircuitGuard({

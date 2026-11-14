@@ -189,8 +189,12 @@ export async function POST(req: NextRequest) {
     process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim() ||
       process.env.GEMINI_API_KEY?.trim(),
   );
-  const { sanitized: safePrompt } = redactPiiString(prompt);
-  const { sanitized: safePath } = redactPiiString(body.currentPath || "~");
+  const { sanitized: safePrompt } = redactPiiString(prompt, [], {
+    routeKey: "terminal:stream",
+  });
+  const { sanitized: safePath } = redactPiiString(body.currentPath || "~", [], {
+    routeKey: "terminal:stream",
+  });
 
   const bridge = await runWithCircuitGuard({
     routeKey: "terminal:stream",
