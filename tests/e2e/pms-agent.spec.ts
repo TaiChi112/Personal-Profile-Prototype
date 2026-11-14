@@ -121,6 +121,18 @@ test.describe("PMS AI Agent Phase 2 In-Cycle E2E", () => {
     await expect(
       page.getByText("Tone: EXECUTIVE_DIRECT").first(),
     ).toBeVisible();
+    await expect(page.getByTestId("pms-ai-source-badge")).toHaveText(
+      /LOCAL_FALLBACK|LIVE_GEMINI/,
+    );
+
+    // Verify AI Bridge Mode Toggle -> LOCAL_ONLY & back to AUTO
+    await page.getByRole("button", { name: "LOCAL_ONLY", exact: true }).click();
+    await expect(page.getByTestId("pms-ai-source-badge")).toHaveText(
+      "LOCAL_ONLY",
+    );
+    await page
+      .getByRole("button", { name: "AUTO (Gemini)", exact: true })
+      .click();
 
     await page
       .getByRole("button", { name: "Approve & Publish Feedback (HR HITL)" })

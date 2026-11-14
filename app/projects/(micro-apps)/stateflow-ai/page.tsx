@@ -91,7 +91,11 @@ export default function StateFlowAiPage() {
               </span>
             </div>
             <p className="text-[11px] text-slate-400">
-              Multi-Perspective N x N State Machine (Prototype Mode: Local SSOT)
+              Multi-Perspective N x N State Machine (Bridge Mode:{" "}
+              {state.aiMode === "AUTO"
+                ? "Gemini -> Local Fallback"
+                : "Local SSOT Only"}
+              )
             </p>
           </div>
 

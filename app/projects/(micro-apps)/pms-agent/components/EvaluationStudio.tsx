@@ -25,7 +25,7 @@ export function EvaluationStudio() {
     evaluations,
     auditLogs,
     maskPii,
-    synthesizeEmployeeEvaluation,
+    synthesizeEmployeeEvaluationWithBridge,
     saveEmployeeSelfReview,
     endorseEvaluation,
     submitEvaluationAppeal,
@@ -69,7 +69,7 @@ export function EvaluationStudio() {
   }, [selectedEmployeeId, evaluations]);
 
   const handleResynthesize = () => {
-    synthesizeEmployeeEvaluation(employee.id);
+    void synthesizeEmployeeEvaluationWithBridge(employee.id);
   };
 
   const handleSubmitSelfReview = (evaluationId: string) => {

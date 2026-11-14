@@ -1,5 +1,10 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import type {
+  AiExecutionMode,
+  AiRuntimeSource,
+  BridgeCircuitState,
+} from "@/app/lib/ai/bridgeRuntime";
 import {
   generateMermaidStateDiagram,
   generatePlaywrightMbtSpec,
@@ -47,16 +52,27 @@ interface StateFlowState {
   highlightedNodeId: string | null;
   highlightedEdgeIds: string[];
   aiIntentStatus: string | null;
+  aiMode: AiExecutionMode;
+  aiSourceBadge: AiRuntimeSource;
+  aiCircuitState: BridgeCircuitState;
+  aiLatencyMs: number | null;
+  isAiExecuting: boolean;
   mcpLog: string;
 
   // Actions
   setPreset: (presetId: WorkflowPresetId) => void;
   setRole: (role: RolePerspective) => void;
+  setAiMode: (mode: AiExecutionMode) => void;
   selectNode: (nodeId: string) => void;
   moveNode: (nodeId: string, x: number, y: number) => void;
   toggleAddon: (addonId: string) => void;
   addCustomState: (payload: CustomStatePayload) => void;
   executeAiIntention: (promptText: string) => { ok: boolean; summary: string };
+  executeAiIntentionBridge: (promptText: string) => Promise<{
+    ok: boolean;
+    source: AiRuntimeSource;
+    summary: string;
+  }>;
   applyJsonAst: (rawJson: string) => { valid: boolean; error?: string };
   optimizeGraphCost: () => OptimizationResult;
   undoLastGraphChange: () => boolean;
@@ -148,6 +164,10 @@ function getInitialSlice(presetId: WorkflowPresetId) {
     highlightedNodeId: null as string | null,
     highlightedEdgeIds: [] as string[],
     aiIntentStatus: null as string | null,
+    aiSourceBadge: "IDLE" as AiRuntimeSource,
+    aiCircuitState: "CLOSED" as BridgeCircuitState,
+    aiLatencyMs: null as number | null,
+    isAiExecuting: false,
   };
 }
 
@@ -156,6 +176,7 @@ export const useStateFlowStore = create<StateFlowState>()(
     (set, get) => ({
       ...getInitialSlice("ecommerce"),
       activeRole: "client",
+      aiMode: "AUTO",
       mcpLog: "// รอรับคำสั่งจาก AI Agent ผ่าน MCP Protocol...",
 
       setPreset: (presetId) => {
@@ -166,6 +187,12 @@ export const useStateFlowStore = create<StateFlowState>()(
       },
 
       setRole: (activeRole) => set({ activeRole }),
+
+      setAiMode: (aiMode) =>
+        set({
+          aiMode,
+          aiSourceBadge: aiMode === "LOCAL_ONLY" ? "LOCAL_ONLY" : "IDLE",
+        }),
 
       selectNode: (selectedNodeId) => set({ selectedNodeId }),
 
@@ -289,12 +316,193 @@ export const useStateFlowStore = create<StateFlowState>()(
           selectedNodeId:
             parsed.nodes[parsed.nodes.length - 1]?.id || state.selectedNodeId,
           aiIntentStatus: parsed.summary,
+          aiSourceBadge:
+            state.aiMode === "LOCAL_ONLY" ? "LOCAL_ONLY" : "LOCAL_FALLBACK",
+          aiLatencyMs: 0,
           simMode: null,
           highlightedNodeId: null,
           highlightedEdgeIds: [],
         });
 
         return { ok: true, summary: parsed.summary };
+      },
+
+      executeAiIntentionBridge: async (promptText) => {
+        const state = get();
+        const text =
+          promptText.trim() ||
+          WORKFLOW_PRESETS[state.presetId].samplePrompts[0]?.prompt ||
+          "แทรกขั้นตอนตรวจสอบเพิ่มเติม";
+
+        if (state.aiMode === "LOCAL_ONLY") {
+          const localRes = get().executeAiIntention(text);
+          set({
+            aiSourceBadge: "LOCAL_ONLY",
+            aiLatencyMs: 0,
+            isAiExecuting: false,
+          });
+          return {
+            ok: localRes.ok,
+            source: "LOCAL_ONLY",
+            summary: localRes.summary,
+          };
+        }
+
+        const { nodes, edges } = composeGraph(state);
+        set({ isAiExecuting: true });
+
+        const controller = new AbortController();
+        const clientTimer = setTimeout(() => controller.abort(), 8_000);
+
+        try {
+          const res = await fetch("/api/stateflow/intent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
+            body: JSON.stringify({
+              prompt: text,
+              presetId: state.presetId,
+              nodes: nodes.map((n) => ({
+                id: n.id,
+                label: n.label,
+                sub: n.sub,
+                x: n.x,
+                y: n.y,
+              })),
+              edges: edges.map((e) => ({
+                id: e.id,
+                from: e.from,
+                to: e.to,
+                label: e.label,
+                type: e.type,
+              })),
+            }),
+          });
+
+          const data = (await res.json()) as {
+            ok?: boolean;
+            source?: string;
+            reason?: string;
+            circuitState?: BridgeCircuitState;
+            latencyMs?: number;
+            patch?: {
+              addNodes: Array<{
+                id: string;
+                label: string;
+                sub: string;
+                x: number;
+                y: number;
+                traffic: string;
+              }>;
+              addEdges: Array<{
+                id: string;
+                from: string;
+                to: string;
+                label: string;
+                type: StateEdge["type"];
+                prob: string;
+              }>;
+              explanation: string;
+            };
+          };
+
+          if (
+            res.ok &&
+            data.ok &&
+            data.patch &&
+            data.patch.addNodes.length > 0
+          ) {
+            const stamp = Date.now().toString().slice(-4);
+            const existingIds = new Set(nodes.map((n) => n.id));
+            const idRemap = new Map<string, string>();
+
+            const newNodes: StateNode[] = data.patch.addNodes.map((n, idx) => {
+              const safeId = existingIds.has(n.id)
+                ? `${n.id}_${stamp}_${idx}`
+                : n.id;
+              idRemap.set(n.id, safeId);
+              existingIds.add(safeId);
+              return {
+                id: safeId,
+                label: n.label,
+                sub: n.sub,
+                x: Math.max(80, Math.min(920, Math.round(n.x))),
+                y: Math.max(50, Math.min(560, Math.round(n.y))),
+                traffic: n.traffic,
+                isAddon: true,
+              };
+            });
+
+            const fallbackAnchor = nodes[0]?.id || newNodes[0].id;
+            const newEdges: StateEdge[] = data.patch.addEdges.map((e, idx) => {
+              const resolvedFrom = idRemap.get(e.from) ?? e.from;
+              const resolvedTo = idRemap.get(e.to) ?? e.to;
+              return {
+                id: `gem_edge_${stamp}_${idx}_${e.id}`,
+                from: existingIds.has(resolvedFrom)
+                  ? resolvedFrom
+                  : fallbackAnchor,
+                to: existingIds.has(resolvedTo) ? resolvedTo : newNodes[0].id,
+                label: e.label,
+                type: e.type,
+                prob: e.prob,
+              };
+            });
+
+            const current = get();
+            set({
+              undoSnapshot: captureSnapshot(current),
+              customNodes: [...current.customNodes, ...newNodes],
+              customEdges: [...current.customEdges, ...newEdges],
+              selectedNodeId:
+                newNodes[newNodes.length - 1]?.id || current.selectedNodeId,
+              aiIntentStatus: `${data.patch.explanation} [Live Gemini]`,
+              aiSourceBadge: "LIVE_GEMINI",
+              aiCircuitState: "CLOSED",
+              aiLatencyMs: data.latencyMs ?? null,
+              isAiExecuting: false,
+              simMode: null,
+              highlightedNodeId: null,
+              highlightedEdgeIds: [],
+            });
+
+            return {
+              ok: true,
+              source: "LIVE_GEMINI",
+              summary: data.patch.explanation,
+            };
+          }
+
+          const localRes = get().executeAiIntention(text);
+          set({
+            aiSourceBadge: "LOCAL_FALLBACK",
+            aiCircuitState: data.circuitState ?? "CLOSED",
+            aiLatencyMs: data.latencyMs ?? 0,
+            aiIntentStatus: `${localRes.summary} (Fallback: ${data.reason ?? "LOCAL_ENGINE"})`,
+            isAiExecuting: false,
+          });
+          return {
+            ok: localRes.ok,
+            source: "LOCAL_FALLBACK",
+            summary: localRes.summary,
+          };
+        } catch {
+          const localRes = get().executeAiIntention(text);
+          set({
+            aiSourceBadge: "LOCAL_FALLBACK",
+            aiCircuitState: "OPEN",
+            aiLatencyMs: 0,
+            aiIntentStatus: `${localRes.summary} (Fallback: NETWORK_OFFLINE)`,
+            isAiExecuting: false,
+          });
+          return {
+            ok: localRes.ok,
+            source: "LOCAL_FALLBACK",
+            summary: localRes.summary,
+          };
+        } finally {
+          clearTimeout(clientTimer);
+        }
       },
 
       applyJsonAst: (rawJson) => {

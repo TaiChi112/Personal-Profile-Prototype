@@ -29,13 +29,26 @@ test.describe("StateFlow AI Live Browser E2E Verification", () => {
     await expect(page.getByText("320 / 500 Pts")).toBeVisible();
     await expect(page.getByText("125,000 THB").first()).toBeVisible();
 
-    // 1. Compound NLP Chain
+    // 1. Compound NLP Chain via AUTO Bridge -> Auto-Fallback or Live Gemini
+    await expect(page.getByTestId("stateflow-ai-source-badge")).toHaveText(
+      "IDLE",
+    );
     await page.getByRole("button", { name: "+ Compound Chain" }).click();
     await page
       .getByRole("button", { name: "สั่ง AI Agent อัปเดต State SSOT" })
       .click();
     await expect(page.getByText("e-KYC Verify #1").first()).toBeVisible();
     await expect(page.getByText("Warehouse Lock #2").first()).toBeVisible();
+    await expect(page.getByTestId("stateflow-ai-source-badge")).toHaveText(
+      /LOCAL_FALLBACK|LIVE_GEMINI/,
+    );
+
+    // Switch AI Bridge Mode Toggle -> LOCAL_ONLY
+    await page.getByRole("button", { name: "LOCAL_ONLY", exact: true }).click();
+    await expect(page.getByTestId("stateflow-ai-source-badge")).toHaveText(
+      "LOCAL_ONLY",
+    );
+    await page.getByRole("button", { name: "AUTO", exact: true }).click();
 
     // 2. Apply Webhook Optimization & Undo + Report Download
     await page

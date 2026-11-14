@@ -26,12 +26,12 @@ export function LeftOrchestratorSidebar({
   const preset = WORKFLOW_PRESETS[state.presetId];
   const [promptInput, setPromptInput] = useState("");
 
-  const handleRunIntent = () => {
+  const handleRunIntent = async () => {
     const text = promptInput.trim() || preset.samplePrompts[0]?.prompt || "";
     if (!promptInput.trim() && text) {
       setPromptInput(text);
     }
-    state.executeAiIntention(text);
+    await state.executeAiIntentionBridge(text);
   };
 
   return (
@@ -43,9 +43,45 @@ export function LeftOrchestratorSidebar({
             <Sparkles className="w-3.5 h-3.5" />
             <span>AI Intention Orchestrator</span>
           </h2>
-          <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-1.5 py-0.5 rounded font-mono">
-            NL -&gt; JSON
+          <span
+            data-testid="stateflow-ai-source-badge"
+            className={`text-[10px] px-1.5 py-0.5 rounded font-mono border ${
+              state.aiSourceBadge === "LIVE_GEMINI"
+                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                : state.aiSourceBadge === "LOCAL_FALLBACK"
+                  ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                  : "bg-cyan-500/20 text-cyan-300 border-cyan-500/30"
+            }`}
+          >
+            {state.aiSourceBadge}
           </span>
+        </div>
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <span className="text-[10px] text-slate-400">AI Bridge Mode</span>
+          <div className="inline-flex rounded-lg bg-slate-950 p-0.5 border border-slate-800">
+            <button
+              type="button"
+              onClick={() => state.setAiMode("AUTO")}
+              className={`px-2 py-0.5 rounded text-[10px] font-mono cursor-pointer transition ${
+                state.aiMode === "AUTO"
+                  ? "bg-cyan-600 text-white font-semibold"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              AUTO
+            </button>
+            <button
+              type="button"
+              onClick={() => state.setAiMode("LOCAL_ONLY")}
+              className={`px-2 py-0.5 rounded text-[10px] font-mono cursor-pointer transition ${
+                state.aiMode === "LOCAL_ONLY"
+                  ? "bg-indigo-600 text-white font-semibold"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              LOCAL_ONLY
+            </button>
+          </div>
         </div>
         <p className="text-[11px] text-slate-400 mb-2">
           พิมพ์สั่งด้วยภาษามนุษย์เพื่อให้ AI Agent แปลงเป็น JSON State และคำนวณราคาอัตโนมัติ
@@ -84,11 +120,16 @@ export function LeftOrchestratorSidebar({
         <div className="flex gap-1.5">
           <button
             type="button"
+            disabled={state.isAiExecuting}
             onClick={handleRunIntent}
-            className="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-lg shadow-cyan-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+            className="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 disabled:opacity-60 text-white text-xs font-semibold shadow-lg shadow-cyan-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <Bot className="w-4 h-4" />
-            <span>สั่ง AI Agent อัปเดต State SSOT</span>
+            <span>
+              {state.isAiExecuting
+                ? "กำลังประมวลผล AI Bridge..."
+                : "สั่ง AI Agent อัปเดต State SSOT"}
+            </span>
           </button>
           {state.undoSnapshot && (
             <button

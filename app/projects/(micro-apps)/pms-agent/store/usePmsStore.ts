@@ -1,5 +1,10 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import type {
+  AiExecutionMode,
+  AiRuntimeSource,
+  BridgeCircuitState,
+} from "@/app/lib/ai/bridgeRuntime";
 import { buildCheckInBotPrompt, buildDriftAlert } from "../engine/driftEngine";
 import { synthesizeEvaluationRecord } from "../engine/evaluationEngine";
 import { synthesizePublishPackage } from "../engine/publishEngine";
@@ -65,10 +70,18 @@ interface PmsState {
   // Phase 5: Publishing, Tone-of-Voice Feedback & Continuous IDP Loop
   publishPackages: PublishPackageRecord[];
 
+  // Production AI Bridge Telemetry & Mode
+  aiMode: AiExecutionMode;
+  aiSourceBadge: AiRuntimeSource;
+  aiCircuitState: BridgeCircuitState;
+  aiLatencyMs: number | null;
+  aiLastRedactionCount: number;
+
   setSelectedEmployeeId: (id: string) => void;
   setFilterStatus: (status: FilterStatus) => void;
   setActiveStage: (stage: PmsLifecycleStage) => void;
   setCycleMonth: (month: number) => void;
+  setAiMode: (mode: AiExecutionMode) => void;
   toggleMaskPii: () => void;
   generateDraftGoals: (employeeId: string) => Promise<void>;
   endorseGoal: (goalId: string) => void;
@@ -90,6 +103,7 @@ interface PmsState {
   ) => void;
   acknowledgeDriftAlert: (alertId: string) => void;
   synthesizeEmployeeEvaluation: (employeeId: string) => void;
+  synthesizeEmployeeEvaluationWithBridge: (employeeId: string) => Promise<void>;
   saveEmployeeSelfReview: (
     evaluationId: string,
     text: string,
@@ -109,6 +123,10 @@ interface PmsState {
     committeeNote: string,
   ) => void;
   generatePublishPackage: (employeeId: string, tone: CorporateTone) => void;
+  generatePublishPackageWithBridge: (
+    employeeId: string,
+    tone: CorporateTone,
+  ) => Promise<void>;
   updatePublishPackage: (
     packageId: string,
     feedbackText: string,
@@ -146,6 +164,80 @@ function upsertAlertList(
   );
 }
 
+interface PmsBridgeEnvelope<TResult> {
+  ok: boolean;
+  source: AiRuntimeSource;
+  circuitState: BridgeCircuitState;
+  latencyMs: number | null;
+  redactionCount: number;
+  result?: TResult;
+}
+
+async function invokePmsSynthesizeBridge<TResult>(
+  payload: Record<string, unknown>,
+  aiMode: AiExecutionMode,
+): Promise<PmsBridgeEnvelope<TResult>> {
+  if (aiMode === "LOCAL_ONLY") {
+    return {
+      ok: false,
+      source: "LOCAL_ONLY",
+      circuitState: "CLOSED",
+      latencyMs: 0,
+      redactionCount: 0,
+    };
+  }
+
+  const controller = new AbortController();
+  const clientTimer = setTimeout(() => controller.abort(), 8_000);
+
+  try {
+    const res = await fetch("/api/pms/synthesize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
+      body: JSON.stringify(payload),
+    });
+
+    const data = (await res.json()) as {
+      ok?: boolean;
+      source?: string;
+      circuitState?: BridgeCircuitState;
+      latencyMs?: number;
+      redactionCount?: number;
+      result?: TResult;
+    };
+
+    if (res.ok && data.ok && data.result) {
+      return {
+        ok: true,
+        source: "LIVE_GEMINI",
+        circuitState: data.circuitState ?? "CLOSED",
+        latencyMs: data.latencyMs ?? null,
+        redactionCount: data.redactionCount ?? 0,
+        result: data.result,
+      };
+    }
+
+    return {
+      ok: false,
+      source: "LOCAL_FALLBACK",
+      circuitState: data.circuitState ?? "CLOSED",
+      latencyMs: data.latencyMs ?? 0,
+      redactionCount: data.redactionCount ?? 0,
+    };
+  } catch {
+    return {
+      ok: false,
+      source: "LOCAL_FALLBACK",
+      circuitState: "OPEN",
+      latencyMs: 0,
+      redactionCount: 0,
+    };
+  } finally {
+    clearTimeout(clientTimer);
+  }
+}
+
 export const usePmsStore = create<PmsState>()(
   persist(
     (set, get) => ({
@@ -164,6 +256,11 @@ export const usePmsStore = create<PmsState>()(
       calibrationBuFilter: "ALL",
       calibrationDecisions: INITIAL_CALIBRATION_DECISIONS,
       publishPackages: INITIAL_PUBLISH_PACKAGES,
+      aiMode: "AUTO",
+      aiSourceBadge: "IDLE",
+      aiCircuitState: "CLOSED",
+      aiLatencyMs: null,
+      aiLastRedactionCount: 0,
 
       setSelectedEmployeeId: (id: string) => {
         set({ selectedEmployeeId: id });
@@ -175,6 +272,13 @@ export const usePmsStore = create<PmsState>()(
 
       setActiveStage: (activeStage: PmsLifecycleStage) => {
         set({ activeStage });
+      },
+
+      setAiMode: (aiMode: AiExecutionMode) => {
+        set({
+          aiMode,
+          aiSourceBadge: aiMode === "LOCAL_ONLY" ? "LOCAL_ONLY" : "IDLE",
+        });
       },
 
       setCycleMonth: (month: number) => {
@@ -201,28 +305,65 @@ export const usePmsStore = create<PmsState>()(
       generateDraftGoals: async (employeeId: string) => {
         set({ isGenerating: true });
 
-        // Simulate asynchronous AI inference
-        await new Promise((resolve) => setTimeout(resolve, 600));
+        const stateSnapshot = get();
+        const existing = stateSnapshot.goals.find(
+          (g) => g.employeeId === employeeId,
+        );
+        const employee = MOCK_EMPLOYEES.find((e) => e.id === employeeId);
 
-        const existing = get().goals.find((g) => g.employeeId === employeeId);
-        if (existing) {
-          // Refresh existing draft
-          set((state) => ({
-            isGenerating: false,
-            goals: state.goals.map((g) =>
-              g.id === existing.id
-                ? {
-                    ...g,
-                    status: "DRAFT_AI",
-                    confidenceScore: Math.min(0.99, g.confidenceScore + 0.02),
-                    updatedAt: new Date().toISOString(),
-                  }
-                : g,
-            ),
-          }));
-        } else {
+        if (!existing || !employee) {
           set({ isGenerating: false });
+          return;
         }
+
+        const bridge = await invokePmsSynthesizeBridge<{
+          refinedTitle: string;
+          refinedDescription: string;
+          smartCritique: string[];
+        }>(
+          {
+            action: "DRAFT_GOAL",
+            employeeAnonymizedId: employee.anonymizedId,
+            role: employee.role,
+            department: employee.department,
+            okrAlignment: existing.okrAlignment,
+            existingGoalTitle: existing.title,
+            metricName: existing.kpiBinding.metricName,
+            baselineValue: existing.kpiBinding.baselineValue,
+            targetValue: existing.kpiBinding.targetValue,
+            unit: existing.kpiBinding.unit,
+            knownSensitiveNames: [employee.name],
+          },
+          stateSnapshot.aiMode,
+        );
+
+        set((state) => ({
+          isGenerating: false,
+          aiSourceBadge: bridge.source,
+          aiCircuitState: bridge.circuitState,
+          aiLatencyMs: bridge.latencyMs,
+          aiLastRedactionCount: bridge.redactionCount,
+          goals: state.goals.map((g) =>
+            g.id === existing.id
+              ? {
+                  ...g,
+                  ...(bridge.ok && bridge.result
+                    ? {
+                        title: bridge.result.refinedTitle,
+                        description: bridge.result.refinedDescription,
+                        smartValidation: {
+                          ...g.smartValidation,
+                          critique: bridge.result.smartCritique,
+                        },
+                      }
+                    : {}),
+                  status: "DRAFT_AI",
+                  confidenceScore: Math.min(0.99, g.confidenceScore + 0.02),
+                  updatedAt: new Date().toISOString(),
+                }
+              : g,
+          ),
+        }));
       },
 
       endorseGoal: (goalId: string) => {
@@ -444,6 +585,69 @@ export const usePmsStore = create<PmsState>()(
           evaluations: nextEvaluations,
           auditLogs: [...newLogs, ...state.auditLogs],
         });
+      },
+
+      synthesizeEmployeeEvaluationWithBridge: async (employeeId: string) => {
+        // Compute deterministic baseline synchronously first
+        get().synthesizeEmployeeEvaluation(employeeId);
+
+        const state = get();
+        const employee = MOCK_EMPLOYEES.find((e) => e.id === employeeId);
+        const goal = state.goals.find((g) => g.employeeId === employeeId);
+        if (!employee || !goal) return;
+
+        const latestMetric = getLatestMetricForGoal(
+          goal,
+          state.evidences,
+          state.checkIns,
+        );
+        const relevantEvidences = state.evidences
+          .filter((ev) => ev.goalId === goal.id)
+          .slice(0, 6)
+          .map((ev) => `${ev.sourceType}: ${ev.summary}`);
+
+        set({ isGenerating: true });
+
+        const bridge = await invokePmsSynthesizeBridge<{
+          aiSummary: string;
+          selfReviewDraft: string;
+          keyHighlight: string;
+        }>(
+          {
+            action: "SYNTHESIZE_EVALUATION",
+            employeeAnonymizedId: employee.anonymizedId,
+            goalTitle: goal.title,
+            metricName: goal.kpiBinding.metricName,
+            baselineValue: goal.kpiBinding.baselineValue,
+            targetValue: goal.kpiBinding.targetValue,
+            latestMetric,
+            evidenceSummaries: relevantEvidences,
+            knownSensitiveNames: [employee.name],
+          },
+          state.aiMode,
+        );
+
+        set((curr) => ({
+          isGenerating: false,
+          aiSourceBadge: bridge.source,
+          aiCircuitState: bridge.circuitState,
+          aiLatencyMs: bridge.latencyMs,
+          aiLastRedactionCount: bridge.redactionCount,
+          ...(bridge.ok && bridge.result
+            ? {
+                evaluations: curr.evaluations.map((ev) =>
+                  ev.goalId === goal.id
+                    ? {
+                        ...ev,
+                        aiSummary: bridge.result!.aiSummary,
+                        employeeSelfReview: bridge.result!.selfReviewDraft,
+                        updatedAt: new Date().toISOString(),
+                      }
+                    : ev,
+                ),
+              }
+            : {}),
+        }));
       },
 
       saveEmployeeSelfReview: (
@@ -672,6 +876,65 @@ export const usePmsStore = create<PmsState>()(
         set({ publishPackages: nextPackages });
       },
 
+      generatePublishPackageWithBridge: async (
+        employeeId: string,
+        tone: CorporateTone,
+      ) => {
+        get().generatePublishPackage(employeeId, tone);
+
+        const state = get();
+        const employee = MOCK_EMPLOYEES.find((e) => e.id === employeeId);
+        const targetPkg = state.publishPackages.find(
+          (p) => p.employeeId === employeeId,
+        );
+        const goal = targetPkg
+          ? state.goals.find((g) => g.id === targetPkg.goalId)
+          : state.goals.find((g) => g.employeeId === employeeId);
+        if (!employee || !targetPkg || !goal) return;
+
+        set({ isGenerating: true });
+
+        const bridge = await invokePmsSynthesizeBridge<{
+          feedbackText: string;
+          idpActionPlan: string;
+        }>(
+          {
+            action: "SYNTHESIZE_FEEDBACK",
+            employeeAnonymizedId: employee.anonymizedId,
+            tone,
+            goalTitle: goal.title,
+            calibratedScore: targetPkg.calibratedScore,
+            managerNote: targetPkg.hrEditedFeedback,
+            idpFocusSkill: targetPkg.idpFocusSkill,
+            knownSensitiveNames: [employee.name],
+          },
+          state.aiMode,
+        );
+
+        set((curr) => ({
+          isGenerating: false,
+          aiSourceBadge: bridge.source,
+          aiCircuitState: bridge.circuitState,
+          aiLatencyMs: bridge.latencyMs,
+          aiLastRedactionCount: bridge.redactionCount,
+          ...(bridge.ok && bridge.result
+            ? {
+                publishPackages: curr.publishPackages.map((pkg) =>
+                  pkg.id === targetPkg.id
+                    ? {
+                        ...pkg,
+                        aiGeneratedFeedback: bridge.result!.feedbackText,
+                        hrEditedFeedback: bridge.result!.feedbackText,
+                        idpActionPlan: bridge.result!.idpActionPlan,
+                        updatedAt: new Date().toISOString(),
+                      }
+                    : pkg,
+                ),
+              }
+            : {}),
+        }));
+      },
+
       updatePublishPackage: (
         packageId: string,
         feedbackText: string,
@@ -810,6 +1073,11 @@ export const usePmsStore = create<PmsState>()(
           calibrationBuFilter: "ALL",
           calibrationDecisions: INITIAL_CALIBRATION_DECISIONS,
           publishPackages: INITIAL_PUBLISH_PACKAGES,
+          aiMode: "AUTO",
+          aiSourceBadge: "IDLE",
+          aiCircuitState: "CLOSED",
+          aiLatencyMs: null,
+          aiLastRedactionCount: 0,
         });
       },
     }),

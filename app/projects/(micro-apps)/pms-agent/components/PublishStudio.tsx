@@ -26,7 +26,7 @@ export function PublishStudio() {
     publishPackages,
     maskPii,
     setActiveStage,
-    generatePublishPackage,
+    generatePublishPackageWithBridge,
     updatePublishPackage,
     publishFeedbackPackage,
     feedIdpToNextCycleGoal,
@@ -64,7 +64,7 @@ export function PublishStudio() {
 
   const handleRegenerateTone = (tone: CorporateTone) => {
     setSelectedTone(tone);
-    generatePublishPackage(employee.id, tone);
+    void generatePublishPackageWithBridge(employee.id, tone);
   };
 
   return (
