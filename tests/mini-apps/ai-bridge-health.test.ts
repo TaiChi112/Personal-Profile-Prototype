@@ -1,6 +1,14 @@
-import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { NextRequest } from "next/server";
 import { mockGenerateObject, registerAiSdkMocks } from "./helpers/aiSdkMock";
+
+const mockAuth = mock<() => Promise<{ user?: { role?: string } } | null>>(
+  async () => null,
+);
+
+mock.module("@/auth", () => ({
+  auth: mockAuth,
+}));
 
 registerAiSdkMocks();
 
@@ -22,12 +30,16 @@ import { z } from "zod";
 describe("AI Bridge Health Telemetry API (/api/health/ai-bridge)", () => {
   const originalGoogleKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   const originalGlmKey = process.env.GLM_API_KEY;
+  const originalAdminToken = process.env.AI_BRIDGE_ADMIN_TOKEN;
+  const originalEnforceGuard = process.env.AI_BRIDGE_ENFORCE_ADMIN_GUARD;
 
   beforeEach(() => {
     resetAllBridgeCircuits();
     mockGenerateObject.mockReset();
     process.env.GOOGLE_GENERATIVE_AI_API_KEY = "test-google-key";
     process.env.GLM_API_KEY = "test-glm-key";
+    delete process.env.AI_BRIDGE_ADMIN_TOKEN;
+    delete process.env.AI_BRIDGE_ENFORCE_ADMIN_GUARD;
   });
 
   afterEach(() => {
@@ -40,6 +52,16 @@ describe("AI Bridge Health Telemetry API (/api/health/ai-bridge)", () => {
       delete process.env.GLM_API_KEY;
     } else {
       process.env.GLM_API_KEY = originalGlmKey;
+    }
+    if (originalAdminToken === undefined) {
+      delete process.env.AI_BRIDGE_ADMIN_TOKEN;
+    } else {
+      process.env.AI_BRIDGE_ADMIN_TOKEN = originalAdminToken;
+    }
+    if (originalEnforceGuard === undefined) {
+      delete process.env.AI_BRIDGE_ENFORCE_ADMIN_GUARD;
+    } else {
+      process.env.AI_BRIDGE_ENFORCE_ADMIN_GUARD = originalEnforceGuard;
     }
   });
 
@@ -205,5 +227,78 @@ describe("AI Bridge Health Telemetry API (/api/health/ai-bridge)", () => {
     expect(invalidBodyRes.headers.get("Content-Type")).toContain(
       "application/problem+json",
     );
+  });
+
+  it("enforces Role Guard boundary with RFC 7807 403 Forbidden when AI_BRIDGE_ADMIN_TOKEN is configured", async () => {
+    process.env.AI_BRIDGE_ADMIN_TOKEN = "secret-ops-token-2026";
+
+    const snapshotRes = await GET(
+      new NextRequest("http://localhost:3000/api/health/ai-bridge"),
+    );
+    const snapshot = AiBridgeHealthResponseSchema.parse(
+      await snapshotRes.json(),
+    );
+    expect(snapshot.environment.adminGuardEnforced).toBe(true);
+
+    const missingTokenRes = await POST(
+      new NextRequest("http://localhost:3000/api/health/ai-bridge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "RESET_CIRCUIT" }),
+      }),
+    );
+    expect(missingTokenRes.status).toBe(403);
+    expect(missingTokenRes.headers.get("Content-Type")).toContain(
+      "application/problem+json",
+    );
+    const problem = Rfc7807ProblemSchema.parse(await missingTokenRes.json());
+    expect(problem.type).toContain("forbidden-admin-action");
+
+    const wrongTokenRes = await POST(
+      new NextRequest("http://localhost:3000/api/health/ai-bridge", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-ai-bridge-admin-token": "wrong-token",
+        },
+        body: JSON.stringify({ action: "RESET_CIRCUIT" }),
+      }),
+    );
+    expect(wrongTokenRes.status).toBe(403);
+
+    const validTokenRes = await POST(
+      new NextRequest("http://localhost:3000/api/health/ai-bridge", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-ai-bridge-admin-token": "secret-ops-token-2026",
+        },
+        body: JSON.stringify({ action: "RESET_CIRCUIT" }),
+      }),
+    );
+    expect(validTokenRes.status).toBe(200);
+    const validBody = (await validTokenRes.json()) as {
+      ok: boolean;
+      authorizedBy: string;
+    };
+    expect(validBody.ok).toBe(true);
+    expect(validBody.authorizedBy).toBe("ADMIN_TOKEN");
+
+    // Also allow NextAuth session admin role without token header
+    mockAuth.mockResolvedValueOnce({ user: { role: "admin" } });
+    const sessionAdminRes = await POST(
+      new NextRequest("http://localhost:3000/api/health/ai-bridge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "RESET_CIRCUIT" }),
+      }),
+    );
+    expect(sessionAdminRes.status).toBe(200);
+    const sessionAdminBody = (await sessionAdminRes.json()) as {
+      ok: boolean;
+      authorizedBy: string;
+    };
+    expect(sessionAdminBody.ok).toBe(true);
+    expect(sessionAdminBody.authorizedBy).toBe("SESSION_ADMIN");
   });
 });

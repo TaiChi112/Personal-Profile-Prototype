@@ -144,6 +144,7 @@ export const AiBridgeHealthResponseSchema = z.object({
   environment: z.object({
     geminiKeyConfigured: z.boolean(),
     glmKeyConfigured: z.boolean(),
+    adminGuardEnforced: z.boolean(),
     nodeEnv: z.string(),
   }),
   summary: z.object({
@@ -176,6 +177,76 @@ export type Rfc7807Problem = z.infer<typeof Rfc7807ProblemSchema>;
 
 export function isRegisteredBridgeRouteKey(routeKey: string): boolean {
   return KNOWN_AI_BRIDGE_ROUTES.some((route) => route.routeKey === routeKey);
+}
+
+export type BridgeAdminAuthorizedBy =
+  | "ADMIN_TOKEN"
+  | "SESSION_ADMIN"
+  | "LOCAL_DEV_BYPASS";
+
+export interface BridgeAdminAccessEvaluation {
+  allowed: boolean;
+  mode: "ENFORCED" | "LOCAL_DEV_OPEN";
+  authorizedBy?: BridgeAdminAuthorizedBy;
+  reason?: string;
+}
+
+export function isAiBridgeAdminGuardEnforced(): boolean {
+  const configuredToken = process.env.AI_BRIDGE_ADMIN_TOKEN?.trim() ?? "";
+  return (
+    process.env.NODE_ENV === "production" ||
+    process.env.AI_BRIDGE_ENFORCE_ADMIN_GUARD === "true" ||
+    configuredToken.length > 0
+  );
+}
+
+export function evaluateAiBridgeAdminAccess(params: {
+  headers: Headers;
+  sessionRole?: string | null;
+}): BridgeAdminAccessEvaluation {
+  const configuredToken = process.env.AI_BRIDGE_ADMIN_TOKEN?.trim() ?? "";
+  const providedHeaderToken =
+    params.headers.get("x-ai-bridge-admin-token")?.trim() ?? "";
+  const enforced = isAiBridgeAdminGuardEnforced();
+  const mode = enforced ? "ENFORCED" : "LOCAL_DEV_OPEN";
+
+  if (configuredToken.length > 0 && providedHeaderToken.length > 0) {
+    if (providedHeaderToken === configuredToken) {
+      return {
+        allowed: true,
+        mode,
+        authorizedBy: "ADMIN_TOKEN",
+      };
+    }
+    return {
+      allowed: false,
+      mode,
+      reason: "Invalid x-ai-bridge-admin-token header supplied.",
+    };
+  }
+
+  if (params.sessionRole === "admin") {
+    return {
+      allowed: true,
+      mode,
+      authorizedBy: "SESSION_ADMIN",
+    };
+  }
+
+  if (!enforced) {
+    return {
+      allowed: true,
+      mode: "LOCAL_DEV_OPEN",
+      authorizedBy: "LOCAL_DEV_BYPASS",
+    };
+  }
+
+  return {
+    allowed: false,
+    mode: "ENFORCED",
+    reason:
+      "Admin privileges required: provide a valid x-ai-bridge-admin-token header or sign in with an admin role session.",
+  };
 }
 
 export function buildRfc7807Response(problem: Rfc7807Problem): Response {

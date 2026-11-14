@@ -2,19 +2,60 @@ import { auth } from "@/auth";
 import Link from "next/link";
 import Image from "next/image";
 
-export default async function MicroAppsLayout({ children }: { children: React.ReactNode }) {
+export default async function MicroAppsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const session = await auth();
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      {/* 🌐 Global Profile OS Layout */}
-      <header className="sticky top-0 z-50 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-b shadow-sm px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Link href="/projects" className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-80 transition-opacity">
-            ✦ AI-Native OS
+      {/* Global Profile OS Layout */}
+      <header className="sticky top-0 z-50 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-b shadow-sm px-6 py-3 flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <Link
+            href="/projects"
+            className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-80 transition-opacity"
+          >
+            AI-Native OS
           </Link>
+
+          <nav
+            aria-label="AI Micro-Apps Navigation"
+            className="hidden md:flex items-center gap-2 text-xs font-mono"
+          >
+            <Link
+              href="/projects/stateflow-ai"
+              data-testid="nav-stateflow-ai"
+              className="px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            >
+              StateFlow AI
+            </Link>
+            <Link
+              href="/projects/pms-agent"
+              data-testid="nav-pms-agent"
+              className="px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            >
+              PMS Agent
+            </Link>
+            <Link
+              href="/projects/agentic-testing"
+              data-testid="nav-agentic-testing"
+              className="px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            >
+              Agentic Testing
+            </Link>
+            <Link
+              href="/projects/ai-bridge-health"
+              data-testid="nav-ai-bridge-health"
+              className="px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/60 transition"
+            >
+              AI Bridge Health
+            </Link>
+          </nav>
         </div>
-        
+
         <div className="flex items-center space-x-4">
           {session?.user ? (
             <div className="flex items-center space-x-3 bg-white/50 dark:bg-gray-800/50 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm">
@@ -22,13 +63,22 @@ export default async function MicroAppsLayout({ children }: { children: React.Re
                 {session.user.name}
               </span>
               {session.user.image ? (
-                <Image src={session.user.image} alt="Profile" width={28} height={28} className="w-7 h-7 rounded-full border border-green-500 shadow-sm" />
+                <Image
+                  src={session.user.image}
+                  alt="Profile"
+                  width={28}
+                  height={28}
+                  className="w-7 h-7 rounded-full border border-green-500 shadow-sm"
+                />
               ) : (
                 <div className="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xs">
                   {session.user.name?.charAt(0) || "U"}
                 </div>
               )}
-              <Link href="/api/auth/signout" className="text-xs text-red-500 hover:text-red-700 font-semibold ml-2">
+              <Link
+                href="/api/auth/signout"
+                className="text-xs text-red-500 hover:text-red-700 font-semibold ml-2"
+              >
                 Sign Out
               </Link>
             </div>
@@ -39,7 +89,10 @@ export default async function MicroAppsLayout({ children }: { children: React.Re
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
                 <span className="text-xs font-bold">Guest Mode</span>
               </div>
-              <Link href="/api/auth/signin" className="text-sm px-5 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all">
+              <Link
+                href="/api/auth/signin"
+                className="text-sm px-5 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all"
+              >
                 Login to Save Data
               </Link>
             </div>
@@ -47,10 +100,8 @@ export default async function MicroAppsLayout({ children }: { children: React.Re
         </div>
       </header>
 
-      {/* 🚀 Micro-Project Content */}
-      <main className="flex-1 relative">
-        {children}
-      </main>
+      {/* Micro-Project Content */}
+      <main className="flex-1 relative">{children}</main>
     </div>
   );
 }

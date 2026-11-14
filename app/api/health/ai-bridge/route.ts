@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { auth } from "@/auth";
 import {
   getAiBridgeHealthSnapshot,
   resetBridgeTelemetry,
@@ -8,6 +9,7 @@ import {
   AiBridgeHealthActionSchema,
   AiBridgeHealthQuerySchema,
   buildRfc7807Response,
+  evaluateAiBridgeAdminAccess,
   isRegisteredBridgeRouteKey,
 } from "@/app/lib/ai/healthContract";
 
@@ -64,6 +66,31 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  let sessionRole: string | null = null;
+  try {
+    const session = await auth();
+    sessionRole = session?.user?.role ?? null;
+  } catch {
+    sessionRole = null;
+  }
+
+  const access = evaluateAiBridgeAdminAccess({
+    headers: request.headers,
+    sessionRole,
+  });
+
+  if (!access.allowed) {
+    return buildRfc7807Response({
+      type: "https://ai-bridge.local/errors/forbidden-admin-action",
+      title: "Admin Role or Token Required",
+      status: 403,
+      detail:
+        access.reason ??
+        "Admin privileges required to reset AI Bridge circuits or telemetry.",
+      instance: "/api/health/ai-bridge",
+    });
+  }
+
   let rawBody: unknown;
   try {
     rawBody = await request.json();
@@ -117,6 +144,7 @@ export async function POST(request: NextRequest) {
     {
       ok: true,
       actionApplied: action,
+      authorizedBy: access.authorizedBy ?? "LOCAL_DEV_BYPASS",
       affectedRouteKeys,
       snapshot,
     },

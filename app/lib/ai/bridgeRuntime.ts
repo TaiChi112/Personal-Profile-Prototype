@@ -3,6 +3,7 @@ import { generateObject } from "ai";
 import type { z } from "zod";
 import {
   KNOWN_AI_BRIDGE_ROUTES,
+  isAiBridgeAdminGuardEnforced,
   type AiBridgeGlobalStatus,
   type AiBridgeHealthSnapshot,
   type AiBridgeRouteHealthEntry,
@@ -630,6 +631,7 @@ export function getAiBridgeHealthSnapshot(filters?: {
     environment: {
       geminiKeyConfigured,
       glmKeyConfigured,
+      adminGuardEnforced: isAiBridgeAdminGuardEnforced(),
       nodeEnv: process.env.NODE_ENV ?? "development",
     },
     summary: {

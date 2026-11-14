@@ -21,6 +21,7 @@ export default function AiBridgeHealthDashboardPage() {
   const [snapshot, setSnapshot] = useState<AiBridgeHealthSnapshot | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [autoRefresh, setAutoRefresh] = useState<boolean>(false);
+  const [adminToken, setAdminToken] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isMutating, setIsMutating] = useState<boolean>(false);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
@@ -71,9 +72,15 @@ export default function AiBridgeHealthDashboardPage() {
     setIsMutating(true);
     setErrorBanner(null);
     try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (adminToken.trim().length > 0) {
+        headers["x-ai-bridge-admin-token"] = adminToken.trim();
+      }
       const response = await fetch("/api/health/ai-bridge", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify(routeKey ? { action, routeKey } : { action }),
       });
       if (!response.ok) {
@@ -82,11 +89,12 @@ export default function AiBridgeHealthDashboardPage() {
       }
       const result = (await response.json()) as {
         actionApplied: string;
+        authorizedBy?: string;
         affectedRouteKeys: string[];
         snapshot: AiBridgeHealthSnapshot;
       };
       setLastActionNote(
-        `${result.actionApplied} applied to ${routeKey ?? `${result.affectedRouteKeys.length} routes`}`,
+        `${result.actionApplied} applied to ${routeKey ?? `${result.affectedRouteKeys.length} routes`}${result.authorizedBy ? ` (${result.authorizedBy})` : ""}`,
       );
       if (statusFilter === "ALL") {
         setSnapshot(result.snapshot);
@@ -216,23 +224,51 @@ export default function AiBridgeHealthDashboardPage() {
                 : "MISSING (FALLBACK READY)"}
             </span>
           </div>
+
+          <div className="inline-flex items-center gap-1.5 font-mono">
+            <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
+            <span>Admin Guard:</span>
+            <span
+              data-testid="env-admin-guard-status"
+              className={
+                snapshot?.environment.adminGuardEnforced
+                  ? "text-indigo-600 font-semibold"
+                  : "text-emerald-600 font-semibold"
+              }
+            >
+              {snapshot?.environment.adminGuardEnforced
+                ? "ENFORCED"
+                : "LOCAL_DEV_OPEN"}
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
-          {(["ALL", "OPEN", "CLOSED"] as const).map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => setStatusFilter(tab)}
-              className={`px-3 py-1 rounded-md font-mono text-xs transition ${
-                statusFilter === tab
-                  ? "bg-blue-600 text-white font-semibold"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-3">
+          <input
+            type="password"
+            data-testid="admin-token-input"
+            value={adminToken}
+            onChange={(e) => setAdminToken(e.target.value)}
+            placeholder="Optional Admin Token (x-ai-bridge-admin-token)"
+            className="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 font-mono text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+          />
+
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
+            {(["ALL", "OPEN", "CLOSED"] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setStatusFilter(tab)}
+                className={`px-3 py-1 rounded-md font-mono text-xs transition ${
+                  statusFilter === tab
+                    ? "bg-blue-600 text-white font-semibold"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

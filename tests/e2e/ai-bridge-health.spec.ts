@@ -30,10 +30,14 @@ test.describe("AI Bridge Health Observatory E2E", () => {
     });
     expect(seedRes.status()).toBe(200);
 
-    await page.goto("/projects/ai-bridge-health");
+    await page.goto("/projects/stateflow-ai");
+    await page.getByTestId("nav-ai-bridge-health").click();
     await expect(
       page.getByRole("heading", { name: "AI Bridge Health Observatory" }),
     ).toBeVisible();
+    await expect(page.getByTestId("env-admin-guard-status")).toHaveText(
+      /LOCAL_DEV_OPEN|ENFORCED/,
+    );
 
     await expect(page.getByTestId("kpi-total-routes")).toHaveText("8");
     await expect(page.getByTestId("route-card-stateflow:intent")).toBeVisible();

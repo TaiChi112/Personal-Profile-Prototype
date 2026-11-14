@@ -11,6 +11,7 @@ const mockSnapshot: AiBridgeHealthSnapshot = {
   environment: {
     geminiKeyConfigured: false,
     glmKeyConfigured: false,
+    adminGuardEnforced: true,
     nodeEnv: "test",
   },
   summary: {
@@ -127,12 +128,19 @@ describe("AiBridgeHealthDashboardPage", () => {
     expect(screen.getByTestId("ai-bridge-global-status").textContent).toBe(
       "DEGRADED",
     );
+    expect(screen.getByTestId("env-admin-guard-status").textContent).toBe(
+      "ENFORCED",
+    );
     expect(screen.getByTestId("kpi-open-circuits").textContent).toBe("1");
     expect(screen.getByTestId("kpi-pii-redacted").textContent).toBe("4");
     expect(screen.getByTestId("route-card-stateflow:intent")).toBeDefined();
     expect(
       screen.getByTestId("route-card-agentic-testing:intent"),
     ).toBeDefined();
+
+    fireEvent.change(screen.getByTestId("admin-token-input"), {
+      target: { value: "ops-token-123" },
+    });
 
     await act(async () => {
       fireEvent.click(
